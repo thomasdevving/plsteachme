@@ -1,6 +1,13 @@
 export const copy = {
   brand: "plsteach.me",
   mission: "Nobody should have to figure everything out alone.",
+  motion: {
+    preview: "One move at a time",
+    previous: "Previous preview step",
+    next: "Next preview step",
+    pause: "Pause lesson preview",
+    play: "Play lesson preview",
+  },
   home: {
     title: "A little help.\nA skill for life.",
     intro:
@@ -14,6 +21,52 @@ export const copy = {
     tieAlt: "A four-in-hand tie knot, with the wide end highlighted.",
     walkthrough:
       "This first version is a guided walkthrough. Camera coaching comes next.",
+  },
+  how: {
+    title: "Small steps. Real progress.",
+    intro:
+      "You don’t need to get it all at once. A lesson breaks one everyday skill into moves you can see, try, and repeat.",
+    example: "A peek inside the lesson",
+    stages: [
+      {
+        title: "See the move",
+        body: "Start with a clear illustration and a short instruction. The wide end stays terracotta, so it’s easy to follow from one move to the next.",
+        caption: "One thing to focus on.",
+        detail: "Look at the picture. Read the move. There’s no rush.",
+      },
+      {
+        title: "Give it a try",
+        body: "Pick up your tie and practice the move. When you’re ready, tap “I’m done with this step” to continue. You set the pace.",
+        caption: "Ready when you are.",
+        detail:
+          "In this walkthrough, you choose when to move on. Your knot isn’t being checked yet.",
+      },
+      {
+        title: "Make it familiar",
+        body: "Need another look? Repeat an instruction, open the demonstration notes, or go back a step. Come back for another practice whenever you like.",
+        caption: "Again is part of learning.",
+        detail:
+          "You can replay any move. There’s no penalty for needing another go.",
+      },
+    ],
+    patientTitle: "You’re allowed to be new at this.",
+    patientBody:
+      "Some things seem obvious only because somebody showed us how. If nobody showed you, this is a place to start.",
+    patientSecond:
+      "No timer to beat. No score to chase. Just clear directions, a little practice, and room to figure it out.",
+    try: "Try the tie lesson",
+    futureTitle: "Next: a coach that can see the move.",
+    futureIntro:
+      "The guided walkthrough is ready today. We’re building camera coaching next, so the app can help you check a step as you practice.",
+    cameraTitle: "A second look, when you need it",
+    cameraBody:
+      "The planned coach will use your phone camera to check each step and offer one small correction at a time. If it can’t see clearly or isn’t sure, it will ask for a better view instead of guessing.",
+    privacyTitle: "You stay in control",
+    privacyBody:
+      "The current walkthrough uses no camera or AI service. Camera coaching is planned to process live video on your device and send only a few cropped stills for each check, after you give consent.",
+    closingTitle: "Start with one small thing.",
+    closingBody:
+      "A tie, a few quiet minutes, and a little patience with yourself.",
   },
   common: {
     home: "Back to skills",

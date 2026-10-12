@@ -17,13 +17,16 @@ import {
   type SessionEvent,
 } from "@/lib/session/machine";
 import { readDraft, saveDraft } from "@/lib/session/draft";
+import { AnimatedDiagram } from "./animated-diagram";
 import { copy } from "@/lib/copy/en";
 export function SessionCoach({
   skill,
   debug,
+  graphics,
 }: {
   skill: AvailableSkill;
   debug: boolean;
+  graphics: Record<string, string>;
 }) {
   const [initial, setInitial] = useState<SessionContext | null>(null);
   useEffect(() => {
@@ -35,16 +38,25 @@ export function SessionCoach({
         {copy.session.reading}
       </div>
     );
-  return <HydratedCoach skill={skill} debug={debug} initial={initial} />;
+  return (
+    <HydratedCoach
+      skill={skill}
+      debug={debug}
+      initial={initial}
+      graphics={graphics}
+    />
+  );
 }
 
 function HydratedCoach({
   skill,
   debug,
+  graphics,
   initial,
 }: {
   skill: AvailableSkill;
   debug: boolean;
+  graphics: Record<string, string>;
   initial: SessionContext;
 }) {
   const [context, dispatch] = useReducer(
@@ -191,12 +203,11 @@ function HydratedCoach({
           <div className="diagram-header">
             <span>{copy.session.diagramLegend}</span>
           </div>
-          <img
-            key={step.id}
+          <AnimatedDiagram
+            key={`${step.id}-${repeatCount}`}
+            markup={graphics[step.id]}
             src={step.demoAsset}
-            alt={`${step.title}. ${copy.session.diagramNote}`}
-            width="420"
-            height="340"
+            label={`${step.title}. ${copy.session.diagramNote}`}
           />
           <p className="diagram-caption">{copy.session.diagramNote}</p>
           {showDemo && (
@@ -207,10 +218,18 @@ function HydratedCoach({
           )}
         </section>
         <section className="step-panel" aria-labelledby="step-title">
-          <h1 id="step-title" key={step.id} ref={stepHeadingRef} tabIndex={-1}>
+          <h1
+            className="step-heading"
+            id="step-title"
+            key={step.id}
+            ref={stepHeadingRef}
+            tabIndex={-1}
+          >
             {step.title}
           </h1>
-          <p className="instruction">{step.instruction}</p>
+          <p className="instruction" key={`instruction-${step.id}`}>
+            {step.instruction}
+          </p>
           <div
             className="session-status"
             role="status"

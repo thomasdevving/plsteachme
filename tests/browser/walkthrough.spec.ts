@@ -10,10 +10,11 @@ test("complete a seven-step lesson with buttons and no camera", async ({
   await expect(
     page.getByRole("heading", { name: copy.home.skills }),
   ).toBeVisible();
-  await expect(page.getByText(copy.home.soon, { exact: true })).toBeVisible();
+  await expect(page.locator(".coming-soon").getByText(copy.home.soon, { exact: true })).toBeVisible();
   await page.screenshot({
     path: `.impeccable/review/${testInfo.project.name}-home.png`,
     fullPage: true,
+    animations: "disabled",
   });
   expect(
     await page.evaluate(
@@ -57,6 +58,7 @@ test("complete a seven-step lesson with buttons and no camera", async ({
   await page.screenshot({
     path: `.impeccable/review/${testInfo.project.name}-session.png`,
     fullPage: true,
+    animations: "disabled",
   });
   expect(
     await page.evaluate(
@@ -117,6 +119,7 @@ test("complete a seven-step lesson with buttons and no camera", async ({
   await page.screenshot({
     path: `.impeccable/review/${testInfo.project.name}-completion.png`,
     fullPage: true,
+    animations: "disabled",
   });
   await page.getByRole("button", { name: copy.completion.again }).focus();
   await page.keyboard.press("Enter");

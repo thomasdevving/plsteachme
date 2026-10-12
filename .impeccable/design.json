@@ -46,14 +46,24 @@
     "shadows": [],
     "motion": [
       {
-        "name": "button-background",
-        "value": "background-color .18s ease-out",
-        "purpose": "Primary and secondary button hover feedback."
+        "name": "diagram-arrival",
+        "value": "650ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Crossfade lesson preview diagrams with a small horizontal transition."
+      },
+      {
+        "name": "diagram-drawing",
+        "value": "1100ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Reveal the wide end and draw torso and direction lines."
+      },
+      {
+        "name": "preview-cycle",
+        "value": "3600ms",
+        "purpose": "Automatic preview steps; paused by controls, viewport visibility and page visibility."
       },
       {
         "name": "reduced-motion",
-        "value": "animation:none!important;transition:none!important;scroll-behavior:auto!important",
-        "purpose": "Applied to all elements and pseudo-elements when prefers-reduced-motion is reduce."
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Complete static diagrams, no autoplay, manual step controls remain usable."
       }
     ],
     "breakpoints": [
@@ -133,7 +143,7 @@
       "Do use the existing SVG language and consistent tie-part colors."
     ],
     "donts": [
-      "Don't add shadows or decorative motion to the flat surface system.",
+      "Don't add shadows or motion that obscures a lesson instruction.",
       "Don't present lesson position or the completion symbol as evidence of verified skill."
     ]
   }

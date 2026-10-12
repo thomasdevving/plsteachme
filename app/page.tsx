@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { ArrowRight, Clock3, Scissors } from "lucide-react";
 import { Header } from "@/components/header";
+import { HowItWorks } from "@/components/how-it-works";
+import { SkillPreview } from "@/components/skill-preview";
+import { loadSkillGraphics } from "@/lib/skills/graphics";
 import { ResumeLesson } from "@/components/resume-lesson";
 import { loadSkills } from "@/lib/skills/loader";
 import { copy } from "@/lib/copy/en";
 export default function Home() {
   const skills = loadSkills();
+  const featured = skills.find((skill) => skill.status === "available");
   return (
     <>
       <Header />
@@ -42,18 +46,10 @@ export default function Home() {
           {skills.map((skill) =>
             skill.status === "available" ? (
               <article className="skill-card" key={skill.id}>
-                <Link
-                  href={`/skills/${skill.id}`}
-                  className="skill-art"
-                  aria-label={`${copy.home.start}: ${skill.title}`}
-                >
-                  <img
-                    src={skill.steps[skill.steps.length - 1].demoAsset}
-                    alt={skill.title}
-                    width="420"
-                    height="340"
-                  />
-                </Link>
+                <SkillPreview
+                  skill={skill}
+                  graphics={loadSkillGraphics(skill)}
+                />
                 <div className="skill-card-content">
                   <div className="metadata">
                     <span>
@@ -87,6 +83,9 @@ export default function Home() {
           )}
         </section>
       </main>
+      {featured && (
+        <HowItWorks skill={featured} graphics={loadSkillGraphics(featured)} />
+      )}
       <footer className="site-footer page-width">
         {copy.home.walkthrough}
       </footer>

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, Check, Clock3 } from "lucide-react";
+import { AnimatedDiagram } from "@/components/animated-diagram";
+import { loadSkillGraphics } from "@/lib/skills/graphics";
 import { Header } from "@/components/header";
 import { getSkill, loadSkills } from "@/lib/skills/loader";
 import { copy } from "@/lib/copy/en";
@@ -32,11 +34,10 @@ export default async function SkillIntro({
       <main className="intro-layout page-width">
         <section className="intro-overview">
           <div className="intro-art">
-            <img
+            <AnimatedDiagram
+              markup={loadSkillGraphics(skill)[skill.steps[0].id]}
               src={skill.steps[0].demoAsset}
-              width="420"
-              height="340"
-              alt={skill.steps[0].title}
+              label={skill.steps[0].title}
             />
           </div>
           <p className="metadata">

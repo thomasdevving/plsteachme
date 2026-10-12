@@ -146,7 +146,7 @@ The frontmatter records the shared display, heading, title, body, instruction an
 
 Main content is centered, capped at 1120px with 40px desktop side gutters. The header caps at 1280px. Intake uses a 620px column. Desktop home, introduction and coaching screens use two columns; at 800px and below, they stack into one column with 20px side gutters. The diagram precedes the instruction on phones. Completion actions also stack.
 
-The spacing tokens describe the recurring rhythm; individual compositions use their existing gaps. Illustration areas contain the full SVG rather than cropping it. Coaching illustrations are 380px tall on desktop and 270px on phones.
+The spacing tokens describe the recurring rhythm; individual compositions use their existing gaps. Illustration areas contain the full SVG rather than cropping it. Coaching illustrations are 380px tall on desktop and 270px on phones. The longer home page includes an interactive three-stage lesson explanation, a quiet encouragement section, a clearly labeled future-camera section and a closing lesson link.
 
 ## Elevation & Depth
 
@@ -162,7 +162,7 @@ Surfaces use softly curved corners, with tighter rounding on controls. Radio ind
 
 Primary buttons use the warm accent with cream text; secondary buttons are transparent with a thin neutral border. Buttons have a minimum height of 56px; quiet navigation controls have a minimum height of 48px. Primary hover darkens the fill, secondary hover adds a pale wash, and quiet-link hover uses the accent. Disabled primary buttons use muted colors; disabled secondary buttons use half opacity.
 
-Visible focus uses a 3px ink outline with a 4px offset. Button background transitions last 180ms with ease-out. Reduced-motion preference removes transitions and animations and restores automatic scrolling.
+Visible focus uses a 3px ink outline with a 4px offset. Button background transitions last 180ms with ease-out; press feedback uses a small 160ms scale change. SVG diagrams trace the torso, reveal the wide end and draw direction arrows on arrival or replay. The home preview cycles through steps every 3.6 seconds, with 650ms arrivals and 550ms departures. Pause and manual step controls are provided; continuous motion stops offscreen or when the tab is hidden. Reduced-motion preference shows complete static diagrams, preserves manual navigation and removes spatial transitions.
 
 ### Cards and answer choices
 
@@ -179,5 +179,5 @@ Tie diagrams share an unmirrored front view, light contextual outlines and the t
 - **Do** retain the off-white, deep-ink and warm-accent palette.
 - **Do** keep the 18px body and 22px instruction sizes, generous controls and visible keyboard focus.
 - **Do** use the existing SVG language and consistent tie-part colors.
-- **Don't** add shadows or decorative motion to the flat surface system.
+- **Don't** add shadows or motion that obscures a lesson instruction.
 - **Don't** present lesson position or the completion symbol as evidence of verified skill.

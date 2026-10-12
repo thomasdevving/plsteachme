@@ -36,6 +36,8 @@ The production build validates every skill and illustration before compiling. Th
 
 The temporary draft and intake answers use `sessionStorage`. They last for the browser tab and are removed when the lesson completes. If storage is blocked, the lesson still works in memory. Durable progress and IndexedDB are planned for Phase 4. Completing a walkthrough never stores a verified outcome.
 
+The homepage includes a seven-step animated preview with pause and manual controls, plus an interactive explanation of the lesson flow. Preview loops pause offscreen and in hidden tabs. Reduced-motion settings show complete static diagrams and retain manual navigation. Lesson drawings animate on arrival and replay.
+
 Append `?debug=1` to `/session/tie-four-in-hand` to inspect reducer state and step records. This is an early state inspector, not the full evaluation mode.
 
 ## Browser checks

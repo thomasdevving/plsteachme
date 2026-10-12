@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
+import { loadSkillGraphics } from "@/lib/skills/graphics";
 import { SessionCoach } from "@/components/session-coach";
 import { getSkill } from "@/lib/skills/loader";
 import { copy } from "@/lib/copy/en";
@@ -16,7 +17,11 @@ export default async function Session({
   return (
     <>
       <Header backHref="/" backLabel={copy.session.exit} />
-      <SessionCoach skill={skill} debug={query.debug === "1"} />
+      <SessionCoach
+        skill={skill}
+        graphics={loadSkillGraphics(skill)}
+        debug={query.debug === "1"}
+      />
     </>
   );
 }

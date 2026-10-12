@@ -2,8 +2,8 @@
 <title id="title">Down through the front</title><desc id="desc">Front view, unmirrored. The wide end is terracotta. Your right appears on the left of this drawing.</desc>
 <defs><marker id="tip" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#7b442f" stroke-width="1.5"/></marker></defs>
 <style>.arrow{fill:none;stroke:#7b442f;stroke-width:2.5;stroke-linecap:round;marker-end:url(#tip)}</style>
-<path d="M161 40 L162 71 Q130 86 88 105 Q65 116 60 151 L47 319 M258 40 L257 71 Q291 86 331 105 Q355 116 361 151 L374 319" fill="none" stroke="#a5ab9b" stroke-width="3" stroke-linecap="round"/>
-<path d="M162 71 L139 92 L166 126 L192 91 M257 71 L279 92 L253 126 L226 91 M162 71 Q207 98 257 71" fill="none" stroke="#a5ab9b" stroke-width="3" stroke-linejoin="round"/>
+<path d="M161 40 L162 71 Q130 86 88 105 Q65 116 60 151 L47 319 M258 40 L257 71 Q291 86 331 105 Q355 116 361 151 L374 319" fill="none" class="torso-line" stroke="#a5ab9b" stroke-width="3" stroke-linecap="round"/>
+<path d="M162 71 L139 92 L166 126 L192 91 M257 71 L279 92 L253 126 L226 91 M162 71 Q207 98 257 71" fill="none" class="torso-line" stroke="#a5ab9b" stroke-width="3" stroke-linejoin="round"/>
 <path d="M209 161 L209 316" stroke="#dadbce" stroke-width="2" stroke-dasharray="3 7"/>
-<path d="M207 123 L214 263 L229 279 L240 262 L232 125" fill="#ded5c3" stroke="#333c35"/><path d="M198 88 L222 85 L246 263 L223 289 L201 265 L207 152" fill="#b74f32"/><path d="M177 135 Q211 125 245 135 L242 163 Q208 151 181 164 Z" fill="#b74f32" stroke="#7f3524"/><path d="M261 178 L261 239" class="arrow"/>
+<path d="M207 123 L214 263 L229 279 L240 262 L232 125" class="tie-narrow" fill="#ded5c3" stroke="#333c35"/><path d="M198 88 L222 85 L246 263 L223 289 L201 265 L207 152" class="tie-wide" fill="#b74f32"/><path d="M177 135 Q211 125 245 135 L242 163 Q208 151 181 164 Z" class="tie-wide" fill="#b74f32" stroke="#7f3524"/><path d="M261 178 L261 239" class="arrow"/>
 </svg>
