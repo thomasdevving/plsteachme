@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 340" role="img" aria-labelledby="title desc">
+<title id="title">Up through the loop</title><desc id="desc">Front view, unmirrored. The wide end is terracotta. Your right appears on the left of this drawing.</desc>
+<defs><marker id="tip" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#7b442f" stroke-width="1.5"/></marker></defs>
+<style>.arrow{fill:none;stroke:#7b442f;stroke-width:2.5;stroke-linecap:round;marker-end:url(#tip)}</style>
+<path d="M161 40 L162 71 Q130 86 88 105 Q65 116 60 151 L47 319 M258 40 L257 71 Q291 86 331 105 Q355 116 361 151 L374 319" fill="none" stroke="#a5ab9b" stroke-width="3" stroke-linecap="round"/>
+<path d="M162 71 L139 92 L166 126 L192 91 M257 71 L279 92 L253 126 L226 91 M162 71 Q207 98 257 71" fill="none" stroke="#a5ab9b" stroke-width="3" stroke-linejoin="round"/>
+<path d="M209 161 L209 316" stroke="#dadbce" stroke-width="2" stroke-dasharray="3 7"/>
+<path d="M205 126 L214 263 L229 279 L240 262 L231 126" fill="#ded5c3" stroke="#333c35"/><path d="M176 135 Q210 124 245 135 L245 159 Q208 149 177 162 Z" fill="#b74f32"/><path d="M238 132 Q272 101 248 59 L223 40 L208 65 Q239 89 217 131" fill="#b74f32"/><path d="M276 128 Q291 77 259 47" class="arrow"/>
+</svg>

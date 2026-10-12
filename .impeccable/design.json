@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-12T23:33:26Z",
+  "title": "Design System: plsteach.me",
+  "extensions": {
+    "colorMeta": {
+      "accent": {
+        "role": "primary",
+        "displayName": "Warm action accent"
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm paper"
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep green ink"
+      },
+      "soft": {
+        "role": "neutral",
+        "displayName": "Quiet sage surface"
+      },
+      "wide-end": {
+        "role": "primary",
+        "displayName": "Terracotta wide end"
+      },
+      "narrow-end": {
+        "role": "neutral",
+        "displayName": "Pale narrow end"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Handbook heading",
+        "purpose": "Lora headings; self-hosted with weights 400 and 500."
+      },
+      "body": {
+        "displayName": "Interface body",
+        "purpose": "DM Sans interface; self-hosted with weights 400, 500, 600 and 700."
+      },
+      "instruction": {
+        "displayName": "Lesson instruction",
+        "purpose": "Main step action, retaining 22px type on phones; mobile line height is 1.55."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "button-background",
+        "value": "background-color .18s ease-out",
+        "purpose": "Primary and secondary button hover feedback."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation:none!important;transition:none!important;scroll-behavior:auto!important",
+        "purpose": "Applied to all elements and pseudo-elements when prefers-reduced-motion is reduce."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "single-column",
+        "value": "800px",
+        "purpose": "At this width and below, major layouts stack and side gutters become 20px."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main next action; minimum height 56px, visible keyboard focus and disabled state.",
+      "html": "<button class=\"ds-button ds-primary\">Start learning</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color .18s ease-out}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-primary{background:var(--accent,#a84228);color:#fffaf3}.ds-primary:hover{background:#90381f}.ds-primary:disabled{background:#e0d8cb;color:#697064}"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting lesson action with an outlined surface.",
+      "html": "<button class=\"ds-button ds-secondary\">Repeat that</button>",
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color .18s ease-out}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-secondary{background:transparent;border-color:#c8cfc1;color:var(--ink,#26392f)}.ds-secondary:hover{background:#e7eadf}.ds-secondary:disabled{opacity:.5}"
+    },
+    {
+      "name": "Answer choice",
+      "kind": "input",
+      "refersTo": "answer-option",
+      "description": "Radio choice; minimum height 68px. Selection fills its indicator and keyboard focus outlines the label.",
+      "html": "<label class=\"ds-answer\"><input type=\"radio\" name=\"ds-answer\" value=\"first\"/><span>It is my first time</span><span class=\"ds-indicator\"><svg class=\"ds-check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m20 6-11 11-5-5\"/></svg></span></label>",
+      "css": ".ds-answer{position:relative;display:flex;align-items:center;gap:12px;min-height:68px;padding:17px 20px;border:1px solid #c8cfc1;border-radius:10px;cursor:pointer;font:18px/1.6 \"DM Sans\",sans-serif;color:var(--ink,#26392f)}.ds-answer input{position:absolute;width:1px;height:1px;opacity:0}.ds-indicator{margin-left:auto;width:24px;height:24px;border:1px solid #9da691;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}.ds-check{display:none}.ds-answer:has(:checked){border-color:var(--accent,#a84228);background:#f4e7dc}.ds-answer:has(:checked) .ds-indicator{background:var(--accent,#a84228);border-color:var(--accent,#a84228);color:white}.ds-answer:has(:checked) .ds-check{display:block}.ds-answer:has(:focus-visible){outline:3px solid var(--ink,#26392f);outline-offset:4px}"
+    },
+    {
+      "name": "Quiet back link",
+      "kind": "nav",
+      "description": "Low-emphasis navigation with a 48px minimum height.",
+      "html": "<a class=\"ds-quiet\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 19-7-7 7-7M5 12h14\"/></svg>Back</a>",
+      "css": ".ds-quiet{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;min-height:48px;background:none;border:0;padding:0 4px;font:16px/1.6 \"DM Sans\",sans-serif;color:var(--ink,#26392f)}.ds-quiet:hover{color:var(--accent,#a84228)}.ds-quiet:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}"
+    },
+    {
+      "name": "Skill card content",
+      "kind": "card",
+      "refersTo": "skill-card",
+      "description": "Cream bordered skill surface; this preview shows its content area.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-card-content\"><h3>Tie a tie</h3><p>A patient, seven-step walkthrough.</p></div></article>",
+      "css": ".ds-card{background:#fffdf8;border:1px solid var(--line,#d9ddd1);border-radius:16px;overflow:hidden;color:var(--ink,#26392f);font:18px/1.6 \"DM Sans\",sans-serif}.ds-card-content{padding:25px 28px 28px}.ds-card h3{margin:0;font-size:25px;line-height:1.3;font-weight:500;letter-spacing:-.025em}.ds-card p{margin:10px 0 0;font-size:17px;color:var(--muted,#5d675e)}@media(max-width:800px){.ds-card-content{padding:22px}.ds-card h3{font-size:24px}}"
+    },
+    {
+      "name": "Lesson trail",
+      "kind": "custom",
+      "description": "Seven segments convey lesson position, without claiming verified correctness.",
+      "html": "<ol class=\"ds-trail\" aria-label=\"Step 2 of 7\"><li class=\"ds-visited\"><span class=\"ds-hidden\">Step 1</span></li><li class=\"ds-current\" aria-current=\"step\"><span class=\"ds-hidden\">Step 2</span></li><li><span class=\"ds-hidden\">Step 3</span></li><li><span class=\"ds-hidden\">Step 4</span></li><li><span class=\"ds-hidden\">Step 5</span></li><li><span class=\"ds-hidden\">Step 6</span></li><li><span class=\"ds-hidden\">Step 7</span></li></ol>",
+      "css": ".ds-trail{display:flex;gap:9px;list-style:none;padding:0;margin:15px 0 32px}.ds-trail li{height:4px;flex:1;background:#d6dace;border-radius:3px}.ds-trail .ds-current{background:var(--accent,#a84228)}.ds-trail .ds-visited{background:#75856b}.ds-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "An illustrated beginner's handbook",
+    "overview": "A patient, calm visual coach. Warm paper, deep green ink and a restrained warm accent frame simple tie illustrations. Open spacing and readable instructions make each next action easy to find.",
+    "keyCharacteristics": [
+      "Self-hosted serif headings paired with a clear sans serif interface.",
+      "Flat, softly rounded surfaces and visible keyboard focus.",
+      "A consistent terracotta wide end across all seven tie diagrams."
+    ],
+    "rules": [
+      {
+        "name": "The Wide-End Rule",
+        "body": "Keep the wide end terracotta and the narrow end pale in every instructional SVG; color identifies the same physical part throughout the lesson.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "Do retain the off-white, deep-ink and warm-accent palette.",
+      "Do keep the 18px body and 22px instruction sizes, generous controls and visible keyboard focus.",
+      "Do use the existing SVG language and consistent tie-part colors."
+    ],
+    "donts": [
+      "Don't add shadows or decorative motion to the flat surface system.",
+      "Don't present lesson position or the completion symbol as evidence of verified skill."
+    ]
+  }
+}
