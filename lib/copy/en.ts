@@ -22,7 +22,7 @@ export const copy = {
     footer: "No pressure. No judgment. Just a little practice.",
     tieAlt: "A four-in-hand tie knot, with the wide end highlighted.",
     walkthrough:
-      "This first version is a guided walkthrough. Camera coaching comes next.",
+      "Practice with camera guidance, or follow a watch-only walkthrough.",
   },
   modules: {
     title: "What’s your next small skill?",
@@ -57,7 +57,7 @@ export const copy = {
         body: "Pick up your tie and practice the move. When you’re ready, tap “I’m done with this step” to continue. You set the pace.",
         caption: "Ready when you are.",
         detail:
-          "In this walkthrough, you choose when to move on. Your knot isn’t being checked yet.",
+          "Use the camera for step checks, or choose when to move on in the walkthrough.",
       },
       {
         title: "Make it familiar",
@@ -73,15 +73,15 @@ export const copy = {
     patientSecond:
       "No timer to beat. No score to chase. Just clear directions, a little practice, and room to figure it out.",
     try: "Try the tie lesson",
-    futureTitle: "Next: a coach that can see the move.",
+    futureTitle: "A coach that takes a second look.",
     futureIntro:
-      "The guided walkthrough is ready today. We’re building camera coaching next, so the app can help you check a step as you practice.",
+      "Choose camera coaching for spoken guidance and step checks, or learn with the illustrated walkthrough.",
     cameraTitle: "A second look, when you need it",
     cameraBody:
-      "The planned coach will use your phone camera to check each step and offer one small correction at a time. If it can’t see clearly or isn’t sure, it will ask for a better view instead of guessing.",
+      "Camera coaching checks each step and offers one small correction at a time. Important steps need a confident check; ambiguous intermediate moves can be practiced without verification.",
     privacyTitle: "You stay in control",
     privacyBody:
-      "The current walkthrough uses no camera or AI service. Camera coaching is planned to process live video on your device and send only a few cropped stills for each check, after you give consent.",
+      "Live video is processed on your device. After you give consent, a few cropped stills go to the AI service for each check. Watch-only mode keeps the camera off.",
     closingTitle: "Start with one small thing.",
     closingBody:
       "A tie, a few quiet minutes, and a little patience with yourself.",
@@ -99,9 +99,9 @@ export const copy = {
     steps: "Here’s the path",
     start: "Let’s begin",
     note: "We’ll guide you through each move. Take as much time as you need.",
-    mode: "Button-only walkthrough",
+    mode: "Camera coaching or walkthrough",
     modeDetail:
-      "No camera or AI checks in this version. You decide when to move on.",
+      "Choose camera coaching or a watch-only walkthrough. You set the pace.",
     orientation: "Directions always mean your own right and left.",
   },
   intake: {
@@ -166,4 +166,136 @@ export const copy = {
     title: "That lesson isn’t here.",
     detail: "Let’s find a skill you can practice.",
   },
+};
+
+export const liveCopy = {
+  navMain: "Main",
+  navProgress: "Progress",
+  navSettings: "Settings",
+  connecting: "Connecting…",
+  preview: "Mirrored camera preview",
+  frameAlt: (n: number) => `Captured frame ${n}`,
+  readyCheck: "Ready",
+  adjustCheck: "Adjust",
+  chooseError: "Choose an error",
+  other: "Other",
+  loadingPractice: "Loading your practice…",
+  loadingEval: "Loading evaluations…",
+  completedCount: (n: number) =>
+    `${n} completed ${n === 1 ? "session" : "sessions"}`,
+  lastPracticed: "Last practiced",
+  mostRevisited: "Most revisited",
+  noRetries: "No retries recorded",
+  sessionModes: (mock: number, watch: number) =>
+    `${mock} simulated · ${watch} watch-only`,
+  privacyStorage:
+    "No analytics, accounts or trackers. Progress stays in this browser. Evaluation frames are saved locally only if you explicitly enable that option.",
+  includeMock: "Include simulated results",
+  allModels: "All models",
+  labeledTotal: "Labeled / total",
+  accuracy: "Accuracy",
+  falsePass: "False pass rate",
+  falseFail: "False fail rate",
+  uncertain: "Uncertain",
+  latency: "Latency p50 / p95",
+  metricsNote:
+    "False pass rate = passes on human-labeled failures / all human-labeled failures. False fail rate = failures on human-labeled passes / all human-labeled passes. Unlabeled checks are excluded from accuracy. Latency is client round trip.",
+  resultsByStep: "Results by skill and step",
+  step: "Step",
+  total: "Total",
+  labeled: "Labeled",
+  falsePasses: "False passes",
+  exportNote:
+    "JSON exports include frames only for records captured with frame saving enabled.",
+  startEval: "Start an eval session",
+  timing: (client: number, server: number) =>
+    `Round trip: ${Math.round(client)} ms · Server: ${server} ms`,
+  checksCount: (checks: number, retries: number) =>
+    `${checks} checks${retries > 0 ? ` · ${retries} retries` : ""}`,
+
+  chooseTitle: "A little guidance, your way.",
+  chooseDetail:
+    "Practice with camera feedback, or follow the pictures at your own pace.",
+  cameraStart: "Practice with camera",
+  watch: "Watch-only walkthrough",
+  mock: "Mock mode · simulated checks",
+  live: "Camera coaching",
+  privacyTitle: "Your camera. Your choice.",
+  privacy:
+    "Your live video is processed on this device for framing, light and movement. In live AI mode, when you finish a step, up to three cropped still frames go to our server and then to Anthropic to check the step. This app does not save those images on the server. Anthropic processes them under its API data policies. You can stop at any time.",
+  privacyVoice:
+    "Voice commands are optional. Your browser may send microphone audio to its speech recognition provider. You can use every feature with buttons instead.",
+  age: "If you’re under 16, practice with a parent or guardian.",
+  agree: "I understand and agree to the camera checks.",
+  start: "Start camera",
+  setupTitle: "Let’s find a good view.",
+  modelsLoading: "Preparing the camera and on-device checks…",
+  cameraError:
+    "We couldn’t start the camera. Allow camera access in your browser’s site settings, then try again. On iPhone: Settings → Apps → Safari → Camera. On Android: Chrome → Site settings → Camera. You can also use the walkthrough.",
+  modelError:
+    "The camera checks couldn’t load. Check your connection and retry, or use the walkthrough.",
+  retryCamera: "Try camera again",
+  shoulders: "Shoulders visible",
+  hands: "Both hands visible",
+  neck: "Neck area visible",
+  light: "Enough light",
+  stable: "Hold this position for a moment.",
+  alone: "Let’s keep just you in the middle of the frame.",
+  dark: "Can you turn on a light?",
+  frame: "Step back until your neck, shoulders and hands are visible.",
+  stop: "Stop camera",
+  paused: "Your lesson is paused.",
+  resume: "Resume lesson",
+  pause: "Pause",
+  ready: "Take your time. Say “done” or tap when you’re ready.",
+  looking: "Let me take a look.",
+  reposition: "Adjust your position, then try again.",
+  listen: "Enable voice commands",
+  listening: "Microphone on",
+  micOff: "Turn microphone off",
+  micFailed: "Voice commands aren’t available. Use the buttons below.",
+  ask: "Ask your coach",
+  question: "What would you like to know?",
+  askSend: "Ask",
+  asking: "Thinking…",
+  askError: "I couldn’t answer just now. Try again or replay the step.",
+  unverified: "Some steps were practiced without verification.",
+  finished: "You’ve finished your practice.",
+  mockFinished:
+    "This was a simulated session. Your knot has not been assessed.",
+  checked:
+    "The final knot passed the camera check. AI checks can make mistakes.",
+  storageError:
+    "Your browser couldn’t save this session. You can keep practicing, but progress may be lost.",
+  progress: "Your practice",
+  settings: "Privacy & settings",
+  eval: "Evaluation",
+  emptyProgress:
+    "Your first practice is waiting. Completed lessons will appear here.",
+  delete: "Delete my data",
+  deleteConfirm:
+    "Delete all saved practice, consent and evaluation records on this device?",
+  deleted: "Your local data has been deleted.",
+  deleteError:
+    "Data could not be deleted. Try again or clear this site’s data in your browser settings.",
+  evalTitle: "Check the checker.",
+  evalIntro:
+    "Label real camera results to understand where the coach needs work. Mock results are excluded from real accuracy.",
+  correct: "Verdict was correct",
+  wrong: "Verdict was wrong",
+  truth: "What actually happened?",
+  truthError: "Actual error",
+  saveLabel: "Save label",
+  savedLabel: "Label saved",
+  saveFrames: "Save frames for eval",
+  framesWarning:
+    "Off by default. Enabling this stores camera images on this device and includes them in JSON exports. Only record people who agree.",
+  exportJSON: "Export JSON",
+  exportCSV: "Export CSV",
+  emptyEval:
+    "No checks recorded yet. Start a camera session with debug mode enabled.",
+  model: "Verification model",
+  slow: "Replay slowly",
+  modeDetail:
+    "The preview is mirrored. Images sent for checks are not mirrored.",
 };

@@ -16,9 +16,12 @@ import {
   type SessionContext,
   type SessionEvent,
 } from "@/lib/session/machine";
-import { readDraft, saveDraft } from "@/lib/session/draft";
+import { restoreDraft, saveDraft } from "@/lib/session/draft";
 import { AnimatedDiagram } from "./animated-diagram";
-import { copy } from "@/lib/copy/en";
+import { LiveCoach } from "./live-coach";
+import { Consent } from "./consent";
+import { readLocal, writeLocal, completeSession } from "@/lib/storage/store";
+import { copy, liveCopy as c } from "@/lib/copy/en";
 export function SessionCoach({
   skill,
   debug,
@@ -29,8 +32,30 @@ export function SessionCoach({
   graphics: Record<string, string>;
 }) {
   const [initial, setInitial] = useState<SessionContext | null>(null);
+  const [view, setView] = useState<"choose" | "consent" | "live" | "watch">(
+    "choose",
+  );
+  const [consented, setConsented] = useState(false);
   useEffect(() => {
-    setInitial(readDraft(skill) ?? createSession());
+    let active = true;
+    void Promise.all([
+      restoreDraft(skill),
+      readLocal<boolean>("consent:v1"),
+    ]).then(([draft, consent]) => {
+      if (!active) return;
+      setInitial(draft ?? createSession());
+      setConsented(consent === true);
+      const mode = new URLSearchParams(window.location.search).get("mode");
+      if (
+        mode === "watch" ||
+        (draft?.mode === "walkthrough" && draft.stepIndex > 0)
+      )
+        setView("watch");
+      else if (draft?.mode === "live") setView(consent ? "live" : "consent");
+    });
+    return () => {
+      active = false;
+    };
   }, [skill]);
   if (!initial)
     return (
@@ -38,11 +63,68 @@ export function SessionCoach({
         {copy.session.reading}
       </div>
     );
+  const watch = (current?: SessionContext) => {
+    setInitial(
+      current
+        ? { ...current, mode: "walkthrough", state: "INSTRUCTING" }
+        : createSession(initial.intake),
+    );
+    setView("watch");
+  };
+  if (view === "choose")
+    return (
+      <main className="page-width utility-page">
+        <h1>{c.chooseTitle}</h1>
+        <p className="lead">{c.chooseDetail}</p>
+        <div className="choice-art">
+          <AnimatedDiagram
+            markup={graphics[skill.steps[0].id]}
+            src={skill.steps[0].demoAsset}
+            label={skill.title}
+          />
+        </div>
+        <div className="session-buttons">
+          <button
+            className="button primary"
+            onClick={() => setView(consented ? "live" : "consent")}
+          >
+            {c.cameraStart}
+          </button>
+          <button className="button secondary" onClick={() => watch()}>
+            {c.watch}
+          </button>
+        </div>
+        <Link href="/settings" className="quiet-link">
+          {c.settings}
+        </Link>
+      </main>
+    );
+  if (view === "consent")
+    return (
+      <Consent
+        onAgree={() => {
+          void writeLocal("consent:v1", true);
+          setConsented(true);
+          setView("live");
+        }}
+        onWatch={() => watch()}
+      />
+    );
+  if (view === "live")
+    return (
+      <LiveCoach
+        skill={skill}
+        debug={debug}
+        initial={initial}
+        graphics={graphics}
+        onExit={watch}
+      />
+    );
   return (
     <HydratedCoach
       skill={skill}
       debug={debug}
-      initial={initial}
+      initial={{ ...initial, mode: "walkthrough" }}
       graphics={graphics}
     />
   );
@@ -64,6 +146,17 @@ function HydratedCoach({
       sessionReducer(state, event, skill),
     initial,
   );
+  const sessionId = useRef("");
+  const logged = useRef(false);
+  useEffect(() => {
+    sessionId.current = crypto.randomUUID();
+  }, []);
+  useEffect(() => {
+    if (context.state === "COMPLETE" && !logged.current) {
+      logged.current = true;
+      void completeSession(sessionId.current, skill, context, false);
+    }
+  }, [context, skill]);
   const [showDemo, setShowDemo] = useState(false);
   const [repeatCount, setRepeatCount] = useState(0);
   const step = skill.steps[context.stepIndex];
@@ -149,7 +242,11 @@ function HydratedCoach({
         <div className="completion-actions">
           <button
             className="button primary"
-            onClick={() => dispatch({ type: "RESTART" })}
+            onClick={() => {
+              logged.current = false;
+              sessionId.current = crypto.randomUUID();
+              dispatch({ type: "RESTART" });
+            }}
           >
             <RotateCcw size={20} aria-hidden="true" />
             {copy.completion.again}

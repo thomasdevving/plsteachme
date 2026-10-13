@@ -3,8 +3,14 @@ export default defineConfig({
   testDir: "./tests/browser",
   fullyParallel: true,
   use: {
-    baseURL: "http://127.0.0.1:3000",
-    launchOptions: { executablePath: process.env.TEST_BROWSER_PATH },
+    baseURL: process.env.TEST_BASE_URL || "http://localhost:3000",
+    launchOptions: {
+      executablePath: process.env.TEST_BROWSER_PATH,
+      args: [
+        "--use-fake-device-for-media-stream",
+        "--use-fake-ui-for-media-stream",
+      ],
+    },
   },
   projects: [
     {

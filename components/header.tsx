@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { copy } from "@/lib/copy/en";
+import { copy, liveCopy as c } from "@/lib/copy/en";
 export function Header({
   backHref,
   backLabel = copy.common.back,
@@ -24,7 +24,10 @@ export function Header({
           {backLabel}
         </Link>
       ) : (
-        <span className="header-note">{copy.home.available}</span>
+        <nav className="header-links" aria-label={c.navMain}>
+          <Link href="/progress">{c.navProgress}</Link>
+          <Link href="/settings">{c.navSettings}</Link>
+        </nav>
       )}
     </header>
   );

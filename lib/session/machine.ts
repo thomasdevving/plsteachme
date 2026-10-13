@@ -20,7 +20,8 @@ export type Outcome =
   | "accepted_unverified"
   | "manual_override"
   | "walkthrough"
-  | "unchecked";
+  | "unchecked"
+  | "simulated";
 export type StepRecord = {
   stepId: string;
   attempts: number;
@@ -37,6 +38,7 @@ export type SessionContext = {
   failedAttempts: number;
   uncertaintyRetries: number;
   feedback: string;
+  lastVerificationMock: boolean;
   optionReason: "attempts" | "uncertain" | "api_error" | null;
   records: StepRecord[];
 };
@@ -54,7 +56,11 @@ export type SessionEvent =
         | "RESTART";
     }
   | { type: "PRECHECK_FAILED"; feedback: string }
-  | { type: "VERIFICATION_RECEIVED"; result: VerificationResult }
+  | {
+      type: "VERIFICATION_RECEIVED";
+      result: VerificationResult;
+      mock?: boolean;
+    }
   | { type: "API_ERROR" };
 
 export function createSession(
@@ -70,6 +76,7 @@ export function createSession(
     failedAttempts: 0,
     uncertaintyRetries: 0,
     feedback: "",
+    lastVerificationMock: false,
     optionReason: null,
     records: [],
   };
@@ -175,7 +182,12 @@ export function sessionReducer(
           optionReason: exhausted ? "uncertain" : null,
         };
       }
-      return { ...context, state: decision.state, feedback: decision.feedback };
+      return {
+        ...context,
+        state: decision.state,
+        feedback: decision.feedback,
+        lastVerificationMock: event.mock ?? false,
+      };
     }
     case "API_ERROR":
       return ["VERIFYING", "CAPTURING"].includes(context.state)
@@ -200,7 +212,7 @@ export function sessionReducer(
           context.state === "UNCERTAIN" && step.checkStrictness === "strict"
             ? context.uncertaintyRetries + 1
             : context.uncertaintyRetries,
-        feedback: "",
+        feedback: context.feedback,
         optionReason: null,
       };
     }
@@ -213,7 +225,12 @@ export function sessionReducer(
         ? finish(context, skill, "manual_override")
         : context;
     case "NEXT": {
-      if (context.state === "PASSED") return finish(context, skill, "verified");
+      if (context.state === "PASSED")
+        return finish(
+          context,
+          skill,
+          context.lastVerificationMock ? "simulated" : "verified",
+        );
       if (context.state === "UNCERTAIN" && step.checkStrictness === "light")
         return finish(context, skill, "accepted_unverified");
       if (context.state !== "ADVANCE") return context;

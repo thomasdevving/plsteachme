@@ -1,4 +1,13 @@
 export const SESSION_CONFIG = {
+  movementThreshold: 0.002,
+  setupStableMs: 1500,
+  frameFreshnessMs: 1000,
+  landmarkVisibility: 0.6,
+  inferenceWidth: 480,
+  inferenceIntervalMs: 67,
+  maxFrameSide: 768,
+  jpegQuality: 0.7,
+  maxFrameBytes: 300000,
   passConfidence: 0.75,
   correctionConfidence: 0.75,
   maxUncertaintyRetries: 2,
