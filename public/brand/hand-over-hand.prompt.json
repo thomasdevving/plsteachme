@@ -1,0 +1,11 @@
+{
+  "asset": "hand-over-hand.png",
+  "generator": "Built-in image generator",
+  "transparentBackground": true,
+  "palette": {
+    "largerHand": "#26392F",
+    "smallerHand": "#A84228",
+    "intendedSiteBackground": "#F7F5EE"
+  },
+  "prompt": "Use case: logo-brand. Create ONE polished, minimalist standalone symbol for plsteach.me, a kind practical-skills learning companion whose mission is 'Nobody should have to figure everything out alone.' The requested concept is HAND OVER HAND: exactly two simple line-art hands, a larger mentor's hand resting gently over and guiding a smaller learner's hand as they practice a movement together. Show the backs of both hands in a clear slightly oblique top view, oriented in the SAME direction toward the upper right, with their wrists entering from the lower left. The larger hand overlaps the smaller naturally, with enough of the smaller hand's outline and fingers visible to read instantly as two different-sized hands doing something together. The gesture must communicate patient physical guidance, companionship and learning. NOT a handshake, NOT two clasping hands, NOT praying hands, NOT a high five. Style: exceptionally clean professional vector-like monoline logo, economical flowing contours, consistent medium-bold strokes, rounded ends and joins, simplified anatomically coherent fingers, generous negative space, balanced compact silhouette that remains recognizable as a small app icon. Only two solid flat ink colors: deep green #26392F for the larger hand and warm terracotta #A84228 for the smaller hand. Designed to look good on warm off-white #F7F5EE, but output on a truly transparent background with no background tile. No text, no lettering, no slogan, no border, no circles enclosing the mark, no extra decorative symbols, no heart, no tools, no gradients, no shadows, no texture, no photorealism, no mockup. One centered symbol with comfortable transparent margins. Deliver a single finished logo, not a sheet of concepts."
+}
