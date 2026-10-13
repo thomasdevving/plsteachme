@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 340" role="img" aria-labelledby="title desc">
-<title id="title">Wrap behind</title><desc id="desc">Front view, unmirrored. The wide end is terracotta. Your right appears on the left of this drawing.</desc>
-<defs><marker id="tip" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0 0 L6 3 L0 6" fill="none" stroke="#7b442f" stroke-width="1.5"/></marker></defs>
-<style>.arrow{fill:none;stroke:#7b442f;stroke-width:2.5;stroke-linecap:round;marker-end:url(#tip)}</style>
-<path d="M161 40 L162 71 Q130 86 88 105 Q65 116 60 151 L47 319 M258 40 L257 71 Q291 86 331 105 Q355 116 361 151 L374 319" fill="none" class="torso-line" stroke="#a5ab9b" stroke-width="3" stroke-linecap="round"/>
-<path d="M162 71 L139 92 L166 126 L192 91 M257 71 L279 92 L253 126 L226 91 M162 71 Q207 98 257 71" fill="none" class="torso-line" stroke="#a5ab9b" stroke-width="3" stroke-linejoin="round"/>
-<path d="M209 161 L209 316" stroke="#dadbce" stroke-width="2" stroke-dasharray="3 7"/>
-<path d="M227 101 C265 143 215 162 179 175 L159 257 L180 281 L201 260 L208 181 C243 164 273 145 242 108" class="tie-wide" fill="#b74f32"/><path d="M204 108 L213 257 L227 272 L239 254 L230 111" class="tie-narrow" fill="#ded5c3" stroke="#333c35"/><path d="M208 111 L239 128 L230 151 L196 133 Z" class="tie-wide" fill="#b74f32"/><path d="M260 166 Q223 199 168 185" class="arrow"/>
-</svg>

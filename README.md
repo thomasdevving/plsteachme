@@ -1,92 +1,68 @@
 # plsteach.me
 
-Nobody should have to figure everything out alone.
+A warm, English-only landing and validation website for a practical-skills coach. The supplied hands logo, green/orange wordmark, interactive seven-step phone example and nine filterable skill previews lead into a waitlist and organization pilot form.
 
-A mobile-first practical-skills coach. **Phase 1 is implemented:** a complete, button-only four-in-hand tie lesson, beginner intake, seven diagrams, JSON-driven skill discovery and a tested coaching reducer. The frontend module library also previews sewing a button, folding a shirt, tying shoelaces and shaving, each clearly marked as coming soon.
-
-This version does **not** use a camera, send images, call an AI service, speak, or judge a knot. The interface labels it as a walkthrough. Completing a step means the learner chose to continue, not that the step was verified.
+This replaces the previous walkthrough website on `main`; that implementation remains in Git history at `19489f1`. The phone and module examples use illustrative text, not a live camera or AI verification. The actual coaching demo and video are optional external integrations.
 
 ## Run locally
-
-Use Node.js 22 or newer and npm.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open http://localhost:3000. No environment variables or API keys are needed for Phase 1. Fonts are bundled and served locally. There are no analytics or external font requests.
+Open http://localhost:3100. For a production server, run `npm run build` then `npm start`. No environment variables are needed for local preview. With storage unconfigured, forms validate but save no data and clearly say so.
+
+## Pages and implementation
+
+- `/`: landing, phone example, module library, waitlist and FAQ.
+- `/organizations`: pilot interest form.
+- `/demo`: demo video slot and optional coaching link.
+- `/privacy`: visible draft with outstanding business/provider details.
+- `/thanks`: honest mock acknowledgement or signup follow-up.
+- `/dev/styleguide`: development only.
+
+The public site is entirely English. Old `/en`, `/nl`, `/organisaties` and `/bedankt` links redirect to their English canonical URLs and preserve query parameters. Copy is in `messages/en.ts`; brand, routes and skill IDs are in `lib/config.ts`. Module preview content is in `lib/modules.ts`.
+
+The logo is the supplied transparent PNG at `public/brand/hands.png`. The brand colors are green `#22372c` and orange `#bb4827`; dark mode uses lighter text variants. Fonts are self-hosted. Reduced motion disables animation, and the animated coaching loop pauses offscreen and in hidden tabs.
+
+## Optional services
+
+Copy `.env.example` to `.env.local` and set only the services you use:
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Canonical production origin, without trailing slash |
+| `NEXT_PUBLIC_DEMO_APP_URL` | Actual coaching demo link |
+| `NEXT_PUBLIC_DEMO_VIDEO_URL` | Actual video URL |
+| `SUPABASE_URL` | Server-only storage URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only storage secret |
+| `CONTACT_EMAIL` | Public contact address |
+| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | Empty/off, `plausible` or `umami` |
+| `NEXT_PUBLIC_ANALYTICS_DOMAIN` | Plausible domain |
+| `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | Umami script URL |
+| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami website ID |
+| `ENABLE_CONFIRMATION_EMAIL` | Defaults to false; opt in to Resend |
+| `RESEND_API_KEY` | Server-only email secret |
+| `CONFIRMATION_EMAIL_FROM` | Verified sender with monitored replies |
+
+Public environment variables require a rebuild. Never expose the Supabase service key in a `NEXT_PUBLIC_` variable. No credentials or actual demo/video URLs are bundled.
+
+## Storage
+
+Run both SQL migrations in `supabase/migrations/` in filename order. The second extends vote support for laundry, cooking and bike care. Tables cover signups, votes, organization leads, follow-ups and an anonymous under-16 counter.
+
+RLS denies direct browser access, including INSERT. All writes pass server validation with a service-role client. Under-16 submissions discard email, free text, preferences and attribution; only the anonymous aggregate is incremented. Follow-ups use an opaque HttpOnly session cookie, never a query-provided signup ID. Mock mode logs no personal data and retains nothing.
+
+## Verification
 
 ```sh
 npm test
 npm run typecheck
 npm run build
-npm start
+npm run test:e2e
 ```
 
-The production build validates every skill and illustration before compiling. The Next.js project can be imported into Vercel using its standard Next.js settings; no services or environment variables are needed for this phase.
+Browser checks use Chromium on port 3100 and should run against `npm start` for production-only checks. They cover canonical redirects, attribution, age boundaries, mocked forms, server authorization, module/phone controls, mobile overflow, WCAG checks, dark mode and reduced motion.
 
-## Try the walkthrough
-
-1. Pick the tie lesson and review the equipment and seven steps.
-2. Answer both intake questions.
-3. Follow each diagram and instruction. Use **Repeat**, **Show me again**, **Back** and **I’m done with this step**.
-4. Leave the lesson and use **Continue your lesson** to resume in the same browser tab.
-5. Complete all seven steps, read the tips, then practice again.
-
-The temporary draft and intake answers use `sessionStorage`. They last for the browser tab and are removed when the lesson completes. If storage is blocked, the lesson still works in memory. Durable progress and IndexedDB are planned for Phase 4. Completing a walkthrough never stores a verified outcome.
-
-The homepage includes a seven-step animated preview with pause, manual controls and seven clickable headline segments. Selecting a segment jumps to that move and pauses autoplay. The module library filters by availability and links to each skill’s overview. It also includes an interactive explanation of the lesson flow. Preview loops pause offscreen and in hidden tabs. Reduced-motion settings show complete static diagrams and retain manual navigation. Lesson drawings animate on arrival and replay.
-
-Append `?debug=1` to `/session/tie-four-in-hand` to inspect reducer state and step records. This is an early state inspector, not the full evaluation mode.
-
-## Browser checks
-
-Start the production server in one terminal, then in another:
-
-```sh
-npx playwright install chromium
-npm run test:browser
-```
-
-Alternatively, set `TEST_BROWSER_PATH` to a local Chromium-compatible executable. Tests cover the complete lesson, intake selection, replay, expanded demonstration notes, back navigation, resume, restart, missing skills and malformed drafts. Viewports are 375×812, 414×896 and 1440×1000. Screenshots are local review artifacts and are ignored by Git.
-
-## Add a skill
-
-1. Create `skills/your-skill-id.json`. Its filename must match `id`. Use `skills/tie-four-in-hand.json` as the available-skill example, or `skills/shaving.json` for a coming-soon stub.
-2. Set a positive `version`, title, description, equipment, intake and camera setup. Available skills need at least one step; coming-soon skills require an empty steps array.
-3. Give each step a unique ID, plain instructions, spoken instructions, a demo asset, strictness, named local prechecks, a rubric with pass criteria, unique error IDs and corrective cues, and a positive `maxAttempts`.
-4. Put each diagram under `public/skills/your-skill-id/` and reference it as `/skills/your-skill-id/step.svg`. Paths must remain under `/skills/` and cannot contain `..`.
-5. Use `strict` for clearly observable important endpoints, `light` for ambiguous intermediate moves and `none` for manual-only steps. Write directions from the learner’s own perspective. The current tie diagrams are front views, unmirrored; the learner’s right appears on the left of the drawing.
-6. Add completion wording and practical tips. Keep corrective cues within 15 words. The walkthrough uses separate completion wording so it does not claim success without a check.
-7. Optionally add `catalog: { "previewAsset": "/skills/your-skill-id/overview.svg", "outline": ["First move", "Next move"] }`. The library uses this illustration and coming-soon overview automatically. These assets are validated at build/load time, too.
-8. Run `npm run validate:skills`, `npm test` and `npm run build`. JSON files are discovered automatically; no registry or component changes are needed.
-
-`lib/skills/schema.ts` is the schema authority. Shared interface copy is in `lib/copy/en.ts`; lesson-specific language stays in the skill definitions so adding skills needs no application code.
-
-## Coaching engine
-
-`lib/session/machine.ts` is a pure reducer. `lib/session/decision.ts` handles confidence and strictness, and `lib/session/config.ts` holds thresholds. These paths are tested now so camera and API work can plug into explicit events later.
-
-```text
-INSTRUCTING → PRACTICING → CAPTURING → VERIFYING
-                                 ↘ REPOSITION
-VERIFYING → PASSED / CORRECTING / REPOSITION / UNCERTAIN
-PASSED → ADVANCE → next INSTRUCTING / COMPLETE
-CORRECTING → PRACTICING, or OPTIONS at the attempt limit
-UNCERTAIN → retry twice for strict steps, then OPTIONS
-UNCERTAIN → ADVANCE for light steps, recorded as unverified
-OPTIONS → replay / retry / manual continue (recorded as override)
-```
-
-The UI runs in walkthrough mode: **Done** goes directly from practicing to advance, with a `walkthrough` record. It does not fabricate capture, verification or model verdicts. Unit tests exercise the future live paths with synthetic events.
-
-## Remaining phases
-
-- Phase 2: camera setup, MediaPipe, lighting, stillness, ROI and frame capture.
-- Phase 3: Claude verification, mock verifier, speech output and voice commands. Model identifiers and image-input formats must be checked against official documentation before implementation.
-- Phase 4: Q&A, durable progress, full completion summaries, consent and delete-data settings.
-- Phase 5: labeled evaluation records, metrics, model comparison and JSON/CSV export.
-- Phase 6: physical-device performance, camera/API edge cases, HTTPS phone testing and final documentation.
-
-No claim of camera accuracy, real-phone performance or model accuracy has been made or tested in Phase 1.
+For a migrated test Supabase project, `npm run verify:rls` verifies direct anon access is denied. Live storage, email and deployed performance require configured services; local mock tests do not verify those integrations. Historic planning documents in `docs/` describe earlier iterations; `docs/VERIFICATION.md` records this revision's checks.

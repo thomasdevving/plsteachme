@@ -1,185 +1,288 @@
 ---
 name: plsteach.me
-description: A calm, illustrated companion for learning practical skills.
+description: Patient practical coaching on warm paper, in ink and terracotta.
 colors:
-  paper: "#f7f5ee"
-  ink: "#26392f"
-  accent: "#a84228"
-  accent-hover: "#90381f"
-  muted: "#5d675e"
-  line: "#d9ddd1"
-  soft: "#eceee3"
-  card: "#fffdf8"
-  on-accent: "#fffaf3"
-  control-border: "#c8cfc1"
-  secondary-hover: "#e7eadf"
-  selected: "#f4e7dc"
-  disabled-bg: "#e0d8cb"
-  disabled-text: "#697064"
-  badge-bg: "#e9ebdf"
-  badge-text: "#4d594a"
-  trail-remaining: "#d6dace"
-  trail-visited: "#75856b"
-  wide-end: "#b74f32"
-  narrow-end: "#ded5c3"
-  diagram-outline: "#333c35"
-  diagram-context: "#a5ab9b"
-  diagram-arrow: "#7b442f"
+  paper: "#faf7f2"
+  ink: "#22372c"
+  accent: "#bb4827"
+  accent-hover: "#97381e"
+  soft: "#edeee5"
+  surface: "#fffdf9"
+  line: "#d9dcd1"
+  muted: "#5e685e"
+  tint: "#f0ded0"
+  on-accent: "#fffaf4"
+  focus: "#26392f"
+  dark-paper: "#1e2621"
+  dark-ink: "#f4f0e6"
+  dark-accent: "#efa384"
+  dark-accent-hover: "#f5b79f"
+  dark-soft: "#29342c"
+  dark-surface: "#243028"
+  dark-line: "#48564b"
+  dark-muted: "#bdc7ba"
+  dark-tint: "#44362e"
+  dark-on-accent: "#241f1a"
+  dark-focus: "#e9a086"
+  brand-green: "#22372c"
+  brand-orange: "#bb4827"
+  brand-text-green: "#22372c"
+  brand-text-orange: "#bb4827"
+  dark-brand-text-green: "#bdd1bd"
+  dark-brand-text-orange: "#efa384"
+  problem-ink: "#faf7f2"
+  problem-muted: "#d9e2d5"
+  problem-accent: "#f4a27f"
+  problem-line: "#5d7464"
+  illustration-ink: "#26392f"
+  illustration-accent: "#a84228"
 typography:
   display:
     fontFamily: "Lora, Georgia, serif"
-    fontSize: "clamp(2.6rem, 5vw, 4.4rem)"
+    fontSize: "clamp(2.85rem, 5.45vw, 5.4rem)"
     fontWeight: 400
-    lineHeight: 1.13
+    lineHeight: 1.12
     letterSpacing: "-0.035em"
   headline:
-    fontFamily: "DM Sans, sans-serif"
-    fontSize: "21px"
-    fontWeight: 600
-    lineHeight: 1.35
-    letterSpacing: "-0.02em"
+    fontFamily: "Lora, Georgia, serif"
+    fontSize: "clamp(2rem, 3.4vw, 3.3rem)"
+    fontWeight: 400
+    lineHeight: 1.12
+    letterSpacing: "-0.035em"
   title:
     fontFamily: "DM Sans, sans-serif"
-    fontSize: "25px"
-    fontWeight: 500
+    fontSize: "1.2rem"
+    fontWeight: 600
     lineHeight: 1.3
-    letterSpacing: "-0.025em"
+    letterSpacing: "-0.02em"
   body:
     fontFamily: "DM Sans, sans-serif"
-    fontSize: "18px"
-    fontWeight: 400
-    lineHeight: 1.6
-  instruction:
-    fontFamily: "DM Sans, sans-serif"
-    fontSize: "22px"
+    fontSize: "17px"
     fontWeight: 400
     lineHeight: 1.65
   label:
     fontFamily: "DM Sans, sans-serif"
-    fontSize: "17px"
-    fontWeight: 500
-    lineHeight: 1.45
+    fontSize: "0.9rem"
+    fontWeight: 600
+  small:
+    fontFamily: "DM Sans, sans-serif"
+    fontSize: "0.82rem"
+    lineHeight: 1.6
 rounded:
-  control: "10px"
-  surface: "16px"
-  badge: "30px"
-  trail: "3px"
+  control: "7px"
+  logo-tile: "8px"
+  feedback: "12px"
+  card: "14px"
+  video: "16px"
+  phone: "38px"
+  pill: "50px"
 spacing:
-  compact: "12px"
-  small: "16px"
-  medium: "24px"
-  large: "32px"
-  section: "48px"
-  page: "64px"
+  logo-padding: "3px"
+  tight: "8px"
+  small: "12px"
+  item: "16px"
+  medium: "20px"
+  card: "24px"
+  large: "30px"
+  stack: "35px"
+  mobile-section: "60px"
+  tablet-section: "75px"
+  desktop-section: "100px"
 components:
   button-primary:
     backgroundColor: "{colors.accent}"
     textColor: "{colors.on-accent}"
-    typography: "{typography.label}"
     rounded: "{rounded.control}"
-    padding: "12px 22px"
+    padding: "13px 22px"
   button-primary-hover:
     backgroundColor: "{colors.accent-hover}"
-  button-primary-disabled:
-    backgroundColor: "{colors.disabled-bg}"
-    textColor: "{colors.disabled-text}"
   button-secondary:
     backgroundColor: "transparent"
     textColor: "{colors.ink}"
-    typography: "{typography.label}"
     rounded: "{rounded.control}"
-    padding: "12px 22px"
+    padding: "13px 22px"
   button-secondary-hover:
-    backgroundColor: "{colors.secondary-hover}"
-  skill-card:
-    backgroundColor: "{colors.card}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.surface}"
-  answer-option:
+    backgroundColor: "{colors.soft}"
+  field:
+    backgroundColor: "{colors.surface}"
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    padding: "17px 20px"
-  answer-option-selected:
-    backgroundColor: "{colors.selected}"
-  badge:
-    backgroundColor: "{colors.badge-bg}"
-    textColor: "{colors.badge-text}"
-    rounded: "{rounded.badge}"
-    padding: "5px 10px"
+    padding: "12px 14px"
+  chip:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+    padding: "9px 14px"
+  chip-selected:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
+  card:
+    backgroundColor: "{colors.soft}"
+    rounded: "{rounded.card}"
+    padding: "{spacing.card}"
+  navigation:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    height: "94px"
+  module-filter:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "8px 13px"
+  module-filter-selected:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
+  module-preview:
+    backgroundColor: "{colors.soft}"
+    rounded: "{rounded.card}"
+    padding: "40px"
+  coach-control:
+    backgroundColor: "{colors.surface}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.control}"
+    padding: "8px 14px"
+  status-pill:
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+    padding: "5px 9px"
 ---
 
 # Design System: plsteach.me
 
 ## Overview
 
-**Creative North Star: "An illustrated beginner's handbook"**
+**Creative North Star: "A calm lesson companion"**
 
-A patient, calm visual coach. Warm paper, deep green ink and a restrained warm accent frame simple tie illustrations. Open spacing and readable instructions make each next action easy to find.
+Warm paper, deep green and orange give practical learning a patient, human setting. Lora carries the mission and larger headings; DM Sans keeps navigation, explanations and controls clear. Flat color bands, fine line illustrations and generous space retain the established handbook character.
+
+The supplied two-hands mark anchors the current identity. The wordmark pairs green “plsteach” with orange “.me,” and the second hero phrase repeats that orange. This is an English-only website with root-level canonical URLs. Its phone is a controllable coaching example, and the nine modules offer explicitly labelled text previews; neither implies a live camera or AI feedback session.
 
 **Key Characteristics:**
-
-- Self-hosted serif headings paired with a clear sans serif interface.
-- Flat, softly rounded surfaces and visible keyboard focus.
-- A consistent terracotta wide end across all seven tie diagrams.
-
-Implementation references: [styles](app/globals.css), [font setup](app/layout.tsx), [components](components/) and [tie illustrations](public/skills/tie/).
+- Supplied hands mark with a green/orange wordmark.
+- Warm paper, a strong green story band and quiet flat surfaces.
+- Serif mission phrases paired with readable sans-serif interaction.
+- Seven-step sample coaching and nine filterable text-preview modules.
+- Visible keyboard focus, reduced motion and theme-aware interface colors.
 
 ## Colors
 
+The frontmatter records the final active palette after the full CSS cascade. Unprefixed interface tokens describe light mode; `dark-` entries record their dark counterparts. `brand-green` and `brand-orange` remain fixed brand primitives in both themes. In CSS, light `ink`/`accent` and wordmark colors alias those brand primitives; the frontmatter resolves those aliases to their actual colors.
+
 ### Primary
 
-The warm accent identifies primary actions, current lesson position and selected answers. Its darker hover state signals interaction. Terracotta identifies the tie's wide end; it is a separate illustration color from the interface accent.
+Brand green carries the main wordmark, phone casing and story-band background. Brand orange carries “.me,” the second hero phrase and completed phone progress. Theme-aware `accent` marks primary actions and illustrations, with `accent-hover` and `on-accent` supplying action states. `brand-text-green`/`brand-text-orange` brighten for dark backgrounds. `tint` supplies a warm supporting surface.
 
 ### Neutral
 
-Paper is the page background; ink carries primary text. Muted ink supports notes and metadata. Soft sage holds illustrations, cream holds the skill card, and pale borders separate content without heavy framing. Selected answers use a warm wash. Badges and visited trail segments use subdued sage tones.
+`paper` is the page canvas, `ink` the principal text, `surface` the lightest field/card surface, and `soft` the quiet section and footer background. `line` separates content; `muted` carries supporting copy. `focus` remains the independently defined keyboard-outline color rather than an alias of brand green.
 
-**The Wide-End Rule.** Keep the wide end terracotta and the narrow end pale in every instructional SVG; color identifies the same physical part throughout the lesson.
+The story band locally overrides ink, muted, accent and line with the `problem-` palette on fixed brand green. The illustrative phone interior and demo poster retain fixed light colors, including the documented `illustration-ink` and `illustration-accent`; some inherited drawing strokes remain terracotta. These are contained examples. Interface surfaces follow system dark mode or scoped `data-theme="light"` / `data-theme="dark"` overrides.
+
+**The Semantic Surface Rule.** Use runtime theme variables for interface surfaces and text; preserve the explicit story-band palette and fixed light illustration interior.
 
 ## Typography
 
-Lora is self-hosted for major headings and intake questions; DM Sans is self-hosted for interface text. Loaded weights are Lora 400/500 and DM Sans 400/500/600/700.
+**Display Font:** self-hosted Lora, with Georgia/serif CSS fallbacks.
+**Body Font:** self-hosted DM Sans, with sans-serif fallback.
 
-The frontmatter records the shared display, heading, title, body, instruction and button-label roles. Page-specific headings use smaller fixed sizes: lesson headings are 38px on desktop and 33px on phones; intro and intake headings are 42px and 35px respectively. The home heading becomes 45px on phones. Instructions keep their 22px size, with line height reduced to 1.55 on phones. Supporting metadata uses 12–17px; keep it secondary to the instruction.
+Lora supplies balanced, tightly tracked mission headlines and personal notes. DM Sans supplies body text, the header wordmark, controls and section subheads. The frontmatter captures the default desktop hierarchy; individual surfaces and responsive rules provide local adjustments.
+
+- The hero has a short mission eyebrow, two block-level phrases (“A little help.” / “A skill for life.”), and one support sentence. The second phrase uses the orange brand-text token. There is no narrow character limit on the final hero heading.
+- The eyebrow is 0.84rem/1.6; the hero support is 1.22rem/1.6 with a 37ch measure.
+- Card titles are semibold sans-serif. Preview module titles use regular Lora at 1.8rem, reducing to 1.5rem on phones; preview lesson copy is Lora at 1.4rem/1.45, reducing to 1.25rem.
+- Default body copy is 17px, reducing to 16px on phones. Paragraph measures stop at 70ch; section support copy stops at 58ch.
+- The header wordmark is sans-serif, with -0.035em tracking. The oversized footer retains a serif treatment on its two colored wordmark spans; those spans inherit a 1.3em local scale.
+
+`next/font/local` exposes `--font-lora` and `--font-body`. Both use `display: optional`, avoiding a late swap. Only Lora is preloaded, with an adjusted Times New Roman fallback. DM Sans has separate regular and semibold resources without priority preload. A slow initial render can retain the fallback for that navigation.
+
+**The Two Voices Rule.** Use Lora for mission, major headings and personal notes; use DM Sans for explanations and interaction.
 
 ## Layout
 
-Main content is centered, capped at 1120px with 40px desktop side gutters. The header caps at 1280px. Intake uses a 620px column. Desktop home, introduction and coaching screens use two columns; at 800px and below, they stack into one column with 20px side gutters. The diagram precedes the instruction on phones. Completion actions also stack.
+The desktop container is capped at 1180px with 80px total nominal gutters. At 1280px it is 1180px wide, inset 50px. The hero uses a 1.2fr/1fr grid with a 55px gap and minimum 610px row. Its headline computes to about 69.8px there. The 94px header presents the hands mark, wordmark, section links and compact signup action; there is no language switch.
 
-The spacing tokens describe the recurring rhythm; individual compositions use their existing gaps. Illustration areas contain the full SVG rather than cropping it. Coaching illustrations are 380px tall on desktop and 270px on phones. The longer home page includes an interactive three-stage lesson explanation, a quiet encouragement section, a clearly labeled future-camera section and a closing lesson link.
+Default sections use the desktop spacing token vertically. Story, demo, mentor, signup and FAQ use paired columns. Steps use four columns; the nine modules use three. A wrapping filter toolbar sits above the module grid. A selected text preview appears below that grid in a 0.75fr/1.25fr panel with a 60px gap and 40px padding. Alternating paper, soft, tint and the deep green story band establish page rhythm. The footer returns to soft fill.
+
+At 1050px and below the container has 24px side gutters and major gaps reduce. At 800px and below the section links disappear, section rhythm uses the tablet token, and steps/modules become two columns. Preview padding reduces to 30px with a 30px gap; organization form rows stack.
+
+At 375px the container is 335px wide with 20px gutters. The header is sticky with a 76px row, a 40px hands mark, a 1.15rem wordmark and visible compact signup. Hero, story, demo, mentor, waitlist, FAQ and module preview stack. The hero headline is 44.8px, with two explicit phrase blocks; the phone is 245px wide. Steps and module cards remain two columns. Filters wrap; the five coaching-loop positions remain one compact row. Preview padding is 25px/22px, its gap 28px. Form fields use 16px text and wrapped chips; ornamental waitlist art disappears. The demo explanation precedes its poster.
+
+At 1500px and above the hero row grows to 670px and its visual scales to 1.08. The same content order remains intact.
 
 ## Elevation & Depth
 
-No shadows. Tonal surfaces, thin borders and whitespace create separation. Keep focus outlines distinct from surface borders.
+Interface cards, module previews and section bands are flat. Borders, tonal shifts and spacing carry hierarchy. Only the phone and correction bubble use ambient shadows: `12px 24px 45px #26392f24` for the phone, `0 8px 30px #26392f1a` for the correction. The phone rests at 3 degrees; feedback rests at -6 degrees. Controls and caption counter-rotate to remain level.
+
+The interactive figure reserves 93px below its phone for controls and caption. Its correction sits above the phone at top -24px/left -45px on desktop, changing to top -20px/left -25px at widths up to 800px, with bottom set to auto. This final placement keeps feedback clear of instructions and supersedes earlier bottom-based offsets.
+
+**The Flat Interface Rule.** Keep controls, cards and content bands shadowless; reserve ambient lift for the coaching illustration.
 
 ## Shapes
 
-Surfaces use softly curved corners, with tighter rounding on controls. Radio indicators, step numbers and the completion symbol are circular. Progress segments are slim rounded bars. Icons and instructional diagrams use simple SVG line art; avoid photographic substitutes for the lesson diagrams.
+Controls and module filters use gently rounded 7px corners, while cards and the expanded preview use 14px corners. Interest chips and status badges have pill silhouettes. The phone has pronounced 38px casing corners and a clipped screen. Fine one-pixel borders distinguish fields, secondary buttons, filters, cards and FAQ rows. Skill drawings remain fine inline SVG linework rather than filled pictograms.
+
+The supplied `public/brand/hands.png` is the authoritative raster mark; do not redraw it. Its header box is 52px square, reducing to 40px on phones. The footer mark is 130px, then 90px at tablet width and 55px on phones. The same asset supplies browser/apple icons. Its actual pixels remain unchanged in dark mode, where a warm-paper tile with 8px corners and 3px padding keeps the green hands visible. Surrounding wordmark text adapts through the brand-text tokens.
 
 ## Components
 
-### Buttons and navigation
+### Buttons
 
-Primary buttons use the warm accent with cream text; secondary buttons are transparent with a thin neutral border. Buttons have a minimum height of 56px; quiet navigation controls have a minimum height of 48px. Primary hover darkens the fill, secondary hover adds a pale wash, and quiet-link hover uses the accent. Disabled primary buttons use muted colors; disabled secondary buttons use half opacity.
+Primary buttons use accent/on-accent; secondary buttons use transparent fill, ink text and a line border. Both use semibold text, a 52px minimum height and the control radius. Compact variants have a 44px minimum height with 10px/17px padding. The mobile header signup is a 43px exception; mobile hero actions use 50px. Disabled controls reduce opacity to 0.65.
 
-Visible focus uses a 3px ink outline with a 4px offset. Button background transitions last 180ms with ease-out; press feedback uses a small 160ms scale change. SVG diagrams trace the torso, reveal the wide end and draw direction arrows on arrival or replay. The home preview cycles through steps every 3.6 seconds, with 650ms arrivals and 550ms departures. Pause and manual step controls are provided; continuous motion stops offscreen or when the tab is hidden. Reduced-motion preference shows complete static diagrams, preserves manual navigation and removes spatial transitions.
+Hover changes the primary fill to accent-hover and secondary fill to soft. Shared color/opacity transitions use 0.2s ease. Button arrows move 3px right on hover with the entrance easing; reduced motion removes that movement. Keyboard focus uses a 3px focus-token outline with 4px offset.
 
-### Cards and answer choices
+### Cards / Containers
 
-The skill card has a thin border, a sage illustration area and cream content. Content padding is 25px 28px 28px on desktop and 22px on phones. Answer choices are full-width radio labels with a minimum height of 68px. Selection adds a warm wash, accent border and filled circular check indicator. Focus on the radio outlines the whole choice.
+Base cards use soft fill with the card padding token. Module cards use surface fill, line borders and clipped art; the tie module is featured with soft fill and warm tint art. Every third sequence's second card also uses tint art. Art is 140px high on desktop and 105px on phones. Content padding reduces from 25px to 16px/13px on phones. A category label sits in the art panel and uses ink, including on warm tint. Mentor-symbol text and the mentor closing note also use ink for readable contrast, while retaining their serif treatment. Hover moves its SVG up 4px and rotates it -4 degrees; reduced motion leaves it still.
 
-### Lesson trail and diagrams
+### Inputs / Fields
 
-On the home page, seven segments are real buttons with 48px touch targets, descriptive step labels and a selected state. They control the adjacent preview, pause autoplay on selection and stay synchronized with its next/previous controls. The module library uses open illustration-and-text links with availability filters; forthcoming modules have a preview outline and no practice action.
+Fields use surface fill, line border, control radius, a 51px minimum height and 12px/14px padding. Labels sit above with an 8px gap. The text caret and error messages use accent. Focus uses the shared outline. Native validation and semantic status/alert regions accompany submission. The signup form uses a 23px gap, reducing to 22px on phones; its submit action fills the column.
 
-The seven-segment trail uses accent for the current step, sage for earlier positions and pale sage for remaining positions. It describes position, without implying verified correctness. Each segment exposes its step title to assistive technology.
+### Chips and module filters
 
-Tie diagrams share an unmirrored front view, light contextual outlines and the terracotta wide-end signature. Keep the explanatory legend and caption with the diagram.
+Form interest chips are pill-shaped real buttons with `aria-pressed`; selected chips invert to ink/paper. They have a 44px minimum height and wrap. Unselected hover strengthens the border to ink. Module filters use the control radius instead of the pill silhouette, a 44px minimum height, and inline tabular counts. The four options are All skills, Everyday, Personal care, and Make & mend. Selecting one filters the nine modules, announces the result count and closes any open preview or age gate.
+
+### Navigation
+
+The supplied hands mark precedes green “plsteach” and orange “.me.” Desktop links are quiet text with accent hover. Mobile retains the brand and signup action without a menu drawer or language control. The skip link appears on keyboard focus. Footer links sit on soft fill and use ink text; the footer repeats the original hands asset and colored wordmark.
+
+### Interactive coaching phone
+
+The phone presents seven manually controlled tie steps, initially step three. Back is disabled at the first step; Next advances, and Try again resets after the last. Instruction and illustrative feedback update together. A polite live region announces the instruction; the progress rail exposes its position through semantic progressbar values. The fixed tie drawing does not claim camera recognition. The caption explicitly says example screen, no live camera and sample feedback. Controls have 44px minimum dimensions and surface fill, with tint hover.
+
+Phone entrance takes 750ms, updated lesson copy 350ms, and feedback 500ms, using `cubic-bezier(.16,1,.3,1)`. These are finite state-change animations, not automatic step advancement.
+
+### Module text previews
+
+Nine modules cover tying a tie, shaving, beard trimming, ironing, sewing a button, drilling, laundry, cooking and bike care. Every card offers Explore preview. Selecting it opens a labelled, focusable three-step text region and scrolls it into view. The panel explicitly says “Text preview · no camera or AI feedback.” Back is disabled initially; the last next action becomes Start again. Close returns focus to the opening button. The available tie demo is a separate link; upcoming modules retain their status and interest vote.
+
+Preview entrance uses a 400ms clipped reveal; lesson/grid changes use 300ms entrance timing. There is no modal overlay. The panel uses soft fill, rounded card corners, a progress rail, a readable serif instruction and compact controls.
+
+### Coaching loop and reduced motion
+
+The five loop nodes have staggered six-second ease-out cycles, with 0.8s delay between nodes. Their animation is paused by default. An intersection observer and document-visibility listener add the active class only while the loop is in view and the tab is visible. The continuous animation therefore pauses offscreen or in a hidden tab. It communicates no essential information through motion alone.
+
+Reduced motion removes all animations/transitions, cancels card/arrow hover transforms, uses automatic page scrolling, and opens module previews with instant scrolling. Loading indicators otherwise rotate once per second.
+
+### FAQ
+
+Native details/summary rows use line separators, generous clickable summaries and a plus mark rotated 45 degrees when open. Expanded answers remain muted without elevation.
 
 ## Do's and Don'ts
 
-- **Do** retain the off-white, deep-ink and warm-accent palette.
-- **Do** keep the 18px body and 22px instruction sizes, generous controls and visible keyboard focus.
-- **Do** use the existing SVG language and consistent tie-part colors.
-- **Don't** add shadows or motion that obscures a lesson instruction.
-- **Don't** present lesson position or the completion symbol as evidence of verified skill.
+### Do:
+- **Do** preserve the supplied hands asset and the green “plsteach” / orange “.me” relationship.
+- **Do** keep the second hero phrase orange and the website interface English-only.
+- **Do** use semantic theme variables while retaining the explicit green story band and fixed illustration interior.
+- **Do** label text previews and sample coaching honestly, with visible focus and static reduced-motion content.
+- **Do** retain the compact signup action, wrapping filters and readable preview controls at 375px.
+
+### Don't:
+- **Don't** redraw the supplied hands logo or replace it with the earlier asterisk wordmark.
+- **Don't** add shadows to interface cards, fields or preview panels.
+- **Don't** turn step progress, sample feedback or module previews into camera-analysis claims.
+- **Don't** replace the established line drawings with stock photos, robots or purple gradients.
+- **Don't** animate the continuous loop when it is offscreen or the document is hidden.
+
+<!-- Evidence: refreshed only this file and .impeccable/design.json in plsteach-frontend. Scanned the full app/globals.css cascade, app/[locale]/layout.tsx, shell.tsx, landing.tsx, coach-preview.tsx, illustrations.tsx, utilities.tsx, skills.tsx, ui.tsx, forms.tsx, lib/config.ts, lib/modules.ts, lib/i18n.ts, messages/en.ts and proxy.ts. No browser/detector loop or screenshot changes. PRODUCT.md and .impeccable/direction.md now reflect the latest English-only/supplied-logo direction. The direction file's historical base palette is superseded by the final CSS brand overrides recorded here. Older CSS declarations remain in code but final brand, footer, feedback placement, dark-logo tile and ink contrast corrections are authoritative here. -->

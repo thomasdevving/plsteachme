@@ -1,30 +1,21 @@
 # Product
-
 <!-- impeccable:product-schema 1 -->
-
 ## Platform
 web
-
 ## Stack
-Next.js App Router, strict TypeScript, Tailwind CSS, Zod and Vitest. Deployable to Vercel.
-
+Next.js App Router, strict TypeScript, Tailwind, Zod, Supabase server SDK; Vercel target as explicitly requested.
 ## Users
-Beginners learning practical physical skills, including people who feel embarrassed asking for help. Used on a phone in a normal room.
-
+Young people learning practical skills; supporters; schools, youth work and employers interested in pilots. Mobile social traffic first.
 ## Product Purpose
-plsteach.me is a patient visual coach. Mission: Nobody should have to figure everything out alone.
-
+Explain plsteach.me and collect waitlist signups, skill demand, willingness to pay and pilot inquiries. Mission: Nobody should have to figure everything out alone.
 ## Capabilities and Constraints
-Phase 1 provides an explicitly unverified, button-only four-in-hand tie walkthrough. Seven steps, JSON skill definitions, intake and a tested state machine. Shaving is coming soon. Later phases add camera, verification, speech, local progress and evaluation. No accounts, database, payments or analytics.
-
+Early demo/beta. First skill: tying a tie. Future skills must be labelled coming soon. No invented proof. English-only public site. Under-16 form stores no personal data, only an aggregate count. Missing Supabase uses an explicitly disclosed nonpersistent mock. Actual demo and video URLs, business details and founder bio await owner configuration.
 ## Brand Commitments
-The name is plsteach.me. Plain, kind English. Off-white, deep ink and a warm accent. Simple line-art tie diagrams. No overconfident claims or comments on appearance.
-
+User confirmed plsteach.me. Warm paper, ink, terracotta; expressive serif, humanist sans. Inherit the existing demo's Lora and DM Sans visual world. Friendly inline line illustrations; no stock photos, robots or purple gradients.
 ## Product Principles
-- A false pass is worse than uncertainty.
-- Give one concrete correction at a time.
-- Never trap someone on a step.
-- Separate local visibility checks from skill verification.
-
+Be patient and clear. Demonstrate the mechanism honestly. Guidance complements parents and mentors. Avoid promises beyond the supplied camera-processing model.
 ## Accessibility & Inclusion
-WCAG AA contrast, visible focus, minimum 48px buttons, 18px base text and 22px instructions. Reduced motion supported.
+WCAG AA, keyboard navigation, visible focus, reduced motion, dark mode, 375px first.
+
+## Current shipped surface
+The user selected this landing website to replace the prior website on main. Public copy is English-only. Brand: supplied hands logo, green plsteach and orange .me. Hero text is user-pinned, with the second line orange. Nine modules offer honest text previews and interest voting; the phone is an interactive, explicitly illustrative coaching example. Waitlist and organization forms retain mock mode until services are configured.

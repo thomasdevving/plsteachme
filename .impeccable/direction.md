@@ -1,0 +1,9 @@
+# Landing surface direction
+Mode: Persuade. Code-led extension of the existing demo's visual world, constrained by the detailed user brief. User authorized autonomous decisions and uninterrupted phases.
+First viewport: the mission in expressive serif, a plain description of camera-based practical coaching, waitlist and demo actions, plus a phone showing a specific tie instruction and a gentle correction. Illustration is explicitly marked example, not live camera. Mobile retains a visible signup CTA in the header.
+Visitor path: understand → recognize the learning gap → see the coaching loop → explore tie demo and future skills → understand human/practical boundaries and privacy → express interest → share and answer one question.
+Signature: a seven-position tie instruction and a restrained observe/check loop. Everything remains visible with reduced motion.
+Identity: inherited Lora/DM Sans, ink, warm paper, terracotta; calm line geometry. Surface palette #faf7f2 / #26392f / #a84228, muted #5e685e. Backgrounds are flat surfaces. Use the supplied transparent hands raster as the logo; lesson visuals remain vector diagrams.
+Required sizes: 375px and 1280px; dark mode. Functional controls must state when data is only mocked. Public database reads denied. No invented evidence or unreleased skill claims.
+
+Latest user direction: this landing website replaces the website on main. English only, canonical root URLs. Use the supplied two-hands raster logo in the wordmark, plsteach green and .me orange. The second hero line is orange. Nine filterable modules have explicitly labeled text previews. The seven-step phone is interactive and feedback is illustrative. Motion focuses on phone/feedback changes and module previews, pauses the loop offscreen or hidden, and respects reduced motion.

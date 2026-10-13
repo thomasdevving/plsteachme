@@ -1,150 +1,786 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-12T23:33:26Z",
+  "generatedAt": "2026-10-13T00:37:31.065064+00:00",
   "title": "Design System: plsteach.me",
   "extensions": {
     "colorMeta": {
-      "accent": {
-        "role": "primary",
-        "displayName": "Warm action accent"
-      },
       "paper": {
         "role": "neutral",
-        "displayName": "Warm paper"
+        "displayName": "Paper",
+        "canonical": "#faf7f2",
+        "tonalRamp": [
+          "oklch(15% 0.0074 80.72)",
+          "oklch(27% 0.0074 80.72)",
+          "oklch(38% 0.0074 80.72)",
+          "oklch(50% 0.0074 80.72)",
+          "oklch(61% 0.0074 80.72)",
+          "oklch(73% 0.0074 80.72)",
+          "oklch(84% 0.0074 80.72)",
+          "oklch(95% 0.0074 80.72)"
+        ]
       },
       "ink": {
         "role": "neutral",
-        "displayName": "Deep green ink"
+        "displayName": "Ink",
+        "canonical": "#22372c",
+        "tonalRamp": [
+          "oklch(15% 0.0335 160.82)",
+          "oklch(27% 0.0335 160.82)",
+          "oklch(38% 0.0335 160.82)",
+          "oklch(50% 0.0335 160.82)",
+          "oklch(61% 0.0335 160.82)",
+          "oklch(73% 0.0335 160.82)",
+          "oklch(84% 0.0335 160.82)",
+          "oklch(95% 0.0335 160.82)"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Accent",
+        "canonical": "#bb4827",
+        "tonalRamp": [
+          "oklch(15% 0.1558 36.45)",
+          "oklch(27% 0.1558 36.45)",
+          "oklch(38% 0.1558 36.45)",
+          "oklch(50% 0.1558 36.45)",
+          "oklch(61% 0.1558 36.45)",
+          "oklch(73% 0.1558 36.45)",
+          "oklch(84% 0.1558 36.45)",
+          "oklch(95% 0.1558 36.45)"
+        ]
+      },
+      "accent-hover": {
+        "role": "primary",
+        "displayName": "Accent Hover",
+        "canonical": "#97381e",
+        "tonalRamp": [
+          "oklch(15% 0.1335 35.97)",
+          "oklch(27% 0.1335 35.97)",
+          "oklch(38% 0.1335 35.97)",
+          "oklch(50% 0.1335 35.97)",
+          "oklch(61% 0.1335 35.97)",
+          "oklch(73% 0.1335 35.97)",
+          "oklch(84% 0.1335 35.97)",
+          "oklch(95% 0.1335 35.97)"
+        ]
       },
       "soft": {
         "role": "neutral",
-        "displayName": "Quiet sage surface"
+        "displayName": "Soft",
+        "canonical": "#edeee5",
+        "tonalRamp": [
+          "oklch(15% 0.0120 111.76)",
+          "oklch(27% 0.0120 111.76)",
+          "oklch(38% 0.0120 111.76)",
+          "oklch(50% 0.0120 111.76)",
+          "oklch(61% 0.0120 111.76)",
+          "oklch(73% 0.0120 111.76)",
+          "oklch(84% 0.0120 111.76)",
+          "oklch(95% 0.0120 111.76)"
+        ]
       },
-      "wide-end": {
-        "role": "primary",
-        "displayName": "Terracotta wide end"
-      },
-      "narrow-end": {
+      "surface": {
         "role": "neutral",
-        "displayName": "Pale narrow end"
+        "displayName": "Surface",
+        "canonical": "#fffdf9",
+        "tonalRamp": [
+          "oklch(15% 0.0057 84.57)",
+          "oklch(27% 0.0057 84.57)",
+          "oklch(38% 0.0057 84.57)",
+          "oklch(50% 0.0057 84.57)",
+          "oklch(61% 0.0057 84.57)",
+          "oklch(73% 0.0057 84.57)",
+          "oklch(84% 0.0057 84.57)",
+          "oklch(95% 0.0057 84.57)"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#d9dcd1",
+        "tonalRamp": [
+          "oklch(15% 0.0152 119.13)",
+          "oklch(27% 0.0152 119.13)",
+          "oklch(38% 0.0152 119.13)",
+          "oklch(50% 0.0152 119.13)",
+          "oklch(61% 0.0152 119.13)",
+          "oklch(73% 0.0152 119.13)",
+          "oklch(84% 0.0152 119.13)",
+          "oklch(95% 0.0152 119.13)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "#5e685e",
+        "tonalRamp": [
+          "oklch(15% 0.0198 145.27)",
+          "oklch(27% 0.0198 145.27)",
+          "oklch(38% 0.0198 145.27)",
+          "oklch(50% 0.0198 145.27)",
+          "oklch(61% 0.0198 145.27)",
+          "oklch(73% 0.0198 145.27)",
+          "oklch(84% 0.0198 145.27)",
+          "oklch(95% 0.0198 145.27)"
+        ]
+      },
+      "tint": {
+        "role": "primary",
+        "displayName": "Tint",
+        "canonical": "#f0ded0",
+        "tonalRamp": [
+          "oklch(15% 0.0274 60.35)",
+          "oklch(27% 0.0274 60.35)",
+          "oklch(38% 0.0274 60.35)",
+          "oklch(50% 0.0274 60.35)",
+          "oklch(61% 0.0274 60.35)",
+          "oklch(73% 0.0274 60.35)",
+          "oklch(84% 0.0274 60.35)",
+          "oklch(95% 0.0274 60.35)"
+        ]
+      },
+      "on-accent": {
+        "role": "primary",
+        "displayName": "On Accent",
+        "canonical": "#fffaf4",
+        "tonalRamp": [
+          "oklch(15% 0.0096 72.66)",
+          "oklch(27% 0.0096 72.66)",
+          "oklch(38% 0.0096 72.66)",
+          "oklch(50% 0.0096 72.66)",
+          "oklch(61% 0.0096 72.66)",
+          "oklch(73% 0.0096 72.66)",
+          "oklch(84% 0.0096 72.66)",
+          "oklch(95% 0.0096 72.66)"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus",
+        "canonical": "#26392f",
+        "tonalRamp": [
+          "oklch(15% 0.0304 161.13)",
+          "oklch(27% 0.0304 161.13)",
+          "oklch(38% 0.0304 161.13)",
+          "oklch(50% 0.0304 161.13)",
+          "oklch(61% 0.0304 161.13)",
+          "oklch(73% 0.0304 161.13)",
+          "oklch(84% 0.0304 161.13)",
+          "oklch(95% 0.0304 161.13)"
+        ]
+      },
+      "dark-paper": {
+        "role": "neutral",
+        "displayName": "Dark Paper",
+        "canonical": "#1e2621",
+        "tonalRamp": [
+          "oklch(15% 0.0147 157.78)",
+          "oklch(27% 0.0147 157.78)",
+          "oklch(38% 0.0147 157.78)",
+          "oklch(50% 0.0147 157.78)",
+          "oklch(61% 0.0147 157.78)",
+          "oklch(73% 0.0147 157.78)",
+          "oklch(84% 0.0147 157.78)",
+          "oklch(95% 0.0147 157.78)"
+        ]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Dark Ink",
+        "canonical": "#f4f0e6",
+        "tonalRamp": [
+          "oklch(15% 0.0140 88.68)",
+          "oklch(27% 0.0140 88.68)",
+          "oklch(38% 0.0140 88.68)",
+          "oklch(50% 0.0140 88.68)",
+          "oklch(61% 0.0140 88.68)",
+          "oklch(73% 0.0140 88.68)",
+          "oklch(84% 0.0140 88.68)",
+          "oklch(95% 0.0140 88.68)"
+        ]
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "Dark Accent",
+        "canonical": "#efa384",
+        "tonalRamp": [
+          "oklch(15% 0.1004 43.00)",
+          "oklch(27% 0.1004 43.00)",
+          "oklch(38% 0.1004 43.00)",
+          "oklch(50% 0.1004 43.00)",
+          "oklch(61% 0.1004 43.00)",
+          "oklch(73% 0.1004 43.00)",
+          "oklch(84% 0.1004 43.00)",
+          "oklch(95% 0.1004 43.00)"
+        ]
+      },
+      "dark-accent-hover": {
+        "role": "primary",
+        "displayName": "Dark Accent Hover",
+        "canonical": "#f5b79f",
+        "tonalRamp": [
+          "oklch(15% 0.0797 42.10)",
+          "oklch(27% 0.0797 42.10)",
+          "oklch(38% 0.0797 42.10)",
+          "oklch(50% 0.0797 42.10)",
+          "oklch(61% 0.0797 42.10)",
+          "oklch(73% 0.0797 42.10)",
+          "oklch(84% 0.0797 42.10)",
+          "oklch(95% 0.0797 42.10)"
+        ]
+      },
+      "dark-soft": {
+        "role": "neutral",
+        "displayName": "Dark Soft",
+        "canonical": "#29342c",
+        "tonalRamp": [
+          "oklch(15% 0.0206 153.52)",
+          "oklch(27% 0.0206 153.52)",
+          "oklch(38% 0.0206 153.52)",
+          "oklch(50% 0.0206 153.52)",
+          "oklch(61% 0.0206 153.52)",
+          "oklch(73% 0.0206 153.52)",
+          "oklch(84% 0.0206 153.52)",
+          "oklch(95% 0.0206 153.52)"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark Surface",
+        "canonical": "#243028",
+        "tonalRamp": [
+          "oklch(15% 0.0218 155.66)",
+          "oklch(27% 0.0218 155.66)",
+          "oklch(38% 0.0218 155.66)",
+          "oklch(50% 0.0218 155.66)",
+          "oklch(61% 0.0218 155.66)",
+          "oklch(73% 0.0218 155.66)",
+          "oklch(84% 0.0218 155.66)",
+          "oklch(95% 0.0218 155.66)"
+        ]
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "Dark Line",
+        "canonical": "#48564b",
+        "tonalRamp": [
+          "oklch(15% 0.0250 151.60)",
+          "oklch(27% 0.0250 151.60)",
+          "oklch(38% 0.0250 151.60)",
+          "oklch(50% 0.0250 151.60)",
+          "oklch(61% 0.0250 151.60)",
+          "oklch(73% 0.0250 151.60)",
+          "oklch(84% 0.0250 151.60)",
+          "oklch(95% 0.0250 151.60)"
+        ]
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark Muted",
+        "canonical": "#bdc7ba",
+        "tonalRamp": [
+          "oklch(15% 0.0210 138.44)",
+          "oklch(27% 0.0210 138.44)",
+          "oklch(38% 0.0210 138.44)",
+          "oklch(50% 0.0210 138.44)",
+          "oklch(61% 0.0210 138.44)",
+          "oklch(73% 0.0210 138.44)",
+          "oklch(84% 0.0210 138.44)",
+          "oklch(95% 0.0210 138.44)"
+        ]
+      },
+      "dark-tint": {
+        "role": "primary",
+        "displayName": "Dark Tint",
+        "canonical": "#44362e",
+        "tonalRamp": [
+          "oklch(15% 0.0243 51.35)",
+          "oklch(27% 0.0243 51.35)",
+          "oklch(38% 0.0243 51.35)",
+          "oklch(50% 0.0243 51.35)",
+          "oklch(61% 0.0243 51.35)",
+          "oklch(73% 0.0243 51.35)",
+          "oklch(84% 0.0243 51.35)",
+          "oklch(95% 0.0243 51.35)"
+        ]
+      },
+      "dark-on-accent": {
+        "role": "primary",
+        "displayName": "Dark On Accent",
+        "canonical": "#241f1a",
+        "tonalRamp": [
+          "oklch(15% 0.0120 67.21)",
+          "oklch(27% 0.0120 67.21)",
+          "oklch(38% 0.0120 67.21)",
+          "oklch(50% 0.0120 67.21)",
+          "oklch(61% 0.0120 67.21)",
+          "oklch(73% 0.0120 67.21)",
+          "oklch(84% 0.0120 67.21)",
+          "oklch(95% 0.0120 67.21)"
+        ]
+      },
+      "dark-focus": {
+        "role": "neutral",
+        "displayName": "Dark Focus",
+        "canonical": "#e9a086",
+        "tonalRamp": [
+          "oklch(15% 0.0949 40.40)",
+          "oklch(27% 0.0949 40.40)",
+          "oklch(38% 0.0949 40.40)",
+          "oklch(50% 0.0949 40.40)",
+          "oklch(61% 0.0949 40.40)",
+          "oklch(73% 0.0949 40.40)",
+          "oklch(84% 0.0949 40.40)",
+          "oklch(95% 0.0949 40.40)"
+        ]
+      },
+      "brand-green": {
+        "role": "primary",
+        "displayName": "Brand Green",
+        "canonical": "#22372c",
+        "tonalRamp": [
+          "oklch(15% 0.0335 160.82)",
+          "oklch(27% 0.0335 160.82)",
+          "oklch(38% 0.0335 160.82)",
+          "oklch(50% 0.0335 160.82)",
+          "oklch(61% 0.0335 160.82)",
+          "oklch(73% 0.0335 160.82)",
+          "oklch(84% 0.0335 160.82)",
+          "oklch(95% 0.0335 160.82)"
+        ]
+      },
+      "brand-orange": {
+        "role": "primary",
+        "displayName": "Brand Orange",
+        "canonical": "#bb4827",
+        "tonalRamp": [
+          "oklch(15% 0.1558 36.45)",
+          "oklch(27% 0.1558 36.45)",
+          "oklch(38% 0.1558 36.45)",
+          "oklch(50% 0.1558 36.45)",
+          "oklch(61% 0.1558 36.45)",
+          "oklch(73% 0.1558 36.45)",
+          "oklch(84% 0.1558 36.45)",
+          "oklch(95% 0.1558 36.45)"
+        ]
+      },
+      "brand-text-green": {
+        "role": "primary",
+        "displayName": "Brand Text Green",
+        "canonical": "#22372c",
+        "tonalRamp": [
+          "oklch(15% 0.0335 160.82)",
+          "oklch(27% 0.0335 160.82)",
+          "oklch(38% 0.0335 160.82)",
+          "oklch(50% 0.0335 160.82)",
+          "oklch(61% 0.0335 160.82)",
+          "oklch(73% 0.0335 160.82)",
+          "oklch(84% 0.0335 160.82)",
+          "oklch(95% 0.0335 160.82)"
+        ]
+      },
+      "brand-text-orange": {
+        "role": "primary",
+        "displayName": "Brand Text Orange",
+        "canonical": "#bb4827",
+        "tonalRamp": [
+          "oklch(15% 0.1558 36.45)",
+          "oklch(27% 0.1558 36.45)",
+          "oklch(38% 0.1558 36.45)",
+          "oklch(50% 0.1558 36.45)",
+          "oklch(61% 0.1558 36.45)",
+          "oklch(73% 0.1558 36.45)",
+          "oklch(84% 0.1558 36.45)",
+          "oklch(95% 0.1558 36.45)"
+        ]
+      },
+      "dark-brand-text-green": {
+        "role": "primary",
+        "displayName": "Dark Brand Text Green",
+        "canonical": "#bdd1bd",
+        "tonalRamp": [
+          "oklch(15% 0.0349 145.26)",
+          "oklch(27% 0.0349 145.26)",
+          "oklch(38% 0.0349 145.26)",
+          "oklch(50% 0.0349 145.26)",
+          "oklch(61% 0.0349 145.26)",
+          "oklch(73% 0.0349 145.26)",
+          "oklch(84% 0.0349 145.26)",
+          "oklch(95% 0.0349 145.26)"
+        ]
+      },
+      "dark-brand-text-orange": {
+        "role": "primary",
+        "displayName": "Dark Brand Text Orange",
+        "canonical": "#efa384",
+        "tonalRamp": [
+          "oklch(15% 0.1004 43.00)",
+          "oklch(27% 0.1004 43.00)",
+          "oklch(38% 0.1004 43.00)",
+          "oklch(50% 0.1004 43.00)",
+          "oklch(61% 0.1004 43.00)",
+          "oklch(73% 0.1004 43.00)",
+          "oklch(84% 0.1004 43.00)",
+          "oklch(95% 0.1004 43.00)"
+        ]
+      },
+      "problem-ink": {
+        "role": "neutral",
+        "displayName": "Problem Ink",
+        "canonical": "#faf7f2",
+        "tonalRamp": [
+          "oklch(15% 0.0074 80.72)",
+          "oklch(27% 0.0074 80.72)",
+          "oklch(38% 0.0074 80.72)",
+          "oklch(50% 0.0074 80.72)",
+          "oklch(61% 0.0074 80.72)",
+          "oklch(73% 0.0074 80.72)",
+          "oklch(84% 0.0074 80.72)",
+          "oklch(95% 0.0074 80.72)"
+        ]
+      },
+      "problem-muted": {
+        "role": "neutral",
+        "displayName": "Problem Muted",
+        "canonical": "#d9e2d5",
+        "tonalRamp": [
+          "oklch(15% 0.0199 135.84)",
+          "oklch(27% 0.0199 135.84)",
+          "oklch(38% 0.0199 135.84)",
+          "oklch(50% 0.0199 135.84)",
+          "oklch(61% 0.0199 135.84)",
+          "oklch(73% 0.0199 135.84)",
+          "oklch(84% 0.0199 135.84)",
+          "oklch(95% 0.0199 135.84)"
+        ]
+      },
+      "problem-accent": {
+        "role": "primary",
+        "displayName": "Problem Accent",
+        "canonical": "#f4a27f",
+        "tonalRamp": [
+          "oklch(15% 0.1091 43.85)",
+          "oklch(27% 0.1091 43.85)",
+          "oklch(38% 0.1091 43.85)",
+          "oklch(50% 0.1091 43.85)",
+          "oklch(61% 0.1091 43.85)",
+          "oklch(73% 0.1091 43.85)",
+          "oklch(84% 0.1091 43.85)",
+          "oklch(95% 0.1091 43.85)"
+        ]
+      },
+      "problem-line": {
+        "role": "neutral",
+        "displayName": "Problem Line",
+        "canonical": "#5d7464",
+        "tonalRamp": [
+          "oklch(15% 0.0368 154.65)",
+          "oklch(27% 0.0368 154.65)",
+          "oklch(38% 0.0368 154.65)",
+          "oklch(50% 0.0368 154.65)",
+          "oklch(61% 0.0368 154.65)",
+          "oklch(73% 0.0368 154.65)",
+          "oklch(84% 0.0368 154.65)",
+          "oklch(95% 0.0368 154.65)"
+        ]
+      },
+      "illustration-ink": {
+        "role": "neutral",
+        "displayName": "Illustration Ink",
+        "canonical": "#26392f",
+        "tonalRamp": [
+          "oklch(15% 0.0304 161.13)",
+          "oklch(27% 0.0304 161.13)",
+          "oklch(38% 0.0304 161.13)",
+          "oklch(50% 0.0304 161.13)",
+          "oklch(61% 0.0304 161.13)",
+          "oklch(73% 0.0304 161.13)",
+          "oklch(84% 0.0304 161.13)",
+          "oklch(95% 0.0304 161.13)"
+        ]
+      },
+      "illustration-accent": {
+        "role": "primary",
+        "displayName": "Illustration Accent",
+        "canonical": "#a84228",
+        "tonalRamp": [
+          "oklch(15% 0.1404 35.36)",
+          "oklch(27% 0.1404 35.36)",
+          "oklch(38% 0.1404 35.36)",
+          "oklch(50% 0.1404 35.36)",
+          "oklch(61% 0.1404 35.36)",
+          "oklch(73% 0.1404 35.36)",
+          "oklch(84% 0.1404 35.36)",
+          "oklch(95% 0.1404 35.36)"
+        ]
       }
     },
     "typographyMeta": {
       "display": {
-        "displayName": "Handbook heading",
-        "purpose": "Lora headings; self-hosted with weights 400 and 500."
+        "displayName": "Mission Display",
+        "purpose": "Balanced serif hero headlines; mobile override at 600px."
+      },
+      "headline": {
+        "displayName": "Section Headline",
+        "purpose": "Major section headings."
+      },
+      "title": {
+        "displayName": "Card Title",
+        "purpose": "Sans-serif step and card headings."
       },
       "body": {
-        "displayName": "Interface body",
-        "purpose": "DM Sans interface; self-hosted with weights 400, 500, 600 and 700."
+        "displayName": "Body",
+        "purpose": "17px default; 16px at widths up to 600px."
       },
-      "instruction": {
-        "displayName": "Lesson instruction",
-        "purpose": "Main step action, retaining 22px type on phones; mobile line height is 1.55."
+      "label": {
+        "displayName": "Form Label",
+        "purpose": "Semibold field labels and legends; .84rem on phones."
+      },
+      "small": {
+        "displayName": "Supporting Text",
+        "purpose": "Compact explanatory copy."
       }
     },
-    "shadows": [],
+    "shadows": [
+      {
+        "name": "illustrative-phone",
+        "value": "12px 24px 45px #26392f24",
+        "purpose": "Phone casing only."
+      },
+      {
+        "name": "illustrative-correction",
+        "value": "0 8px 30px #26392f1a",
+        "purpose": "Floating coaching correction only."
+      }
+    ],
     "motion": [
       {
-        "name": "diagram-arrival",
-        "value": "650ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Crossfade lesson preview diagrams with a small horizontal transition."
+        "name": "interactive-transition",
+        "value": "background-color .2s ease, color .2s ease, opacity .2s ease",
+        "purpose": "Links and buttons."
       },
       {
-        "name": "diagram-drawing",
-        "value": "1100ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Reveal the wide end and draw torso and direction lines."
+        "name": "entrance-ease",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Phone, feedback, module previews, grid changes and arrow motion."
       },
       {
-        "name": "preview-cycle",
-        "value": "3600ms",
-        "purpose": "Automatic preview steps; paused by controls, viewport visibility and page visibility."
+        "name": "phone-arrive",
+        "value": "750ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Translate 18px/rotate 6deg to resting 0px/3deg on entrance."
+      },
+      {
+        "name": "feedback-arrive",
+        "value": "500ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Reveal correction with clip-path and 8px vertical arrival on step change."
+      },
+      {
+        "name": "phone-lesson-arrive",
+        "value": "350ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Opacity .65 to 1 and 5px to 0px on instruction change."
+      },
+      {
+        "name": "module-arrive",
+        "value": "300ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Grid after filter change; preview copy uses 300ms ease-out."
+      },
+      {
+        "name": "preview-open",
+        "value": "400ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Clip-path reveal from a 12% bottom inset to fully visible."
+      },
+      {
+        "name": "module-art-hover",
+        "value": "transform .35s cubic-bezier(.16,1,.3,1)",
+        "purpose": "SVG translates up 4px and rotates -4deg; suppressed for reduced motion."
+      },
+      {
+        "name": "loop-check",
+        "value": "6s ease-out infinite; delay: calc(var(--loop-index) * .8s)",
+        "purpose": "Tint and -3px lift; paused by default, runs only while intersecting viewport and document visible."
+      },
+      {
+        "name": "check-arrive",
+        "value": "300ms ease-out",
+        "purpose": "Vote acknowledgement icon scales .6 to 1."
+      },
+      {
+        "name": "loading-spin",
+        "value": "1s linear infinite",
+        "purpose": "Submitting indicator."
       },
       {
         "name": "reduced-motion",
-        "value": "prefers-reduced-motion: reduce",
-        "purpose": "Complete static diagrams, no autoplay, manual step controls remain usable."
+        "value": "animation: none !important; transition: none !important; scroll-behavior: auto",
+        "purpose": "Also suppress hover transforms and use instant preview scrolling; all content remains visible."
       }
     ],
     "breakpoints": [
       {
-        "name": "single-column",
-        "value": "800px",
-        "purpose": "At this width and below, major layouts stack and side gutters become 20px."
+        "name": "phone-max",
+        "value": "600px"
+      },
+      {
+        "name": "tablet-max",
+        "value": "800px"
+      },
+      {
+        "name": "compact-desktop-max",
+        "value": "1050px"
+      },
+      {
+        "name": "wide-min",
+        "value": "1500px"
       }
-    ]
+    ],
+    "brandAssets": [
+      {
+        "path": "/brand/hands.png",
+        "role": "User-supplied authoritative hands mark; header/footer/browser and apple icons.",
+        "headerSize": "52px; 40px at <=600px",
+        "footerSize": "130px; 90px at <=800px; 55px at <=600px",
+        "policy": "Preserve supplied raster pixels; do not substitute a redrawn mark.",
+        "darkTreatment": "Warm-paper #faf7f2 tile, 8px radius, 3px padding; raster pixels unchanged."
+      }
+    ],
+    "illustrationPlacement": {
+      "feedbackDesktop": {
+        "top": "-24px",
+        "left": "-45px",
+        "bottom": "auto",
+        "maxWidth": "265px"
+      },
+      "feedbackAt800px": {
+        "top": "-20px",
+        "left": "-25px",
+        "bottom": "auto",
+        "maxWidth": "235px"
+      },
+      "purpose": "Keep illustrative correction clear of the phone instruction."
+    }
   },
   "components": [
     {
-      "name": "Primary button",
+      "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Main next action; minimum height 56px, visible keyboard focus and disabled state.",
-      "html": "<button class=\"ds-button ds-primary\">Start learning</button>",
-      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color .18s ease-out}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-primary{background:var(--accent,#a84228);color:#fffaf3}.ds-primary:hover{background:#90381f}.ds-primary:disabled{background:#e0d8cb;color:#697064}"
+      "description": "Main signup action; shares keyboard focus and disabled state.",
+      "html": "<button class=\"ds-primary\">Join the waitlist<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></button>",
+      "css": ".ds-primary{font-family:var(--font-body),sans-serif;display:inline-flex;min-height:52px;justify-content:center;align-items:center;gap:14px;padding:13px 22px;border-radius:7px;border:1px solid transparent;font-weight:600;font-size:.94rem;line-height:1.4;text-decoration:none;white-space:normal;text-align:center;cursor:pointer;transition:background-color .2s ease,color .2s ease,opacity .2s ease;background:var(--accent);color:var(--on-accent)}.ds-primary:hover:not(:disabled){background:var(--accent-hover)}.ds-primary:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}.ds-primary:disabled{opacity:.65;cursor:default}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
     },
     {
-      "name": "Secondary button",
+      "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Supporting lesson action with an outlined surface.",
-      "html": "<button class=\"ds-button ds-secondary\">Repeat that</button>",
-      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color .18s ease-out}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-secondary{background:transparent;border-color:#c8cfc1;color:var(--ink,#26392f)}.ds-secondary:hover{background:#e7eadf}.ds-secondary:disabled{opacity:.5}"
+      "description": "Quiet alternative to the primary action.",
+      "html": "<button class=\"ds-secondary\">See the demo<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></button>",
+      "css": ".ds-secondary{font-family:var(--font-body),sans-serif;display:inline-flex;min-height:52px;justify-content:center;align-items:center;gap:14px;padding:13px 22px;border-radius:7px;border:1px solid transparent;font-weight:600;font-size:.94rem;line-height:1.4;text-decoration:none;white-space:normal;text-align:center;cursor:pointer;transition:background-color .2s ease,color .2s ease,opacity .2s ease;background:transparent;color:var(--ink);border-color:var(--line)}.ds-secondary:hover:not(:disabled){background:var(--soft)}.ds-secondary:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}.ds-secondary:disabled{opacity:.65;cursor:default}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
     },
     {
-      "name": "Answer choice",
+      "name": "Email Field",
       "kind": "input",
-      "refersTo": "answer-option",
-      "description": "Radio choice; minimum height 68px. Selection fills its indicator and keyboard focus outlines the label.",
-      "html": "<label class=\"ds-answer\"><input type=\"radio\" name=\"ds-answer\" value=\"first\"/><span>It is my first time</span><span class=\"ds-indicator\"><svg class=\"ds-check\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m20 6-11 11-5-5\"/></svg></span></label>",
-      "css": ".ds-answer{position:relative;display:flex;align-items:center;gap:12px;min-height:68px;padding:17px 20px;border:1px solid #c8cfc1;border-radius:10px;cursor:pointer;font:18px/1.6 \"DM Sans\",sans-serif;color:var(--ink,#26392f)}.ds-answer input{position:absolute;width:1px;height:1px;opacity:0}.ds-indicator{margin-left:auto;width:24px;height:24px;border:1px solid #9da691;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}.ds-check{display:none}.ds-answer:has(:checked){border-color:var(--accent,#a84228);background:#f4e7dc}.ds-answer:has(:checked) .ds-indicator{background:var(--accent,#a84228);border-color:var(--accent,#a84228);color:white}.ds-answer:has(:checked) .ds-check{display:block}.ds-answer:has(:focus-visible){outline:3px solid var(--ink,#26392f);outline-offset:4px}"
+      "refersTo": "field",
+      "description": "Labelled input on the lightest semantic surface.",
+      "html": "<div class=\"ds-field\"><label for=\"ds-email\">Email address</label><input id=\"ds-email\" type=\"email\" placeholder=\"you@example.com\"/></div>",
+      "css": ".ds-field{font-family:var(--font-body),sans-serif;display:flex;flex-direction:column;gap:8px;color:var(--ink)}.ds-field label{font-size:.9rem;font-weight:600}.ds-field input{font-family:var(--font-body),sans-serif;background:var(--surface);border:1px solid var(--line);border-radius:7px;width:100%;min-height:51px;padding:12px 14px;color:var(--ink);font-size:.95rem;caret-color:var(--accent)}.ds-field input::placeholder{color:var(--muted)}.ds-field input:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}@media(max-width:600px){.ds-field input{font-size:16px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
     },
     {
-      "name": "Quiet back link",
-      "kind": "nav",
-      "description": "Low-emphasis navigation with a 48px minimum height.",
-      "html": "<a class=\"ds-quiet\" href=\"#\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m12 19-7-7 7-7M5 12h14\"/></svg>Back</a>",
-      "css": ".ds-quiet{display:inline-flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;min-height:48px;background:none;border:0;padding:0 4px;font:16px/1.6 \"DM Sans\",sans-serif;color:var(--ink,#26392f)}.ds-quiet:hover{color:var(--accent,#a84228)}.ds-quiet:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}"
+      "name": "Interest Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Pill selection controls with unselected and selected aria-pressed states.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" type=\"button\" aria-pressed=\"false\">Tying a tie</button><button class=\"ds-chip\" type=\"button\" aria-pressed=\"true\">Laundry</button></div>",
+      "css": ".ds-chip{font-family:var(--font-body),sans-serif;border:1px solid var(--line);border-radius:50px;padding:9px 14px;min-height:44px;background:transparent;color:var(--ink);font-size:.8rem;line-height:1.3;cursor:pointer;transition:background-color .2s ease,color .2s ease,opacity .2s ease;}.ds-chip:hover{border-color:var(--ink)}.ds-chip:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}@media(max-width:600px){.ds-chip{font-size:.73rem;padding:9px 12px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}.ds-chips{display:flex;flex-wrap:wrap;gap:9px}.ds-chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--paper)}"
     },
     {
-      "name": "Skill card content",
+      "name": "Quiet Card",
       "kind": "card",
-      "refersTo": "skill-card",
-      "description": "Cream bordered skill surface; this preview shows its content area.",
-      "html": "<article class=\"ds-card\"><div class=\"ds-card-content\"><h3>Tie a tie</h3><p>A patient, seven-step walkthrough.</p></div></article>",
-      "css": ".ds-card{background:#fffdf8;border:1px solid var(--line,#d9ddd1);border-radius:16px;overflow:hidden;color:var(--ink,#26392f);font:18px/1.6 \"DM Sans\",sans-serif}.ds-card-content{padding:25px 28px 28px}.ds-card h3{margin:0;font-size:25px;line-height:1.3;font-weight:500;letter-spacing:-.025em}.ds-card p{margin:10px 0 0;font-size:17px;color:var(--muted,#5d675e)}@media(max-width:800px){.ds-card-content{padding:22px}.ds-card h3{font-size:24px}}"
+      "refersTo": "card",
+      "description": "Flat reusable content surface; no hover lift.",
+      "html": "<article class=\"ds-card\"><h3>One step at a time</h3><p>Patient guidance when you need it.</p></article>",
+      "css": ".ds-card{font-family:var(--font-body),sans-serif;padding:24px;background:var(--soft);color:var(--ink);border-radius:14px;line-height:1.65}.ds-card h3{font-size:1.2rem;font-weight:600;line-height:1.3;letter-spacing:-.02em;margin:0}.ds-card p{margin:0;max-width:70ch}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
     },
     {
-      "name": "Lesson trail",
+      "name": "Status Pill",
+      "kind": "chip",
+      "refersTo": "status-pill",
+      "description": "Informational early-stage badge, separate from interest toggles.",
+      "html": "<span class=\"ds-status\"><span></span>Early demo</span>",
+      "css": ".ds-status{font-family:var(--font-body),sans-serif;display:inline-flex;align-items:center;gap:7px;line-height:1.35;border:1px solid var(--line);padding:5px 9px;border-radius:50px;font-size:.73rem;color:var(--ink)}.ds-status span{width:5px;height:5px;background:var(--accent);border-radius:50%}@media(max-width:600px){.ds-status{font-size:.65rem}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Text portion of English-only navigation; production adds the unchanged /brand/hands.png asset before the wordmark. Asset is not redrawn in this self-contained snippet.",
+      "html": "<header class=\"ds-nav\"><a class=\"ds-brand\" href=\"#\"><span class=\"ds-green\">plsteach</span><span class=\"ds-orange\">.me</span></a><nav class=\"ds-links\" aria-label=\"Main menu\"><a href=\"#how\">How it works</a><a href=\"#skills\">Skills</a></nav><a class=\"ds-join\" href=\"#waitlist\">I want to try this</a></header>",
+      "css": ".ds-nav{font-family:var(--font-body),sans-serif;display:flex;align-items:center;gap:25px;min-height:94px;border-bottom:1px solid var(--line);background:var(--paper);color:var(--ink)}.ds-nav a{text-decoration:none}.ds-brand{font-size:1.75rem;font-weight:600;letter-spacing:-.035em;line-height:1;white-space:nowrap}.ds-green{color:var(--brand-text-green)}.ds-orange{color:var(--brand-text-orange)}.ds-links{display:flex;gap:24px;margin-left:auto;font-size:.81rem}.ds-join{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;min-height:44px;padding:10px 17px;border:1px solid transparent;border-radius:7px;font-size:.82rem;font-weight:600;line-height:1.4;text-align:center;background:var(--accent);color:var(--on-accent);transition:background-color .2s ease}.ds-join:hover{background:var(--accent-hover)}.ds-links a:hover{color:var(--accent)}.ds-nav a:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}@media(max-width:800px){.ds-links{display:none}}@media(max-width:600px){.ds-nav{min-height:76px;gap:10px}.ds-brand{font-size:1.15rem}.ds-join{font-size:.7rem;padding:10px;min-height:43px;max-width:122px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
+    },
+    {
+      "name": "Module Filters",
+      "kind": "chip",
+      "refersTo": "module-filter",
+      "description": "Four category controls for nine modules; this self-contained preview illustrates selected state and counts.",
+      "html": "<div class=\"ds-filters\" role=\"group\" aria-label=\"Filter learning modules\"><button aria-pressed=\"true\">All skills<span>9</span></button><button aria-pressed=\"false\">Everyday<span>4</span></button><button aria-pressed=\"false\">Personal care<span>2</span></button><button aria-pressed=\"false\">Make &amp; mend<span>3</span></button></div>",
+      "css": ".ds-filters{font-family:var(--font-body),sans-serif;display:flex;flex-wrap:wrap;gap:8px}.ds-filters button{font-family:var(--font-body),sans-serif;border:1px solid var(--line);border-radius:7px;background:transparent;min-height:44px;padding:8px 13px;color:var(--ink);font-size:.8rem;cursor:pointer}.ds-filters span{margin-left:9px;font-size:.7rem;opacity:.8;font-variant-numeric:tabular-nums}.ds-filters button[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}.ds-filters button:hover:not([aria-pressed=true]){background:var(--soft)}.ds-filters button:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}@media(max-width:600px){.ds-filters{gap:7px}.ds-filters button{font-size:.73rem;padding:8px 10px}.ds-filters span{margin-left:6px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
+    },
+    {
+      "name": "Module Text Preview",
       "kind": "custom",
-      "description": "Seven segments convey lesson position, without claiming verified correctness.",
-      "html": "<ol class=\"ds-trail\" aria-label=\"Step 2 of 7\"><li class=\"ds-visited\"><span class=\"ds-hidden\">Step 1</span></li><li class=\"ds-current\" aria-current=\"step\"><span class=\"ds-hidden\">Step 2</span></li><li><span class=\"ds-hidden\">Step 3</span></li><li><span class=\"ds-hidden\">Step 4</span></li><li><span class=\"ds-hidden\">Step 5</span></li><li><span class=\"ds-hidden\">Step 6</span></li><li><span class=\"ds-hidden\">Step 7</span></li></ol>",
-      "css": ".ds-trail{display:flex;gap:9px;list-style:none;padding:0;margin:15px 0 32px}.ds-trail li{height:4px;flex:1;background:#d6dace;border-radius:3px}.ds-trail .ds-current{background:var(--accent,#a84228)}.ds-trail .ds-visited{background:#75856b}.ds-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border-width:0}"
+      "refersTo": "module-preview",
+      "description": "Static state of the source three-step, focusable preview region; application handles next/back, close and focus restoration.",
+      "html": "<section class=\"ds-preview\" aria-labelledby=\"ds-preview-title\" tabindex=\"-1\"><div class=\"ds-preview-intro\"><h3 id=\"ds-preview-title\">Tying a tie</h3><p>Three small steps to get started.</p><small>Text preview \u00b7 no camera or AI feedback</small></div><div><div class=\"ds-rail\" aria-hidden=\"true\"><span class=\"ds-complete\"></span><span></span><span></span></div><div class=\"ds-lesson\"><span>Step 1 of 3</span><p>Start with the wide end longer than the narrow end.</p></div><p class=\"ds-tip\">Keep the fabric flat. You can always start again.</p><div class=\"ds-preview-controls\"><button disabled>Back</button><button class=\"ds-next\">Next preview step<svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M5 12h14m-6-6 6 6-6 6\"/></svg></button></div></div><button class=\"ds-close\" aria-label=\"Close module preview\">\u00d7</button></section>",
+      "css": ".ds-preview{font-family:var(--font-body),sans-serif;position:relative;display:grid;grid-template-columns:.75fr 1.25fr;gap:60px;margin-top:30px;padding:40px;background:var(--soft);color:var(--ink);border-radius:14px}.ds-preview-intro h3{font-family:var(--font-lora),serif;font-size:1.8rem;font-weight:400;margin:0}.ds-preview-intro p{font-size:.9rem;margin-top:13px}.ds-preview-intro small{display:block;color:var(--muted);margin-top:20px;font-size:.7rem}.ds-rail{display:flex;gap:7px;margin-bottom:20px;max-width:200px}.ds-rail span{height:4px;flex:1;background:var(--line);border-radius:2px}.ds-rail .ds-complete{background:var(--accent)}.ds-lesson{min-height:125px}.ds-lesson>span{font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}.ds-lesson p{font:400 1.4rem/1.45 var(--font-lora),serif;margin:8px 0 0}.ds-tip{font-size:.83rem;color:var(--muted);margin:18px 0 25px}.ds-preview-controls{display:flex;gap:10px;flex-wrap:wrap}.ds-preview button{font-family:var(--font-body),sans-serif;cursor:pointer;border:1px solid var(--line);border-radius:7px;background:transparent;color:var(--ink)}.ds-preview-controls button{display:inline-flex;align-items:center;justify-content:center;gap:14px;min-height:44px;padding:10px 17px;font-size:.82rem;font-weight:600}.ds-preview-controls button:disabled{opacity:.65;cursor:default}.ds-preview-controls .ds-next{background:var(--accent);color:var(--on-accent);border-color:transparent}.ds-next:hover{background:var(--accent-hover)}.ds-close{position:absolute;right:10px;top:10px;min-width:44px;min-height:44px;font-size:1.3rem;border:0!important}.ds-close:hover{background:var(--surface)}.ds-preview button:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}@media(max-width:800px){.ds-preview{gap:30px;padding:30px}}@media(max-width:600px){.ds-preview{grid-template-columns:1fr;gap:28px;padding:25px 22px}.ds-preview-intro h3{font-size:1.5rem}.ds-preview-intro p{font-size:.82rem}.ds-preview-intro small{margin-top:10px}.ds-lesson{min-height:115px}.ds-lesson p{font-size:1.25rem}.ds-preview-controls button{font-size:.75rem;padding-inline:12px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
+    },
+    {
+      "name": "Coaching Step and Controls",
+      "kind": "custom",
+      "refersTo": "coach-control",
+      "description": "Self-contained sample of the interactive phone instruction and controls; source CoachPreview owns seven-step state and sample feedback.",
+      "html": "<div class=\"ds-coach\"><div class=\"ds-phone-rail\" role=\"progressbar\" aria-label=\"Example progress\" aria-valuemin=\"1\" aria-valuemax=\"7\" aria-valuenow=\"3\" aria-valuetext=\"Step 3 of 7\"><span class=\"ds-done\"></span><span class=\"ds-done\"></span><span class=\"ds-done\"></span><span></span><span></span><span></span><span></span></div><p class=\"ds-step-index\">Step 3 of 7</p><p class=\"ds-coach-title\">Wrap the wide end behind.</p><div class=\"ds-coach-controls\"><button aria-label=\"Previous example step\">\u2190</button><button>Next step<svg width=\"17\" height=\"17\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M5 12h14m-6-6 6 6-6 6\"/></svg></button></div><small>Example screen \u00b7 no live camera \u00b7 sample feedback</small></div>",
+      "css": ".ds-coach{font-family:var(--font-body),sans-serif;max-width:280px;color:#26392f}.ds-phone-rail{display:flex;gap:4px;margin-bottom:18px}.ds-phone-rail span{height:3px;background:#d9dcd1;flex:1;border-radius:2px}.ds-phone-rail .ds-done{background:var(--brand-orange)}.ds-step-index{font-size:10px;margin:0 0 7px;color:#5e685e}.ds-coach-title{font:400 1.3rem/1.35 var(--font-lora),serif;max-width:18ch;margin:0}.ds-coach-controls{display:flex;justify-content:center;gap:8px;margin-top:25px}.ds-coach-controls button{font-family:var(--font-body),sans-serif;display:flex;align-items:center;justify-content:center;gap:10px;min-width:44px;min-height:44px;background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:8px 14px;font-size:.78rem;font-weight:600;cursor:pointer}.ds-coach-controls button:hover:not(:disabled){background:var(--tint)}.ds-coach-controls button:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}.ds-coach-controls button:disabled{opacity:.65;cursor:default}.ds-coach small{display:block;margin-top:15px;font-size:.6rem;text-align:center;color:var(--muted)}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
     }
   ],
   "narrative": {
-    "northStar": "An illustrated beginner's handbook",
-    "overview": "A patient, calm visual coach. Warm paper, deep green ink and a restrained warm accent frame simple tie illustrations. Open spacing and readable instructions make each next action easy to find.",
+    "northStar": "A calm lesson companion",
+    "overview": "Warm paper, deep green and orange give practical learning a patient, human setting. Lora carries the mission and larger headings; DM Sans keeps navigation, explanations and controls clear. Flat color bands, fine line illustrations and generous space retain the established handbook character.\n\nThe supplied two-hands mark anchors the current identity. The wordmark pairs green \u201cplsteach\u201d with orange \u201c.me,\u201d and the second hero phrase repeats that orange. This is an English-only website with root-level canonical URLs. Its phone is a controllable coaching example, and the nine modules offer explicitly labelled text previews; neither implies a live camera or AI feedback session.",
     "keyCharacteristics": [
-      "Self-hosted serif headings paired with a clear sans serif interface.",
-      "Flat, softly rounded surfaces and visible keyboard focus.",
-      "A consistent terracotta wide end across all seven tie diagrams."
+      "Supplied hands mark with a green/orange wordmark.",
+      "Warm paper, a strong green story band and quiet flat surfaces.",
+      "Serif mission phrases paired with readable sans-serif interaction.",
+      "Seven-step sample coaching and nine filterable text-preview modules.",
+      "Visible keyboard focus, reduced motion and theme-aware interface colors."
     ],
     "rules": [
       {
-        "name": "The Wide-End Rule",
-        "body": "Keep the wide end terracotta and the narrow end pale in every instructional SVG; color identifies the same physical part throughout the lesson.",
+        "name": "The Semantic Surface Rule",
+        "body": "Use runtime theme variables for interface surfaces and text; preserve the explicit story-band palette and fixed light illustration interior.",
         "section": "colors"
+      },
+      {
+        "name": "The Two Voices Rule",
+        "body": "Use Lora for mission, major headings and personal notes; use DM Sans for explanations and interaction.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Interface Rule",
+        "body": "Keep controls, cards and content bands shadowless; reserve ambient lift for the coaching illustration.",
+        "section": "elevation"
       }
     ],
     "dos": [
-      "Do retain the off-white, deep-ink and warm-accent palette.",
-      "Do keep the 18px body and 22px instruction sizes, generous controls and visible keyboard focus.",
-      "Do use the existing SVG language and consistent tie-part colors."
+      "Do preserve the supplied hands asset and the green \u201cplsteach\u201d / orange \u201c.me\u201d relationship.",
+      "Do keep the second hero phrase orange and the website interface English-only.",
+      "Do use semantic theme variables while retaining the explicit green story band and fixed illustration interior.",
+      "Do label text previews and sample coaching honestly, with visible focus and static reduced-motion content.",
+      "Do retain the compact signup action, wrapping filters and readable preview controls at 375px."
     ],
     "donts": [
-      "Don't add shadows or motion that obscures a lesson instruction.",
-      "Don't present lesson position or the completion symbol as evidence of verified skill."
+      "Don't redraw the supplied hands logo or replace it with the earlier asterisk wordmark.",
+      "Don't add shadows to interface cards, fields or preview panels.",
+      "Don't turn step progress, sample feedback or module previews into camera-analysis claims.",
+      "Don't replace the established line drawings with stock photos, robots or purple gradients.",
+      "Don't animate the continuous loop when it is offscreen or the document is hidden."
     ]
   }
 }

@@ -1,0 +1,147 @@
+# Build: "plsteach.me" — landing / demo website (waitlist + validation)
+
+## 1. Your role and the goal
+
+You are a senior front-end engineer and conversion-focused product designer. Build a fast, beautiful, honest landing website for **plsteach.me**, an AI visual coach that teaches practical, physical skills by watching what you do through your phone camera and guiding you step by step.
+
+The website has four jobs, in this order:
+1. Make visitors instantly understand the problem and the product (within 5 seconds of landing).
+2. Collect waitlist signups **plus validation data** (which skills people want, what they'd pay, where they came from).
+3. Work as the destination for social media traffic (TikTok, Instagram, YouTube Shorts): fast on mobile, great link previews, campaign tracking.
+4. Capture interest from organizations (schools, youth work, vocational education, employers) through a separate short form.
+
+Work through all phases (section 13) without stopping for confirmation. Fix errors autonomously. Keep it simple.
+
+## 2. Product summary (source of truth for copy)
+
+- Name: plsteach.me (confirmed name; keep it in one config constant)
+- Mission: "Nobody should have to figure everything out alone."
+- One-liner: "An AI coach that watches you practice real-life skills — and helps you get them right."
+- The problem: Most people learn practical skills from a parent, family member or mentor. Not everyone had that person: some grew up without a parent figure, others had parents without the time or knowledge. Tutorials show how something is done, but can't see how YOU do it. A video will never tell you you're holding it wrong.
+- The solution: Pick a skill, point your phone camera at yourself, and follow along. plsteach.me watches each step, tells you when you've got it, and gently corrects you when something's off — like a patient instructor standing next to you.
+- How it works (the loop): Camera → recognizes what you're doing → checks your technique → gives feedback → checks again.
+- Status: early demo / beta. First skill: tying a tie. Coming next: shaving, trimming a beard, ironing a shirt, sewing on a button, basic tool use (wording can be refined).
+- Positioning principle: plsteach.me does not replace a parent or mentor. It makes the practical know-how and patient guidance you'd normally get from one available to everyone. The site must say this clearly and warmly.
+
+## 3. Honesty rules (non-negotiable)
+
+- Do not claim accuracy numbers, user counts, testimonials, partnerships, press logos, or awards that don't exist. Use no fake social proof.
+- Label the product clearly as an early demo / beta.
+- Describe privacy accurately: camera processing happens on the device; a few still frames per step are sent to an AI service to check the step and are not stored. Do not promise anything stronger.
+- No medical, skincare or safety claims.
+
+## 4. Audience
+
+- Primary: people roughly 16–30 who never really learned everyday practical skills and feel a bit awkward about it. Many arrive from short-form video on their phone.
+- Secondary: people who support others (older siblings, mentors, youth workers, foster families).
+- Organizations: schools and vocational education (mbo), youth work, social organizations, employers who onboard young people.
+
+## 5. Language
+
+- Dutch is the default (`/`), English at `/en`. Simple dictionary-based i18n (for example `next-intl` or a small custom solution), with all copy in message files.
+- Dutch copy: natural, informal ("je"), warm, not a literal translation of the English. Short sentences. Avoid anglicisms where natural Dutch exists, but "AI" and "app" are fine.
+- Provide both language versions of all copy. I will review the copy, so keep it in clearly organized message files.
+
+## 6. Sitemap
+
+- `/` — landing page (main)
+- `/organisaties` (`/en/organizations`) — for schools and organizations
+- `/demo` — demo page: a vertical demo video slot (9:16) plus a button "Try the demo" linking to `NEXT_PUBLIC_DEMO_APP_URL`, with a note that it works best on a phone
+- `/privacy` — privacy statement (structured placeholder text that I will finalize; clearly marked with TODOs where my business details go)
+- `/bedankt` (`/en/thanks`) — post-signup page with a share/referral prompt
+- Custom 404
+
+## 7. Landing page sections (in order)
+
+1. **Nav**: logo/wordmark, links (How it works, Skills, For organizations), language toggle, CTA button "Join the waitlist". On mobile: a compact nav with a CTA always visible.
+2. **Hero**: headline built on the mission ("Nobody should have to figure everything out alone." / Dutch: something like "Niemand zou alles alleen hoeven uitzoeken."), a subheadline with the one-liner, a primary CTA (waitlist), a secondary CTA (watch the demo). Visual: a phone mockup showing the coaching screen (live camera view with a step card: "Step 3 of 7 — Wrap the wide end behind" and a feedback bubble "Almost — bring it a little higher"). Build the mockup in HTML/CSS/SVG (no stock photos of people). A small "Early demo" pill.
+3. **The problem**: a short empathetic story in 3 beats (Growing up, you're supposed to learn this stuff from someone → Not everyone had that someone → Tutorials can show you, but they can't see you). Optional: a simple visual contrasting "Video: talks at you" vs "plsteach.me: watches with you".
+4. **How it works**: 4 steps with simple line icons: Pick a skill → Prop up your phone → Follow along, hands free → Get feedback until you've got it. Add a small animated diagram of the loop (camera → recognize → check → feedback → check again), subtle, respecting reduced motion.
+5. **Demo**: a vertical video slot (placeholder poster plus play button; the video file path is configurable) and a "Try it yourself" button.
+6. **Skills**: cards — "Tie a tie" (Available in demo), and Coming soon cards for shaving, beard trimming, ironing, sewing a button, using a drill (or similar). Each coming-soon card has a "I want this" vote button that registers interest (stored with the signup, or anonymously if not signed up).
+7. **Not a replacement, a stand-in**: a warm section stating what plsteach.me is and isn't (it doesn't replace a parent or mentor; it makes the guidance available to everyone).
+8. **Privacy, plainly**: 3 short points (your camera feed stays on your phone; only a few still frames are checked and not stored; you can stop and delete your data anytime), linking to `/privacy`.
+9. **For organizations teaser**: "Teaching practical skills to groups?" → link to `/organisaties`.
+10. **Waitlist form** (section 8).
+11. **FAQ**: Is it free? (Free during the demo.) Does it work on my phone? (Modern iPhone/Android browser, front camera.) Is my video stored? Who is behind it? (Placeholder for founder bio: "Built by Thomas, AI student in Amsterdam" — mark as TODO for me to edit.) When is shaving coming? What if it gets it wrong? (Honest: it's an early demo; it only corrects you when it's fairly sure, and you can always continue.)
+12. **Footer**: mission line, links, privacy, contact email placeholder, language toggle.
+
+## 8. Waitlist form and validation data
+
+Fields:
+- Email (required)
+- "Which skills would you like to learn?" (multi-select chips; options from the skills list plus "Something else" with a free-text field)
+- Age bracket (required): under 16 / 16–17 / 18–24 / 25–34 / 35+
+- "Would you pay for this?" (optional): No, only free / A few euros per month / €5–10 per month / One-time purchase per skill / Not sure
+- Consent checkbox (required): agree to the privacy statement and to receive updates
+
+Rules:
+- **Under 16**: do NOT store the email (Dutch GDPR consent age). Show a friendly message: they can try the demo with a parent, or a parent can sign up. Store only an anonymous count of under-16 visits for this form (no personal data).
+- Automatically attach: `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` (captured on first landing and kept in sessionStorage), the referrer domain, the language, the landing path, and the referral code if present.
+- Honeypot field plus simple rate limiting per IP (in memory or via the storage provider). Zod validation client- and server-side.
+- On success → redirect to `/bedankt`, which shows: "You're on the list", a personal referral link (`?ref=CODE`) with share buttons (WhatsApp, copy link, native share sheet via `navigator.share`), and a one-question follow-up: "What's the one skill you wish someone had taught you?" (free text, optional, linked to the signup).
+
+Storage:
+- Supabase (Postgres) with tables `waitlist`, `skill_votes`, `org_leads`, `followups`. Row Level Security: anon can only INSERT, never SELECT. Inserts go through a Next.js route handler using the service role key on the server (preferred), so the client never talks to the database directly.
+- Provide the SQL migration file for all tables and policies.
+- If the Supabase env vars are missing, fall back to a mock that logs to the server console, so the site runs locally without setup. Show a dev-only badge when in mock mode.
+- Optional (behind an env flag): a confirmation email via Resend. Off by default.
+
+## 9. Organizations page
+
+- Hero: "Practical skills, practiced with feedback — for groups." Explain the idea for schools, vocational programs (mbo), youth work and employers: students or participants practice hands-on skills with step-by-step feedback, so teachers and mentors can focus where they're needed most.
+- Be explicit that this is early and that we're looking for pilot partners to shape it together. No fake case studies.
+- Example use cases as cards (life skills in youth work, practical procedures in vocational training, onboarding new staff on hands-on tasks).
+- Lead form: name, organization, role, organization type (school/mbo, higher education, youth work, healthcare, employer, other), email, phone (optional), "Which skills or procedures would you want students/participants to practice?" (textarea), consent checkbox. Stored in `org_leads` with the UTM data.
+
+## 10. Design direction
+
+- Feeling: warm, human, calm, trustworthy — like a patient older brother/sister, not a tech company. It should feel crafted, not templated.
+- Palette: warm off-white background (for example #FAF7F2), deep ink text (for example #1C1B19), one warm accent (for example a deep terracotta or warm green — pick one and use it sparingly), soft neutrals for cards. Dark mode support via `prefers-color-scheme`, with the same warmth.
+- Typography: an expressive serif for headlines (for example Fraunces or Newsreader from Google Fonts), a clean humanist sans for body text (for example Inter or Source Sans 3). Large, confident headline sizes on mobile.
+- Illustrations: simple, friendly line art (hands, a tie, a razor, an iron, a needle) in ink plus the accent color, drawn as inline SVG. No stock photos, no 3D blobs, no purple gradients, no robot imagery.
+- Motion: subtle (fade/slide on scroll, the gentle loop diagram); everything disabled under `prefers-reduced-motion`.
+- Mobile-first: most visitors come from a phone via social media. Design for 375px first; desktop is a nice-to-have enhancement.
+
+## 11. Social media, SEO and analytics
+
+- Dynamic Open Graph images per page and language via `next/og` (headline plus wordmark plus a small illustration), 1200×630, plus Twitter card meta.
+- A link-in-bio friendly experience: the first screen loads fast and shows the CTA without scrolling.
+- Support `/?ref=CODE` and UTM parameters everywhere; never strip them on internal navigation before they're captured.
+- Privacy-friendly, cookieless analytics (Plausible or Umami, configurable via env; disabled if not configured) so no cookie banner is needed. Track events: `cta_waitlist_click`, `cta_demo_click`, `waitlist_submit_success`, `waitlist_under16`, `skill_vote`, `org_form_submit`, `share_click`, `demo_video_play`.
+- SEO: proper titles/descriptions in both languages, `hreflang`, sitemap.xml, robots.txt, semantic HTML, and structured data (`Organization` and `FAQPage`).
+
+## 12. Tech stack and quality bar
+
+- Next.js (App Router) + TypeScript (strict), Tailwind CSS, minimal Framer Motion (or CSS only), Zod, Supabase JS (server-side), deployed on Vercel.
+- Performance: Lighthouse mobile ≥ 95 for Performance, Accessibility, Best Practices and SEO. LCP < 2.0 s on 4G. Self-host or optimize fonts (`next/font`), optimized images, no heavy libraries.
+- Accessibility: WCAG AA, keyboard navigable, labeled form fields, visible focus, readable error messages in both languages.
+- Environment variables:
+
+```
+NEXT_PUBLIC_SITE_URL=
+NEXT_PUBLIC_DEMO_APP_URL=
+SUPABASE_URL=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_ANALYTICS_PROVIDER=   # plausible | umami | (empty = off)
+NEXT_PUBLIC_ANALYTICS_DOMAIN=
+RESEND_API_KEY=                   # optional
+ENABLE_CONFIRMATION_EMAIL=false
+```
+
+## 13. Build phases and acceptance criteria
+
+**Phase 1: Foundation and design system.** Project setup, fonts, colors, spacing, components (Button, Card, Chip, Section, FormField), i18n setup with NL/EN, layout, nav and footer.
+✅ Done when: a style-guide page `/dev/styleguide` (dev only) shows all components in light and dark mode.
+
+**Phase 2: Landing page.** All sections from section 7 with full NL and EN copy, the phone mockup, the illustrations, the loop animation.
+✅ Done when: it looks finished at 375px and 1280px and passes the honesty rules in section 3.
+
+**Phase 3: Forms and data.** Waitlist with all rules from section 8, skill votes, the thanks page with referral and follow-up, the organizations page and form, the Supabase migration, mock fallback, rate limiting, honeypot.
+✅ Done when: the under-16 path stores no email, UTMs and ref codes are saved correctly, and RLS blocks anonymous reads (include a short test script or instructions to verify this).
+
+**Phase 4: Demo page, privacy, SEO, analytics.** `/demo`, `/privacy` placeholder, OG images, sitemap, structured data, analytics events.
+
+**Phase 5: Polish.** Lighthouse targets, accessibility pass, 404, final copy consistency check, README (setup, env vars, Supabase migration, deploying to Vercel, where to edit copy, how to read the signup data and export it to CSV from Supabase).
+
+Start with Phase 1. Before writing code, give me a short plan (pages, components, i18n approach) and the Dutch and English versions of the hero headline and subheadline (3 options each). Select a suitable option and continue without stopping, as authorized.

@@ -1,0 +1,11 @@
+import { z } from 'zod';
+import { skillIds, payments } from './config';
+export { ages, payments } from './config';
+const short = z.string().trim().max(200);
+const optionalText = (max: number) => z.string().trim().max(max).default('');
+export const attributionSchema = z.object({ utm_source: short.default(''), utm_medium: short.default(''), utm_campaign: short.default(''), utm_content: short.default(''), referrer_domain: short.default(''), landing_path: z.string().max(500).default('/'), referral: z.string().regex(/^[a-zA-Z0-9_-]{0,32}$/).default(''), language: z.enum(['nl', 'en']) });
+const envelope = { website: z.string().max(500).default('') };
+export const waitlistSchema = z.discriminatedUnion('age', [z.object({ age: z.literal('under16'), ...envelope }), z.object({ age: z.enum(['16-17', '18-24', '25-34', '35+']), email: z.email().max(254).transform(s => s.toLowerCase()), skills: z.array(z.enum([...skillIds, 'other'])).max(skillIds.length + 1).default([]), other: optionalText(500), payment: z.enum(payments).optional(), consent: z.literal(true), attribution: attributionSchema, ...envelope })]);
+export const voteSchema = z.object({ skill: z.enum(skillIds), over16: z.literal(true), ...envelope });
+export const orgSchema = z.object({ name: z.string().trim().min(1).max(100), organization: z.string().trim().min(1).max(160), role: z.string().trim().min(1).max(100), type: z.enum(['school','higher','youth','healthcare','employer','other']), email: z.email().max(254).transform(s => s.toLowerCase()), phone: optionalText(40), needs: z.string().trim().min(1).max(2000), consent: z.literal(true), attribution: attributionSchema, ...envelope });
+export const followupSchema = z.object({ answer: z.string().trim().min(1).max(1000), ...envelope });
