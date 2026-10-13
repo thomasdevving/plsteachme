@@ -49,3 +49,5 @@ Production build and seven relevant browser checks pass, including seven distinc
 ## Guiding touch refinement
 
 B retains solid overlapping hands and Lora. Smoothed palm contours, a tighter optical viewBox, slight opposing hand angles and a thinner cream separation improve its silhouette. Em-based mark sizing and tighter wordmark spacing improve the header lockup. B is the comparison default. A batched 375px/1280px check confirms loaded SVGs, correct selection and no overflow; the existing logo preview browser test passes. Only static logo/HTML assets and documentation changed, so the application build was not rerun.
+
+The subsequent B adjustment reduces only the green hand’s silhouette and refines finger/palm contours. A single batched 375px/1280px header and app-mark review confirms loaded SVGs and no overflow. No application code changed; no new build or tests were needed.

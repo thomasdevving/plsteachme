@@ -289,3 +289,5 @@ Native details/summary rows use line separators, generous clickable summaries an
 Logo exploration lives at `/brand/logo-directions.html`: A uses simplified reaching-hand outlines and DM Sans; B uses overlapping solid hands with softened palms, slight opposing angles, a tighter optical crop and a closely spaced Lora wordmark; C uses linked abstract forms and DM Sans. Each has a downloadable SVG mark, a small-size example and an interactive header preview. These are review concepts; the shared header and footer still use the supplied hands raster.
 
 The refined B concept is the default selection in the logo comparison. Its mark uses a 52×57 optical viewBox, a 1.6-unit cream separation and a 1.3em symbol beside 30px Lora with -0.035em tracking and a 7px gap at desktop display size. Small header/app samples are checked independently.
+
+B’s green rear hand is reduced in height and width relative to the orange hand, with slimmer fingers, gentler fingertip curves and a smoother palm-to-wrist contour. The orange hand, lettering, spacing and palette are preserved.
