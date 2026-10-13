@@ -605,7 +605,7 @@
     ],
     "brandAssets": [
       {
-        "path": "/brand/hands.png",
+        "path": "/brand/hands-filled.png",
         "role": "User-supplied authoritative hands mark; header/footer/browser and apple icons.",
         "headerSize": "1.25em symbol; 35px at desktop 1.75rem wordmark, 23px at mobile 1.15rem wordmark.",
         "footerSize": "130px; 90px at <=800px; 55px at <=600px",

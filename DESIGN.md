@@ -218,7 +218,7 @@ The interactive figure reserves 93px below its phone for controls and caption. S
 
 Controls and module filters use gently rounded 7px corners, while cards and the expanded preview use 14px corners. Interest chips and status badges have pill silhouettes. The phone has pronounced 38px casing corners and a clipped screen. Fine one-pixel borders distinguish fields, secondary buttons, filters, cards and FAQ rows. Skill drawings remain fine inline SVG linework rather than filled pictograms.
 
-The supplied `public/brand/hands.png` is the authoritative raster mark; do not redraw it. The shared header/404 lockup uses a 1.25em square symbol box, a 0.18em gap to the wordmark, and a -0.025em optical vertical adjustment. The original image scales to 1.22 inside that clipped box to remove optical whitespace. It has no tile, border radius, padding or separate background. At the desktop header size its symbol box is 35px; at 375px it is 23px. Green “plsteach” and orange “.me” form one contiguous name.
+The supplied `public/brand/hands-filled.png` is the authoritative raster mark; do not redraw it. The shared header/404 lockup uses a 1.25em square symbol box, a 0.18em gap to the wordmark, and a -0.025em optical vertical adjustment. The original image scales to 1.22 inside that clipped box to remove optical whitespace. It has no tile, border radius, padding or separate background. At the desktop header size its symbol box is 35px; at 375px it is 23px. Green “plsteach” and orange “.me” form one contiguous name.
 
 The separate footer mark remains 130px, then 90px at tablet width and 55px on phones. The same asset supplies browser/apple icons. Explicit development dark scopes retain the old warm-paper tile treatment for a standalone/footer logo (8px corners, 3px padding); the shared header/404 lockup overrides it to remain transparent. Public pages use neither automatic dark backgrounds nor a header logo tile.
 
@@ -291,3 +291,5 @@ Logo exploration lives at `/brand/logo-directions.html`: A uses simplified reach
 The refined B concept is the default selection in the logo comparison. Its mark uses a 52×57 optical viewBox, a 1.6-unit cream separation and a 1.3em symbol beside 30px Lora with -0.035em tracking and a 7px gap at desktop display size. Small header/app samples are checked independently.
 
 B’s green rear hand is reduced in height and width relative to the orange hand, with slimmer fingers, gentler fingertip curves and a smoother palm-to-wrist contour. The orange hand, lettering, spacing and palette are preserved.
+
+Latest supplied identity: the filled two-hands PNG uploaded on 13 October replaces the earlier outline logo across header, 404, footer and browser/apple icon metadata. The original PNG is preserved byte-for-byte; Next Image serves size-appropriate header/footer derivatives. The compact lockup and green/orange wordmark remain. Earlier vector concepts are exploration references.

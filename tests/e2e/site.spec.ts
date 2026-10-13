@@ -108,5 +108,5 @@ test('three logo directions preview in the header without changing the main bran
  await page.goto('/brand/logo-directions.html');
  for(const design of ['A','B','C']) { const button=page.getByRole('button',{name:`Preview ${design}`,exact:true}); await button.click(); await expect(button).toHaveAttribute('aria-pressed','true'); await expect(page.locator('#selection')).toContainText(design+' — '); }
  await expect(page.locator('#header-logo img')).toHaveAttribute('src','/brand/concepts/passing-on.svg');
- await page.goto('/'); await expect(page.locator('.wordmark img')).toHaveAttribute('src','/brand/hands.png');
+ await page.goto('/'); await expect(page.locator('.wordmark img')).toHaveAttribute('src',/hands-filled\.png/);
 });

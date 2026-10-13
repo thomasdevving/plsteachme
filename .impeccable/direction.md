@@ -15,3 +15,5 @@ Hero module refinement: six selectable modules (tie, shaving, button, ironing, c
 Latest correction: tie movement must depict the selected lesson, with seven distinct poses and a finite move from the previous pose to the current one. Next, Back, restart and Replay remain synchronized with instruction/progress; there is no repeating wrap loop. Offscreen/document-hidden suspension and reduced-motion final states persist. Logo concepts are reviewable alternatives in /brand/logo-directions.html; retain the supplied main-site logo until the user chooses a replacement.
 
 Logo refinement: user requests a small polish of B (Guiding touch). Preserve the overlapping solid hands, green/orange palette and serif wordmark. Smooth the palm contours, improve the hand separation and optical sizing, and tighten the lettering gap. B becomes the comparison page’s default preview.
+
+Selected logo: use the user’s newly supplied filled green/orange two-hands PNG (13_28_11), preserved unchanged at /brand/hands-filled.png. Replace the previous outline mark across header, 404, footer and browser/apple icons. Prior logo concepts remain exploratory.

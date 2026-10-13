@@ -51,3 +51,9 @@ Production build and seven relevant browser checks pass, including seven distinc
 B retains solid overlapping hands and Lora. Smoothed palm contours, a tighter optical viewBox, slight opposing hand angles and a thinner cream separation improve its silhouette. Em-based mark sizing and tighter wordmark spacing improve the header lockup. B is the comparison default. A batched 375px/1280px check confirms loaded SVGs, correct selection and no overflow; the existing logo preview browser test passes. Only static logo/HTML assets and documentation changed, so the application build was not rerun.
 
 The subsequent B adjustment reduces only the green hand’s silhouette and refines finger/palm contours. A single batched 375px/1280px header and app-mark review confirms loaded SVGs and no overflow. No application code changed; no new build or tests were needed.
+
+## Selected supplied filled-hands logo
+
+The user’s `ChatGPT-afbeelding 13 okt 2026, 13_28_11.png` is preserved byte-for-byte at `public/brand/hands-filled.png` (SHA-256 `5ed2894d4e7cb9f851541c376e1de41b4e73ae14e75ca4d919fdee308f1b0694`). It replaces the earlier outline mark in the shared header/404 BrandMark, footer and browser/apple icon metadata. Next Image serves appropriately sized header/footer images; the supplied source is unchanged. Existing compact optical sizing and brand text colors remain.
+
+Production build and four relevant browser checks pass, including mobile/desktop WCAG checks, no horizontal overflow, dark OS/reduced motion, module controls and concept-preview isolation. One batched 375px/1280px visual check confirms the transparent cream-backed header/footer presentation, loaded optimized images and the new icon URL. Earlier vector concepts remain review references rather than the selected identity.
