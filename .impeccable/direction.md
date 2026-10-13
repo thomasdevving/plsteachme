@@ -4,6 +4,8 @@ First viewport: the mission in expressive serif, a plain description of camera-b
 Visitor path: understand → recognize the learning gap → see the coaching loop → explore tie demo and future skills → understand human/practical boundaries and privacy → express interest → share and answer one question.
 Signature: a seven-position tie instruction and a restrained observe/check loop. Everything remains visible with reduced motion.
 Identity: inherited Lora/DM Sans, ink, warm paper, terracotta; calm line geometry. Surface palette #faf7f2 / #26392f / #a84228, muted #5e685e. Backgrounds are flat surfaces. Use the supplied transparent hands raster as the logo; lesson visuals remain vector diagrams.
-Required sizes: 375px and 1280px; dark mode. Functional controls must state when data is only mocked. Public database reads denied. No invented evidence or unreleased skill claims.
+Required sizes: 375px and 1280px; public pages stay light under all OS themes. Functional controls must state when data is only mocked. Public database reads denied. No invented evidence or unreleased skill claims.
 
 Latest user direction: this landing website replaces the website on main. English only, canonical root URLs. Use the supplied two-hands raster logo in the wordmark, plsteach green and .me orange. The second hero line is orange. Nine filterable modules have explicitly labeled text previews. The seven-step phone is interactive and feedback is illustrative. Motion focuses on phone/feedback changes and module previews, pauses the loop offscreen or hidden, and respects reduced motion.
+
+Latest refinement: cream public canvas regardless of OS preference; replace the dark-green problem band with pale cream #f5f0e7. Integrate the supplied hands with the wordmark using a compact optical crop and shared baseline, without a separate icon tile. Explicit dark tokens exist only for the development component gallery.

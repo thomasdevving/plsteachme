@@ -30,8 +30,8 @@ test('404 and production styleguide restrictions',async({page})=>{
 test('no horizontal overflow, accessible landmarks and no serious accessibility violations',async({page})=>{
  for(const width of [375,1280]) { await page.setViewportSize({width,height:900}); for(const path of ['/','/organizations','/demo','/privacy']){ await page.goto(path); expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); } }
 });
-test('dark mode and reduced motion remain usable',async({page})=>{
- await page.emulateMedia({colorScheme:'dark',reducedMotion:'reduce'}); await page.goto('/en'); expect(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--paper').trim())).toBe('#1e2621'); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); expect(await page.locator('.loop-node:first-child>span').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+test('cream canvas stays light under dark OS preference and reduced motion remains usable',async({page})=>{
+ await page.emulateMedia({colorScheme:'dark',reducedMotion:'reduce'}); await page.goto('/en'); expect(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--paper').trim())).toBe('#faf7f2'); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); expect(await page.locator('.loop-node:first-child>span').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
 });
 
 test('module filters, previews and phone controls work with keyboard and reduced motion', async ({page})=>{

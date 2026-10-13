@@ -24,7 +24,7 @@ Open http://localhost:3100. For a production server, run `npm run build` then `n
 
 The public site is entirely English. Old `/en`, `/nl`, `/organisaties` and `/bedankt` links redirect to their English canonical URLs and preserve query parameters. Copy is in `messages/en.ts`; brand, routes and skill IDs are in `lib/config.ts`. Module preview content is in `lib/modules.ts`.
 
-The logo is the supplied transparent PNG at `public/brand/hands.png`. The brand colors are green `#22372c` and orange `#bb4827`; dark mode uses lighter text variants. Fonts are self-hosted. Reduced motion disables animation, and the animated coaching loop pauses offscreen and in hidden tabs.
+The logo is the supplied transparent PNG at `public/brand/hands.png`. The brand colors are green `#22372c` and orange `#bb4827`; public pages always use the light cream canvas, including under a dark OS preference. The hands and lettering form one compact wordmark; the image has no tile. Fonts are self-hosted. Reduced motion disables animation, and the animated coaching loop pauses offscreen and in hidden tabs.
 
 ## Optional services
 
@@ -63,6 +63,6 @@ npm run build
 npm run test:e2e
 ```
 
-Browser checks use Chromium on port 3100 and should run against `npm start` for production-only checks. They cover canonical redirects, attribution, age boundaries, mocked forms, server authorization, module/phone controls, mobile overflow, WCAG checks, dark mode and reduced motion.
+Browser checks use Chromium on port 3100 and should run against `npm start` for production-only checks. They cover canonical redirects, attribution, age boundaries, mocked forms, server authorization, module/phone controls, mobile overflow, WCAG checks, dark OS preference and reduced motion.
 
 For a migrated test Supabase project, `npm run verify:rls` verifies direct anon access is denied. Live storage, email and deployed performance require configured services; local mock tests do not verify those integrations. Historic planning documents in `docs/` describe earlier iterations; `docs/VERIFICATION.md` records this revision's checks.

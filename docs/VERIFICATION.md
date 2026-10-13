@@ -27,3 +27,7 @@ Supabase and Resend were not configured. Tests exercise mock forms and mocked se
 ## Mobile performance
 
 One local production Lighthouse run after visual corrections measured Performance 94, Accessibility 100, Best Practices 100 and SEO 100, LCP 2.73s, TBT 140ms and CLS 0. The score target of 90 is met; the simulated LCP goal below 2.0s remains open. This is a local laboratory result, not deployed field performance. An additional label/name consistency finding in that report was corrected in the module buttons and is verified by a targeted browser rule; no further visual or performance tuning loop was run.
+
+## Cream canvas and wordmark refinement
+
+The latest user direction keeps public pages light even when the OS prefers dark mode. The main canvas is #faf7f2; the former green story band is #f5f0e7. Header and 404 pages share the compact, transparent BrandMark lockup. A batched 375px/1280px visual check confirms the colors and no overflow. The two relevant browser checks pass, covering WCAG accessibility on four pages, dark OS preference and reduced motion. The production build was rerun for this refinement; form/server implementation is unchanged.

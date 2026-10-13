@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-13T00:37:31.065064+00:00",
+  "generatedAt": "2026-10-13T00:43:57.284899+00:00",
   "title": "Design System: plsteach.me",
   "extensions": {
     "colorMeta": {
@@ -424,66 +424,6 @@
           "oklch(95% 0.1004 43.00)"
         ]
       },
-      "problem-ink": {
-        "role": "neutral",
-        "displayName": "Problem Ink",
-        "canonical": "#faf7f2",
-        "tonalRamp": [
-          "oklch(15% 0.0074 80.72)",
-          "oklch(27% 0.0074 80.72)",
-          "oklch(38% 0.0074 80.72)",
-          "oklch(50% 0.0074 80.72)",
-          "oklch(61% 0.0074 80.72)",
-          "oklch(73% 0.0074 80.72)",
-          "oklch(84% 0.0074 80.72)",
-          "oklch(95% 0.0074 80.72)"
-        ]
-      },
-      "problem-muted": {
-        "role": "neutral",
-        "displayName": "Problem Muted",
-        "canonical": "#d9e2d5",
-        "tonalRamp": [
-          "oklch(15% 0.0199 135.84)",
-          "oklch(27% 0.0199 135.84)",
-          "oklch(38% 0.0199 135.84)",
-          "oklch(50% 0.0199 135.84)",
-          "oklch(61% 0.0199 135.84)",
-          "oklch(73% 0.0199 135.84)",
-          "oklch(84% 0.0199 135.84)",
-          "oklch(95% 0.0199 135.84)"
-        ]
-      },
-      "problem-accent": {
-        "role": "primary",
-        "displayName": "Problem Accent",
-        "canonical": "#f4a27f",
-        "tonalRamp": [
-          "oklch(15% 0.1091 43.85)",
-          "oklch(27% 0.1091 43.85)",
-          "oklch(38% 0.1091 43.85)",
-          "oklch(50% 0.1091 43.85)",
-          "oklch(61% 0.1091 43.85)",
-          "oklch(73% 0.1091 43.85)",
-          "oklch(84% 0.1091 43.85)",
-          "oklch(95% 0.1091 43.85)"
-        ]
-      },
-      "problem-line": {
-        "role": "neutral",
-        "displayName": "Problem Line",
-        "canonical": "#5d7464",
-        "tonalRamp": [
-          "oklch(15% 0.0368 154.65)",
-          "oklch(27% 0.0368 154.65)",
-          "oklch(38% 0.0368 154.65)",
-          "oklch(50% 0.0368 154.65)",
-          "oklch(61% 0.0368 154.65)",
-          "oklch(73% 0.0368 154.65)",
-          "oklch(84% 0.0368 154.65)",
-          "oklch(95% 0.0368 154.65)"
-        ]
-      },
       "illustration-ink": {
         "role": "neutral",
         "displayName": "Illustration Ink",
@@ -512,6 +452,21 @@
           "oklch(73% 0.1404 35.36)",
           "oklch(84% 0.1404 35.36)",
           "oklch(95% 0.1404 35.36)"
+        ]
+      },
+      "problem-bg": {
+        "role": "neutral",
+        "displayName": "Warmer Cream Story Surface",
+        "canonical": "#f5f0e7",
+        "tonalRamp": [
+          "oklch(15% 0.0131 82.40)",
+          "oklch(27% 0.0131 82.40)",
+          "oklch(38% 0.0131 82.40)",
+          "oklch(50% 0.0131 82.40)",
+          "oklch(61% 0.0131 82.40)",
+          "oklch(73% 0.0131 82.40)",
+          "oklch(84% 0.0131 82.40)",
+          "oklch(95% 0.0131 82.40)"
         ]
       }
     },
@@ -637,10 +592,22 @@
       {
         "path": "/brand/hands.png",
         "role": "User-supplied authoritative hands mark; header/footer/browser and apple icons.",
-        "headerSize": "52px; 40px at <=600px",
+        "headerSize": "1.25em symbol; 35px at desktop 1.75rem wordmark, 23px at mobile 1.15rem wordmark.",
         "footerSize": "130px; 90px at <=800px; 55px at <=600px",
         "policy": "Preserve supplied raster pixels; do not substitute a redrawn mark.",
-        "darkTreatment": "Warm-paper #faf7f2 tile, 8px radius, 3px padding; raster pixels unchanged."
+        "darkTreatment": "Header/404 lockup always transparent and untiled. Standalone/footer logos retain warm-paper tile only inside explicit development dark scope.",
+        "sharedComponent": "components/brand.tsx BrandMark, reused by header and 404.",
+        "opticalLockup": {
+          "symbolSize": "1.25em",
+          "symbolOverflow": "hidden",
+          "symbolTranslateY": "-.025em",
+          "imageScale": 1.22,
+          "gapToName": ".18em",
+          "name": "Contiguous inline-flex green plsteach/orange .me; -.035em tracking",
+          "background": "transparent",
+          "padding": "0",
+          "borderRadius": "0"
+        }
       }
     ],
     "illustrationPlacement": {
@@ -657,6 +624,11 @@
         "maxWidth": "235px"
       },
       "purpose": "Keep illustrative correction clear of the phone instruction."
+    },
+    "themePolicy": {
+      "public": "Always light cream; independent of OS prefers-color-scheme.",
+      "explicitDark": "Development-gallery data-theme=dark only; no automatic dark media query.",
+      "storySurface": "problem-bg cream with inherited interface text colors."
     }
   },
   "components": [
@@ -712,9 +684,9 @@
       "name": "Navigation",
       "kind": "nav",
       "refersTo": "navigation",
-      "description": "Text portion of English-only navigation; production adds the unchanged /brand/hands.png asset before the wordmark. Asset is not redrawn in this self-contained snippet.",
-      "html": "<header class=\"ds-nav\"><a class=\"ds-brand\" href=\"#\"><span class=\"ds-green\">plsteach</span><span class=\"ds-orange\">.me</span></a><nav class=\"ds-links\" aria-label=\"Main menu\"><a href=\"#how\">How it works</a><a href=\"#skills\">Skills</a></nav><a class=\"ds-join\" href=\"#waitlist\">I want to try this</a></header>",
-      "css": ".ds-nav{font-family:var(--font-body),sans-serif;display:flex;align-items:center;gap:25px;min-height:94px;border-bottom:1px solid var(--line);background:var(--paper);color:var(--ink)}.ds-nav a{text-decoration:none}.ds-brand{font-size:1.75rem;font-weight:600;letter-spacing:-.035em;line-height:1;white-space:nowrap}.ds-green{color:var(--brand-text-green)}.ds-orange{color:var(--brand-text-orange)}.ds-links{display:flex;gap:24px;margin-left:auto;font-size:.81rem}.ds-join{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;min-height:44px;padding:10px 17px;border:1px solid transparent;border-radius:7px;font-size:.82rem;font-weight:600;line-height:1.4;text-align:center;background:var(--accent);color:var(--on-accent);transition:background-color .2s ease}.ds-join:hover{background:var(--accent-hover)}.ds-links a:hover{color:var(--accent)}.ds-nav a:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}@media(max-width:800px){.ds-links{display:none}}@media(max-width:600px){.ds-nav{min-height:76px;gap:10px}.ds-brand{font-size:1.15rem}.ds-join{font-size:.7rem;padding:10px;min-height:43px;max-width:122px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}"
+      "description": "Text portion of the integrated English-only BrandMark navigation; source adds optically cropped, em-scaled supplied hands transparently before the contiguous name. Raster asset is not redrawn in this self-contained snippet.",
+      "html": "<header class=\"ds-nav\"><a class=\"ds-brand\" href=\"#\"><span class=\"ds-brand-name\"><span class=\"ds-green\">plsteach</span><span class=\"ds-orange\">.me</span></span></a><nav class=\"ds-links\" aria-label=\"Main menu\"><a href=\"#how\">How it works</a><a href=\"#skills\">Skills</a></nav><a class=\"ds-join\" href=\"#waitlist\">I want to try this</a></header>",
+      "css": ".ds-nav{font-family:var(--font-body),sans-serif;display:flex;align-items:center;gap:25px;min-height:94px;border-bottom:1px solid var(--line);background:var(--paper);color:var(--ink)}.ds-nav a{text-decoration:none}.ds-brand{font-size:1.75rem;font-weight:600;letter-spacing:-.035em;line-height:1;white-space:nowrap}.ds-green{color:var(--brand-text-green)}.ds-orange{color:var(--brand-text-orange)}.ds-links{display:flex;gap:24px;margin-left:auto;font-size:.81rem}.ds-join{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;min-height:44px;padding:10px 17px;border:1px solid transparent;border-radius:7px;font-size:.82rem;font-weight:600;line-height:1.4;text-align:center;background:var(--accent);color:var(--on-accent);transition:background-color .2s ease}.ds-join:hover{background:var(--accent-hover)}.ds-links a:hover{color:var(--accent)}.ds-nav a:focus-visible{outline:3px solid var(--focus);outline-offset:4px;}@media(max-width:800px){.ds-links{display:none}}@media(max-width:600px){.ds-nav{min-height:76px;gap:10px}.ds-brand{font-size:1.15rem}.ds-join{font-size:.7rem;padding:10px;min-height:43px;max-width:122px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}.ds-brand{display:inline-flex;align-items:center;gap:.18em}.ds-brand-name{display:inline-flex;align-items:baseline;line-height:1;letter-spacing:-.035em}"
     },
     {
       "name": "Module Filters",
@@ -743,18 +715,18 @@
   ],
   "narrative": {
     "northStar": "A calm lesson companion",
-    "overview": "Warm paper, deep green and orange give practical learning a patient, human setting. Lora carries the mission and larger headings; DM Sans keeps navigation, explanations and controls clear. Flat color bands, fine line illustrations and generous space retain the established handbook character.\n\nThe supplied two-hands mark anchors the current identity. The wordmark pairs green \u201cplsteach\u201d with orange \u201c.me,\u201d and the second hero phrase repeats that orange. This is an English-only website with root-level canonical URLs. Its phone is a controllable coaching example, and the nine modules offer explicitly labelled text previews; neither implies a live camera or AI feedback session.",
+    "overview": "Warm paper, deep green and orange give practical learning a patient, human setting. Lora carries the mission and larger headings; DM Sans keeps navigation, explanations and controls clear. Flat color bands, fine line illustrations and generous space retain the established handbook character.\n\nThe supplied two-hands mark anchors the current identity. Its compact optical lockup feels integrated with the contiguous green \u201cplsteach\u201d and orange \u201c.me\u201d wordmark; the second hero phrase repeats that orange. This is an English-only website with root-level canonical URLs. Its phone is a controllable coaching example, and the nine modules offer explicitly labelled text previews; neither implies a live camera or AI feedback session.",
     "keyCharacteristics": [
       "Supplied hands mark with a green/orange wordmark.",
-      "Warm paper, a strong green story band and quiet flat surfaces.",
+      "A light cream public canvas, a warmer cream story band and quiet flat surfaces.",
       "Serif mission phrases paired with readable sans-serif interaction.",
       "Seven-step sample coaching and nine filterable text-preview modules.",
-      "Visible keyboard focus, reduced motion and theme-aware interface colors."
+      "Visible keyboard focus, reduced motion and a public canvas independent of OS theme."
     ],
     "rules": [
       {
         "name": "The Semantic Surface Rule",
-        "body": "Use runtime theme variables for interface surfaces and text; preserve the explicit story-band palette and fixed light illustration interior.",
+        "body": "Keep public surfaces light cream through runtime palette variables; preserve the warmer cream story band and fixed light illustration interior. Dark tokens are development-gallery variants only.",
         "section": "colors"
       },
       {
@@ -769,14 +741,14 @@
       }
     ],
     "dos": [
-      "Do preserve the supplied hands asset and the green \u201cplsteach\u201d / orange \u201c.me\u201d relationship.",
+      "Do preserve the supplied hands asset, compact optical lockup and contiguous green \u201cplsteach\u201d / orange \u201c.me\u201d relationship.",
       "Do keep the second hero phrase orange and the website interface English-only.",
-      "Do use semantic theme variables while retaining the explicit green story band and fixed illustration interior.",
+      "Do keep public page backgrounds light cream, including the warmer cream story band, regardless of the OS theme.",
       "Do label text previews and sample coaching honestly, with visible focus and static reduced-motion content.",
       "Do retain the compact signup action, wrapping filters and readable preview controls at 375px."
     ],
     "donts": [
-      "Don't redraw the supplied hands logo or replace it with the earlier asterisk wordmark.",
+      "Don't redraw the supplied hands logo, add a tile to the header lockup or separate \u201cplsteach\u201d from \u201c.me.\u201d",
       "Don't add shadows to interface cards, fields or preview panels.",
       "Don't turn step progress, sample feedback or module previews into camera-analysis claims.",
       "Don't replace the established line drawings with stock photos, robots or purple gradients.",
