@@ -67,4 +67,6 @@ Browser checks use Chromium on port 3100 and should run against `npm start` for 
 
 For a migrated test Supabase project, `npm run verify:rls` verifies direct anon access is denied. Live storage, email and deployed performance require configured services; local mock tests do not verify those integrations. Historic planning documents in `docs/` describe earlier iterations; `docs/VERIFICATION.md` records this revision's checks.
 
-Hero preview: six module choices update the phone in place. The tie fabric animates a simplified wrap with pause/play, viewport/document suspension and a static reduced-motion alternative. Upcoming modules reuse the existing, explicitly labelled three-step text previews.
+Hero preview: six module choices update the phone in place. The tie fabric moves through seven distinct, manually selected poses. Each move plays once, holds its result and can be replayed; it pauses offscreen or in a hidden document, with an immediate final-state reduced-motion alternative. Upcoming modules reuse the existing, explicitly labelled three-step text previews.
+
+Logo exploration: `/brand/logo-directions.html` compares three vector concepts at display, header and app-icon sizes. Its local preview does not change the main site logo. SVG sources live under `public/brand/concepts/`.

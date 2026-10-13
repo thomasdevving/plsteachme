@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<title>Guiding touch</title>
+<path d="M10 47V31c0-5 7-5 7 0v6-21c0-5 7-5 7 0v17-22c0-5 7-5 7 0v22-16c0-5 7-5 7 0v22l6-8c3-4 9 0 6 4L38 53c-5 6-13 7-19 2l-9-8Z" fill="#22372c"/>
+<path d="M26 51V40c0-3 4-3 4 0v4-14c0-3 5-3 5 0v12-16c0-3 5-3 5 0v16-12c0-3 5-3 5 0v15l4-6c2-3 6 0 4 3l-8 13c-3 4-9 5-13 2l-6-6Z" fill="#bb4827" stroke="#faf7f2" stroke-width="2"/>
+</svg>

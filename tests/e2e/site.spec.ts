@@ -70,17 +70,43 @@ test('hero modules change the phone preview and preserve a usable step flow', as
  const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze(); expect(result.violations.map(v=>v.id)).toEqual([]);
 });
 
-test('the tie fabric moves, can be paused, and pauses outside the viewport', async ({page}) => {
+test('tie artwork follows all seven lesson states, including back, reset and reduced motion', async ({page}) => {
+ await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
+ const art=page.locator('.tie-motion'); const fabric=page.locator('.tie-wide-end');
+ await page.getByRole('button',{name:'Previous example step'}).click(); await page.getByRole('button',{name:'Previous example step'}).click();
+ const shapes: string[]=[];
+ for(let step=1;step<=7;step++) {
+  await expect(art).toHaveAttribute('data-step',String(step));
+  await expect(art).toHaveAccessibleName(new RegExp(`^Step ${step}:`));
+  await expect(page.locator('.coach-step')).toContainText(`Step ${step} of 7`);
+  const shape=await fabric.getAttribute('d'); expect(shape).not.toBeNull(); shapes.push(shape!);
+  expect(await fabric.evaluate(el=>el.getAnimations().length)).toBe(0);
+  if(step<7) await page.getByRole('button',{name:'Next step',exact:true}).click();
+ }
+ expect(new Set(shapes).size).toBe(7);
+ await page.getByRole('button',{name:'Previous example step'}).click(); await expect(fabric).toHaveAttribute('d',shapes[5]);
+ await page.getByRole('button',{name:'Next step',exact:true}).click(); await page.getByRole('button',{name:'Try again',exact:true}).click();
+ await expect(art).toHaveAttribute('data-step','1'); await expect(fabric).toHaveAttribute('d',shapes[0]);
+});
+
+test('a tie move plays once, holds its result, replays and pauses offscreen', async ({page}) => {
  await page.emulateMedia({reducedMotion:'no-preference'}); await page.goto('/');
  const fabric=page.locator('.tie-wide-end');
- await expect(page.locator('.interactive-phone')).toHaveClass(/motion-active/);
- const shape=await fabric.evaluate(el=>getComputedStyle(el).d);
- await expect.poll(()=>fabric.evaluate(el=>getComputedStyle(el).d),{timeout:3000}).not.toBe(shape);
- await page.getByRole('button',{name:'Pause tie animation'}).click();
- expect(await fabric.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('paused');
- await page.getByRole('button',{name:'Play tie animation'}).click();
- expect(await fabric.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('running');
- await page.locator('#skills').scrollIntoViewIfNeeded();
- await expect(page.locator('.interactive-phone')).not.toHaveClass(/motion-active/);
- expect(await fabric.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('paused');
+ await page.getByRole('button',{name:'Next step',exact:true}).click();
+ const target=await fabric.getAttribute('d');
+ await expect.poll(()=>fabric.evaluate(el=>el.getAnimations().some(a=>a.playState==='running'))).toBe(true);
+ await expect.poll(()=>fabric.evaluate(el=>el.getAnimations().some(a=>a.playState==='running')),{timeout:3500}).toBe(false);
+ expect(await fabric.getAttribute('d')).toBe(target);
+ await page.getByRole('button',{name:'Replay this tie step'}).click();
+ const start=await fabric.evaluate(el=>getComputedStyle(el).d);
+ await expect.poll(()=>fabric.evaluate(el=>getComputedStyle(el).d)).not.toBe(start);
+ await page.evaluate(()=>window.scrollTo({top:3000,behavior:'instant'}));
+ await expect.poll(()=>fabric.evaluate(el=>el.getAnimations().some(a=>a.playState==='paused'))).toBe(true);
+});
+
+test('three logo directions preview in the header without changing the main brand', async ({page})=>{
+ await page.goto('/brand/logo-directions.html');
+ for(const design of ['A','B','C']) { const button=page.getByRole('button',{name:`Preview ${design}`,exact:true}); await button.click(); await expect(button).toHaveAttribute('aria-pressed','true'); await expect(page.locator('#selection')).toContainText(design+' — '); }
+ await expect(page.locator('#header-logo img')).toHaveAttribute('src','/brand/concepts/passing-on.svg');
+ await page.goto('/'); await expect(page.locator('.wordmark img')).toHaveAttribute('src','/brand/hands.png');
 });

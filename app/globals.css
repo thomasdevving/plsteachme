@@ -84,9 +84,6 @@
 .phone-progress>span{position:relative;background:#d9dcd1!important;overflow:hidden}
 .phone-progress>span:after{content:'';position:absolute;inset:0;background:var(--brand-orange);transform:scaleX(0);transform-origin:left;transition:transform 350ms cubic-bezier(.16,1,.3,1)}
 .phone-progress>.complete:after{transform:scaleX(1)}
-.tie-wide-end{transform-origin:211px 132px;animation:tie-wrap 4.6s cubic-bezier(.45,0,.3,1) infinite;animation-play-state:paused}
-.tie-guide{stroke-dasharray:1;stroke-dashoffset:0;animation:tie-trace 4.6s ease-in-out infinite;animation-play-state:paused}
-.interactive-phone.motion-active[data-paused=false] .tie-motion> .tie-wide-end,.interactive-phone.motion-active[data-paused=false] .tie-guide{animation-play-state:running}
 .coach-controls button{transition:background-color 180ms ease,transform 180ms cubic-bezier(.16,1,.3,1)}
 .coach-controls button:active:not(:disabled),.button:active:not(:disabled){transform:translateY(2px)}
 .coach-controls button:hover:not(:disabled)>svg{animation:control-nudge 300ms cubic-bezier(.16,1,.3,1)}
@@ -99,8 +96,6 @@
 summary span{transition:transform 220ms cubic-bezier(.16,1,.3,1)}
 details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 @keyframes skill-switch{from{clip-path:inset(0 0 12% 0);transform:translateX(9px)}to{clip-path:inset(0);transform:translateX(0)}}
-@keyframes tie-wrap{0%,12%,100%{d:path('M202 126C192 155 183 202 164 257L183 281L205 261C208 209 219 164 221 135Z');transform:rotate(-4deg)}35%{d:path('M202 126C215 164 253 207 266 250L249 277L225 259C213 205 212 164 221 135Z');transform:rotate(2deg)}60%,78%{d:path('M202 126C254 143 260 178 184 197L158 232L186 251C212 194 295 152 221 135Z');transform:rotate(0deg)}}
-@keyframes tie-trace{0%,18%,100%{stroke-dashoffset:1;opacity:0}40%,70%{stroke-dashoffset:0;opacity:1}85%{stroke-dashoffset:0;opacity:0}}
 @keyframes control-nudge{from{transform:translateX(-3px)}to{transform:translateX(0)}}
 @keyframes module-appear{from{clip-path:inset(0 0 9% 0 round 14px)}to{clip-path:inset(0 round 14px)}}
 @keyframes answer-open{from{clip-path:inset(0 0 50% 0)}to{clip-path:inset(0)}}
@@ -108,4 +103,4 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 @media(max-width:1050px){.hero-grid{gap:35px}.hero-module-options{grid-template-columns:repeat(2,minmax(0,1fr))}.hero-module-options button{font-size:.74rem}}
 @media(max-width:800px){.hero-grid{gap:25px}.phone-module-art>.tie-motion{height:187px}.interactive-phone .phone-step-title{font-size:1rem}.interactive-phone .phone-instruction{height:177px;min-height:177px}.hero-modules{margin-top:24px}.hero-module-options button{font-size:.7rem}}
 @media(max-width:600px){.hero{padding-top:35px;padding-bottom:50px}.hero-grid{min-height:0;gap:55px}.hero-modules{margin-top:26px}.hero-module-options button{font-size:.77rem;min-height:47px}.hero-modules>p{font-size:.76rem}.interactive-phone .feedback{font-size:.7rem;max-width:245px}}
-@media(prefers-reduced-motion:reduce){.motion-toggle{display:none!important}.skill-card:focus-within .skill-art>svg{transform:none}.coach-controls button:active:not(:disabled),.button:active:not(:disabled){transform:none}.tie-wide-end{transform:none}.tie-guide{stroke-dashoffset:0;opacity:1}}
+@media(prefers-reduced-motion:reduce){.motion-toggle{display:none!important}.skill-card:focus-within .skill-art>svg{transform:none}.coach-controls button:active:not(:disabled),.button:active:not(:disabled){transform:none}}
