@@ -2,20 +2,19 @@
 
 Nobody should have to figure everything out alone.
 
-A mobile-first practical-skills coach. **Phase 1 is implemented:** a complete, button-only four-in-hand tie lesson, beginner intake, seven diagrams, JSON-driven skill discovery and a tested coaching reducer. The frontend module library also previews sewing a button, folding a shirt, tying shoelaces and shaving, each clearly marked as coming soon.
+A mobile-first visual coach for the **four-in-hand tie knot**. Seven JSON-defined steps, illustrated demonstrations, mirrored camera preview, on-device framing/light/motion checks, Claude step verification, spoken guidance, optional voice commands, Q&A, local progress, and labeled evaluation tools. Shaving and the existing future modules remain coming soon.
 
-This version does **not** use a camera, send images, call an AI service, speak, or judge a knot. The interface labels it as a walkthrough. Completing a step means the learner chose to continue, not that the step was verified.
+## Run
 
-## Run locally
-
-Use Node.js 22 or newer and npm.
+Use Node.js 22+ and npm. This build was validated on Node 26.
 
 ```sh
 npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-Open http://localhost:3000. No environment variables or API keys are needed for Phase 1. Fonts are bundled and served locally. There are no analytics or external font requests.
+Open the local URL printed by Next.js. Camera access works on `localhost`; phones require HTTPS. Models and fonts are served from the app itself. `prepare:vision` copies the lockfile-pinned MediaPipe runtime into `public/mediapipe/wasm` before dev/build. Official hand and pose model bundles are checked in under `public/mediapipe`.
 
 ```sh
 npm test
@@ -24,69 +23,91 @@ npm run build
 npm start
 ```
 
-The production build validates every skill and illustration before compiling. The Next.js project can be imported into Vercel using its standard Next.js settings; no services or environment variables are needed for this phase.
+## Configuration
 
-## Try the walkthrough
+| Variable | Default / behavior |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Server-only key. Missing key enables mock mode. |
+| `VERIFIER_MODEL` | `claude-sonnet-5-5` |
+| `FAST_VERIFIER_MODEL` | `claude-haiku-5-5`; used by the eval model selector |
+| `ASK_MODEL` | `claude-haiku-5-5` |
+| `MOCK_VERIFIER` | `false`; `true` forces simulated verification and Q&A |
 
-1. Pick the tie lesson and review the equipment and seven steps.
-2. Answer both intake questions.
-3. Follow each diagram and instruction. Use **Repeat**, **Show me again**, **Back** and **I’m done with this step**.
-4. Leave the lesson and use **Continue your lesson** to resume in the same browser tab.
-5. Complete all seven steps, read the tips, then practice again.
+Model IDs and base64 JPEG message blocks were checked against the [official model overview](https://platform.claude.com/docs/en/models/overview) and [vision guide](https://platform.claude.com/docs/en/build-with-claude/vision) on 2026-10-13. Availability depends on the configured API account. Provider failures offer retry or an explicitly unverified continuation.
 
-The temporary draft and intake answers use `sessionStorage`. They last for the browser tab and are removed when the lesson completes. If storage is blocked, the lesson still works in memory. Durable progress and IndexedDB are planned for Phase 4. Completing a walkthrough never stores a verified outcome.
+**Mock mode assesses no images.** It returns random verdicts after 700–1500 ms. The interface displays a mock badge; simulated passes are stored as `simulated`, never `verified`. Evaluation excludes mock records by default. Watch-only sessions use `walkthrough` outcomes and never start the camera or call verification.
 
-The homepage includes a seven-step animated preview with pause, manual controls and seven clickable headline segments. Selecting a segment jumps to that move and pauses autoplay. The module library filters by availability and links to each skill’s overview. It also includes an interactive explanation of the lesson flow. Preview loops pause offscreen and in hidden tabs. Reduced-motion settings show complete static diagrams and retain manual navigation. Lesson drawings animate on arrival and replay.
+## Demo flow
 
-Append `?debug=1` to `/session/tie-four-in-hand` to inspect reducer state and step records. This is an early state inspector, not the full evaluation mode.
+1. Choose the tie lesson, review the equipment, and answer the intake questions.
+2. Choose camera coaching or the watch-only walkthrough.
+3. For camera coaching, read and accept consent. Position the phone at chest height, about an arm’s length away. Setup advances after the required framing/light checks hold for 1.5 seconds.
+4. Follow the instruction. Tap **I’m done with this step**, say **done**, or move for at least two seconds and then hold both hands still for 1.5 seconds.
+5. The app checks local visibility, captures three unmirrored cropped JPEG frames over 600 ms, and asks the verifier. A correction gives one action; uncertain strict checks offer two retries and then demo/manual continuation. Light-step uncertainty advances as unverified. Three confident failures also expose manual continuation.
+6. Ask a short question, replay slowly, go back, or stop at any time. Tab hiding pauses the camera processing and cancels in-flight work; resuming is explicit.
+7. Completion lists outcomes/retries. **Progress** shows completed sessions, most revisited steps, and last practice. **Settings** provides privacy details and deletion of local data.
 
-## Browser checks
+Voice recognition is opt-in and browser-dependent. English commands: next, repeat, back, show me, done, help. Dutch: volgende, herhaal, terug, laat zien, klaar, help. Questions starting with how/why/what/which or Dutch equivalents go to Q&A. Recognition uses the browser locale; spoken coaching and content are English. Buttons remain available throughout.
 
-Start the production server in one terminal, then in another:
+## Vercel and HTTPS phone testing
+
+Import `thomasdevving/plsteachme` into Vercel, select the Next.js preset and the repository root, and leave the standard build settings. Add the environment variables to the desired deployment environment. No database or additional service is required. JSON and SVG assets are explicitly included in server function tracing.
+
+Open the deployment’s HTTPS URL on a phone and allow camera access. Prefer a Vercel preview deployment for evaluation. Alternatively, expose your local server through a trusted HTTPS tunnel, for example `cloudflared tunnel --url http://localhost:3000`, and open the printed HTTPS URL. A LAN `http://192.168…` address does not provide a secure camera context. No Vercel credentials or Anthropic key were available during this implementation.
+
+The manifest and network-only service worker support installation. Use **Add to Home Screen** on Safari or the browser’s install menu where available. Offline operation is not implemented; the service worker never caches frames or API responses.
+
+## Add a skill — JSON plus assets
+
+1. Create `skills/your-skill-id.json`. Filename and `id` must match. Copy the tie lesson for a complete example, or `shaving.json` for a coming-soon stub.
+2. Provide title, description, version, estimated minutes, difficulty, equipment, intake questions, camera setup and completion tips. Available skills need steps; coming-soon skills need an empty `steps` array.
+3. Give each step a unique ID, title, instruction, spoken instruction, demo asset, `checkStrictness`, local prechecks, rubric and `maxAttempts`.
+4. Put optional illustrations under `public/skills/your-skill-id/`. Reference them as `/skills/your-skill-id/step.svg`. Paths cannot escape `/skills/`. `catalog.previewAsset` and `catalog.outline` can describe a future module.
+5. Use `strict` for observable important endpoints, `light` for visually ambiguous intermediate moves and `none` for unchecked steps. Rubric criteria must be visible; do not demand an unseen action. Common error IDs must be unique. Keep corrective cues within 15 words.
+6. Use the learner’s own right/left. The preview is mirrored; sent frames and diagrams are unmirrored, so the learner’s right appears on the image’s left.
+7. Choose local prechecks from `bothShouldersVisible`, `neckRegionVisible`, `bothHandsVisible`, `handsInChestRegion`, `enoughLight`. Current framing primitives target upper-body skills; a skill needing a different anatomical region needs additional landmark/ROI code.
+8. Run `npm run validate:skills`, `npm test`, and `npm run build`. Discovery, route generation, intake and the coach require no skill registry changes.
+
+`lib/skills/schema.ts` validates skills at build/load time. Shared interface copy lives in `lib/copy/en.ts`; lesson-specific language lives in JSON.
+
+## Evaluation
+
+Open `/session/tie-four-in-hand?debug=1` and choose camera coaching. The debug panel shows landmarks, the ROI, local checks, state, in-memory frame thumbnails, raw validated model output and client/server latency.
+
+After each check, select **Verdict was correct** or **Verdict was wrong**. For incorrect verdicts, select the ground truth and error ID, then save the label. Labels remain available while the next step is practiced, including the final result on completion. Use Sonnet/Haiku to compare models on subsequent checks. Manual overrides are recorded in session outcomes and on the latest eval record when present.
+
+Open `/eval` to inspect per-step totals, labeled accuracy, false pass rate, false fail rate, uncertain rate and p50/p95 round-trip latency. Filter by model and optionally include simulations. JSON/CSV exports reflect the active filters.
+
+- Accuracy uses labeled records; failure accuracy also compares the labeled error ID where provided.
+- False pass rate = predicted passes on human-labeled failures / all human-labeled failures.
+- False fail rate = predicted failures on human-labeled passes / all human-labeled passes.
+- Undefined denominators display a dash, not a misleading zero.
+- Frame saving is **off by default**. Explicitly enabling it stores those captured images locally and includes them in JSON exports. CSV contains no images.
+
+Use a real key, multiple ties, different lighting/phone positions, and deliberately incomplete knots. Label false passes carefully. Mock results and synthetic tests are not evidence of knot-recognition accuracy.
+
+## Architecture and privacy
+
+- `lib/session`: explicit reducer, confidence decisions and configurable thresholds. No landmark result is treated as proof that the knot is correct.
+- `lib/vision`: lazy hand/pose models, pure prechecks, central-person selection, ROI and three-frame capture. Downscaled 480px inference targets 15 fps and yields/lower rates on slow devices.
+- `app/api/verify-step`: bounded same-origin JSON input, server-owned rubrics, image-message API, one retry for malformed output, Zod validation, seven-second provider budget inside an eight-second client deadline.
+- `app/api/ask`: text-only, bounded question/answer, current skill context.
+- `lib/speech`: interruptible speech output and command parsing.
+- `lib/storage`: IndexedDB drafts, completion records and optional evaluation logs. A sessionStorage fallback retains walkthrough drafts when available.
+
+Live video stays on-device. Cropped stills are sent only for step checks; this app does not persist them on the server or log image data. The AI provider processes them under its own API policies. Server logs contain only timing, verdict, confidence and error ID. Optional browser speech recognition may send audio to its provider, as disclosed in consent. There are no accounts, app analytics or trackers.
+
+## Validation and known limits
+
+Unit/component tests cover reducer paths, confidence thresholds, visibility/stillness/ROI, API validation, invalid provider JSON, Q&A bounds, evaluation metrics, and a full seven-step coaching loop with controlled camera inputs. Browser tests cover 375×812, 414×896 and desktop, including the walkthrough, consent, denied-camera fallback, actual MediaPipe loading against a synthetic camera stream, eval export/deletion, and mock API responses.
 
 ```sh
-npx playwright install chromium
-npm run test:browser
+# Start a production server first. Use its port below.
+TEST_BASE_URL=http://localhost:3000 npm run test:browser -- --workers=2
+# Optional: point TEST_BROWSER_PATH at an installed Chrome executable.
+# Otherwise: npx playwright install chromium
 ```
 
-Alternatively, set `TEST_BROWSER_PATH` to a local Chromium-compatible executable. Tests cover the complete lesson, intake selection, replay, expanded demonstration notes, back navigation, resume, restart, missing skills and malformed drafts. Viewports are 375×812, 414×896 and 1440×1000. Screenshots are local review artifacts and are ignored by Git.
+Real-camera accuracy, sustained mid-range Android performance, and a physical-phone HTTPS session remain unverified. No real Anthropic request was made without a key. Intermediate wrap steps are inherently ambiguous in still images. MediaPipe inference currently runs synchronously with throttling/yielding; slower phones may run below 15 fps. Occlusions, loose clothing, multiple people and very long ties can reduce visibility; the ROI and confidence thresholds need real-device evaluation. Browser speech and camera support vary, with button and watch-only fallbacks. Storage can be denied or evicted by the browser. The app reports failed completion/eval writes; memory-only practice can continue.
 
-## Add a skill
-
-1. Create `skills/your-skill-id.json`. Its filename must match `id`. Use `skills/tie-four-in-hand.json` as the available-skill example, or `skills/shaving.json` for a coming-soon stub.
-2. Set a positive `version`, title, description, equipment, intake and camera setup. Available skills need at least one step; coming-soon skills require an empty steps array.
-3. Give each step a unique ID, plain instructions, spoken instructions, a demo asset, strictness, named local prechecks, a rubric with pass criteria, unique error IDs and corrective cues, and a positive `maxAttempts`.
-4. Put each diagram under `public/skills/your-skill-id/` and reference it as `/skills/your-skill-id/step.svg`. Paths must remain under `/skills/` and cannot contain `..`.
-5. Use `strict` for clearly observable important endpoints, `light` for ambiguous intermediate moves and `none` for manual-only steps. Write directions from the learner’s own perspective. The current tie diagrams are front views, unmirrored; the learner’s right appears on the left of the drawing.
-6. Add completion wording and practical tips. Keep corrective cues within 15 words. The walkthrough uses separate completion wording so it does not claim success without a check.
-7. Optionally add `catalog: { "previewAsset": "/skills/your-skill-id/overview.svg", "outline": ["First move", "Next move"] }`. The library uses this illustration and coming-soon overview automatically. These assets are validated at build/load time, too.
-8. Run `npm run validate:skills`, `npm test` and `npm run build`. JSON files are discovered automatically; no registry or component changes are needed.
-
-`lib/skills/schema.ts` is the schema authority. Shared interface copy is in `lib/copy/en.ts`; lesson-specific language stays in the skill definitions so adding skills needs no application code.
-
-## Coaching engine
-
-`lib/session/machine.ts` is a pure reducer. `lib/session/decision.ts` handles confidence and strictness, and `lib/session/config.ts` holds thresholds. These paths are tested now so camera and API work can plug into explicit events later.
-
-```text
-INSTRUCTING → PRACTICING → CAPTURING → VERIFYING
-                                 ↘ REPOSITION
-VERIFYING → PASSED / CORRECTING / REPOSITION / UNCERTAIN
-PASSED → ADVANCE → next INSTRUCTING / COMPLETE
-CORRECTING → PRACTICING, or OPTIONS at the attempt limit
-UNCERTAIN → retry twice for strict steps, then OPTIONS
-UNCERTAIN → ADVANCE for light steps, recorded as unverified
-OPTIONS → replay / retry / manual continue (recorded as override)
-```
-
-The UI runs in walkthrough mode: **Done** goes directly from practicing to advance, with a `walkthrough` record. It does not fabricate capture, verification or model verdicts. Unit tests exercise the future live paths with synthetic events.
-
-## Remaining phases
-
-- Phase 2: camera setup, MediaPipe, lighting, stillness, ROI and frame capture.
-- Phase 3: Claude verification, mock verifier, speech output and voice commands. Model identifiers and image-input formats must be checked against official documentation before implementation.
-- Phase 4: Q&A, durable progress, full completion summaries, consent and delete-data settings.
-- Phase 5: labeled evaluation records, metrics, model comparison and JSON/CSV export.
-- Phase 6: physical-device performance, camera/API edge cases, HTTPS phone testing and final documentation.
-
-No claim of camera accuracy, real-phone performance or model accuracy has been made or tested in Phase 1.
+For a deterministic active-camera UI check, run `npm run test:camera-fixture` in a separate terminal, then `npm run test:camera-flow`. The fixture runs on port 3013 and renders the actual coaching components with controlled landmarks, a synthetic browser camera, and intercepted, explicitly simulated verdicts. It checks three-frame JPEG capture, a correction/retry and all seven steps at each viewport. It is test-only and has no Next.js route. Set `TEST_BROWSER_PATH` if needed. The normal browser suite separately loads the real MediaPipe models.

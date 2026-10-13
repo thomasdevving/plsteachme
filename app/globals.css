@@ -14,6 +14,7 @@
   --muted: #5d675e;
   --line: #d9ddd1;
   --soft: #eceee3;
+  --card: #fffdf8;
 }
 * {
   box-sizing: border-box;
@@ -1741,4 +1742,327 @@ img {
   .lesson-line button {
     flex: 0 0 25%;
   }
+}
+
+/* Camera coaching inherits the illustrated handbook's quiet, practical palette. */
+.header-links {
+  display: flex;
+  gap: 24px;
+  font-size: 16px;
+}
+.header-links a {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  text-decoration: none;
+}
+.utility-page {
+  max-width: 760px;
+  padding-block: 48px 80px;
+}
+.utility-page h1,
+.eval-page h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 28px;
+}
+.utility-page p {
+  margin-block: 20px;
+}
+.utility-page > .button {
+  margin: 16px 12px 8px 0;
+}
+.choice-art {
+  height: 240px;
+  margin-block: 24px;
+  background: var(--soft);
+  border-radius: 16px;
+}
+.choice-art .animated-diagram {
+  height: 100%;
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  margin-block: 24px;
+  cursor: pointer;
+}
+.check-row input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+.live-session {
+  padding-block: 24px 64px;
+}
+.live-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.live-layout > section {
+  min-width: 0;
+}
+.camera-stage {
+  position: relative;
+  background: var(--ink);
+  aspect-ratio: 3/4;
+  border-radius: 16px;
+  overflow: hidden;
+}
+.camera-video,
+.landmark-overlay {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scaleX(-1);
+  position: absolute;
+  inset: 0;
+}
+.silhouette {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  fill: none;
+  stroke: #fffdf8;
+  stroke-width: 2;
+  stroke-dasharray: 7 5;
+  opacity: 0.6;
+}
+.camera-caption {
+  position: absolute;
+  inset: auto 16px 16px;
+  padding: 12px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 16px;
+  border-radius: 8px;
+}
+.live-panel h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  margin-block: 16px 24px;
+}
+.live-diagram {
+  height: 160px;
+  background: var(--soft);
+  border-radius: 12px;
+  margin-block: 20px;
+}
+.live-diagram .animated-diagram {
+  height: 100%;
+}
+.slow-demo .animated-diagram * {
+  animation-duration: 5s;
+}
+.setup-checklist {
+  list-style: none;
+  padding: 0;
+  margin-block: 28px;
+}
+.setup-checklist li {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding-block: 15px;
+  border-bottom: 1px solid var(--line);
+  font-size: 17px;
+}
+.setup-checklist li svg {
+  opacity: 0.25;
+  flex-shrink: 0;
+}
+.setup-checklist li[data-ready="true"] svg {
+  opacity: 1;
+  color: var(--accent);
+}
+.setup-checklist li span {
+  margin-left: auto;
+  font-size: 14px;
+}
+.live-session .small-note {
+  margin-block: 12px;
+}
+.live-session .secondary-actions {
+  margin-block: 12px;
+}
+.live-session .session-status {
+  min-height: 50px;
+}
+.ask-form {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+}
+input:not([type="checkbox"]):not([type="radio"]),
+select {
+  min-width: 0;
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--muted);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--card);
+  color: var(--ink);
+  font: inherit;
+  caret-color: var(--accent);
+}
+.debug-panel {
+  margin-top: 32px;
+}
+.debug-panel label {
+  display: block;
+  margin-block: 16px;
+}
+.debug-panel label.check-row {
+  display: flex;
+}
+.debug-panel pre {
+  max-height: 280px;
+  overflow: auto;
+  font-size: 14px;
+}
+.frame-thumbnails {
+  display: flex;
+  gap: 8px;
+  margin-block: 20px;
+}
+.frame-thumbnails img {
+  width: calc((100% - 16px) / 3);
+  max-height: 180px;
+  object-fit: contain;
+  background: var(--soft);
+}
+.result-list {
+  padding: 0;
+  list-style: none;
+  margin-block: 24px;
+}
+.result-list li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.result-list strong,
+.result-list span {
+  display: block;
+}
+.result-list span {
+  font-size: 16px;
+  color: var(--muted);
+  margin-top: 6px;
+}
+.progress-entry {
+  padding-block: 28px;
+  border-top: 1px solid var(--line);
+}
+.eval-page {
+  padding-block: 48px 80px;
+}
+.eval-controls {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+  margin-block: 24px;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-block: 32px;
+}
+.metric-grid > div {
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.metric-grid dt {
+  font-size: 16px;
+  color: var(--muted);
+}
+.metric-grid dd {
+  font-size: 28px;
+  margin: 8px 0 0;
+  font-variant-numeric: tabular-nums;
+}
+.false-pass,
+.false-pass dt {
+  color: #a62c24;
+}
+.table-scroll {
+  overflow: auto;
+  margin-block: 32px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 16px;
+}
+th,
+td {
+  text-align: left;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+caption {
+  text-align: left;
+  font-size: 22px;
+  margin-bottom: 16px;
+}
+@media (max-width: 800px) {
+  .live-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .camera-stage {
+    aspect-ratio: 3/4;
+    max-height: 55svh;
+  }
+  .live-session {
+    padding-top: 12px;
+  }
+  .live-panel h1 {
+    font-size: 30px;
+  }
+  .live-session .session-topline {
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .live-diagram {
+    height: 140px;
+  }
+  .utility-page,
+  .eval-page {
+    padding-block: 28px 48px;
+  }
+  .header-links {
+    gap: 14px;
+    font-size: 14px;
+  }
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .metric-grid dd {
+    font-size: 24px;
+  }
+}
+
+.live-diagram > img,
+.choice-art > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+input::placeholder {
+  color: var(--muted);
+  opacity: 1;
 }

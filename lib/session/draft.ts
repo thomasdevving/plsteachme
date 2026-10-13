@@ -1,3 +1,4 @@
+import { readLocal, writeLocal, removeLocal } from "../storage/store";
 import { z } from "zod";
 import type { AvailableSkill } from "../skills/schema";
 import type { SessionContext } from "./machine";
@@ -22,6 +23,7 @@ const contextSchema: z.ZodType<SessionContext> = z.object({
   failedAttempts: z.number().int().nonnegative(),
   uncertaintyRetries: z.number().int().nonnegative(),
   feedback: z.string(),
+  lastVerificationMock: z.boolean().default(false),
   optionReason: z.enum(["attempts", "uncertain", "api_error"]).nullable(),
   records: z.array(
     z.object({
@@ -35,6 +37,7 @@ const contextSchema: z.ZodType<SessionContext> = z.object({
         "manual_override",
         "walkthrough",
         "unchecked",
+        "simulated",
       ]),
     }),
   ),
@@ -71,6 +74,12 @@ export function saveDraft(
   skill: AvailableSkill,
   context: SessionContext,
 ): void {
+  if (context.state === "COMPLETE") void removeLocal(`draft:${skill.id}`);
+  else
+    void writeLocal(`draft:${skill.id}`, {
+      skillVersion: skill.version,
+      context,
+    });
   try {
     if (context.state === "COMPLETE") sessionStorage.removeItem(key(skill));
     else
@@ -81,4 +90,29 @@ export function saveDraft(
   } catch {
     /* Storage may be disabled. The lesson still works in memory. */
   }
+}
+
+export async function restoreDraft(
+  skill: AvailableSkill,
+): Promise<SessionContext | null> {
+  const persisted = await readLocal<unknown>(`draft:${skill.id}`);
+  if (persisted) {
+    const parsed = draftSchema.safeParse(persisted);
+    if (
+      parsed.success &&
+      parsed.data.skillVersion === skill.version &&
+      parsed.data.context.stepIndex < skill.steps.length &&
+      parsed.data.context.state !== "COMPLETE" &&
+      parsed.data.context.records.every((r) =>
+        skill.steps.some((s) => s.id === r.stepId),
+      )
+    ) {
+      const context = parsed.data.context;
+      return {
+        ...context,
+        state: context.state === "ADVANCE" ? "ADVANCE" : "INSTRUCTING",
+      };
+    }
+  }
+  return readDraft(skill);
 }

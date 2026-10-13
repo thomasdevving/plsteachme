@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-12T23:33:26Z",
+  "generatedAt": "2026-10-13T00:38:32Z",
   "title": "Design System: plsteach.me",
   "extensions": {
     "colorMeta": {
@@ -61,6 +61,21 @@
         "purpose": "Automatic preview steps; paused by controls, viewport visibility and page visibility."
       },
       {
+        "name": "button-background",
+        "value": "180ms ease-out",
+        "purpose": "Primary and secondary button background transitions."
+      },
+      {
+        "name": "button-press",
+        "value": "160ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Enabled buttons scale to 0.98 while pressed; reduced motion removes the transform."
+      },
+      {
+        "name": "button-arrow",
+        "value": "220ms cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The trailing SVG in an enabled primary button moves 3px right on hover; reduced motion removes the transform."
+      },
+      {
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
         "purpose": "Complete static diagrams, no autoplay, manual step controls remain usable."
@@ -71,6 +86,16 @@
         "name": "single-column",
         "value": "800px",
         "purpose": "At this width and below, major layouts stack and side gutters become 20px."
+      },
+      {
+        "name": "module-single-column",
+        "value": "500px",
+        "purpose": "At this width and below, the module library becomes one column."
+      },
+      {
+        "name": "lesson-navigation-wrap",
+        "value": "360px",
+        "purpose": "At this width and below, home lesson-navigation controls wrap with 25% flex bases."
       }
     ]
   },
@@ -81,7 +106,7 @@
       "refersTo": "button-primary",
       "description": "Main next action; minimum height 56px, visible keyboard focus and disabled state.",
       "html": "<button class=\"ds-button ds-primary\">Start learning</button>",
-      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color .18s ease-out}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-primary{background:var(--accent,#a84228);color:#fffaf3}.ds-primary:hover{background:#90381f}.ds-primary:disabled{background:#e0d8cb;color:#697064}"
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color 180ms ease-out,transform 160ms cubic-bezier(0.16,1,.3,1)}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-primary{background:var(--accent,#a84228);color:#fffaf3}.ds-primary:hover{background:#90381f}.ds-primary:disabled{background:#e0d8cb;color:#697064}.ds-button:active:not(:disabled){transform:scale(.98)}.ds-button>svg{transition:transform 220ms cubic-bezier(0.16,1,.3,1)}.ds-primary:hover:not(:disabled)>svg:last-child{transform:translateX(3px)}@media(prefers-reduced-motion:reduce){.ds-button,.ds-button>svg{transition:none}.ds-button:active:not(:disabled),.ds-primary:hover:not(:disabled)>svg:last-child{transform:none}}"
     },
     {
       "name": "Secondary button",
@@ -89,7 +114,7 @@
       "refersTo": "button-secondary",
       "description": "Supporting lesson action with an outlined surface.",
       "html": "<button class=\"ds-button ds-secondary\">Repeat that</button>",
-      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color .18s ease-out}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-secondary{background:transparent;border-color:#c8cfc1;color:var(--ink,#26392f)}.ds-secondary:hover{background:#e7eadf}.ds-secondary:disabled{opacity:.5}"
+      "css": ".ds-button{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:56px;padding:12px 22px;border:1px solid transparent;border-radius:10px;font-family:\"DM Sans\",sans-serif;font-size:17px;font-weight:500;line-height:1.45;text-decoration:none;cursor:pointer;transition:background-color 180ms ease-out,transform 160ms cubic-bezier(0.16,1,.3,1)}.ds-button:focus-visible{outline:3px solid var(--ink,#26392f);outline-offset:4px}.ds-button:disabled{cursor:default}@media(prefers-reduced-motion:reduce){.ds-button{transition:none}}.ds-secondary{background:transparent;border-color:#c8cfc1;color:var(--ink,#26392f)}.ds-secondary:hover{background:#e7eadf}.ds-secondary:disabled{opacity:.5}.ds-button:active:not(:disabled){transform:scale(.98)}.ds-button>svg{transition:transform 220ms cubic-bezier(0.16,1,.3,1)}.ds-primary:hover:not(:disabled)>svg:last-child{transform:translateX(3px)}@media(prefers-reduced-motion:reduce){.ds-button,.ds-button>svg{transition:none}.ds-button:active:not(:disabled),.ds-primary:hover:not(:disabled)>svg:last-child{transform:none}}"
     },
     {
       "name": "Answer choice",

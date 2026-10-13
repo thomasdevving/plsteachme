@@ -1,3 +1,4 @@
+import { PWA } from "@/components/pwa";
 import type { Metadata } from "next";
 import "@fontsource/dm-sans/400.css";
 import "@fontsource/dm-sans/500.css";
@@ -17,7 +18,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <PWA />
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { copy } from "../../lib/copy/en";
+import { copy, liveCopy } from "../../lib/copy/en";
 
 test("complete a seven-step lesson with buttons and no camera", async ({
   page,
@@ -51,6 +51,7 @@ test("complete a seven-step lesson with buttons and no camera", async ({
   await expect(page.locator("legend")).toBeFocused();
   await page.getByRole("radio", { name: "Left", exact: true }).check();
   await page.getByRole("button", { name: copy.intake.start }).click();
+  await page.getByRole("button", { name: liveCopy.watch, exact: true }).click();
   await expect(
     page.getByRole("heading", { name: "Drape the tie", exact: true }),
   ).toBeVisible();
@@ -163,7 +164,7 @@ test("bad skill links and broken stored data recover cleanly", async ({
       "broken json",
     ),
   );
-  await page.goto("/session/tie-four-in-hand?debug=1");
+  await page.goto("/session/tie-four-in-hand?debug=1&mode=watch");
   await expect(
     page.getByRole("heading", { name: "Drape the tie", exact: true }),
   ).toBeVisible();

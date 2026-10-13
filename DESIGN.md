@@ -140,13 +140,13 @@ Paper is the page background; ink carries primary text. Muted ink supports notes
 
 Lora is self-hosted for major headings and intake questions; DM Sans is self-hosted for interface text. Loaded weights are Lora 400/500 and DM Sans 400/500/600/700.
 
-The frontmatter records the shared display, heading, title, body, instruction and button-label roles. Page-specific headings use smaller fixed sizes: lesson headings are 38px on desktop and 33px on phones; intro and intake headings are 42px and 35px respectively. The home heading becomes 45px on phones. Instructions keep their 22px size, with line height reduced to 1.55 on phones. Supporting metadata uses 12–17px; keep it secondary to the instruction.
+The frontmatter records the shared display, heading, title, body, instruction and button-label roles. Page-specific headings use smaller sizes: walkthrough lesson headings are 38px on desktop and 33px on phones; live camera lesson headings are 32px and 30px respectively. Intro and intake headings are 42px and 35px respectively. Consent, local progress, settings and evaluation headings use clamp(32px, 5vw, 48px). The home heading becomes 45px on phones. Instructions keep their 22px size, with line height reduced to 1.55 on phones. Supporting metadata uses 12–17px; keep it secondary to the instruction.
 
 ## Layout
 
 Main content is centered, capped at 1120px with 40px desktop side gutters. The header caps at 1280px. Intake uses a 620px column. Desktop home, introduction and coaching screens use two columns; at 800px and below, they stack into one column with 20px side gutters. The diagram precedes the instruction on phones. Completion actions also stack.
 
-The spacing tokens describe the recurring rhythm; individual compositions use their existing gaps. Illustration areas contain the full SVG rather than cropping it. Coaching illustrations are 380px tall on desktop and 270px on phones. The longer home page includes an interactive three-stage lesson explanation, a quiet encouragement section, a clearly labeled future-camera section and a closing lesson link.
+The spacing tokens describe the recurring rhythm; individual compositions use their existing gaps. Illustration areas contain the full SVG rather than cropping it. Walkthrough illustrations are 380px tall on desktop and 270px on phones. Live camera coaching pairs a 3:4 camera preview with an instruction panel on desktop; the preview precedes that panel on phones and is capped at 55svh. Its supporting tie illustration is 160px tall on desktop and 140px on phones. Consent, local progress and settings use a 760px maximum reading column. The longer home page includes an interactive three-stage lesson explanation, a quiet encouragement section, a camera-coaching explanation and a closing lesson link. The module library becomes one column at 500px and below; home lesson-navigation controls wrap at 360px and below.
 
 ## Elevation & Depth
 
@@ -162,7 +162,7 @@ Surfaces use softly curved corners, with tighter rounding on controls. Radio ind
 
 Primary buttons use the warm accent with cream text; secondary buttons are transparent with a thin neutral border. Buttons have a minimum height of 56px; quiet navigation controls have a minimum height of 48px. Primary hover darkens the fill, secondary hover adds a pale wash, and quiet-link hover uses the accent. Disabled primary buttons use muted colors; disabled secondary buttons use half opacity.
 
-Visible focus uses a 3px ink outline with a 4px offset. Button background transitions last 180ms with ease-out; press feedback uses a small 160ms scale change. SVG diagrams trace the torso, reveal the wide end and draw direction arrows on arrival or replay. The home preview cycles through steps every 3.6 seconds, with 650ms arrivals and 550ms departures. Pause and manual step controls are provided; continuous motion stops offscreen or when the tab is hidden. Reduced-motion preference shows complete static diagrams, preserves manual navigation and removes spatial transitions.
+Visible focus uses a 3px ink outline with a 4px offset. Button background transitions last 180ms with ease-out; press feedback uses a small 160ms scale change. A primary button’s trailing SVG shifts 3px on hover over 220ms; reduced motion removes these spatial effects. SVG diagrams trace the torso, reveal the wide end and draw direction arrows on arrival or replay. The home preview cycles through steps every 3.6 seconds, with 650ms arrivals and 550ms departures. Pause and manual step controls are provided; continuous motion stops offscreen or when the tab is hidden. Reduced-motion preference shows complete static diagrams, preserves manual navigation and removes spatial transitions.
 
 ### Cards and answer choices
 

@@ -15,7 +15,7 @@ Beginners learning practical physical skills, including people who feel embarras
 plsteach.me is a patient visual coach. Mission: Nobody should have to figure everything out alone.
 
 ## Capabilities and Constraints
-Phase 1 provides an explicitly unverified, button-only four-in-hand tie walkthrough. Seven steps, JSON skill definitions, intake and a tested state machine. Shaving is coming soon. Later phases add camera, verification, speech, local progress and evaluation. No accounts, database, payments or analytics.
+Seven JSON-defined steps support camera coaching and an explicitly unverified watch-only walkthrough. MediaPipe handles framing, light and motion; Claude checks cropped stills. Spoken guidance, opt-in voice commands, Q&A, local progress and evaluation labels are implemented. Missing API credentials enable clearly labeled simulations. Shaving is coming soon. Real-device accuracy and mid-range phone performance still need physical testing. No accounts, database, payments or analytics.
 
 ## Brand Commitments
 The name is plsteach.me. Plain, kind English. Off-white, deep ink and a warm accent. Simple line-art tie diagrams. No overconfident claims or comments on appearance.
