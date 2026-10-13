@@ -45,3 +45,7 @@ The repeating wrap is replaced by seven distinct front-view poses. Next/Back ani
 Three downloadable SVG concept marks are compared at `/brand/logo-directions.html`, with live local header selection and small app-mark examples. The main site retains the supplied logo pending a user choice. The comparison page is marked noindex.
 
 Production build and seven relevant browser checks pass, including seven distinct final poses, Back/restart/reduced motion, finite playback/replay/offscreen pause, logo preview selection, module navigation, label/name consistency and WCAG checks. One batched desktop/mobile review inspected all seven static poses and the three logo options; no overflow or page errors were found. No new Lighthouse measurement was taken for this narrow change.
+
+## Guiding touch refinement
+
+B retains solid overlapping hands and Lora. Smoothed palm contours, a tighter optical viewBox, slight opposing hand angles and a thinner cream separation improve its silhouette. Em-based mark sizing and tighter wordmark spacing improve the header lockup. B is the comparison default. A batched 375px/1280px check confirms loaded SVGs, correct selection and no overflow; the existing logo preview browser test passes. Only static logo/HTML assets and documentation changed, so the application build was not rerun.
