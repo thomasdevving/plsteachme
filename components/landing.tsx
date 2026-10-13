@@ -2,13 +2,13 @@ import { ArrowRight, Play, Camera, MessageCircle, ShieldCheck, Heart, ArrowUpRig
 import { BRAND, pathFor, type Locale } from '@/lib/config';
 import type { Copy } from '@/lib/i18n';
 import { Section } from './ui';
-import { Phone, StepIcons, CoachingLoop } from './illustrations';
-import { Cta } from './utilities';
+import { StepIcons, CoachingLoop } from './illustrations';
+import { Hero } from './hero';
 import { Demo } from './demo';
 import { Skills } from './skills';
 import { WaitlistForm } from './forms';
 export function Landing({ c, locale, mock }: { c: Copy; locale: Locale; mock: boolean }) {
-  return <><section className="hero"><div className="container hero-grid"><div className="hero-copy"><p className="hero-eyebrow">{c.hero.eyebrow}</p><h1>{c.hero.title.split('\n').map((line,i) => <span key={line} className={i === 1 ? 'hero-emphasis' : undefined}>{line}{i===0 ? ' ' : ''}</span>)}</h1><p className="hero-sub">{c.hero.sub}</p><div className="hero-actions"><Cta href="#waitlist" kind="waitlist">{c.hero.primary}</Cta><Cta href="#demo" kind="demo" secondary>{c.hero.secondary}</Cta></div><div className="hero-note"><span className="status-pill"><span className="status-dot"/>{c.hero.early}</span></div></div><div className="hero-visual"><Phone c={c}/></div></div></section>
+  return <><Hero c={{hero:c.hero,skills:c.skills}}/>
     <Section className="problem" labelledBy="problem-title"><div className="problem-layout"><h2 id="problem-title">{c.problem.title}</h2><div className="story">{c.problem.beats.map(beat => <p key={beat}>{beat}</p>)}<p className="story-end">{c.problem.end}</p></div></div><div className="comparison"><div><Play size={25} aria-hidden="true"/><span>{c.problem.video}</span></div><ArrowRight size={20} aria-hidden="true"/><div><Camera size={25} aria-hidden="true"/><span>{c.problem.coach}</span></div></div></Section>
     <Section id="how" labelledBy="how-title"><div className="section-heading"><h2 id="how-title">{c.how.title}</h2><p>{c.how.intro}</p></div><ol className="steps">{c.how.steps.map((step,i) => { const Icon = StepIcons[i]; return <li key={step.title}><span className="step-index">{i+1}</span><Icon size={30} strokeWidth={1.4} aria-hidden="true"/><h3>{step.title}</h3><p>{step.body}</p></li>; })}</ol><CoachingLoop c={c}/></Section>
     <Section id="demo" className="demo-section" labelledBy="demo-heading"><h2 id="demo-heading" className="sr-only">{c.hero.secondary}</h2><Demo c={{ demo:c.demo }}/></Section>

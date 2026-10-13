@@ -66,3 +66,5 @@ npm run test:e2e
 Browser checks use Chromium on port 3100 and should run against `npm start` for production-only checks. They cover canonical redirects, attribution, age boundaries, mocked forms, server authorization, module/phone controls, mobile overflow, WCAG checks, dark OS preference and reduced motion.
 
 For a migrated test Supabase project, `npm run verify:rls` verifies direct anon access is denied. Live storage, email and deployed performance require configured services; local mock tests do not verify those integrations. Historic planning documents in `docs/` describe earlier iterations; `docs/VERIFICATION.md` records this revision's checks.
+
+Hero preview: six module choices update the phone in place. The tie fabric animates a simplified wrap with pause/play, viewport/document suspension and a static reduced-motion alternative. Upcoming modules reuse the existing, explicitly labelled three-step text previews.

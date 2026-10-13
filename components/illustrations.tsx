@@ -1,4 +1,3 @@
-import { CoachPreview } from './coach-preview';
 import { Scissors, Drill, WashingMachine, CookingPot, Bike, Smartphone, Hand, Camera, Eye, Check, MessageCircle, RotateCcw, Play, ArrowRight } from 'lucide-react';
 import { type SkillId } from '@/lib/config';
 import type { Copy } from '@/lib/i18n';
@@ -11,7 +10,6 @@ export function SkillIcon({ skill, size = 64 }: { skill: SkillId; size?: number 
   const Icon = { beard: Scissors, drill: Drill, laundry: WashingMachine, cooking: CookingPot, bike: Bike }[skill];
   return <Icon {...props}/>;
 }
-export function Phone({ c }: { c: Copy }) { return <CoachPreview hero={c.hero}/>; }
 export const StepIcons = [Hand, Smartphone, Play, MessageCircle];
 export function CoachingLoop({ c }: { c: Copy }) {
   const icons = [Camera, Eye, Check, MessageCircle, RotateCcw];

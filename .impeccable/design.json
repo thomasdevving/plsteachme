@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-13T00:43:57.284899+00:00",
+  "generatedAt": "2026-10-13T00:53:37.909173+00:00",
   "title": "Design System: plsteach.me",
   "extensions": {
     "colorMeta": {
@@ -537,7 +537,7 @@
       {
         "name": "module-arrive",
         "value": "300ms cubic-bezier(.16,1,.3,1)",
-        "purpose": "Grid after filter change; preview copy uses 300ms ease-out."
+        "purpose": "Preview copy uses 300ms ease-out. Filtered cards instead use a 400ms clipped reveal with at most 90ms stagger and full opacity."
       },
       {
         "name": "preview-open",
@@ -568,6 +568,21 @@
         "name": "reduced-motion",
         "value": "animation: none !important; transition: none !important; scroll-behavior: auto",
         "purpose": "Also suppress hover transforms and use instant preview scrolling; all content remains visible."
+      },
+      {
+        "name": "hero-module-switch",
+        "value": "450ms cubic-bezier(.16,1,.3,1)",
+        "purpose": "Clipped artwork entrance; manual lesson changes; 350ms progress fill."
+      },
+      {
+        "name": "tie-fabric",
+        "value": "4.6s cubic-bezier(.45,0,.3,1) infinite",
+        "purpose": "Simplified SVG fabric-wrap morph and guide trace; explicit pause/play; paused offscreen and when document hidden; static reduced-motion alternative."
+      },
+      {
+        "name": "supporting-feedback",
+        "value": "180ms\u2013400ms",
+        "purpose": "Control press, nav underline, FAQ mark and answer; filtered-list reveal with at most 90ms stagger."
       }
     ],
     "breakpoints": [
@@ -615,15 +630,18 @@
         "top": "-24px",
         "left": "-45px",
         "bottom": "auto",
-        "maxWidth": "265px"
+        "maxWidth": "275px"
       },
       "feedbackAt800px": {
         "top": "-20px",
         "left": "-25px",
         "bottom": "auto",
-        "maxWidth": "235px"
+        "maxWidth": "275px"
       },
-      "purpose": "Keep illustrative correction clear of the phone instruction."
+      "purpose": "Keep illustrative correction clear of the phone instruction.",
+      "feedbackAt600px": {
+        "maxWidth": "245px"
+      }
     },
     "themePolicy": {
       "public": "Always light cream; independent of OS prefers-color-scheme.",
@@ -720,7 +738,7 @@
       "Supplied hands mark with a green/orange wordmark.",
       "A light cream public canvas, a warmer cream story band and quiet flat surfaces.",
       "Serif mission phrases paired with readable sans-serif interaction.",
-      "Seven-step sample coaching and nine filterable text-preview modules.",
+      "Six hero module choices, seven-step sample coaching and nine filterable text-preview modules.",
       "Visible keyboard focus, reduced motion and a public canvas independent of OS theme."
     ],
     "rules": [

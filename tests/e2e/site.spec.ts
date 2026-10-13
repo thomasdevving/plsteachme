@@ -48,3 +48,39 @@ test('module filters, previews and phone controls work with keyboard and reduced
  await page.getByRole('button',{name:'Previous example step'}).click(); await expect(page.locator('.coach-step')).toContainText('Step 3 of 7');
  const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>v.id)).toEqual([]); const labels=await new AxeBuilder({page}).withRules(['label-content-name-mismatch']).analyze(); expect(labels.violations.map(v=>v.id)).toEqual([]);
 });
+
+test('hero modules change the phone preview and preserve a usable step flow', async ({page}) => {
+ await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
+ const choices = page.locator('.hero-module-options');
+ await expect(choices.getByRole('button')).toHaveCount(6);
+ for (const name of ['Shave','Sew on a button','Iron a shirt','Cook a simple meal','Care for your bike']) {
+  const button=choices.getByRole('button',{name,exact:true}); await button.focus(); await page.keyboard.press('Enter');
+  await expect(button).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#hero-preview')).toHaveAccessibleName(`${name}: text preview`);
+  await expect(page.locator('.coach-step')).toContainText('Step 1 of 3');
+  await expect(page.locator('.phone-figure figcaption')).toContainText('no camera or AI feedback');
+  await expect(page.getByRole('button',{name:'Previous example step'})).toBeDisabled();
+  await page.getByRole('button',{name:'Next step',exact:true}).click();
+  await expect(page.locator('.coach-step')).toContainText('Step 2 of 3');
+ }
+ await choices.getByRole('button',{name:'Tie a tie',exact:true}).click();
+ await expect(page.locator('.coach-step')).toContainText('Step 3 of 7');
+ await expect(page.locator('.tie-motion')).toBeVisible();
+ expect(await page.locator('.tie-wide-end').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+ const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze(); expect(result.violations.map(v=>v.id)).toEqual([]);
+});
+
+test('the tie fabric moves, can be paused, and pauses outside the viewport', async ({page}) => {
+ await page.emulateMedia({reducedMotion:'no-preference'}); await page.goto('/');
+ const fabric=page.locator('.tie-wide-end');
+ await expect(page.locator('.interactive-phone')).toHaveClass(/motion-active/);
+ const shape=await fabric.evaluate(el=>getComputedStyle(el).d);
+ await expect.poll(()=>fabric.evaluate(el=>getComputedStyle(el).d),{timeout:3000}).not.toBe(shape);
+ await page.getByRole('button',{name:'Pause tie animation'}).click();
+ expect(await fabric.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('paused');
+ await page.getByRole('button',{name:'Play tie animation'}).click();
+ expect(await fabric.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('running');
+ await page.locator('#skills').scrollIntoViewIfNeeded();
+ await expect(page.locator('.interactive-phone')).not.toHaveClass(/motion-active/);
+ expect(await fabric.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('paused');
+});

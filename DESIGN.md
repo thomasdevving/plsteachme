@@ -158,7 +158,7 @@ The supplied two-hands mark anchors the current identity. Its compact optical lo
 - Supplied hands mark with a green/orange wordmark.
 - A light cream public canvas, a warmer cream story band and quiet flat surfaces.
 - Serif mission phrases paired with readable sans-serif interaction.
-- Seven-step sample coaching and nine filterable text-preview modules.
+- Six hero module choices, seven-step sample coaching and nine filterable text-preview modules.
 - Visible keyboard focus, reduced motion and a public canvas independent of OS theme.
 
 ## Colors
@@ -196,7 +196,7 @@ Lora supplies balanced, tightly tracked mission headlines and personal notes. DM
 
 ## Layout
 
-The desktop container is capped at 1180px with 80px total nominal gutters. At 1280px it is 1180px wide, inset 50px. The hero uses a 1.2fr/1fr grid with a 55px gap and minimum 610px row. Its headline computes to about 69.8px there. The 94px header presents the hands mark, wordmark, section links and compact signup action; there is no language switch.
+The desktop container is capped at 1180px with 80px total nominal gutters. At 1280px it is 1180px wide, inset 50px. The hero uses a 1.2fr/1fr grid with a 65px gap and minimum 660px row. Its headline computes to about 69.8px there. The 94px header presents the hands mark, wordmark, section links and compact signup action; there is no language switch.
 
 Default sections use the desktop spacing token vertically. Story, demo, mentor, signup and FAQ use paired columns. Steps use four columns; the nine modules use three. A wrapping filter toolbar sits above the module grid. A selected text preview appears below that grid in a 0.75fr/1.25fr panel with a 60px gap and 40px padding. Alternating paper, soft, tint and the warmer cream story band establish page rhythm. The footer returns to soft fill.
 
@@ -204,13 +204,13 @@ At 1050px and below the container has 24px side gutters and major gaps reduce. A
 
 At 375px the container is 335px wide with 20px gutters. The header is sticky with a 76px row, a compact 1.25em hands symbol (23px at the 1.15rem wordmark size) and visible compact signup. Hero, story, demo, mentor, waitlist, FAQ and module preview stack. The hero headline is 44.8px, with two explicit phrase blocks; the phone is 245px wide. Steps and module cards remain two columns. Filters wrap; the five coaching-loop positions remain one compact row. Preview padding is 25px/22px, its gap 28px. Form fields use 16px text and wrapped chips; ornamental waitlist art disappears. The demo explanation precedes its poster.
 
-At 1500px and above the hero row grows to 670px and its visual scales to 1.08. The same content order remains intact.
+At 1500px and above the hero row grows to 700px and its visual scales to 1.08. The same content order remains intact.
 
 ## Elevation & Depth
 
 Interface cards, module previews and section bands are flat. Borders, tonal shifts and spacing carry hierarchy. Only the phone and correction bubble use ambient shadows: `12px 24px 45px #26392f24` for the phone, `0 8px 30px #26392f1a` for the correction. The phone rests at 3 degrees; feedback rests at -6 degrees. Controls and caption counter-rotate to remain level.
 
-The interactive figure reserves 93px below its phone for controls and caption. Its correction sits above the phone at top -24px/left -45px on desktop, changing to top -20px/left -25px at widths up to 800px, with bottom set to auto. This final placement keeps feedback clear of instructions and supersedes earlier bottom-based offsets.
+The interactive figure reserves 93px below its phone for controls and caption. Six compact, border-separated skill buttons below the hero actions directly select its lesson; they use three columns on wide screens and two below 1050px. The hero retains the two headline phrases, cream canvas and supplied wordmark. The phone instruction has a fixed 181px height (177px below 800px), preventing lesson changes from shifting the surrounding layout. Its correction sits above the phone at top -24px/left -45px on desktop, changing to top -20px/left -25px at widths up to 800px, with bottom set to auto. Feedback uses a 275px maximum width, reducing to 245px on phones. This final placement keeps feedback clear of instructions and supersedes earlier bottom-based offsets.
 
 **The Flat Interface Rule.** Keep controls, cards and content bands shadowless; reserve ambient lift for the coaching illustration.
 
@@ -248,15 +248,15 @@ The shared `BrandMark` in the header and 404 page integrates the optically cropp
 
 ### Interactive coaching phone
 
-The phone presents seven manually controlled tie steps, initially step three. Back is disabled at the first step; Next advances, and Try again resets after the last. Instruction and illustrative feedback update together. A polite live region announces the instruction; the progress rail exposes its position through semantic progressbar values. The fixed tie drawing does not claim camera recognition. The caption explicitly says example screen, no live camera and sample feedback. Controls have 44px minimum dimensions and surface fill, with tint hover.
+The phone presents seven manually controlled tie steps, initially step three. Back is disabled at the first step; Next advances, and Try again resets after the last. Instruction and illustrative feedback update together. A polite live region announces the instruction; the progress rail exposes its position through semantic progressbar values. The tie fabric morphs through a simplified wrap in a 4.6-second cycle; a stroke-dash guide draws alongside it. This is illustrative animation, without camera recognition. A pause/play button controls the loop, which also pauses offscreen and in a hidden document. Reduced motion uses the static fabric and guide, with the motion toggle hidden. The six hero choices switch this phone to their existing module text previews; upcoming skills explicitly say “Text preview · coming later” and “no camera or AI feedback.” Their three steps use the same controls and reset to the first step when selected from another module. The caption explicitly says example screen, no live camera and sample feedback. Controls have 44px minimum dimensions and surface fill, with tint hover.
 
-Phone entrance takes 750ms, updated lesson copy 350ms, and feedback 500ms, using `cubic-bezier(.16,1,.3,1)`. These are finite state-change animations, not automatic step advancement.
+Phone entrance takes 750ms, updated lesson copy 350ms, and feedback 500ms, using `cubic-bezier(.16,1,.3,1)`. Module artwork switches with a 450ms clipped entrance; progress fills over 350ms, controls acknowledge a press over 180ms. Step changes remain manual. These state-change animations do not automatically advance lessons.
 
 ### Module text previews
 
 Nine modules cover tying a tie, shaving, beard trimming, ironing, sewing a button, drilling, laundry, cooking and bike care. Every card offers Explore preview. Selecting it opens a labelled, focusable three-step text region and scrolls it into view. The panel explicitly says “Text preview · no camera or AI feedback.” Back is disabled initially; the last next action becomes Start again. Close returns focus to the opening button. The available tie demo is a separate link; upcoming modules retain their status and interest vote.
 
-Preview entrance uses a 400ms clipped reveal; lesson/grid changes use 300ms entrance timing. There is no modal overlay. The panel uses soft fill, rounded card corners, a progress rail, a readable serif instruction and compact controls.
+Preview entrance uses a 400ms clipped reveal; preview lesson changes use 300ms entrance timing. Filtered cards use a 400ms clipped reveal with at most 90ms stagger, keeping text at full opacity throughout. There is no modal overlay. The panel uses soft fill, rounded card corners, a progress rail, a readable serif instruction and compact controls.
 
 ### Coaching loop and reduced motion
 
@@ -266,7 +266,7 @@ Reduced motion removes all animations/transitions, cancels card/arrow hover tran
 
 ### FAQ
 
-Native details/summary rows use line separators, generous clickable summaries and a plus mark rotated 45 degrees when open. Expanded answers remain muted without elevation.
+Native details/summary rows use line separators, generous clickable summaries and a plus mark rotated 45 degrees when open. The mark transitions over 220ms and the answer uses a finite 250ms clipped reveal. Navigation underlines grow on hover/focus; filtered module lists use a bounded 400ms reveal with at most 90ms sibling stagger. Expanded answers remain muted without elevation.
 
 ## Do's and Don'ts
 

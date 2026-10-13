@@ -31,3 +31,9 @@ One local production Lighthouse run after visual corrections measured Performanc
 ## Cream canvas and wordmark refinement
 
 The latest user direction keeps public pages light even when the OS prefers dark mode. The main canvas is #faf7f2; the former green story band is #f5f0e7. Header and 404 pages share the compact, transparent BrandMark lockup. A batched 375px/1280px visual check confirms the colors and no overflow. The two relevant browser checks pass, covering WCAG accessibility on four pages, dark OS preference and reduced motion. The production build was rerun for this refinement; form/server implementation is unchanged.
+
+## Hero modules and moving tie
+
+The hero now offers six selectable skills linked to the phone. Upcoming skills reuse the existing three-step text previews and remain explicitly labelled; the tie keeps seven manual sample steps. Its SVG fabric visibly morphs through a simplified wrap, with pause/play and automatic suspension offscreen or in a hidden document. Reduced motion shows a static illustration.
+
+Production build passes. Five relevant browser tests pass, including all six hero choices by keyboard, step navigation, actual changing fabric geometry, pause/resume, offscreen suspension, reduced motion, label/name consistency and WCAG checks. A batched visual check at 375px, 768px and 1280px found no horizontal overflow or browser errors. All fifteen upcoming hero instructions fit within the fixed phone screen at mobile and desktop widths. The module reveal preserves full text opacity after correcting a transient contrast finding. Screenshots are local ignored review artifacts. Server/form implementation is unchanged; the earlier full-suite and Lighthouse results remain historical.
