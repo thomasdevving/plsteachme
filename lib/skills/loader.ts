@@ -15,12 +15,16 @@ export function loadSkills(
       );
       if (file !== `${skill.id}.json`)
         throw new Error(`Skill filename must match its id: ${file}`);
-      for (const step of skill.steps) {
+      const assets = [
+        ...skill.steps.map((step) => step.demoAsset),
+        ...(skill.catalog ? [skill.catalog.previewAsset] : []),
+      ];
+      for (const asset of assets) {
         if (
-          step.demoAsset.includes("..") ||
-          !existsSync(path.join(process.cwd(), "public", step.demoAsset))
+          asset.includes("..") ||
+          !existsSync(path.join(process.cwd(), "public", asset))
         )
-          throw new Error(`Missing or invalid demo asset: ${step.demoAsset}`);
+          throw new Error(`Missing or invalid demo asset: ${asset}`);
       }
       return skill;
     });

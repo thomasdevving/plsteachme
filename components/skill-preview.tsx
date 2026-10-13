@@ -9,13 +9,17 @@ const STEP_DURATION_MS = 3600;
 export function SkillPreview({
   skill,
   graphics,
+  selection,
+  onSelect,
+  onTogglePlay,
 }: {
   skill: AvailableSkill;
   graphics: Record<string, string>;
+  selection: { index: number; previous: number | null; paused: boolean };
+  onSelect: (index: number, pause?: boolean) => void;
+  onTogglePlay: () => void;
 }) {
-  const [index, setIndex] = useState(0);
-  const [previous, setPrevious] = useState<number | null>(null);
-  const [paused, setPaused] = useState(false);
+  const { index, previous, paused } = selection;
   const [visible, setVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
   const surface = useRef<HTMLDivElement>(null);
@@ -47,24 +51,17 @@ export function SkillPreview({
   useEffect(() => {
     if (!playing) return;
     const timer = window.setTimeout(() => {
-      setPrevious(index);
-      setIndex((index + 1) % skill.steps.length);
+      onSelect((index + 1) % skill.steps.length, false);
     }, STEP_DURATION_MS);
     return () => window.clearTimeout(timer);
-  }, [playing, index, skill.steps.length]);
-  useEffect(() => {
-    if (previous === null) return;
-    const timer = window.setTimeout(() => setPrevious(null), 650);
-    return () => window.clearTimeout(timer);
-  }, [previous, index]);
+  }, [playing, index, skill.steps.length, onSelect]);
   function navigate(direction: number) {
-    setPaused(true);
-    setPrevious(index);
-    setIndex((index + direction + skill.steps.length) % skill.steps.length);
+    onSelect((index + direction + skill.steps.length) % skill.steps.length);
   }
   const step = skill.steps[index];
   return (
     <div
+      id="lesson-preview"
       ref={surface}
       className={`skill-preview ${reducedMotion ? "is-static" : playing ? "is-playing" : "is-paused"}`}
     >
@@ -123,7 +120,7 @@ export function SkillPreview({
             className="preview-control"
             aria-label={playing ? copy.motion.pause : copy.motion.play}
             disabled={reducedMotion}
-            onClick={() => setPaused(!paused)}
+            onClick={onTogglePlay}
           >
             {playing ? (
               <Pause size={16} aria-hidden="true" />

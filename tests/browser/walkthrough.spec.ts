@@ -10,7 +10,22 @@ test("complete a seven-step lesson with buttons and no camera", async ({
   await expect(
     page.getByRole("heading", { name: copy.home.skills }),
   ).toBeVisible();
-  await expect(page.locator(".coming-soon").getByText(copy.home.soon, { exact: true })).toBeVisible();
+  await expect(
+    page
+      .locator(".coming-soon")
+      .first()
+      .getByText(copy.home.soon, { exact: true }),
+  ).toBeVisible();
+  // Full-page screenshots do not scroll through lazy-loaded artwork.
+  await page.locator(".module-art img").evaluateAll(async (images) => {
+    await Promise.all(
+      images.map(async (element) => {
+        const image = element as HTMLImageElement;
+        image.loading = "eager";
+        await image.decode();
+      }),
+    );
+  });
   await page.screenshot({
     path: `.impeccable/review/${testInfo.project.name}-home.png`,
     fullPage: true,
@@ -54,7 +69,9 @@ test("complete a seven-step lesson with buttons and no camera", async ({
     .getByRole("button", { name: copy.session.closeDemo, exact: true })
     .click();
   await expect(page.locator(".demo-notes")).not.toBeVisible();
-  await expect(page.getByRole("button", { name: copy.session.done })).toBeEnabled();
+  await expect(
+    page.getByRole("button", { name: copy.session.done }),
+  ).toBeEnabled();
   await page.screenshot({
     path: `.impeccable/review/${testInfo.project.name}-session.png`,
     fullPage: true,

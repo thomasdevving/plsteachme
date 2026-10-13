@@ -3,6 +3,8 @@ export const copy = {
   mission: "Nobody should have to figure everything out alone.",
   motion: {
     preview: "One move at a time",
+    choose: "Explore the seven moves",
+    select: (index: number, title: string) => `Preview step ${index}: ${title}`,
     previous: "Previous preview step",
     next: "Next preview step",
     pause: "Pause lesson preview",
@@ -21,6 +23,22 @@ export const copy = {
     tieAlt: "A four-in-hand tie knot, with the wide end highlighted.",
     walkthrough:
       "This first version is a guided walkthrough. Camera coaching comes next.",
+  },
+  modules: {
+    title: "What’s your next small skill?",
+    intro:
+      "Start with the tie lesson today. Explore the everyday skills we’re planning next.",
+    browse: "Explore all modules",
+    all: "All modules",
+    ready: "Ready to practice",
+    soon: "Coming soon",
+    filters: "Filter modules by availability",
+    view: "Explore module",
+    plan: "The planned lesson",
+    plannedNote:
+      "This module is still being made. The outline below is a preview; a practice session isn’t available yet.",
+    tryReady: "Practice the tie lesson",
+    readyNote: "In the meantime, there’s one skill you can try today.",
   },
   how: {
     title: "Small steps. Real progress.",

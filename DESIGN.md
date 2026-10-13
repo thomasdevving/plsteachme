@@ -170,6 +170,8 @@ The skill card has a thin border, a sage illustration area and cream content. Co
 
 ### Lesson trail and diagrams
 
+On the home page, seven segments are real buttons with 48px touch targets, descriptive step labels and a selected state. They control the adjacent preview, pause autoplay on selection and stay synchronized with its next/previous controls. The module library uses open illustration-and-text links with availability filters; forthcoming modules have a preview outline and no practice action.
+
 The seven-segment trail uses accent for the current step, sage for earlier positions and pale sage for remaining positions. It describes position, without implying verified correctness. Each segment exposes its step title to assistive technology.
 
 Tie diagrams share an unmirrored front view, light contextual outlines and the terracotta wide-end signature. Keep the explanatory legend and caption with the diagram.

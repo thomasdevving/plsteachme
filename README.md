@@ -2,7 +2,7 @@
 
 Nobody should have to figure everything out alone.
 
-A mobile-first practical-skills coach. **Phase 1 is implemented:** a complete, button-only four-in-hand tie lesson, beginner intake, seven diagrams, JSON-driven skill discovery and a tested coaching reducer. Shaving appears as coming soon.
+A mobile-first practical-skills coach. **Phase 1 is implemented:** a complete, button-only four-in-hand tie lesson, beginner intake, seven diagrams, JSON-driven skill discovery and a tested coaching reducer. The frontend module library also previews sewing a button, folding a shirt, tying shoelaces and shaving, each clearly marked as coming soon.
 
 This version does **not** use a camera, send images, call an AI service, speak, or judge a knot. The interface labels it as a walkthrough. Completing a step means the learner chose to continue, not that the step was verified.
 
@@ -36,7 +36,7 @@ The production build validates every skill and illustration before compiling. Th
 
 The temporary draft and intake answers use `sessionStorage`. They last for the browser tab and are removed when the lesson completes. If storage is blocked, the lesson still works in memory. Durable progress and IndexedDB are planned for Phase 4. Completing a walkthrough never stores a verified outcome.
 
-The homepage includes a seven-step animated preview with pause and manual controls, plus an interactive explanation of the lesson flow. Preview loops pause offscreen and in hidden tabs. Reduced-motion settings show complete static diagrams and retain manual navigation. Lesson drawings animate on arrival and replay.
+The homepage includes a seven-step animated preview with pause, manual controls and seven clickable headline segments. Selecting a segment jumps to that move and pauses autoplay. The module library filters by availability and links to each skill’s overview. It also includes an interactive explanation of the lesson flow. Preview loops pause offscreen and in hidden tabs. Reduced-motion settings show complete static diagrams and retain manual navigation. Lesson drawings animate on arrival and replay.
 
 Append `?debug=1` to `/session/tie-four-in-hand` to inspect reducer state and step records. This is an early state inspector, not the full evaluation mode.
 
@@ -59,7 +59,8 @@ Alternatively, set `TEST_BROWSER_PATH` to a local Chromium-compatible executable
 4. Put each diagram under `public/skills/your-skill-id/` and reference it as `/skills/your-skill-id/step.svg`. Paths must remain under `/skills/` and cannot contain `..`.
 5. Use `strict` for clearly observable important endpoints, `light` for ambiguous intermediate moves and `none` for manual-only steps. Write directions from the learner’s own perspective. The current tie diagrams are front views, unmirrored; the learner’s right appears on the left of the drawing.
 6. Add completion wording and practical tips. Keep corrective cues within 15 words. The walkthrough uses separate completion wording so it does not claim success without a check.
-7. Run `npm run validate:skills`, `npm test` and `npm run build`. JSON files are discovered automatically; no registry or component changes are needed.
+7. Optionally add `catalog: { "previewAsset": "/skills/your-skill-id/overview.svg", "outline": ["First move", "Next move"] }`. The library uses this illustration and coming-soon overview automatically. These assets are validated at build/load time, too.
+8. Run `npm run validate:skills`, `npm test` and `npm run build`. JSON files are discovered automatically; no registry or component changes are needed.
 
 `lib/skills/schema.ts` is the schema authority. Shared interface copy is in `lib/copy/en.ts`; lesson-specific language stays in the skill definitions so adding skills needs no application code.
 

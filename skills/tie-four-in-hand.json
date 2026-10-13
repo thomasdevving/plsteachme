@@ -261,5 +261,17 @@
       "A four-in-hand knot is slightly uneven. That’s part of its shape.",
       "Loosen it by holding the narrow end and gently sliding the knot down."
     ]
+  },
+  "catalog": {
+    "previewAsset": "/skills/tie/tighten-adjust.svg",
+    "outline": [
+      "Drape the tie",
+      "Cross over",
+      "Wrap behind",
+      "Cross over again",
+      "Up through the loop",
+      "Down through the front",
+      "Tighten and adjust"
+    ]
   }
 }

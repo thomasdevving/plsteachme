@@ -42,6 +42,12 @@ const base = {
   version: z.number().int().positive(),
   title: z.string().min(1),
   description: z.string().min(1),
+  catalog: z
+    .object({
+      previewAsset: z.string().startsWith("/skills/"),
+      outline: z.array(z.string().min(1)).min(1),
+    })
+    .optional(),
 };
 export const availableSkillSchema = z
   .object({

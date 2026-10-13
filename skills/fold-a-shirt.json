@@ -1,0 +1,16 @@
+{
+  "id": "fold-a-shirt",
+  "version": 1,
+  "title": "Fold a shirt",
+  "description": "A simple fold for a drawer that feels a little more together.",
+  "status": "coming_soon",
+  "catalog": {
+    "previewAsset": "/skills/modules/shirt.svg",
+    "outline": [
+      "Lay the shirt flat and smooth it out",
+      "Fold the sides and sleeves inward",
+      "Fold the bottom up and straighten the edges"
+    ]
+  },
+  "steps": []
+}

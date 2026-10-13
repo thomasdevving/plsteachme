@@ -4,5 +4,13 @@
   "title": "Learn to shave",
   "description": "A patient guide to another everyday first.",
   "status": "coming_soon",
+  "catalog": {
+    "previewAsset": "/skills/modules/razor.svg",
+    "outline": [
+      "Get your equipment and space ready",
+      "Learn how to hold and guide the razor",
+      "Finish up and clean your equipment"
+    ]
+  },
   "steps": []
 }

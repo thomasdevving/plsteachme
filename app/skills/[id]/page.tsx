@@ -17,14 +17,52 @@ export default async function SkillIntro({
   const { id } = await params;
   const skill = getSkill(id);
   if (!skill) notFound();
+  const available = loadSkills().find((item) => item.status === "available");
   if (skill.status === "coming_soon")
     return (
       <>
         <Header backHref="/" />
-        <main className="narrow-page">
-          <h1>{skill.title}</h1>
-          <p className="lead">{skill.description}</p>
-          <p>{copy.home.soon}</p>
+        <main className="planned-module page-width">
+          <section className="planned-overview">
+            {skill.catalog && (
+              <div className="planned-art">
+                <img
+                  src={skill.catalog.previewAsset}
+                  alt=""
+                  width="320"
+                  height="200"
+                />
+              </div>
+            )}
+            <span className="badge">{copy.modules.soon}</span>
+            <h1>{skill.title}</h1>
+            <p className="lead">{skill.description}</p>
+          </section>
+          <section className="planned-details">
+            <h2>{copy.modules.plan}</h2>
+            <p>{copy.modules.plannedNote}</p>
+            {skill.catalog && (
+              <ol className="step-list">
+                {skill.catalog.outline.map((item, index) => (
+                  <li key={item}>
+                    <span className="step-number">{index + 1}</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+            <p className="small-note">{copy.modules.readyNote}</p>
+            <Link
+              href={available ? `/skills/${available.id}` : "/"}
+              className="button primary"
+            >
+              {copy.modules.tryReady}
+              <ArrowRight size={20} aria-hidden="true" />
+            </Link>
+            <Link href="/#modules" className="quiet-link">
+              {copy.modules.browse}
+            </Link>
+          </section>
         </main>
       </>
     );
