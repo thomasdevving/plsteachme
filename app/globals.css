@@ -153,6 +153,6 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 @media(max-width:800px){.hero-grid{gap:28px}.hero-description{font-size:1rem}.interactive-phone .phone-instruction{height:165px;min-height:165px}}
 @media(max-width:600px){.hero-grid{grid-template-columns:1fr;gap:65px;min-height:0}.hero-copy h1{font-size:clamp(1.75rem,7.5vw,2.75rem)}.hero-description{margin-top:24px;font-size:1rem}.hero-actions{margin-top:24px}.hero-visual{padding-bottom:5px}}
 .interactive-phone .feedback{top:-48px}
-.hero-description{font-family:var(--font-lora),Georgia,serif;font-size:1.35rem;line-height:1.55;color:var(--ink);letter-spacing:-.02em}
+.hero-description{font-family:var(--font-lora),Georgia,serif;font-size:1.1rem;line-height:1.55;color:var(--ink);letter-spacing:-.02em}
 .hero-description .hero-emphasis{color:inherit}
-@media(max-width:800px){.hero-description{font-size:1.15rem}}
+@media(max-width:800px){.hero-description{font-size:1rem}}
