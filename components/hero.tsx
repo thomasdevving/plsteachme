@@ -26,7 +26,7 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
           </div>
         </div>
         <div className="hero-visual">
-          <CoachPreview hero={c.hero} />
+          <CoachPreview />
         </div>
       </div>
     </section>

@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Pause, Play } from "lucide-react";
-import type { Copy } from "@/lib/i18n";
 import { TieMotion } from "./tie-motion";
 const tieSteps = [
   [
@@ -21,7 +20,7 @@ const tieSteps = [
     "A small, slightly angled knot. You’ve got it.",
   ],
 ];
-export function CoachPreview({ hero }: { hero: Copy["hero"] }) {
+export function CoachPreview() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
   const figure = useRef<HTMLElement>(null);
@@ -135,9 +134,7 @@ export function CoachPreview({ hero }: { hero: Copy["hero"] }) {
           )}
           {playing ? "Pause" : "Play"}
         </button>
-        <span>7 steps · 3 seconds each</span>
       </div>
-      <figcaption>{hero.sample} · sample feedback</figcaption>
     </figure>
   );
 }
