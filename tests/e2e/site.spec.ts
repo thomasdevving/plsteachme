@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 test('English canonical pages and legacy redirects preserve query parameters', async ({ page }) => {
- for (const path of ['/','/organizations','/demo','/privacy','/thanks']) { const response=await page.goto(path); expect(response?.status()).toBe(200); await expect(page.locator('html')).toHaveAttribute('lang','en'); await expect(page.locator('h1')).toHaveCount(1); }
+ for (const path of ['/','/subscriptions','/organizations','/demo','/privacy','/thanks']) { const response=await page.goto(path); expect(response?.status()).toBe(200); await expect(page.locator('html')).toHaveAttribute('lang','en'); await expect(page.locator('h1')).toHaveCount(1); }
  for (const [alias,target] of [['/en','/'],['/nl','/'],['/organisaties','/organizations'],['/en/organizations','/organizations'],['/bedankt','/thanks']]) { await page.goto(`${alias}?ref=FRIEND`); expect(new URL(page.url()).pathname).toBe(target); expect(new URL(page.url()).searchParams.get('ref')).toBe('FRIEND'); }
 });
 test('mobile signup keeps first-touch attribution and uses an honest mock acknowledgement', async ({page}) => {
@@ -28,10 +28,10 @@ test('404 and production styleguide restrictions',async({page})=>{
  const missing=await page.goto('/a-page-that-does-not-exist'); expect(missing?.status()).toBe(404); await expect(page.getByRole('heading',{name:'Lost your way?'})).toBeVisible(); const dev=await page.goto('/dev/styleguide'); expect(dev?.status()).toBe(404);
 });
 test('no horizontal overflow, accessible landmarks and no serious accessibility violations',async({page})=>{
- for(const width of [375,1280]) { await page.setViewportSize({width,height:900}); for(const path of ['/','/organizations','/demo','/privacy']){ await page.goto(path); expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); } }
+ for(const width of [375,1280]) { await page.setViewportSize({width,height:900}); for(const path of ['/','/subscriptions','/organizations','/demo','/privacy']){ await page.goto(path); expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); } }
 });
 test('cream canvas stays light under dark OS preference and reduced motion remains usable',async({page})=>{
- await page.emulateMedia({colorScheme:'dark',reducedMotion:'reduce'}); await page.goto('/en'); expect(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--paper').trim())).toBe('#faf7f2'); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); expect(await page.locator('.loop-node:first-child>span').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+ await page.emulateMedia({colorScheme:'dark',reducedMotion:'reduce'}); await page.goto('/en'); expect(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--paper').trim())).toBe('#faf7f2'); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); expect(await page.locator('.skill-card').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
 });
 
 test('module filters, previews and phone controls work with keyboard and reduced motion', async ({page})=>{

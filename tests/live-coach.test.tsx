@@ -146,7 +146,7 @@ it("runs all seven steps through capture, verify, advance and durable completion
   await screen.findByRole("heading", { name: c.finished });
   expect(capture).toHaveBeenCalledTimes(7);
   expect(calls).toHaveLength(7);
-  expect(save).toHaveBeenCalledTimes(1);
+  await waitFor(() => expect(save).toHaveBeenCalledTimes(1));
   expect(
     save.mock.calls[0][2].records.every(
       (r: { outcome: string }) => r.outcome === "verified",

@@ -17,10 +17,12 @@ export const skillIds = [
 ] as const;
 export type SkillId = (typeof skillIds)[number];
 export type Locale = "nl" | "en";
-export type Page = "home" | "organizations" | "demo" | "privacy" | "thanks";
+export type Page =
+  "home" | "subscriptions" | "organizations" | "demo" | "privacy" | "thanks";
 export function pathFor(_locale: Locale, page: Page = "home") {
   return {
     home: "/",
+    subscriptions: "/subscriptions",
     organizations: "/organizations",
     demo: "/demo",
     privacy: "/privacy",
@@ -35,9 +37,16 @@ export function pageFromSlug(
   if (path === "/dev/styleguide" && process.env.NODE_ENV === "development")
     return "styleguide";
   return (
-    (["home", "organizations", "demo", "privacy", "thanks"] as Page[]).find(
-      (page) => pathFor(locale, page) === path,
-    ) || null
+    (
+      [
+        "home",
+        "subscriptions",
+        "organizations",
+        "demo",
+        "privacy",
+        "thanks",
+      ] as Page[]
+    ).find((page) => pathFor(locale, page) === path) || null
   );
 }
 
