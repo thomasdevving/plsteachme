@@ -135,8 +135,8 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 
 /* A single message and one continuous coaching demonstration. */
 .hero-grid{grid-template-columns:1.15fr 1fr;gap:70px;min-height:580px}
-.hero-copy h1{font-size:clamp(2.65rem,4.65vw,4.5rem);max-width:13ch;line-height:1.12;letter-spacing:-.035em}
-.hero-copy h1>span{display:inline}
+.hero-copy h1{font-size:clamp(1.75rem,3.8vw,3.5rem);max-width:none;line-height:1.12;letter-spacing:-.035em}
+.hero-copy h1>span{display:block}
 .hero-description{margin-top:28px;font-size:1.08rem;line-height:1.7}
 .hero-description p+p{margin-top:0}
 .hero-actions{margin-top:28px}
@@ -150,10 +150,9 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 .footer-top{justify-content:flex-end}
 @media(min-width:1500px){.hero-grid{min-height:620px}}
 @media(max-width:1050px){.hero-grid{gap:35px}}
-@media(max-width:800px){.hero-grid{gap:28px}.hero-copy h1{font-size:2.8rem}.hero-description{font-size:1rem}.interactive-phone .phone-instruction{height:165px;min-height:165px}}
-@media(max-width:600px){.hero-grid{grid-template-columns:1fr;gap:65px;min-height:0}.hero-copy h1{font-size:clamp(2.3rem,9.5vw,3.1rem);max-width:14ch}.hero-description{margin-top:24px;font-size:1rem}.hero-actions{margin-top:24px}.hero-visual{padding-bottom:5px}}
+@media(max-width:800px){.hero-grid{gap:28px}.hero-description{font-size:1rem}.interactive-phone .phone-instruction{height:165px;min-height:165px}}
+@media(max-width:600px){.hero-grid{grid-template-columns:1fr;gap:65px;min-height:0}.hero-copy h1{font-size:clamp(1.75rem,7.5vw,2.75rem)}.hero-description{margin-top:24px;font-size:1rem}.hero-actions{margin-top:24px}.hero-visual{padding-bottom:5px}}
 .interactive-phone .feedback{top:-48px}
-@media(max-width:600px){.hero-copy h1{max-width:12.5ch}}
 .hero-description{font-family:var(--font-lora),Georgia,serif;font-size:1.35rem;line-height:1.55;color:var(--ink);letter-spacing:-.02em}
 .hero-description .hero-emphasis{color:inherit}
 @media(max-width:800px){.hero-description{font-size:1.15rem}}

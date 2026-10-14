@@ -8,8 +8,9 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
       <div className="container hero-grid">
         <div className="hero-copy">
           <h1>
-            {c.hero.title.split(", ")[0]}, <br />
-            <span className="hero-emphasis">{c.hero.title.split(", ")[1]}</span>
+            <span>{c.hero.title.split(", ")[0]}, </span>
+            <span className="hero-emphasis">plsteach.me </span>
+            <span className="hero-emphasis">guides you.</span>
           </h1>
           <div className="hero-description">
             <p>{c.hero.sub}</p>
