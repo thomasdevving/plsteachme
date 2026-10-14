@@ -2,7 +2,7 @@
 
 A warm, English-only landing and validation website for a practical-skills coach. The supplied hands logo, green/orange wordmark, interactive seven-step phone example and nine filterable skill previews lead into a waitlist and organization pilot form.
 
-This replaces the previous walkthrough website on `main`; that implementation remains in Git history at `19489f1`. The phone and module examples use illustrative text, not a live camera or AI verification. The actual coaching demo and video are optional external integrations.
+The latest landing design is preserved, and the functional coaching app is restored at `/coach`. The landing phone/module previews remain illustrative; **Try the coach** opens real camera practice or a watch-only walkthrough. See [Coaching setup and evaluation](docs/COACH.md) for Anthropic configuration, privacy, phone testing and skill authoring.
 
 ## Run locally
 
@@ -17,7 +17,8 @@ Open http://localhost:3100. For a production server, run `npm run build` then `n
 
 - `/`: landing, phone example, module library, waitlist and FAQ.
 - `/organizations`: pilot interest form.
-- `/demo`: demo video slot and optional coaching link.
+- `/demo`: demo video slot and coaching link (defaults to `/coach`).
+- `/coach`: practical lesson library, intake, live camera coaching, local progress/settings and evaluation.
 - `/privacy`: visible draft with outstanding business/provider details.
 - `/thanks`: honest mock acknowledgement or signup follow-up.
 - `/dev/styleguide`: development only.
@@ -33,7 +34,8 @@ Copy `.env.example` to `.env.local` and set only the services you use:
 | Variable | Purpose |
 |---|---|
 | `NEXT_PUBLIC_SITE_URL` | Canonical production origin, without trailing slash |
-| `NEXT_PUBLIC_DEMO_APP_URL` | Actual coaching demo link |
+| `NEXT_PUBLIC_DEMO_APP_URL` | Optional external override; defaults to `/coach` |
+| `ANTHROPIC_API_KEY` | Server-only coaching key; missing key enables labeled simulations |
 | `NEXT_PUBLIC_DEMO_VIDEO_URL` | Actual video URL |
 | `SUPABASE_URL` | Server-only storage URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only storage secret |

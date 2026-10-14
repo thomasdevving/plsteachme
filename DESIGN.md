@@ -293,3 +293,6 @@ The refined B concept is the default selection in the logo comparison. Its mark 
 B’s green rear hand is reduced in height and width relative to the orange hand, with slimmer fingers, gentler fingertip curves and a smoother palm-to-wrist contour. The orange hand, lettering, spacing and palette are preserved.
 
 Latest supplied identity: the filled two-hands PNG uploaded on 13 October replaces the earlier outline logo across header, 404, footer and browser/apple icon metadata. The original PNG is preserved byte-for-byte; Next Image serves size-appropriate header/footer derivatives. The compact lockup and green/orange wordmark remain. Earlier vector concepts are exploration references.
+
+<!-- Coaching extension: 2026-10-14 -->
+The restored `/coach` uses a separate root layout and stylesheet, the supplied filled-hands logo, cream paper and the same green/orange palette. Instructions stay at 22px for use at a distance. Camera setup uses a task-specific positioning diagram with explicit hand outlines when hands are required, followed by a landmark checklist. The tie lesson switches from neck-to-waist framing to a collar-and-knot close-up for its final step. The landing-page composition and interactive previews remain unchanged.

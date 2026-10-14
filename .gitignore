@@ -8,3 +8,5 @@ test-results/
 
 .impeccable/review/
 .DS_Store
+
+public/mediapipe/wasm/

@@ -19,3 +19,5 @@ WCAG AA, keyboard navigation, visible focus, reduced motion, dark mode, 375px fi
 
 ## Current shipped surface
 The user selected this landing website to replace the prior website on main. Public copy is English-only. Brand: supplied hands logo, green plsteach and orange .me. Hero text is user-pinned, with the second line orange. Nine modules offer honest text previews and interest voting; the phone is an interactive, explicitly illustrative coaching example. Waitlist and organization forms retain mock mode until services are configured.
+
+The functional coaching demo is available at `/coach`, alongside the landing site. The tie lesson supports camera verification and watch-only practice; other coach modules remain previews. Camera setup and optional per-step overrides specify framing, landmark requirements and front/rear camera.
