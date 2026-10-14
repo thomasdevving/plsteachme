@@ -12,9 +12,9 @@ export const en = {
     menu: "Navigation",
   },
   hero: {
-    eyebrow: "Nobody should have to figure everything out alone.",
-    title: "A little help.\nA skill for life.",
-    sub: "For the things nobody showed you. Take them one step at a time, at your own pace.",
+    title: "A tutorial shows you, plsteach.me guides you.",
+    sub: "A tie. A shirt. A loose button.",
+    support: "Not everyone had someone to ask.",
     primary: "I want to try this",
     secondary: "Watch the demo",
     early: "Early demo",
@@ -24,14 +24,6 @@ export const en = {
     feedback: "Almost! Bring it a little higher.",
     coach: "Your coach is watching",
     sample: "Example screen · no live camera",
-  },
-  problem: {
-    title: "Some things were never shown to you.",
-    beats: [
-      "A tie. A shirt. A loose button.",
-      "Not everyone had someone to ask.",
-      "A tutorial shows you, plsteach.me guides you.",
-    ],
   },
   how: {
     title: "You try. Your coach helps.",
@@ -265,7 +257,6 @@ export const en = {
     ],
   },
   footer: {
-    mission: "Nobody should have to figure everything out alone.",
     line: "A little help with the things of life.",
     contact: "Contact details coming soon",
     top: "Back to top",

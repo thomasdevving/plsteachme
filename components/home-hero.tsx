@@ -40,7 +40,6 @@ export function HomeHero({
   return (
     <div className="home-layout page-width">
       <section className="home-intro">
-        <p className="mission">{copy.mission}</p>
         <h1>
           {copy.home.title.split("\n").map((line, index) => (
             <span

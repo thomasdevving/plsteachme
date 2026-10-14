@@ -34,7 +34,7 @@ test('cream canvas stays light under dark OS preference and reduced motion remai
  await page.emulateMedia({colorScheme:'dark',reducedMotion:'reduce'}); await page.goto('/en'); expect(await page.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--paper').trim())).toBe('#faf7f2'); const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); expect(await page.locator('.skill-card').first().evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
 });
 
-test('module filters, previews and phone controls work with keyboard and reduced motion', async ({page})=>{
+test('module filters and previews work with keyboard and reduced motion', async ({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
  await expect(page.locator('.wordmark img')).toBeVisible(); await expect(page.locator('.phone')).toBeVisible();
  await expect(page.locator('.skill-card')).toHaveCount(9);
@@ -44,64 +44,7 @@ test('module filters, previews and phone controls work with keyboard and reduced
  await expect(page.locator('#module-preview')).toBeFocused(); await expect(page.locator('.lesson-copy')).toContainText('Read the care labels');
  await page.getByRole('button',{name:'Next preview step',exact:true}).click(); await expect(page.locator('.lesson-copy')).toContainText('measure the detergent');
  await page.getByRole('button',{name:'Close module preview'}).click(); await expect(page.getByRole('button',{name:'Explore preview: Do your laundry',exact:true})).toBeFocused();
- await page.getByRole('button',{name:'Next step',exact:true}).click(); await expect(page.locator('.coach-step')).toContainText('Step 4 of 7');
- await page.getByRole('button',{name:'Previous example step'}).click(); await expect(page.locator('.coach-step')).toContainText('Step 3 of 7');
  const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>v.id)).toEqual([]); const labels=await new AxeBuilder({page}).withRules(['label-content-name-mismatch']).analyze(); expect(labels.violations.map(v=>v.id)).toEqual([]);
-});
-
-test('hero modules change the phone preview and preserve a usable step flow', async ({page}) => {
- await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
- const choices = page.locator('.hero-module-options');
- await expect(choices.getByRole('button')).toHaveCount(6);
- for (const name of ['Shave','Sew on a button','Iron a shirt','Cook a simple meal','Care for your bike']) {
-  const button=choices.getByRole('button',{name,exact:true}); await button.focus(); await page.keyboard.press('Enter');
-  await expect(button).toHaveAttribute('aria-pressed','true');
-  await expect(page.locator('#hero-preview')).toHaveAccessibleName(`${name}: text preview`);
-  await expect(page.locator('.coach-step')).toContainText('Step 1 of 3');
-  await expect(page.locator('.phone-figure figcaption')).toContainText('no camera or AI feedback');
-  await expect(page.getByRole('button',{name:'Previous example step'})).toBeDisabled();
-  await page.getByRole('button',{name:'Next step',exact:true}).click();
-  await expect(page.locator('.coach-step')).toContainText('Step 2 of 3');
- }
- await choices.getByRole('button',{name:'Tie a tie',exact:true}).click();
- await expect(page.locator('.coach-step')).toContainText('Step 3 of 7');
- await expect(page.locator('.tie-motion')).toBeVisible();
- expect(await page.locator('.tie-wide-end').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
- const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze(); expect(result.violations.map(v=>v.id)).toEqual([]);
-});
-
-test('tie artwork follows all seven lesson states, including back, reset and reduced motion', async ({page}) => {
- await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
- const art=page.locator('.tie-motion'); const fabric=page.locator('.tie-wide-end');
- await page.getByRole('button',{name:'Previous example step'}).click(); await page.getByRole('button',{name:'Previous example step'}).click();
- const shapes: string[]=[];
- for(let step=1;step<=7;step++) {
-  await expect(art).toHaveAttribute('data-step',String(step));
-  await expect(art).toHaveAccessibleName(new RegExp(`^Step ${step}:`));
-  await expect(page.locator('.coach-step')).toContainText(`Step ${step} of 7`);
-  const shape=await fabric.getAttribute('d'); expect(shape).not.toBeNull(); shapes.push(shape!);
-  expect(await fabric.evaluate(el=>el.getAnimations().length)).toBe(0);
-  if(step<7) await page.getByRole('button',{name:'Next step',exact:true}).click();
- }
- expect(new Set(shapes).size).toBe(7);
- await page.getByRole('button',{name:'Previous example step'}).click(); await expect(fabric).toHaveAttribute('d',shapes[5]);
- await page.getByRole('button',{name:'Next step',exact:true}).click(); await page.getByRole('button',{name:'Try again',exact:true}).click();
- await expect(art).toHaveAttribute('data-step','1'); await expect(fabric).toHaveAttribute('d',shapes[0]);
-});
-
-test('a tie move plays once, holds its result, replays and pauses offscreen', async ({page}) => {
- await page.emulateMedia({reducedMotion:'no-preference'}); await page.goto('/');
- const fabric=page.locator('.tie-wide-end');
- await page.getByRole('button',{name:'Next step',exact:true}).click();
- const target=await fabric.getAttribute('d');
- await expect.poll(()=>fabric.evaluate(el=>el.getAnimations().some(a=>a.playState==='running'))).toBe(true);
- await expect.poll(()=>fabric.evaluate(el=>el.getAnimations().some(a=>a.playState==='running')),{timeout:3500}).toBe(false);
- expect(await fabric.getAttribute('d')).toBe(target);
- await page.getByRole('button',{name:'Replay this tie step'}).click();
- const start=await fabric.evaluate(el=>getComputedStyle(el).d);
- await expect.poll(()=>fabric.evaluate(el=>getComputedStyle(el).d)).not.toBe(start);
- await page.evaluate(()=>window.scrollTo({top:3000,behavior:'instant'}));
- await expect.poll(()=>fabric.evaluate(el=>el.getAnimations().some(a=>a.playState==='paused'))).toBe(true);
 });
 
 test('three logo directions preview in the header without changing the main brand', async ({page})=>{

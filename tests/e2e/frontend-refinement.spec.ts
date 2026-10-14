@@ -38,7 +38,7 @@ test('learning rail supports arrows, keyboard, category resets and narrow screen
 
 test('requested landing copy is removed from the visible page and FAQ schema', async ({page}) => {
   await page.goto('/');
-  await expect(page.getByText('A tutorial shows you, plsteach.me guides you.', {exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{level:1})).toHaveText('A tutorial shows you, plsteach.me guides you.');
   for (const text of ['Guidance when you need it.', 'No judgment. No rush.', 'Your coach watches with you.', 'When can I learn to shave?']) await expect(page.getByText(text, {exact:true})).toHaveCount(0);
   await expect(page.locator('.coaching-loop,.comparison,.mentor')).toHaveCount(0);
   expect(await page.locator('script[type="application/ld+json"]').textContent()).not.toContain('When can I learn to shave?');

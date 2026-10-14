@@ -23,17 +23,7 @@ export function Landing({
 }) {
   return (
     <>
-      <Hero c={{ hero: c.hero, skills: c.skills }} />
-      <Section className="problem" labelledBy="problem-title">
-        <div className="problem-layout">
-          <h2 id="problem-title">{c.problem.title}</h2>
-          <div className="story">
-            {c.problem.beats.map((beat) => (
-              <p key={beat}>{beat}</p>
-            ))}
-          </div>
-        </div>
-      </Section>
+      <Hero c={{ hero: c.hero }} />
       <Section id="how" labelledBy="how-title">
         <div className="section-heading">
           <h2 id="how-title">{c.how.title}</h2>

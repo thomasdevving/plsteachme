@@ -1,6 +1,5 @@
 export const copy = {
   brand: "plsteach.me",
-  mission: "Nobody should have to figure everything out alone.",
   motion: {
     preview: "One move at a time",
     choose: "Explore the seven moves",

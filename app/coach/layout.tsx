@@ -10,7 +10,7 @@ import "./coach.css";
 import { copy } from "@/lib/copy/en";
 export const metadata: Metadata = {
   title: { default: copy.brand, template: `%s · ${copy.brand}` },
-  description: copy.mission,
+  description: copy.home.intro,
   icons: { icon: "/brand/hands-filled.png", apple: "/brand/hands-filled.png" },
   manifest: "/manifest.webmanifest",
   robots: { index: false, follow: false },

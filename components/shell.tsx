@@ -70,7 +70,6 @@ export function Footer({
     <footer className="site-footer">
       <div className="container">
         <div className="footer-top">
-          <p>{c.footer.mission}</p>
           <a href="#top">{c.footer.top} ↑</a>
         </div>
         <div className="footer-wordmark" aria-hidden="true">
