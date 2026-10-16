@@ -1,6 +1,7 @@
 import type { Copy } from "@/lib/i18n";
 import { CoachPreview } from "./coach-preview";
 import { Cta } from "./utilities";
+import { Mascot } from "./mascot";
 
 export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
   return (
@@ -20,9 +21,12 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
             <Cta href="#waitlist" kind="waitlist">
               {c.hero.primary}
             </Cta>
-            <Cta href="#demo" kind="demo" secondary>
-              {c.hero.secondary}
-            </Cta>
+            <div className="mascot-button">
+              <Mascot pose="standing" />
+              <Cta href="#demo" kind="demo" secondary>
+                {c.hero.secondary}
+              </Cta>
+            </div>
           </div>
         </div>
         <div className="hero-visual">

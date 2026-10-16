@@ -296,3 +296,10 @@ Latest supplied identity: the filled two-hands PNG uploaded on 13 October replac
 
 <!-- Coaching extension: 2026-10-14 -->
 The restored `/coach` uses a separate root layout and stylesheet, the supplied filled-hands logo, cream paper and the same green/orange palette. Instructions stay at 22px for use at a distance. Camera setup uses a task-specific positioning diagram with explicit hand outlines when hands are required, followed by a landmark checklist. The tie lesson switches from neck-to-waist framing to a collar-and-knot close-up for its final step. The landing-page composition and interactive previews remain unchanged.
+<!-- Mascot addition, 2026-10-16: narrow extension; older unrelated descriptions above are historical. -->
+
+### Hero clay companions
+
+Two decorative characters derived from the user-supplied reference accompany the hero. Green stands on the secondary demo button; orange grips the right edge of the phone. Preserve the orange pentagonal head, green rounded rectangular head, white eyes and smiles, and soft clay material. The transparent atlas in `public/mascots/` contains separate heads and torsos; the compressed WebP is the shipped asset and the PNG preserves the generated source. Exact generation instructions are recorded in `prompt.txt` and asset metadata.
+
+Heads tilt slowly through distinct nine-second cycles. The existing phone Pause control pauses both characters. Intersection and document visibility pause their motion when hidden, and reduced motion removes it entirely. Characters remain decorative, hidden from assistive technology, and never intercept pointer input. The button has reserved space above it; the hanging character shrinks on small screens to keep the content readable. No dependencies were added.
