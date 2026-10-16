@@ -1,5 +1,4 @@
 import type { Copy } from "@/lib/i18n";
-import { CoachPreview } from "./coach-preview";
 import { Cta } from "./utilities";
 import { Mascot } from "./mascot";
 
@@ -32,7 +31,7 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
           </div>
         </div>
         <div className="hero-visual">
-          <CoachPreview />
+          <div className="hero-phone-anchor" aria-hidden="true" />
         </div>
       </div>
     </section>

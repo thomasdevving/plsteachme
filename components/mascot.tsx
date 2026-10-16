@@ -2,13 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
+import { mascotFrames, mascotFrameStyle } from "@/lib/mascot-frames";
 
-const illustratedPoses = {
-  waving: "orange",
-  peeking: "green",
-  lounging: "orange",
-  "cross-legged": "green",
-} as const;
+const illustratedPoses = mascotFrames;
 type MascotPose = "sitting" | "standing" | keyof typeof illustratedPoses;
 
 /** Decorative clay poses; each illustration has its own grounded motion. */
@@ -22,7 +18,7 @@ export function Mascot({
   const character = useRef<HTMLSpanElement>(null);
   const illustrated = pose in illustratedPoses;
   const characterColor = illustrated
-    ? illustratedPoses[pose as keyof typeof illustratedPoses]
+    ? illustratedPoses[pose as keyof typeof illustratedPoses].color
     : color;
 
   useEffect(() => {
@@ -48,6 +44,11 @@ export function Mascot({
     <span
       ref={character}
       className={`mascot mascot--${pose} mascot--${characterColor}`}
+      style={
+        illustrated
+          ? mascotFrameStyle(pose as keyof typeof mascotFrames)
+          : undefined
+      }
       aria-hidden="true"
       data-active="false"
     >

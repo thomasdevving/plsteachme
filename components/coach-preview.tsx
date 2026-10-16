@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MessageCircle, Pause, Play } from "lucide-react";
 import { TieMotion } from "./tie-motion";
 const tieSteps = [
@@ -20,7 +20,15 @@ const tieSteps = [
     "A small, slightly angled knot. You’ve got it.",
   ],
 ];
-export function CoachPreview() {
+export function CoachPreview({
+  suspended = false,
+  landscape = false,
+  demo,
+}: {
+  suspended?: boolean;
+  landscape?: boolean;
+  demo?: ReactNode;
+}) {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
   const figure = useRef<HTMLElement>(null);
@@ -39,7 +47,7 @@ export function CoachPreview() {
     let timer: ReturnType<typeof setInterval> | undefined;
     const sync = () => {
       clearInterval(timer);
-      if (playing && visible.current && !document.hidden)
+      if (playing && !suspended && visible.current && !document.hidden)
         timer = setInterval(
           () => setStep((current) => (current + 1) % tieSteps.length),
           3000,
@@ -61,65 +69,86 @@ export function CoachPreview() {
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, [playing]);
+  }, [playing, suspended]);
   return (
     <figure
       ref={figure}
       id="hero-preview"
       className="phone-figure interactive-phone"
-      aria-label="Tie a tie: coaching example"
+      aria-label={
+        landscape ? "Demo video player" : "Tie a tie: coaching example"
+      }
       data-playing={playing}
     >
       <div className="phone">
-        <div className="phone-top">
-          <span className="brand-mini">
-            <span className="brand-teach">plsteach</span>
-            <span className="brand-me">.me</span>
-          </span>
-          <span className="camera-dot" />
-          <span>9:41</span>
-        </div>
-        <div className="viewfinder">
-          <div className="camera-corner tl" />
-          <div className="camera-corner tr" />
-          <div className="camera-corner bl" />
-          <div className="camera-corner br" />
-          <div className="phone-module-art">
-            <TieMotion step={step} playing={playing} />
+        <div
+          className="phone-coaching-content"
+          aria-hidden={landscape}
+          inert={landscape}
+        >
+          <div className="phone-top">
+            <span className="brand-mini">
+              <span className="brand-teach">plsteach</span>
+              <span className="brand-me">.me</span>
+            </span>
+            <span className="camera-dot" />
+            <span>9:41</span>
           </div>
-          <div className="coach-status">
-            <span />
-            Four-in-hand knot · front view
+          <div className="viewfinder">
+            <div className="camera-corner tl" />
+            <div className="camera-corner tr" />
+            <div className="camera-corner bl" />
+            <div className="camera-corner br" />
+            <div className="phone-module-art">
+              <TieMotion step={step} playing={playing && !suspended} />
+            </div>
+            <div className="coach-status">
+              <span />
+              Four-in-hand knot · front view
+            </div>
           </div>
+          <div className="phone-instruction">
+            <div
+              className="phone-progress"
+              role="progressbar"
+              aria-label="Example progress"
+              aria-valuemin={1}
+              aria-valuemax={tieSteps.length}
+              aria-valuenow={step + 1}
+              aria-valuetext={`Step ${step + 1} of ${tieSteps.length}`}
+            >
+              {tieSteps.map((_, i) => (
+                <span key={i} className={i <= step ? "complete" : ""} />
+              ))}
+            </div>
+            <div key={step} className="coach-step">
+              <p>
+                Step {step + 1} of {tieSteps.length}
+              </p>
+              <p className="phone-step-title">{tieSteps[step][0]}</p>
+            </div>
+          </div>
+          <div className="phone-home" />
         </div>
-        <div className="phone-instruction">
+        {demo && (
           <div
-            className="phone-progress"
-            role="progressbar"
-            aria-label="Example progress"
-            aria-valuemin={1}
-            aria-valuemax={tieSteps.length}
-            aria-valuenow={step + 1}
-            aria-valuetext={`Step ${step + 1} of ${tieSteps.length}`}
+            className="phone-demo-screen"
+            aria-hidden={!landscape}
+            inert={!landscape}
           >
-            {tieSteps.map((_, i) => (
-              <span key={i} className={i <= step ? "complete" : ""} />
-            ))}
+            <div className="phone-demo-upright">{demo}</div>
           </div>
-          <div key={step} className="coach-step">
-            <p>
-              Step {step + 1} of {tieSteps.length}
-            </p>
-            <p className="phone-step-title">{tieSteps[step][0]}</p>
-          </div>
-        </div>
-        <div className="phone-home" />
+        )}
       </div>
-      <div className="feedback" key={`feedback-${step}`}>
+      <div
+        className="feedback"
+        key={`feedback-${step}`}
+        aria-hidden={suspended}
+      >
         <MessageCircle size={20} aria-hidden="true" />
         <span>{tieSteps[step][1]}</span>
       </div>
-      <div className="preview-playback">
+      <div className="preview-playback" hidden={suspended}>
         <button
           type="button"
           onClick={() => setPlaying((value) => !value)}

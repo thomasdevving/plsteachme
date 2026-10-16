@@ -4,7 +4,7 @@ import type { Copy } from "@/lib/i18n";
 import { Section } from "./ui";
 import { StepIcons } from "./illustrations";
 import { Hero } from "./hero";
-import { Demo } from "./demo";
+import { HeroDemo } from "./hero-demo";
 import { Skills } from "./skills";
 import { WaitlistForm } from "./forms";
 import { Mascot } from "./mascot";
@@ -19,7 +19,7 @@ export function Landing({
 }) {
   return (
     <>
-      <Hero c={{ hero: c.hero }} />
+      <HeroDemo hero={<Hero c={{ hero: c.hero }} />} c={{ demo: c.demo }} />
       <Section id="how" labelledBy="how-title">
         <div className="section-heading">
           <h2 id="how-title">{c.how.title}</h2>
@@ -39,12 +39,6 @@ export function Landing({
             );
           })}
         </ol>
-      </Section>
-      <Section id="demo" className="demo-section" labelledBy="demo-heading">
-        <h2 id="demo-heading" className="sr-only">
-          {c.hero.secondary}
-        </h2>
-        <Demo c={{ demo: c.demo }} />
       </Section>
       <Section id="skills" labelledBy="skills-title">
         <div className="section-heading">
