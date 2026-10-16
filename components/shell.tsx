@@ -4,6 +4,7 @@ import type { Copy } from "@/lib/i18n";
 import { Cta } from "./utilities";
 import { MobileMenu } from "./mobile-menu";
 import { BrandMark } from "./brand";
+import { Mascot, MascotMotionControl } from "./mascot";
 export function Header({
   c,
   locale,
@@ -70,7 +71,14 @@ export function Footer({
     <footer className="site-footer">
       <div className="container">
         <div className="footer-top">
-          <a href="#top">{c.footer.top} ↑</a>
+          <div className="footer-companions" aria-hidden="true">
+            <Mascot pose="sitting" color="orange" />
+            <Mascot pose="sitting" />
+          </div>
+          <div className="footer-controls">
+            <MascotMotionControl />
+            <a href="#top">{c.footer.top} ↑</a>
+          </div>
         </div>
         <div className="footer-wordmark" aria-hidden="true">
           <Image

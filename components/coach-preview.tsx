@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Pause, Play } from "lucide-react";
 import { TieMotion } from "./tie-motion";
-import { Mascot } from "./mascot";
 const tieSteps = [
   [
     "Start with the wide end longer.",
@@ -116,7 +115,6 @@ export function CoachPreview() {
         </div>
         <div className="phone-home" />
       </div>
-      <Mascot pose="hanging" />
       <div className="feedback" key={`feedback-${step}`}>
         <MessageCircle size={20} aria-hidden="true" />
         <span>{tieSteps[step][1]}</span>
@@ -125,7 +123,11 @@ export function CoachPreview() {
         <button
           type="button"
           onClick={() => setPlaying((value) => !value)}
-          title={playing ? "Pause the demonstration and characters" : "Play the demonstration and characters"}
+          title={
+            playing
+              ? "Pause the demonstration and characters"
+              : "Play the demonstration and characters"
+          }
           aria-label={
             playing ? "Pause tie demonstration" : "Play tie demonstration"
           }

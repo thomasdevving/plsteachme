@@ -1,6 +1,7 @@
 import { ArrowRight, Check } from "lucide-react";
 import type { Copy } from "@/lib/i18n";
 import { pathFor, type Locale } from "@/lib/config";
+import { Mascot } from "./mascot";
 
 export function Subscriptions({ c, locale }: { c: Copy; locale: Locale }) {
   return (
@@ -19,6 +20,7 @@ export function Subscriptions({ c, locale }: { c: Copy; locale: Locale }) {
             key={plan.name}
             aria-labelledby={`plan-${index}`}
           >
+            {index === 1 && <Mascot pose="sitting" />}
             <h2 id={`plan-${index}`}>{plan.name}</h2>
             <p className="plan-description">{plan.description}</p>
             <div className="plan-price">

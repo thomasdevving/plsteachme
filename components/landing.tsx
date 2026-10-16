@@ -1,9 +1,4 @@
-import {
-  ArrowRight,
-  MessageCircle,
-  ShieldCheck,
-  ArrowUpRight,
-} from "lucide-react";
+import { ArrowRight, ShieldCheck, ArrowUpRight } from "lucide-react";
 import { pathFor, type Locale } from "@/lib/config";
 import type { Copy } from "@/lib/i18n";
 import { Section } from "./ui";
@@ -12,6 +7,7 @@ import { Hero } from "./hero";
 import { Demo } from "./demo";
 import { Skills } from "./skills";
 import { WaitlistForm } from "./forms";
+import { Mascot } from "./mascot";
 export function Landing({
   c,
   locale,
@@ -34,6 +30,7 @@ export function Landing({
             const Icon = StepIcons[i];
             return (
               <li key={step.title}>
+                {i === 0 && <Mascot pose="sitting" color="orange" />}
                 <span className="step-index">{i + 1}</span>
                 <Icon size={30} strokeWidth={1.4} aria-hidden="true" />
                 <h3>{step.title}</h3>
@@ -58,6 +55,9 @@ export function Landing({
           c={{ skills: c.skills, form: c.form, demo: c.demo }}
           locale={locale}
         />
+        <div className="module-companion" aria-hidden="true">
+          <Mascot pose="sitting" />
+        </div>
       </Section>
       <Section className="privacy-section" labelledBy="privacy-title">
         <div className="section-heading">
@@ -97,9 +97,9 @@ export function Landing({
           <div className="waitlist-copy">
             <h2 id="waitlist-title">{c.form.title}</h2>
             <p className="lead">{c.form.intro}</p>
-            <div className="waitlist-art" aria-hidden="true">
-              <MessageCircle size={110} strokeWidth={0.8} />
-              <span>*</span>
+            <div className="waitlist-companions" aria-hidden="true">
+              <Mascot pose="sitting" color="orange" />
+              <Mascot pose="sitting" />
             </div>
           </div>
           <WaitlistForm
