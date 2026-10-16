@@ -30,7 +30,7 @@ export function Landing({
             const Icon = StepIcons[i];
             return (
               <li key={step.title}>
-                {i === 0 && <Mascot pose="sitting" color="orange" />}
+                {i === 0 && <Mascot pose="peeking" />}
                 <span className="step-index">{i + 1}</span>
                 <Icon size={30} strokeWidth={1.4} aria-hidden="true" />
                 <h3>{step.title}</h3>
@@ -56,7 +56,7 @@ export function Landing({
           locale={locale}
         />
         <div className="module-companion" aria-hidden="true">
-          <Mascot pose="sitting" />
+          <Mascot pose="lounging" />
         </div>
       </Section>
       <Section className="privacy-section" labelledBy="privacy-title">
@@ -99,7 +99,7 @@ export function Landing({
             <p className="lead">{c.form.intro}</p>
             <div className="waitlist-companions" aria-hidden="true">
               <Mascot pose="sitting" color="orange" />
-              <Mascot pose="sitting" />
+              <Mascot pose="cross-legged" />
             </div>
           </div>
           <WaitlistForm

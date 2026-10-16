@@ -20,7 +20,7 @@ export function Subscriptions({ c, locale }: { c: Copy; locale: Locale }) {
             key={plan.name}
             aria-labelledby={`plan-${index}`}
           >
-            {index === 1 && <Mascot pose="sitting" />}
+            {index === 1 && <Mascot pose="peeking" />}
             <h2 id={`plan-${index}`}>{plan.name}</h2>
             <p className="plan-description">{plan.description}</p>
             <div className="plan-price">

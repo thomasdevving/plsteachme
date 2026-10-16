@@ -10,7 +10,9 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
         <div className="hero-copy">
           <h1>
             <span>A tutorial shows </span>
-            <span>you, <span className="hero-emphasis">plsteach.me </span></span>
+            <span>
+              you, <span className="hero-emphasis">plsteach.me </span>
+            </span>
             <span className="hero-emphasis">guides you.</span>
           </h1>
           <div className="hero-description">
@@ -22,7 +24,7 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
               {c.hero.primary}
             </Cta>
             <div className="mascot-button">
-              <Mascot pose="standing" />
+              <Mascot pose="waving" />
               <Cta href="#demo" kind="demo" secondary>
                 {c.hero.secondary}
               </Cta>

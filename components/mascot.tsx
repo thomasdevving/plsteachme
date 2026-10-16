@@ -3,15 +3,27 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
 
-/** Decorative, separately articulated heads from the supplied clay characters. */
+const illustratedPoses = {
+  waving: "orange",
+  peeking: "green",
+  lounging: "orange",
+  "cross-legged": "green",
+} as const;
+type MascotPose = "sitting" | "standing" | keyof typeof illustratedPoses;
+
+/** Decorative clay poses; each illustration has its own grounded motion. */
 export function Mascot({
   pose,
   color = "green",
 }: {
-  pose: "sitting" | "standing";
+  pose: MascotPose;
   color?: "orange" | "green";
 }) {
   const character = useRef<HTMLSpanElement>(null);
+  const illustrated = pose in illustratedPoses;
+  const characterColor = illustrated
+    ? illustratedPoses[pose as keyof typeof illustratedPoses]
+    : color;
 
   useEffect(() => {
     const node = character.current;
@@ -35,12 +47,18 @@ export function Mascot({
   return (
     <span
       ref={character}
-      className={`mascot mascot--${pose} mascot--${color}`}
+      className={`mascot mascot--${pose} mascot--${characterColor}`}
       aria-hidden="true"
       data-active="false"
     >
-      <span className="mascot-body" />
-      <span className="mascot-head" />
+      {illustrated ? (
+        <span className="mascot-illustration mascot-motion" />
+      ) : (
+        <>
+          <span className="mascot-body" />
+          <span className="mascot-head mascot-motion" />
+        </>
+      )}
     </span>
   );
 }

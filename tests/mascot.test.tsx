@@ -38,27 +38,30 @@ afterEach(() => {
   disconnect.mockClear();
 });
 
-it("only animates visible characters in a visible document and cleans up", () => {
-  const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
-  const { container, unmount } = render(
-    <Mascot pose="sitting" color="orange" />,
-  );
-  const character = container.firstElementChild!;
-  expect(character.getAttribute("aria-hidden")).toBe("true");
-  expect(character.getAttribute("data-active")).toBe("false");
-  act(() => notifyVisibility(true));
-  expect(character.getAttribute("data-active")).toBe("true");
-  hidden.mockReturnValue(true);
-  fireEvent(document, new Event("visibilitychange"));
-  expect(character.getAttribute("data-active")).toBe("false");
-  hidden.mockReturnValue(false);
-  fireEvent(document, new Event("visibilitychange"));
-  expect(character.getAttribute("data-active")).toBe("true");
-  act(() => notifyVisibility(false));
-  expect(character.getAttribute("data-active")).toBe("false");
-  unmount();
-  expect(disconnect).toHaveBeenCalledOnce();
-});
+it.each(["sitting", "peeking"] as const)(
+  "only animates visible %s characters in a visible document and cleans up",
+  (pose) => {
+    const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(false);
+    const { container, unmount } = render(
+      <Mascot pose={pose} color="orange" />,
+    );
+    const character = container.firstElementChild!;
+    expect(character.getAttribute("aria-hidden")).toBe("true");
+    expect(character.getAttribute("data-active")).toBe("false");
+    act(() => notifyVisibility(true));
+    expect(character.getAttribute("data-active")).toBe("true");
+    hidden.mockReturnValue(true);
+    fireEvent(document, new Event("visibilitychange"));
+    expect(character.getAttribute("data-active")).toBe("false");
+    hidden.mockReturnValue(false);
+    fireEvent(document, new Event("visibilitychange"));
+    expect(character.getAttribute("data-active")).toBe("true");
+    act(() => notifyVisibility(false));
+    expect(character.getAttribute("data-active")).toBe("false");
+    unmount();
+    expect(disconnect).toHaveBeenCalledOnce();
+  },
+);
 
 it("can pause and resume all characters on a page without a hero demo", () => {
   const { unmount } = render(<MascotMotionControl />);

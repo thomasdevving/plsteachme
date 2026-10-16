@@ -73,7 +73,7 @@ export function Footer({
         <div className="footer-top">
           <div className="footer-companions" aria-hidden="true">
             <Mascot pose="sitting" color="orange" />
-            <Mascot pose="sitting" />
+            <Mascot pose="standing" />
           </div>
           <div className="footer-controls">
             <MascotMotionControl />
