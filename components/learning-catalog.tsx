@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { ArrowRight, BookOpen, Check, Search, X } from 'lucide-react';
+import { ArrowRight, Check, Search, X } from 'lucide-react';
 import { skillIds, type SkillId } from '@/lib/config';
 import type { Copy } from '@/lib/i18n';
 import { modules } from '@/lib/modules';
@@ -80,8 +80,8 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
   return <div className="learning-catalog">
     {inProgress.length > 0 ? <section className="continue-learning" aria-label="Continue learning">
       <header className="catalog-section-heading">
-        <div><p className="catalog-kicker">Your place is saved</p><h2>Pick up where you left off</h2></div>
-        <p>Little by little, at your pace.<br />Progress is saved in this browser.</p>
+        <div><h2>Pick up where you left off</h2></div>
+        <p>Progress is saved in this browser.</p>
       </header>
       <div className="catalog-resume-grid">{inProgress.map(skill => {
         const saved = progress.lessons[skill]!;
@@ -95,8 +95,8 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
 
     <section className="learning-discovery" aria-labelledby="catalog-title">
       <header className="catalog-masthead">
-        <div><p className="catalog-kicker"><BookOpen size={16} aria-hidden="true" /> The everyday collection</p><h2 id="catalog-title">Find your next<br /><em>useful skill.</em></h2><p>Nine illustrated lessons. Start with a small task and build from there.</p></div>
-        <div className="catalog-edition"><span aria-hidden="true">{String(skillIds.length).padStart(2, '0')}</span><p><span className="sr-only">{skillIds.length} </span>practical skills<br /><span className="catalog-edition-note">Yours to practice.</span></p></div>
+        <div><h2 id="catalog-title">Find your next<br /><em>useful skill.</em></h2><p>Nine illustrated lessons. Start with a small task and build from there.</p></div>
+        <div className="catalog-edition"><span aria-hidden="true">{String(skillIds.length).padStart(2, '0')}</span><p><span className="sr-only">{skillIds.length} </span>practical skills</p></div>
       </header>
 
       <div className="catalog-discovery-tools">
@@ -106,7 +106,7 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
         </div>
       </div>
 
-      <div className="catalog-results-row"><p className="catalog-results" role="status">{filtered.length} {filtered.length === 1 ? 'skill' : 'skills'} found</p><span aria-hidden="true">One useful thing at a time.</span></div>
+      <div className="catalog-results-row"><p className="catalog-results" role="status">{filtered.length} {filtered.length === 1 ? 'skill' : 'skills'} found</p></div>
       <div className="catalog-grid">{filtered.map(skill => {
         const saved = progress.lessons[skill];
         const summary = saved ? progressSummary(saved) : null;
@@ -133,7 +133,7 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
     <div id={playerId} ref={player} tabIndex={-1} className="catalog-player">{selected ? <LessonPlayer skill={selected} name={names[selected]} /> : null}</div>
 
     <section className="learning-journeys" aria-labelledby="journeys-title">
-      <header className="catalog-section-heading"><div><p className="catalog-kicker">Good things go together</p><h2 id="journeys-title">A few skills that fit together.</h2></div><p>Choose a learning journey<br />for the moment you’re in.</p></header>
+      <header className="catalog-section-heading"><div><p className="catalog-kicker">Learning journeys</p><h2 id="journeys-title">A few skills that fit together.</h2></div><p>Choose a group of related skills.</p></header>
       <div className="catalog-journey-grid">{learningJourneys.map((journey, journeyIndex) => {
         const completed = journey.skills.filter(skill => progress.lessons[skill]?.completed).length;
         return <article key={journey.id} className="catalog-journey-card">

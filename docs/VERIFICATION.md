@@ -136,3 +136,15 @@ The redesign builds on the restored frontend. It adds the editorial hero, contai
 - One mobile Lighthouse audit of the final local production build measured Performance 84, Accessibility 100, Best Practices 100 and SEO 100, with FCP 1.7s, LCP 4.2s, TBT 120ms and CLS 0. These are simulated local results, not deployed field measurements. Shared JavaScript and render-blocking styles remain performance opportunities; the historical score above does not describe this redesign. Lighthouse used the working Playwright Chromium connection after the standalone Chrome launcher failed.
 
 External-provider tests remain mocked. Live AI quality, account delivery and connected teacher workflows still require the previously documented service configuration.
+
+## Simplified discovery and restrained corners — 17 October 2026
+
+The homepage now has one skill-discovery section. The redundant MomentFinder and its styles are removed; the four related learning journeys remain functional inside the library. Decorative slogans and chapter labels are removed. Buttons, cards and panels use restrained corners, while the phone, artwork and original subscription cards keep their existing shapes. The coach header wraps at narrow widths so account navigation no longer causes horizontal overflow.
+
+- Production build and TypeScript pass.
+- All 22 focused production-browser tests pass in one final-source run (creative experience, general site and hero autoplay suites).
+- Coverage includes one homepage skill section, all four catalog journey mappings and keyboard destinations, all nine skills, search/filtering, actual animation pause/resume, persistence across reloads and the coach root, reduced motion, strict Axe/name-label checks, unchanged subscriptions, and no coach overflow at 375px, 768px and 1440px.
+- Batched visual captures at 375px, 768px and 1440px cover the hero, demo, practice steps, skills, community entry, privacy, signup and catalog. The removed duplicate section leaves one clear homepage learning path; the sharper corners retain the existing visual identity.
+- No API, database, subscription, dependency or authentication behavior changed. Earlier unit-suite and Lighthouse measurements above are historical; they were not repeated for this copy/layout cleanup.
+
+Backend readiness was audited separately. The implemented AI routes require configured OpenAI plus Supabase Auth, database migrations, private teacher storage, email/redirect settings and independent reviewers. Public production currently reports both AI and accounts unavailable. Provider responses remain mocked in automated tests; real account delivery, uploads/playback, model feedback and physical cameras still need connected validation. Feedback reports are for human review; there is no automatic model retraining pipeline.

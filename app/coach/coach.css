@@ -2088,6 +2088,17 @@ caption {
   }
 }
 
+@media (max-width: 500px) {
+  .site-header {
+    flex-wrap: wrap;
+    gap: 0 12px;
+    padding-block: 8px;
+  }
+  .header-links {
+    margin-left: auto;
+  }
+}
+
 .live-diagram > img,
 .choice-art > img {
   width: 100%;

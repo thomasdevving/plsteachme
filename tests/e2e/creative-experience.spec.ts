@@ -19,8 +19,8 @@ async function expectNoOverflow(page: Page) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
 }
 
-async function expectMomentPainted(page: Page) {
-  const targets = page.locator('.mf-scene, .mf-plan, .mf-lessons a');
+async function expectSkillCardsPainted(page: Page) {
+  const targets = page.locator('#skills .skill-card, #skills .skill-art, #skills .module-explore');
   expect(await targets.count()).toBeGreaterThan(3);
   const painted = await targets.evaluateAll(nodes => nodes.map(node => {
     let opacity = 1;
@@ -42,47 +42,42 @@ async function expectMomentPainted(page: Page) {
 }
 
 async function expectDecorationsStill(page: Page) {
-  expect(await page.locator('.moment-finder, .mascot, .hero, #hero-preview').evaluateAll(nodes =>
+  expect(await page.locator('#skills, .mascot, .hero, #hero-preview').evaluateAll(nodes =>
     nodes.flatMap(node => node.getAnimations({ subtree: true })).filter(animation => animation.playState === 'running').length,
   )).toBe(0);
 }
 
-test('moment finder supports keyboard selection and opens the actual matching lesson', async ({ page }) => {
+test('homepage keeps one learning section and catalog journeys open their matching lessons', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const choices = page.getByRole('tablist', { name: 'Choose a life moment' });
-  const tabs = choices.getByRole('tab');
-  const panel = page.getByRole('tabpanel');
-  await expect(tabs).toHaveCount(3);
-  const mappings = [
-    { moment: 'first-interview', skills: ['ironing', 'tie', 'button'] },
-    { moment: 'living-independently', skills: ['laundry', 'cooking'] },
-    { moment: 'care-and-repair', skills: ['button', 'drill', 'bike'] },
-  ];
-  await tabs.first().focus();
-  for (let index = 0; index < mappings.length; index++) {
-    if (index) await page.keyboard.press('ArrowRight');
-    const selected = choices.locator(`[data-moment="${mappings[index].moment}"]`);
-    await expect(selected).toBeFocused();
-    await expect(selected).toHaveAttribute('aria-selected', 'true');
-    await expect(choices.locator('[aria-selected="true"]')).toHaveCount(1);
-    await expect(panel).toHaveAttribute('id', (await selected.getAttribute('aria-controls'))!);
-    const destinations = await panel.locator('a[href^="/learn?skill="]').evaluateAll(links => links.map(link => link.getAttribute('href')));
-    expect(destinations).toEqual(mappings[index].skills.map(skill => `/learn?skill=${skill}`));
-    await expectMomentPainted(page);
-    await expectDecorationsStill(page);
+  await expect(page.locator('#skills')).toHaveCount(1);
+  await expect(page.getByRole('heading', { name: 'What would you like to learn?', exact: true })).toHaveCount(1);
+  await expect(page.locator('#skills .skill-card')).toHaveCount(9);
+  await expect(page.locator('.moment-finder, .learning-journeys')).toHaveCount(0);
+  await expect(page.getByRole('tablist', { name: 'Choose a situation' })).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Skills for everyday situations', exact: true })).toHaveCount(0);
+  for (const copy of [/A little help for real life/i, /Small steps,\s*real confidence/i, /Everyone starts somewhere/i]) {
+    await expect(page.locator('main')).not.toContainText(copy);
   }
-  await page.keyboard.press('Home');
-  await expect(tabs.first()).toBeFocused();
-  await expect(tabs.first()).toHaveAttribute('aria-selected', 'true');
-  await page.keyboard.press('End');
-  await expect(tabs.last()).toBeFocused();
-  await expect(tabs.last()).toHaveAttribute('aria-selected', 'true');
-  const lesson = panel.locator('a[href="/learn?skill=button"]');
-  await lesson.focus();
-  await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/\/learn\?skill=button$/);
-  await expect(page.locator('.lesson-player')).toHaveAttribute('data-skill', 'button');
+  await page.goto('/learn');
+  const mappings = [
+    { title: 'Ready for your first interview', skills: ['ironing', 'tie', 'button'] },
+    { title: 'A little more independent', skills: ['laundry', 'cooking'] },
+    { title: 'Find your grooming routine', skills: ['shaving', 'beard'] },
+    { title: 'Care for what you own', skills: ['button', 'drill', 'bike'] },
+  ];
+  await expect(page.locator('.learning-journeys article')).toHaveCount(mappings.length);
+  for (const mapping of mappings) {
+    const journey = page.locator('.learning-journeys article').filter({ has: page.getByRole('heading', { name: mapping.title, exact: true }) });
+    expect(await journey.locator('[data-skill]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-skill')))).toEqual(mapping.skills);
+    await expect(journey.getByRole('button')).toHaveCount(mapping.skills.length);
+    await journey.getByRole('button').last().focus();
+    await page.keyboard.press('Enter');
+    const skill = mapping.skills.at(-1)!;
+    await expect(page).toHaveURL(new RegExp(`/learn\\?skill=${skill}$`));
+    await expect(page.locator('.lesson-player')).toHaveAttribute('data-skill', skill);
+    await expect(page.locator('.catalog-player')).toBeFocused();
+  }
 });
 
 test('global animation pause stops the hero clock and persists without disabling navigation', async ({ page }) => {
@@ -104,11 +99,12 @@ test('global animation pause stops the hero clock and persists without disabling
   await page.clock.runFor(9000);
   await expect(illustration).toHaveAttribute('data-step', step!);
   expect(await page.evaluate(() => localStorage.getItem('plsteach-motion-paused'))).toBe('true');
-  const choices = page.getByRole('tablist', { name: 'Choose a life moment' });
-  await choices.getByRole('tab').first().focus();
-  await page.keyboard.press('End');
-  await expect(choices.getByRole('tab').last()).toHaveAttribute('aria-selected', 'true');
-  await expectMomentPainted(page);
+  const personalCare = page.getByRole('group', { name: 'Filter learning modules' }).getByRole('button', { name: /^Personal care/ });
+  await personalCare.focus();
+  await page.keyboard.press('Space');
+  await expect(personalCare).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#skills .skill-card')).toHaveCount(2);
+  await expectSkillCardsPainted(page);
   await expectDecorationsStill(page);
   await page.reload();
   await page.clock.runFor(100);
@@ -197,18 +193,35 @@ test('catalog keeps real cards, searchable content and keyboard lesson activatio
   await expectNoOverflow(page);
 });
 
-test('creative landing and catalog stay within mobile, tablet and desktop viewports', async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' });
+test('creative landing, coach and catalog stay within mobile, tablet and desktop viewports', async ({ page }) => {
   const errors: string[] = [];
   page.on('pageerror', error => errors.push(error.message));
   for (const width of [375, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
-    const choices = page.getByRole('tablist', { name: 'Choose a life moment' });
-    await choices.getByRole('tab').last().click();
-    await expect(page.getByRole('tabpanel')).toBeVisible();
+    await expect(page.locator('#skills .skill-card')).toHaveCount(9);
+    await expect(page.locator('.moment-finder')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Pause animations', exact: true })).toBeInViewport();
     await expectNoOverflow(page);
+    // Exercise the persisted preference across the coach's separate document root.
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.getByRole('button', { name: 'Pause animations', exact: true }).click();
+    await expect(page.locator('html')).toHaveAttribute('data-motion-paused', 'true');
+    await page.reload();
+    await expect(page.locator('html')).toHaveAttribute('data-motion-paused', 'true');
+    await page.goto('/coach');
+    await expect(page.locator('html')).toHaveAttribute('data-motion-paused', 'true');
+    await expectNoOverflow(page);
+    expect(await page.evaluate(() => window.scrollX)).toBe(0);
+    for (const paused of [false, true, false]) {
+      await page.getByRole('button', { name: paused ? 'Pause animations' : 'Resume animations', exact: true }).click();
+      await expect(page.locator('html')).toHaveAttribute('data-motion-paused', String(paused));
+      await expect(page.getByRole('button', { name: paused ? 'Resume animations' : 'Pause animations', exact: true })).toHaveAttribute('aria-pressed', String(paused));
+      await expectNoOverflow(page);
+      expect(await page.evaluate(() => window.scrollX)).toBe(0);
+    }
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/learn');
     await expect(page.locator('.catalog-card')).toHaveCount(9);
     await expectNoOverflow(page);
@@ -216,17 +229,18 @@ test('creative landing and catalog stay within mobile, tablet and desktop viewpo
   expect(errors).toEqual([]);
 });
 
-test('moment finder exposes accessible selected-state and lesson destinations', async ({ page }) => {
+test('homepage skill categories and motion controls expose accessible names and states', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/');
-  const finder = page.getByRole('tablist', { name: 'Choose a life moment' });
-  const tabs = finder.getByRole('tab');
-  for (let index = 0; index < await tabs.count(); index++) {
-    await tabs.nth(index).click();
-    await expect(tabs.nth(index)).toHaveAttribute('aria-selected', 'true');
-    const result = await new AxeBuilder({ page }).include('.moment-finder').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  const filters = page.getByRole('group', { name: 'Filter learning modules' });
+  for (const category of ['All skills', 'Everyday', 'Personal care', 'Make & mend']) {
+    const button = filters.getByRole('button', { name: new RegExp(`^${category}`) });
+    await button.click();
+    await expect(button).toHaveAttribute('aria-pressed', 'true');
+    await expect(filters.locator('[aria-pressed="true"]')).toHaveCount(1);
+    const result = await new AxeBuilder({ page }).include('#skills').include('.site-motion-control').withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
     expect(result.violations).toEqual([]);
-    const labels = await new AxeBuilder({ page }).include('.moment-finder').include('.site-motion-control').withRules(['label-content-name-mismatch']).analyze();
+    const labels = await new AxeBuilder({ page }).include('#skills').include('.site-motion-control').withRules(['label-content-name-mismatch']).analyze();
     expect(labels.violations).toEqual([]);
   }
 });

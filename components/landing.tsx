@@ -8,7 +8,6 @@ import { HeroDemo } from "./hero-demo";
 import { Skills } from "./skills";
 import { WaitlistForm } from "./forms";
 import { Mascot } from "./mascot";
-import { MomentFinder } from "./moment-finder";
 export function Landing({
   c,
   locale,
@@ -21,12 +20,10 @@ export function Landing({
   return (
     <div className="creative-home">
       <HeroDemo hero={<Hero c={{ hero: c.hero }} />} c={{ demo: c.demo }} />
-      <div className="practice-values container" aria-label="A little help, your way"><span>Made for everyday life</span><span>One step at a time</span><span>Room to try again</span></div>
       <Section id="how" className="practice-method" labelledBy="how-title">
         <div className="section-heading" data-reveal>
-          <p className="chapter-label">02 / FIND YOUR RHYTHM</p>
           <h2 id="how-title">{c.how.title}</h2>
-          <p>Something new feels easier when you can take it one small step at a time.</p>
+          <p>Follow each lesson step, watch the demonstration, and practice at your own pace.</p>
           <a href="/learn" className="text-link method-link">Let’s find your first skill<ArrowRight size={18} aria-hidden="true"/></a>
         </div>
         <ol className="steps">
@@ -44,10 +41,8 @@ export function Landing({
           })}
         </ol>
       </Section>
-      <MomentFinder/>
       <Section id="skills" className="creative-skills" labelledBy="skills-title">
         <div className="section-heading" data-reveal>
-          <p className="chapter-label">04 / THE EVERYDAY COLLECTION</p>
           <h2 id="skills-title">{c.skills.title}</h2>
           <p>{c.skills.intro}</p>
           <a href="/learn" className="text-link collection-link">Explore the whole library<ArrowUpRight size={18} aria-hidden="true"/></a>
@@ -57,14 +52,12 @@ export function Landing({
           locale={locale}
         />
         <div className="module-companion" aria-hidden="true">
-          <span className="module-caption">Everyone starts somewhere.</span>
           <Mascot pose="lounging" />
         </div>
       </Section>
       <Section className="scope-entry" labelledBy="scope-title">
         <div className="section-heading" data-reveal>
-          <p className="chapter-label">05 / BETTER, TOGETHER</p>
-          <h2 id="scope-title">A skill starts with someone sharing it.</h2>
+          <h2 id="scope-title">Request a skill or share what you know.</h2>
           <p>Follow a learning journey, help choose the next lesson, or share a skill you know well.</p>
         </div>
         <div className="scope-cards">
@@ -93,7 +86,6 @@ export function Landing({
       </Section>
       <Section className="privacy-section" labelledBy="privacy-title">
         <div className="privacy-heading" data-reveal>
-          <p className="chapter-label">YOUR PRACTICE. YOUR CHOICE.</p>
           <div className="section-heading">
           <ShieldCheck size={35} strokeWidth={1.25} aria-hidden="true" />
           <h2 id="privacy-title">{c.privacy.title}</h2>
@@ -132,7 +124,6 @@ export function Landing({
       >
         <div className="waitlist-layout">
           <div className="waitlist-copy">
-            <p className="chapter-label">A GOOD PLACE TO BEGIN</p>
             <h2 id="waitlist-title">{c.form.title}</h2>
             <p className="lead">{c.form.intro}</p>
             <div className="waitlist-companions" aria-hidden="true">
@@ -149,7 +140,7 @@ export function Landing({
       </Section>
       <Section labelledBy="faq-title">
         <div className="faq-layout">
-          <div data-reveal><p className="chapter-label">A FEW THINGS TO KNOW</p><h2 id="faq-title">{c.faq.title}</h2><p className="faq-note">Curiosity is a good starting point.</p></div>
+          <div data-reveal><h2 id="faq-title">{c.faq.title}</h2></div>
           <div className="faq-items">
             {c.faq.items.map((item) => (
               <details key={item.q}>

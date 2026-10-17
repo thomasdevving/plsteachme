@@ -8,7 +8,6 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
     <section className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">
-          <p className="hero-kicker"><span aria-hidden="true"/>A little help for real life</p>
           <h1>
             <span>A tutorial shows </span>
             <span>
@@ -34,7 +33,6 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
         </div>
         <div className="hero-visual">
           <div className="hero-orbit" data-ambient aria-hidden="true"/>
-          <span className="hero-side-note" aria-hidden="true">Small steps,<br/>real confidence.<svg viewBox="0 0 80 70"><path d="M5 5Q65 4 60 55M47 45l13 12 12-15"/></svg></span>
           <div className="hero-phone-anchor" aria-hidden="true" />
         </div>
       </div>

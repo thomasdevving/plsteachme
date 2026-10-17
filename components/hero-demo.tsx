@@ -148,9 +148,7 @@ export function HeroDemo({
         aria-labelledby="demo-heading"
       >
         <div className="container demo-studio">
-          <div className="demo-studio-top"><span>01 / A LITTLE PRACTICE</span><span>YOUR PACE. YOUR SPACE.</span></div>
           <div className="journey-demo-heading">
-            <span className="studio-kicker">From “how?” to “I’ve got this.”</span>
             <h2 id="demo-heading">{c.demo.title}</h2>
             <p>{c.demo.intro}</p>
           </div>
