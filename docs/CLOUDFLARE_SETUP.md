@@ -60,6 +60,6 @@ node --env-file=.dev.vars scripts/verify-connected-account.mjs https://plsteach.
 
 The last check is intentionally for the pre-OpenAI setup: it creates two disposable example.com accounts, checks secure login, trial isolation and completion, and removes its fixtures. It sends no email and makes no AI requests. Do not run write-capable mock browser suites against production.
 
-The operator must complete one real signup and inbox-link check. Add a confirmed, independent reviewer's Supabase user ID to `PLATFORM_REVIEWER_IDS` before exercising teacher approval/publication. A teacher cannot approve their own contribution. Missing OpenAI does not consume a learner's free session.
+The operator completed a real signup, inbox delivery, email confirmation and sign-in check on 18 October 2026; the free session remains unused. Add a confirmed, independent reviewer's Supabase user ID to `PLATFORM_REVIEWER_IDS` before exercising teacher approval/publication. A teacher cannot approve their own contribution. Missing OpenAI does not consume a learner's free session.
 
 Privacy and terms describe the actual providers, necessary storage, optional AI and human content reporting. No analytics/cookie banner was added. Operational deletion/report handling, applicable provider agreements and any business registration/address disclosures remain the operator's responsibility; the code and notices do not constitute legal certification. Subscription presentation is unchanged and there is no paid checkout.

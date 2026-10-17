@@ -1,5 +1,9 @@
 # Verification — landing website replacement
 
+## Real signup confirmation — 18 October 2026
+
+The operator received the real signup message through Resend and Cloudflare forwarding, confirmed the email and signed in. A targeted database check confirmed the account is verified, non-anonymous and active, with zero trial sessions started or completed. Its one free session remains unused. Live login/account/lesson pages and account/community endpoints return successfully. OpenAI availability is still false, as intended until the operator adds the key; real AI inference has not been tested. The existing seven connected entitlement checks remain applicable to the unchanged deployed code.
+
 ## Cloudflare and connected accounts — 17 October 2026
 
 This entry supersedes the earlier local-only readiness entries below. The current frontend is deployed at https://plsteach.me on Cloudflare Workers Free (version `92920710-b08e-4d30-a4e5-389ca58fc72e`). Supabase Free in Frankfurt contains the four migrations, protected tables and private teacher bucket. Resend SMTP and Cloudflare contact forwarding are configured; actual inbox delivery remains a separate user acceptance check.
