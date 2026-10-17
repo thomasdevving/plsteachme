@@ -57,3 +57,21 @@ The subsequent B adjustment reduces only the green hand’s silhouette and refin
 The user’s `ChatGPT-afbeelding 13 okt 2026, 13_28_11.png` is preserved byte-for-byte at `public/brand/hands-filled.png` (SHA-256 `5ed2894d4e7cb9f851541c376e1de41b4e73ae14e75ca4d919fdee308f1b0694`). It replaces the earlier outline mark in the shared header/404 BrandMark, footer and browser/apple icon metadata. Next Image serves appropriately sized header/footer images; the supplied source is unchanged. Existing compact optical sizing and brand text colors remain.
 
 Production build and four relevant browser checks pass, including mobile/desktop WCAG checks, no horizontal overflow, dark OS/reduced motion, module controls and concept-preview isolation. One batched 375px/1280px visual check confirms the transparent cream-backed header/footer presentation, loaded optimized images and the new icon URL. Earlier vector concepts remain review references rather than the selected identity.
+
+## Complete illustrated modules — 17 October 2026
+
+Story: choose any of nine skills in the hero, filtered library or `/demo`, follow the shared seven-step lesson, check each instruction, finish, review and restart. The lessons are client-side and need no external service.
+
+Verified against a completed local production build:
+
+- `npm test`: all 16 validation and server authorization tests pass.
+- `npm run typecheck`: passes.
+- `npm run build`: passes.
+- `npm run test:e2e`: all 19 production browser tests pass, including five new module tests.
+- All nine full lessons complete, review their final step and restart; materials, checkpoints, artwork labels and semantic progress agree with lesson content.
+- All nine hero selections use shared instructions and reset appropriately on module changes; library close restores focus and filtering closes the lesson.
+- New illustration motion plays once, holds, replays, pauses offscreen and finishes when reduced motion is enabled. All 63 steps have static reduced-motion artwork.
+- Axe WCAG A/AA checks and overflow checks pass at 375px and 1280px, including expanded lesson materials. Removed the inherited opacity animation from lesson text after it produced a transient contrast finding.
+- A desktop/mobile visual review and an eight-module artwork contact sheet confirm readable instructions, original SVG scenes and the existing cream/green/orange brand. The completed walkthrough test records no browser page errors.
+
+No new dependencies, API routes or database changes. Supabase and email remain unconfigured and were not live-tested; existing mock form tests pass. Camera/AI coaching is not implemented or implied by these illustrated walkthroughs. Completion is a self-check in transient client state, without automatic verification or saved progress. No new Lighthouse or deployed performance claim is made.

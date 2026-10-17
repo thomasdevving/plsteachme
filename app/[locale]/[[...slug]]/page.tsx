@@ -17,7 +17,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { locale: raw, slug } = await params; const locale: Locale = raw === 'en' ? 'en' : 'nl'; const page = pageFromSlug(locale,slug); const c = getCopy(locale);
   if (!page || page === 'styleguide') return { robots: { index: false, follow: false } };
-  const title = { home: c.hero.title, organizations: c.org.title, demo: c.demo.videoLabel, privacy: c.legal.title, thanks: c.thanks.title }[page];
+  const title = { home: c.hero.title, organizations: c.org.title, demo: c.demo.pageTitle, privacy: c.legal.title, thanks: c.thanks.title }[page];
   const image = `/api/og?lang=${locale}&page=${page}`;
   return { title, description: c.meta[page], alternates: { canonical: pathFor('en',page) }, robots: { index: page !== 'thanks', follow: true }, openGraph: { type: 'website', siteName: BRAND, title, description: c.meta[page], url: pathFor(locale,page), locale: 'en_US', images: [{ url: image, width:1200, height:630, alt: title }] }, twitter: { card:'summary_large_image', title, description:c.meta[page], images:[image] } };
 }

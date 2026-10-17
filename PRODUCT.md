@@ -19,3 +19,7 @@ WCAG AA, keyboard navigation, visible focus, reduced motion, dark mode, 375px fi
 
 ## Current shipped surface
 The user selected this landing website to replace the prior website on main. Public copy is English-only. Brand: supplied hands logo, green plsteach and orange .me. Hero text is user-pinned, with the second line orange. Nine modules offer honest text previews and interest voting; the phone is an interactive, explicitly illustrative coaching example. Waitlist and organization forms retain mock mode until services are configured.
+
+## Complete illustrated modules — 17 October 2026
+
+The user requested that the remaining modules work too. All nine skills now offer complete seven-step illustrated walkthroughs. This supersedes the earlier coming-soon/text-preview restriction for the local lessons. Camera coaching remains a future integration and is not claimed by any lesson. The hero, filtered library and `/demo` share the same lesson content. Each full lesson includes materials, instructions, checkpoints, tips, completion and restart. Lesson progress is transient client state; no account, camera or new storage is needed.

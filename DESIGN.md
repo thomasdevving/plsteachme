@@ -293,3 +293,9 @@ The refined B concept is the default selection in the logo comparison. Its mark 
 B’s green rear hand is reduced in height and width relative to the orange hand, with slimmer fingers, gentler fingertip curves and a smoother palm-to-wrist contour. The orange hand, lettering, spacing and palette are preserved.
 
 Latest supplied identity: the filled two-hands PNG uploaded on 13 October replaces the earlier outline logo across header, 404, footer and browser/apple icon metadata. The original PNG is preserved byte-for-byte; Next Image serves size-appropriate header/footer derivatives. The compact lockup and green/orange wordmark remain. Earlier vector concepts are exploration references.
+
+## Complete illustrated lessons — 17 October 2026
+
+This supersedes the earlier six-choice hero and three-step text previews. All nine skills are selectable in the hero and use seven-step lesson data shared with the full library player and `/demo`. Eight additional SVG scenes illustrate preparation, practice and cleanup; the tie keeps its existing fabric poses. Native finite animations hold their final result, replay, pause offscreen and in hidden documents, and finish immediately when reduced motion is enabled.
+
+The expanded card panel and demo player use a two-column overview/workspace above 800px and a single column below. Materials sit in a native disclosure; the workspace has a cream/green drawing, a semantic progress rail, instructions, tips, a self-check and Back/Next controls. Finish shows an explicitly self-reported completion screen with review and restart. Keyboard navigation focuses the updated heading; closing a library lesson restores focus to its opener. There are no camera or AI verification claims. Text changes have no opacity transition, preserving contrast throughout. The supplied logo, colors and typography remain unchanged.

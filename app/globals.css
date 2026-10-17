@@ -104,3 +104,38 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 @media(max-width:800px){.hero-grid{gap:25px}.phone-module-art>.tie-motion{height:187px}.interactive-phone .phone-step-title{font-size:1rem}.interactive-phone .phone-instruction{height:177px;min-height:177px}.hero-modules{margin-top:24px}.hero-module-options button{font-size:.7rem}}
 @media(max-width:600px){.hero{padding-top:35px;padding-bottom:50px}.hero-grid{min-height:0;gap:55px}.hero-modules{margin-top:26px}.hero-module-options button{font-size:.77rem;min-height:47px}.hero-modules>p{font-size:.76rem}.interactive-phone .feedback{font-size:.7rem;max-width:245px}}
 @media(prefers-reduced-motion:reduce){.motion-toggle{display:none!important}.skill-card:focus-within .skill-art>svg{transform:none}.coach-controls button:active:not(:disabled),.button:active:not(:disabled){transform:none}}
+
+/* Shared illustrated lessons, in the library and on the demo page. */
+.phone-module-art>.skill-motion{display:block;width:100%;height:215px}
+.module-preview.module-lesson{display:block;padding:40px;position:relative}
+.lesson-player{display:grid;grid-template-columns:.8fr 1.2fr;gap:42px;min-width:0}
+.lesson-overview h3{font:400 1.8rem/1.2 var(--font-lora),serif;margin:12px 0 18px}
+.lesson-overview>p:not(.lesson-eyebrow){font-size:.95rem;color:var(--muted)}
+.lesson-eyebrow{font-size:.75rem;color:var(--muted)}
+.lesson-overview>small{display:block;margin-top:24px;color:var(--muted);font-size:.75rem}
+.lesson-materials{margin-top:22px;border-block:1px solid var(--line);padding:14px 0;font-size:.85rem}
+.lesson-materials summary{cursor:pointer;font-weight:600;min-height:28px}
+.lesson-materials ul{padding-left:20px;margin-bottom:0}
+.lesson-workspace{min-width:0}
+.lesson-art{position:relative;border-radius:12px;background:#e3e7d9;overflow:hidden;margin-bottom:22px}
+.lesson-art>svg{display:block;width:100%;height:260px}
+.lesson-replay{position:absolute;bottom:10px;right:10px;display:flex;align-items:center;gap:7px;min-height:44px;border:1px solid var(--line);border-radius:7px;padding:8px 12px;background:var(--paper);color:var(--ink);font-size:.75rem}
+.lesson-progress>.current{background:var(--accent)}
+.lesson-player .lesson-copy{min-height:0}
+.lesson-player h4{font:400 1.5rem/1.3 var(--font-lora),serif;margin:12px 0}
+.lesson-player h4:focus-visible{outline:3px solid var(--focus);outline-offset:4px}
+.lesson-player .lesson-copy>p{font:400 .95rem/1.7 var(--font-body),sans-serif;max-width:none}
+.lesson-player .lesson-copy>.lesson-tip{font-size:.85rem;color:var(--muted);margin-top:16px}
+.lesson-check{display:flex;align-items:flex-start;gap:10px;padding-top:18px;border-top:1px solid var(--line);margin-top:18px;font-size:.85rem!important}
+.lesson-check>svg{flex-shrink:0;margin-top:4px;color:var(--ink)}
+.lesson-player .lesson-controls{flex-wrap:wrap;margin-top:24px}
+.lesson-player .lesson-completion-note{color:var(--muted);font-size:.85rem!important}
+.lesson-library{margin-block:35px 60px}
+.lesson-library>.hero-module-options{margin-bottom:30px}
+.lesson-library .lesson-player{border:1px solid var(--line);border-radius:14px;padding:35px;background:var(--soft)}
+.demo-page>h1{max-width:20ch;margin-bottom:20px}
+.demo-page>.demo-layout{margin-bottom:40px}
+@media(max-width:800px){.phone-module-art>.skill-motion{height:187px}.lesson-player{grid-template-columns:1fr;gap:25px}.module-preview.module-lesson,.lesson-library .lesson-player{padding:25px 22px}.lesson-art>svg{height:235px}}
+@media(max-width:600px){.module-preview.module-lesson{padding-top:45px}.lesson-player .lesson-copy>p{font-size:.9rem}.lesson-player h4{font-size:1.3rem}.lesson-art>svg{height:210px}.lesson-player .lesson-controls .button{font-size:.75rem}}
+.lesson-player .lesson-copy{animation:none}
+.interactive-phone figcaption{white-space:normal;line-height:1.4;padding-inline:5px}

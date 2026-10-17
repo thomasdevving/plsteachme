@@ -40,10 +40,10 @@ test('module filters, previews and phone controls work with keyboard and reduced
  await expect(page.locator('.skill-card')).toHaveCount(9);
  await page.getByRole('button',{name:'Personal care'}).click(); await expect(page.locator('.skill-card')).toHaveCount(2);
  await page.getByRole('button',{name:'All skills'}).click();
- await page.getByRole('button',{name:'Explore preview: Do your laundry',exact:true}).click();
+ await page.getByRole('button',{name:'Explore lesson: Do your laundry',exact:true}).click();
  await expect(page.locator('#module-preview')).toBeFocused(); await expect(page.locator('.lesson-copy')).toContainText('Read the care labels');
- await page.getByRole('button',{name:'Next preview step',exact:true}).click(); await expect(page.locator('.lesson-copy')).toContainText('measure the detergent');
- await page.getByRole('button',{name:'Close module preview'}).click(); await expect(page.getByRole('button',{name:'Explore preview: Do your laundry',exact:true})).toBeFocused();
+ await page.getByRole('button',{name:'Next lesson step',exact:true}).click(); await expect(page.locator('.lesson-copy')).toContainText('measure the detergent');
+ await page.getByRole('button',{name:'Close module lesson'}).click(); await expect(page.getByRole('button',{name:'Explore lesson: Do your laundry',exact:true})).toBeFocused();
  await page.getByRole('button',{name:'Next step',exact:true}).click(); await expect(page.locator('.coach-step')).toContainText('Step 4 of 7');
  await page.getByRole('button',{name:'Previous example step'}).click(); await expect(page.locator('.coach-step')).toContainText('Step 3 of 7');
  const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>v.id)).toEqual([]); const labels=await new AxeBuilder({page}).withRules(['label-content-name-mismatch']).analyze(); expect(labels.violations.map(v=>v.id)).toEqual([]);
@@ -52,16 +52,16 @@ test('module filters, previews and phone controls work with keyboard and reduced
 test('hero modules change the phone preview and preserve a usable step flow', async ({page}) => {
  await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
  const choices = page.locator('.hero-module-options');
- await expect(choices.getByRole('button')).toHaveCount(6);
+ await expect(choices.getByRole('button')).toHaveCount(9);
  for (const name of ['Shave','Sew on a button','Iron a shirt','Cook a simple meal','Care for your bike']) {
   const button=choices.getByRole('button',{name,exact:true}); await button.focus(); await page.keyboard.press('Enter');
   await expect(button).toHaveAttribute('aria-pressed','true');
-  await expect(page.locator('#hero-preview')).toHaveAccessibleName(`${name}: text preview`);
-  await expect(page.locator('.coach-step')).toContainText('Step 1 of 3');
+  await expect(page.locator('#hero-preview')).toHaveAccessibleName(`${name}: coaching example`);
+  await expect(page.locator('.coach-step')).toContainText('Step 1 of 7');
   await expect(page.locator('.phone-figure figcaption')).toContainText('no camera or AI feedback');
   await expect(page.getByRole('button',{name:'Previous example step'})).toBeDisabled();
   await page.getByRole('button',{name:'Next step',exact:true}).click();
-  await expect(page.locator('.coach-step')).toContainText('Step 2 of 3');
+  await expect(page.locator('.coach-step')).toContainText('Step 2 of 7');
  }
  await choices.getByRole('button',{name:'Tie a tie',exact:true}).click();
  await expect(page.locator('.coach-step')).toContainText('Step 3 of 7');

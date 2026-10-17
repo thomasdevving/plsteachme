@@ -1,8 +1,8 @@
 # plsteach.me
 
-A warm, English-only landing and validation website for a practical-skills coach. The supplied hands logo, green/orange wordmark, interactive seven-step phone example and nine filterable skill previews lead into a waitlist and organization pilot form.
+A warm, English-only landing and validation website for a practical-skills coach. The supplied hands logo, green/orange wordmark, interactive coaching phone and nine complete, filterable skill walkthroughs lead into a waitlist and organization pilot form.
 
-This replaces the previous walkthrough website on `main`; that implementation remains in Git history at `19489f1`. The phone and module examples use illustrative text, not a live camera or AI verification. The actual coaching demo and video are optional external integrations.
+This replaces the previous walkthrough website on `main`; that implementation remains in Git history at `19489f1`. All nine skills have seven illustrated steps, preparation lists, checkpoints, navigation and a completion screen. The built-in lessons work without credentials or external services. Camera coaching and video remain optional external integrations.
 
 ## Run locally
 
@@ -17,7 +17,7 @@ Open http://localhost:3100. For a production server, run `npm run build` then `n
 
 - `/`: landing, phone example, module library, waitlist and FAQ.
 - `/organizations`: pilot interest form.
-- `/demo`: demo video slot and optional coaching link.
+- `/demo`: all nine interactive lessons, plus an optional demo video and external camera-coaching link.
 - `/privacy`: visible draft with outstanding business/provider details.
 - `/thanks`: honest mock acknowledgement or signup follow-up.
 - `/dev/styleguide`: development only.
@@ -67,6 +67,6 @@ Browser checks use Chromium on port 3100 and should run against `npm start` for 
 
 For a migrated test Supabase project, `npm run verify:rls` verifies direct anon access is denied. Live storage, email and deployed performance require configured services; local mock tests do not verify those integrations. Historic planning documents in `docs/` describe earlier iterations; `docs/VERIFICATION.md` records this revision's checks.
 
-Hero preview: six module choices update the phone in place. The tie fabric moves through seven distinct, manually selected poses. Each move plays once, holds its result and can be replayed; it pauses offscreen or in a hidden document, with an immediate final-state reduced-motion alternative. Upcoming modules reuse the existing, explicitly labelled three-step text previews.
+Hero preview: all nine module choices update the phone in place using the same lesson content as the skill library and `/demo`. Every module has seven manually selected illustrated steps. Native animations play once, hold their result, replay and pause offscreen or in a hidden document. Reduced motion shows the final artwork immediately. The full player includes materials, instructions, per-step tips and checkpoints, completion, Back and Practice again. Switching modules starts a fresh lesson; progress is kept only while that player is open. These are illustrated walkthroughs without camera or AI verification.
 
 Logo exploration: `/brand/logo-directions.html` compares three vector concepts at display, header and app-icon sizes. Its local preview does not change the main site logo. SVG sources live under `public/brand/concepts/`.
