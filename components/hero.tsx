@@ -10,7 +10,8 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
           <h1>
             <span>A tutorial shows </span>
             <span>
-              you, <span className="hero-emphasis">plsteach.me </span>
+              you, <span className="brand-teach">plsteach</span>
+              <span className="brand-me">.me </span>
             </span>
             <span className="hero-emphasis">guides you.</span>
           </h1>
