@@ -19,7 +19,8 @@ For connected testing after setting up Supabase and OpenAI, follow [the setup an
 
 - `/`: landing, phone example, module library, waitlist and FAQ.
 - `/subscriptions`: existing coming-soon plans and pricing.
-- `/login`, `/signup`, `/account`: shared account and one free coaching session.
+- `/login`, `/signup`, `/account`: email/password accounts and one free coaching session.
+- `/forgot-password`, `/account/password`: password recovery and password setup for existing accounts. See [account configuration](AUTH_SETUP.md).
 - `/coach`: a searchable module library linking all nine working lessons, with the existing resume shortcut.
 - `/coach/guide`: the interactive lesson example, walkthrough/camera explanation and free-session guidance; account, progress and settings remain separate destinations.
 - `/organizations`: pilot interest form.

@@ -191,3 +191,18 @@ The homepage now has one skill-discovery section. The redundant MomentFinder and
 - No API, database, subscription, dependency or authentication behavior changed. Earlier unit-suite and Lighthouse measurements above are historical; they were not repeated for this copy/layout cleanup.
 
 Backend readiness was audited separately. The implemented AI routes require configured OpenAI plus Supabase Auth, database migrations, private teacher storage, email/redirect settings and independent reviewers. Public production currently reports both AI and accounts unavailable. Provider responses remain mocked in automated tests; real account delivery, uploads/playback, model feedback and physical cameras still need connected validation. Feedback reports are for human review; there is no automatic model retraining pipeline.
+
+
+## Email/password accounts — 18 October 2026
+
+The live app now offers email/password registration and login, email confirmation/resend, password recovery and authenticated password setup for existing accounts. Social sign-in actions and provider discovery are removed. Subscription presentation and the account-bound one-session trial are unchanged.
+
+- All 323 unit/API tests pass, including password validation, generic account-existence responses, same-origin checks, authenticated password updates, recovery token types and pre-hydration form protection.
+- TypeScript and the Cloudflare production build pass. Production is deployed to the existing free Worker.
+- Nine connected password checks pass on the deployed site: mobile layout and Axe accessibility, unconfirmed-account rejection, confirmation, wrong/correct passwords, persistent secure cookies, password changes, one-use recovery, anonymous/cross-site rejection and password setup for existing passwordless accounts. Disposable accounts are removed; their free sessions stay unused throughout.
+- Six connected navigation checks pass: home/reload, safe login/signup destinations, mobile/back navigation, actual refresh-token renewal and explicit sign-out.
+- Real signup and password-recovery submissions each sent one SMTP email to the explicitly approved Resend delivery simulator. Both appear as Delivered in Resend. This verifies provider delivery simulation, not inbox placement for real recipients. No personal accounts were modified.
+- Live testing exposed early input being cleared during hydration. Forms now stay disabled until their client handlers are ready and declare POST as the fallback method so passwords cannot enter URL parameters. The connected password flow passes after this fix.
+- The reset email template uses a direct one-use token hash and the recovery token type, with branded content. Supabase email confirmation and secure password changes stay enabled.
+
+OpenAI inference remains untested and requires the operator's key. No AI calls or trial claims were made by these checks.

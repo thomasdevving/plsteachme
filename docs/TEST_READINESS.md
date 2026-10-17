@@ -6,7 +6,7 @@ The learner, camera, community and teacher flows are implemented. Supabase and t
 
 1. Apply **all four** files in `supabase/migrations/` in filename order to the intended Supabase project. The final migration creates the private `teacher-demonstrations` bucket.
 2. Set the server variables in `.env.example`: Supabase URL, public/anon key, service-role key, OpenAI key and the actual site origin. `SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_URL` are supported consistently. A service-role or secret key must never be put in a public variable. Browser uploads only use signed destinations.
-3. Enable Supabase Email authentication and registrations, configure production email delivery, and allow the site's `/auth/callback` and `/auth/confirm` URLs. Use `https://plsteach.me` for this deployment. Google/Apple are optional; leave their flags false until configured.
+3. Enable Supabase Email authentication and registrations, configure production email delivery, and allow the site's `/auth/callback` and `/auth/confirm` URLs. Use `https://plsteach.me` for this deployment. Keep Google/Apple disabled. Require email confirmation, a minimum password length of 12, and secure password changes. Use the recovery template described in `AUTH_SETUP.md`.
 4. Create a separate reviewer account, confirm its email, and put its Auth user UUID in `PLATFORM_REVIEWER_IDS`. A teacher cannot approve their own application or publish their own lesson. Use a fresh learner account for the one-session trial.
 5. Configure access to `OPENAI_VISION_MODEL` and `OPENAI_TRANSCRIPTION_MODEL`, then redeploy after changing environment variables. The teacher bucket and project upload limit must support the intended recording size (the app allows up to 100 MB).
 

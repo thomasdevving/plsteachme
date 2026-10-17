@@ -108,6 +108,7 @@ export function AccountPanel() {
               <small>All plan prices are coming soon.</small>
             )}
           </section>
+          <p className="auth-switch"><a href="/account/password">Set or change password</a></p>
           <button
             className="auth-text-button"
             disabled={busy}

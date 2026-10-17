@@ -4,7 +4,7 @@ import { refreshAuth } from "@/lib/auth/proxy";
 // Next's Node-only proxy convention requires an experimental OpenNext path.
 export async function middleware(request: NextRequest) {
   const authPath =
-    /^\/(?:(?:en|nl)\/)?(?:login|signup|account|learn|community|teach|demo)(?:\/|$)/.test(
+    /^\/(?:(?:en|nl)\/)?(?:login|signup|forgot-password|account|learn|community|teach|demo)(?:\/|$)/.test(
       request.nextUrl.pathname,
     ) || request.nextUrl.pathname.startsWith("/coach/session/");
   const sessionResponse = authPath ? await refreshAuth(request) : null;

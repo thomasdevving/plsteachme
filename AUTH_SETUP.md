@@ -1,63 +1,52 @@
-# Activate accounts and the one-session trial
+# Accounts and the one-session trial
 
-The code is ready, but sign-in is deliberately unavailable until a real Supabase project is configured. There are no mock accounts or browser-only trial credits. Existing marketing previews remain public. Full coaching sessions and AI endpoints require an authenticated account with an active trial.
+The deployed app uses **email and password only**, Supabase Auth, Resend SMTP and Cloudflare Workers Free. Social providers remain disabled. Existing subscriptions are unchanged.
 
-## 1. Supabase and database
+## Configuration
 
-Use the project's Supabase project (or create one if it does not yet exist). Apply all four files in `supabase/migrations/` in filename order through your normal migration workflow or Supabase SQL editor. The accounts migration adds one row per auth account, RLS, and two server-only transactional functions; the subsequent platform migration adds the teacher/community workflow and private storage bucket. Follow `docs/TEST_READINESS.md` for the full setup check and acceptance run.
+The existing Supabase project has all four migrations applied. Do not reapply migrations to an already-configured project. See [deployment setup](docs/CLOUDFLARE_SETUP.md) for environment variables. Store local secrets in ignored `.dev.vars` and deployed secrets in Cloudflare Worker secrets; OpenNext copies `.env` files into its bundle.
 
-In Vercel → agr18 → plsteachme → Settings → Environment Variables, configure Production:
+In Supabase Auth:
 
-- `SUPABASE_URL`: project URL.
-- `SUPABASE_ANON_KEY`: publishable/anon key, used for authentication.
-- `SUPABASE_SERVICE_ROLE_KEY`: secret server key, used only for the trial ledger and existing storage.
-- `NEXT_PUBLIC_SITE_URL`: `https://plsteachme.vercel.app` (or your verified custom domain).
+- Enable the Email provider, new registrations and email confirmation.
+- Minimum password length: **12**. Enable **Secure password change**, requiring a session created within the last 24 hours. An older session must use a fresh password reset link.
+- Keep anonymous sign-in and social providers disabled.
+- Site URL: `https://plsteach.me`; redirect allowlist: `https://plsteach.me/auth/**`.
+- Keep the configured Resend SMTP sender `contact@plsteach.me`. No paid plan is needed for this setup.
+- Confirm-signup template link: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}`.
+- Reset-password template link: `{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=recovery`.
 
-Set the same keys locally in `.env.local` for local testing. Never commit keys or paste them into chat. Redeploy after configuration. The server also accepts `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` when already supplied by a Supabase integration.
+Both templates open the app directly and exchange the one-use token hash server-side. Recovery opens `/account/password`; normal verification opens `/account`. The PKCE callback remains compatible with standard Supabase templates. Tokens and provider error details are never returned by the account action API or logged by the verification scripts.
 
-## 2. Email links
+## User flows
 
-Enable the Email provider, allow new registrations, and configure production SMTP delivery in Supabase. Set the Site URL to `https://plsteachme.vercel.app`. Allow these redirect URLs:
+- `/signup`: email, password and confirmation; sends an email verification link. Registration does not consume the free session.
+- `/login`: email and password. Unknown accounts and incorrect passwords share a generic error. Unconfirmed accounts can request another confirmation email.
+- `/forgot-password`: sends a reset link with an account-existence-neutral response.
+- `/account/password`: signed-in users can set or change their password, including existing accounts created with an email link. The API verifies the current user; client-supplied account IDs are ignored. Expired recovery links return to the reset form.
+- Returning home, reloading or changing pages preserves the account. Explicit sign-out ends it.
 
-- `https://plsteachme.vercel.app/auth/callback`
-- `https://plsteachme.vercel.app/auth/confirm`
-- Local development equivalents, only if needed.
+New passwords require at least 12 characters and at most 72 UTF-8 bytes to avoid bcrypt truncation. Passwords are sent over HTTPS to the server and Supabase Auth; they are not stored in application tables, browser storage or logs. Supabase stores password hashes. Forms stay disabled until hydration completes, so early typing cannot be lost; their fallback method is POST so passwords cannot become URL parameters. Error responses are bounded and omit internal provider messages. All account mutations require a same-origin request, and responses are private and uncached.
 
-The default magic-link template uses the PKCE callback and should be opened in the browser that requested it. For cross-browser email links, use the Supabase template's token hash with `https://plsteachme.vercel.app/auth/confirm?token_hash={{ .TokenHash }}`. That handler accepts only the email verification type and always returns to `/account`.
+## Free-session behavior
 
-Sign-up explicitly creates an account. Login does not create unknown accounts, and its generic confirmation avoids exposing registered email addresses. Email verification happens before a user can claim a trial.
+Each account has one full coaching session. It is claimed only when the user explicitly starts coaching for an available skill. Concurrent starts return the same durable session. Changing passwords, recovering the account, signing out or clearing browser storage does not grant another session. Missing OpenAI configuration does not consume it. The subscription page has no checkout or automatic charge.
 
-## 3. Google and Apple
+Account identity is verified with Supabase `getUser()`. AI endpoints check account ownership, session ID, skill and completion. RLS and service-role-only transactional functions protect the trial ledger. This is a rule per account; it does not claim to prevent a person creating separate accounts.
 
-Configure both OAuth providers in Supabase using your own developer applications. The provider callback is the callback shown in the Supabase dashboard (`https://<project-ref>.supabase.co/auth/v1/callback`), not the app's callback above.
+## Verification
 
-- Google: register the OAuth web application, authorized redirect URI, consent screen, and production audience. Then set `AUTH_GOOGLE_ENABLED=true` in Vercel.
-- Apple: configure Sign in with Apple with your Apple developer Team, Service ID, key and client secret. Authorize your site and Supabase callback, register outbound email domains for private relay, and maintain the client secret's expiry. Then set `AUTH_APPLE_ENABLED=true` in Vercel.
+Run `npm test`, `npm run typecheck`, and `npm run build:cloudflare`.
 
-Until each provider is configured, its button remains visibly unavailable and email is offered when available. Never set a provider flag merely to enable the button without its real OAuth setup.
+With connected credentials in `.dev.vars`, run:
 
-Official setup: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client), [Google](https://supabase.com/docs/guides/auth/social-login/auth-google), [Apple](https://supabase.com/docs/guides/auth/social-login/auth-apple), [email links](https://supabase.com/docs/guides/auth/auth-email-passwordless).
+```sh
+node --env-file=.dev.vars scripts/verify-password-auth.mjs https://plsteach.me
+node --env-file=.dev.vars scripts/verify-auth-navigation.mjs https://plsteach.me
+```
 
-## Trial behavior
+The `--smtp-recovery` option sends only the recovery email when signup delivery has already been verified.
 
-A new account has one full coaching session. The credit is claimed only by clicking “Start my free session” for an available skill. Concurrent starts return the same session. That session can be resumed on the account; sign-out, another browser, or clearing local storage never issues a new credit. Completion closes it permanently. Prices remain “Coming soon”; there is no checkout or automatic charge.
+The password check creates disposable accounts, exercises real password authentication, verification/recovery tokens, password changes and unchanged free-session entitlement, then deletes its fixtures. It never accesses personal accounts or calls OpenAI. Its default mode generates test tokens without sending mail; `--smtp` additionally exercises signup and recovery delivery using Resend's documented `delivered+label@resend.dev` test inbox. Provider delivery simulation does not prove inbox placement for a real recipient. Keep tracing off because token URLs and cookies are credentials.
 
-Account identity is verified server-side with Supabase `getUser()`. The AI endpoints check account ownership, session ID, skill and completion. Database functions accept user IDs only from the server, are executable only by `service_role`, and the account key is unique. Ordinary authenticated users have read-only access to their own ledger row. Local drafts contain progress only; the database controls entitlement. Like any rule per account, it does not claim to prevent a person creating multiple separate accounts.
-
-## Launch checks requiring the connected project
-
-1. Sign up and sign in using an actual email link, Google and Apple; verify cancellation, expired links, signing out and session refresh.
-2. Start a session on two tabs; verify one ledger row and one session ID.
-3. Resume on another browser signed into the same account.
-4. Finish, sign out/in, and attempt another skill or direct AI request; access must stay closed.
-5. Confirm the Supabase provider and SMTP settings, redirect URLs, and secret expiry reminders.
-
-The repository's unit tests and isolated PostgreSQL checks cover the logic and permissions. They do not replace these live-provider checks.
-
-## Validation recorded for this implementation
-
-- Production Next.js build and fresh TypeScript check passed.
-- 136 unit tests passed, including sign-up intent, generic email confirmation, safe return destinations, sign-in form errors/focus, authenticated trial ownership, used-session rejection and fail-closed storage/configuration behavior.
-- Applied the migration to an isolated PostgreSQL instance with representative `anon`, `authenticated`, `service_role` and `auth.users`/`auth.uid()` setup. Twelve concurrent claims produced one row and one session ID. RLS hid other users, anonymous reads and client mutations/RPC execution were denied, another account could not advance a session, and completion survived reclaims and stale progress writes. Temporary database was stopped after validation.
-- Independent source review confirmed the UI extension and its shared mascot pause control. Mechanical design scan found no primary findings; type-ramp advisories reflect existing documentation drift and the inherited font sizes.
-- Browser visual inspection was blocked by administrator-policy verification. Live OAuth/email and actual production Supabase configuration are not yet verified.
+Official references: [password authentication](https://supabase.com/docs/guides/auth/passwords), [password security](https://supabase.com/docs/guides/auth/password-security), [email templates](https://supabase.com/docs/guides/auth/auth-email-templates), [Resend test emails](https://resend.com/docs/dashboard/emails/send-test-emails).

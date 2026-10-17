@@ -100,7 +100,7 @@ try {
   await page.goto('/account');
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page).toHaveURL(`${target.origin}/login`);
-  await expect(page.getByRole('button', { name: 'Email me a sign-in link' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Log in' })).toBeVisible();
   await expect(page.getByText(/sign-in (?:are|is) coming soon/)).toHaveCount(0);
   await page.goto('/');
   await expect(page.locator('.nav-actions > a[href="/login"]')).toHaveText('Log in');
