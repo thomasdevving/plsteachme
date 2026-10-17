@@ -36,12 +36,12 @@ export function validCoachSession(value: string | undefined, now = Date.now()) {
 const buckets = new Map<string,{count:number;until:number}>();
 // Per-process protection for the beta. Provider/project spend limits remain
 // necessary; use a shared limiter before running many application instances.
-export function coachingRateAllowed(request: NextRequest, kind: 'session' | 'check', now = Date.now()) {
+export function coachingRateAllowed(request: NextRequest, kind: 'session' | 'check' | 'question' | 'report', now = Date.now()) {
   for (const [key,bucket] of buckets) if (bucket.until <= now) buckets.delete(key);
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
   const key = `${kind}:${createHash('sha256').update(ip).digest('hex')}`;
   const bucket = buckets.get(key);
-  const limit = kind === 'session' ? 30 : 120;
+  const limit = {session:30,check:120,question:30,report:10}[kind];
   if (!bucket) { if (buckets.size >= 10000) return false; buckets.set(key,{count:1,until:now+600000}); return true; }
   if (bucket.count >= limit) return false;
   bucket.count++; return true;

@@ -4,6 +4,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import sharp from 'sharp';
 import type { SkillId } from './config';
 import { modules } from './modules';
+import { getCheckpoint } from './learning-catalog';
 import { feedbackSchema, conservativeFeedback, visuallyCheckable, MAX_FRAME_BYTES } from './coaching-contract';
 
 export async function decodeCoachFrame(data: string) {
@@ -31,7 +32,7 @@ export async function assessCoachStep(skill: SkillId, step: number, frames: Buff
     system: SYSTEM,
     output: Output.object({schema:feedbackSchema}),
     messages: [{role:'user',content:[
-      {type:'text',text:JSON.stringify({skill,step:step+1,instruction:current.instruction,checkpoint:current.check,tip:current.tip,visuallyCheckable:visuallyCheckable(skill,step)})},
+      {type:'text',text:JSON.stringify({skill,step:step+1,instruction:current.instruction,checkpoint:current.check,tip:current.tip,visuallyCheckable:visuallyCheckable(skill,step),criteria:getCheckpoint(skill,step)})},
       ...frames.map(image=>({type:'image' as const,image,mediaType:'image/jpeg' as const}))
     ]}],
     providerOptions: {openai:{store:false,reasoningEffort:'low',reasoningSummary:null}},

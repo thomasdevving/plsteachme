@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { skillIds } from './config';
+import { getCheckpoint } from './learning-catalog';
 
 export const CHECK_INTERVAL_MS = 6000;
 export const MAX_FRAME_BYTES = 200_000;
@@ -33,13 +34,8 @@ export const framingHints: Record<typeof skillIds[number], string> = {
 
 // An image can show some results, but cannot certify motion, temperature,
 // pressure, hidden fasteners, hygiene, material compatibility or safety.
-const visualSteps: Record<typeof skillIds[number], readonly number[]> = {
-  tie: [0,1,2,3,4,5,6], shaving: [0,2], beard: [1,4,5],
-  ironing: [2,3,4,5], button: [0,1,2,3,4], drill: [],
-  laundry: [3,5], cooking: [2,4,5], bike: []
-};
 export function visuallyCheckable(skill: typeof skillIds[number], step: number) {
-  return visualSteps[skill].includes(step);
+  return getCheckpoint(skill,step).visuallyCheckable;
 }
 
 export function conservativeFeedback(feedback: CoachFeedback, skill: typeof skillIds[number], step: number): CoachFeedback {

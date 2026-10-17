@@ -43,6 +43,7 @@ test('consent starts camera-only capture and checks the current step automatical
   await setup(page);
   const coach=page.locator('.camera-coach');
   await expect(coach.getByRole('button',{name:'Start camera coaching'})).toBeDisabled();
+  await coach.getByRole('checkbox',{name:'Automatically advance camera-confirmed checkpoints'}).uncheck();
   expect(sent).toHaveLength(0);
   await start(page);
   await expect(coach).toContainText('This part looks right',{timeout:10000});
