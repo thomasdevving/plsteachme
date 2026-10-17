@@ -7,7 +7,6 @@ import '../learning.css';
 import '../platform.css';
 import '../scope.css';
 import '../creative.css';
-import '../moment-finder.css';
 import '../catalog-polish.css';
 import '../motion.css';
 import { SiteMotion } from '@/components/site-motion';
