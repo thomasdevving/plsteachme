@@ -38,3 +38,11 @@ Accounts support requests and unique support votes. Teachers apply with experien
 
 ## Frontend continuity
 The current public frontend comes from codex/restore-coach: the rotating hero/demo phone, clay companions, horizontal module rail, account pages and Starter/Plus/Teams coming-soon subscription cards. The expanded learning, community and teacher scope is integrated into that frontend. All learner AI paths share the existing verified account and one-session trial; free illustrated lessons remain available. OpenAI serves the coaching interfaces, with no simulated success in production when its key is absent.
+
+## Creative experience — 17 October 2026 (current)
+
+The user granted creative freedom for layout and motion while retaining the product and subscription boundaries. The current homepage combines a larger editorial hero, clay companions and a dark demo stage with the established rotating phone. The demo remains an interactive illustration or configured video, with explicit playback controls.
+
+MomentFinder turns three everyday situations into useful entry points: interview preparation, independent living and small repairs. Its accessible tabs show existing learning journeys and link directly to working lessons. `/learn` presents all nine illustrated skills through search, category filters, larger illustration cards, saved practice and related journeys. A selected lesson is brought into view, including when reached from a direct URL. Progress displays use actual browser-local records and keep camera-confirmed, self-checked and unresolved checkpoints distinct; finishing a walkthrough is not a claim of mastery.
+
+The global animation preference persists in the browser and applies across the public site and coach. Reduced motion and pause controls support a calmer experience without removing lesson content or interaction. Account requirements, the existing one-session trial, teacher/community workflows and service-configuration boundaries are retained. Starter, Plus and Teams remain the existing coming-soon subscriptions with pricing to be announced; no new charge, credit, rollover or payment behavior is introduced. Earlier sections above are retained as product history.

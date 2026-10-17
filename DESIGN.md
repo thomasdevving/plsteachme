@@ -329,3 +329,13 @@ The landing page now places the demo directly beneath the hero. One shared phone
 The expressive mascot atlas now uses measured visible bounds and individual contact points from `lib/mascot-frames.ts`, rather than full square cells and approximate offsets. Display sizes preserve the intended visual hierarchy after removing transparent padding. Foot and seated offsets are adjusted at their supporting edges. The existing supplied art and colors are preserved.
 
 Validation for this change: production build, fresh TypeScript check, 113 unit tests including scroll geometry, narrow-screen bounds, reduced motion, placeholder playback, suspension, replay and future-video failure. Browser visual inspection was unavailable because the browser security check could not verify the administrator-enforced policy; no alternative browser path was used.
+
+## Creative experience — 17 October 2026 (current)
+
+This section records the current creative treatment; earlier sections remain a history of the design. The cream, deep-green and terracotta palette, Lora/DM Sans typography, supplied hands mark and clay companions continue to anchor the site. The homepage has a larger editorial hero, a drawn underline, generous spacing and a sticky navigation bar. A contained dark-green demo stage adds contrast within the cream page. The existing shared phone still travels from the hero into the stage and rotates into landscape; its illustration and playback controls remain functional.
+
+MomentFinder is an interactive, illustrated set of three life moments: Interview day, Everyday independence and A little repair. Keyboard-operable tabs update the suggested journey and its real lesson links. The postcard scenes support the content without replacing the actual learning actions.
+
+The learning catalog uses an editorial masthead, numbered peach/sage/butter illustration panels, original skill icons and actual step counts. Search, category filters, saved-practice cards and numbered journeys remain working controls. Checkpoint segments reflect stored camera-confirmed, self-checked, unresolved and pending states; journey markers describe walkthrough completion. Direct lesson links and repeated selections focus the player below the sticky header. Entrance and hover movements are finite, and text stays fully opaque.
+
+A persistent global motion control is available across public/account pages and the separate coach application. Its browser-local preference coordinates decorative CSS motion, the phone journey and animated lesson diagrams; reduced-motion preferences and hidden-page suspension remain respected. Camera processing continues to use its own consent and pause/stop controls. Starter, Plus and Teams subscription presentation and pricing remain unchanged.

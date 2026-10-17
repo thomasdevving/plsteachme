@@ -5,6 +5,7 @@ import { Pause, Play, RotateCcw } from "lucide-react";
 import { VIDEO_URL } from "@/lib/config";
 import { track } from "@/lib/analytics";
 import { TieMotion } from "./tie-motion";
+import { useMotionPaused, setMotionPaused } from "@/lib/motion-preference";
 
 const captions = [
   "Start with the wide end longer.",
@@ -30,6 +31,7 @@ export function DemoPlayer({
   const [step, setStep] = useState(0);
   const [error, setError] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
+  const motionPaused = useMotionPaused();
 
   useEffect(() => {
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
@@ -40,11 +42,11 @@ export function DemoPlayer({
   }, []);
 
   useEffect(() => {
-    if (!active) {
+    if (!active || motionPaused) {
       video.current?.pause();
       setPlaying(false);
     }
-  }, [active]);
+  }, [active, motionPaused]);
 
   useEffect(() => {
     const node = root.current;
@@ -68,12 +70,12 @@ export function DemoPlayer({
   }, []);
 
   useEffect(() => {
-    if (!active || !playing || src) return;
+    if (!active || !playing || src || motionPaused) return;
     const timer = setInterval(() => {
       setStep((current) => Math.min(current + 1, captions.length - 1));
     }, 3000);
     return () => clearInterval(timer);
-  }, [active, playing, src]);
+  }, [active, playing, src, motionPaused]);
 
   useEffect(() => {
     if (step === captions.length - 1) setPlaying(false);
@@ -81,6 +83,7 @@ export function DemoPlayer({
 
   async function toggle() {
     if (!active) return;
+    if (motionPaused) setMotionPaused(false);
     if (playing) {
       video.current?.pause();
       setPlaying(false);

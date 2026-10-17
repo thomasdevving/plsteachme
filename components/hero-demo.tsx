@@ -10,6 +10,7 @@ import {
 } from "@/lib/phone-journey";
 import { CoachPreview } from "./coach-preview";
 import { DemoPlayer } from "./demo-player";
+import { MOTION_EVENT, motionIsPaused } from "@/lib/motion-preference";
 
 export function HeroDemo({
   hero,
@@ -42,7 +43,7 @@ export function HeroDemo({
       const position = phoneJourneyFrame(
         window.scrollY,
         geometry,
-        preference.matches,
+        preference.matches || motionIsPaused(),
       );
       phone.style.transform = `translate3d(${position.x}px,${position.y}px,0) translate(-50%,-50%) rotate(${position.angle}deg) scale(${position.scale})`;
       phone.style.setProperty("--demo-reveal", String(position.reveal));
@@ -98,6 +99,7 @@ export function HeroDemo({
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", measure);
     preference.addEventListener("change", measure);
+    window.addEventListener(MOTION_EVENT, measure);
     const jumpToDemo = (event: MouseEvent) => {
       const link =
         event.target instanceof Element
@@ -117,7 +119,7 @@ export function HeroDemo({
       history.pushState(null, "", "#demo");
       window.scrollTo({
         top: geometry.endScroll,
-        behavior: preference.matches ? "instant" : "smooth",
+        behavior: preference.matches || motionIsPaused() ? "instant" : "smooth",
       });
     };
     container.addEventListener("click", jumpToDemo);
@@ -132,6 +134,7 @@ export function HeroDemo({
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", measure);
       preference.removeEventListener("change", measure);
+      window.removeEventListener(MOTION_EVENT, measure);
       container.removeEventListener("click", jumpToDemo);
     };
   }, []);
@@ -144,12 +147,14 @@ export function HeroDemo({
         className="journey-demo"
         aria-labelledby="demo-heading"
       >
-        <div className="container">
+        <div className="container demo-studio">
+          <div className="demo-studio-top"><span>01 / A LITTLE PRACTICE</span><span>YOUR PACE. YOUR SPACE.</span></div>
           <div className="journey-demo-heading">
+            <span className="studio-kicker">From “how?” to “I’ve got this.”</span>
             <h2 id="demo-heading">{c.demo.title}</h2>
             <p>{c.demo.intro}</p>
           </div>
-          <div className="demo-phone-anchor" ref={target} aria-hidden="true" />
+          <div className="demo-stage"><span className="demo-orbit demo-orbit-one" data-ambient aria-hidden="true"/><span className="demo-orbit demo-orbit-two" data-ambient aria-hidden="true"/><div className="demo-phone-anchor" ref={target} aria-hidden="true" /></div>
           <div className="journey-demo-actions">
             <a className="button secondary" href={DEMO_URL}>
               {c.demo.try}

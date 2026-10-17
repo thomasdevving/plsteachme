@@ -80,6 +80,7 @@ test("pause stops the clock and fabric motion; offscreen and hidden tabs stop ad
   await page.clock.runFor(3000);
   await expect(art).toHaveAttribute("data-step", "2");
   await page.getByRole("button", { name: "Pause tie demonstration" }).click();
+  await expect(figure).toHaveAttribute("data-playing", "false");
   await page.clock.runFor(6000);
   await expect(art).toHaveAttribute("data-step", "2");
   expect(
@@ -90,6 +91,7 @@ test("pause stops the clock and fabric motion; offscreen and hidden tabs stop ad
     ),
   ).toBe(true);
   await page.getByRole("button", { name: "Play tie demonstration" }).click();
+  await expect(figure).toHaveAttribute("data-playing", "true");
   await page.clock.runFor(3000);
   await expect(art).toHaveAttribute("data-step", "3");
   await page.locator("#skills").scrollIntoViewIfNeeded();
@@ -100,8 +102,11 @@ test("pause stops the clock and fabric motion; offscreen and hidden tabs stop ad
   await expect(art).toHaveAttribute("data-step", offscreen!);
   // The phone moves into the demo when scrolling; restore its hero position.
   await page.evaluate(() => window.scrollTo({top:0,behavior:'instant'}));
-  await page.clock.runFor(16);
-  await expect(page.locator('.journey-device')).toHaveAttribute('data-mode','hero');
+  // Browser scroll delivery and React's frame update can span more than one frame.
+  await expect.poll(async () => {
+    await page.clock.runFor(16);
+    return page.locator('.journey-device').getAttribute('data-mode');
+  }).toBe('hero');
   await expect(figure).toBeInViewport();
   await page.evaluate(() => {
     Object.defineProperty(document, "hidden", {
@@ -137,6 +142,7 @@ test("reduced motion starts static and explicit play changes steps without fabri
   await page.clock.runFor(9000);
   await expect(art).toHaveAttribute("data-step", "1");
   await page.getByRole("button", { name: "Play tie demonstration" }).click();
+  await expect(page.locator("#hero-preview")).toHaveAttribute("data-playing", "true");
   await page.clock.runFor(3000);
   await expect(art).toHaveAttribute("data-step", "2");
   expect(

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { MessageCircle, Pause, Play } from "lucide-react";
 import { TieMotion } from "./tie-motion";
+import { setMotionPaused, useMotionPaused } from "@/lib/motion-preference";
 const tieSteps = [
   [
     "Start with the wide end longer.",
@@ -31,6 +32,8 @@ export function CoachPreview({
 }) {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const motionPaused = useMotionPaused();
+  const running = playing && !motionPaused;
   const figure = useRef<HTMLElement>(null);
   const visible = useRef(false);
   // Autoplay starts only after checking the visitor's motion preference.
@@ -47,7 +50,7 @@ export function CoachPreview({
     let timer: ReturnType<typeof setInterval> | undefined;
     const sync = () => {
       clearInterval(timer);
-      if (playing && !suspended && visible.current && !document.hidden)
+      if (running && !suspended && visible.current && !document.hidden)
         timer = setInterval(
           () => setStep((current) => (current + 1) % tieSteps.length),
           3000,
@@ -69,7 +72,7 @@ export function CoachPreview({
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, [playing, suspended]);
+  }, [running, suspended]);
   return (
     <figure
       ref={figure}
@@ -78,7 +81,7 @@ export function CoachPreview({
       aria-label={
         landscape ? "Demo video player" : "Tie a tie: coaching example"
       }
-      data-playing={playing}
+      data-playing={running}
     >
       <div className="phone">
         <div
@@ -92,7 +95,22 @@ export function CoachPreview({
               <span className="brand-me">.me</span>
             </span>
             <span className="camera-dot" />
-            <span>9:41</span>
+            <div className="preview-playback" hidden={suspended}>
+              <button
+                type="button"
+                onClick={() => {
+                  if (motionPaused) {
+                    setMotionPaused(false);
+                    setPlaying(true);
+                  } else setPlaying(value => !value);
+                }}
+                title={running ? "Pause the demonstration and characters" : "Play the demonstration and characters"}
+                aria-label={running ? "Pause tie demonstration" : "Play tie demonstration"}
+              >
+                {running ? <Pause size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}
+                {running ? "Pause" : "Play"}
+              </button>
+            </div>
           </div>
           <div className="viewfinder">
             <div className="camera-corner tl" />
@@ -100,7 +118,7 @@ export function CoachPreview({
             <div className="camera-corner bl" />
             <div className="camera-corner br" />
             <div className="phone-module-art">
-              <TieMotion step={step} playing={playing && !suspended} />
+              <TieMotion step={step} playing={running && !suspended} />
             </div>
             <div className="coach-status">
               <span />
@@ -147,27 +165,6 @@ export function CoachPreview({
       >
         <MessageCircle size={20} aria-hidden="true" />
         <span>{tieSteps[step][1]}</span>
-      </div>
-      <div className="preview-playback" hidden={suspended}>
-        <button
-          type="button"
-          onClick={() => setPlaying((value) => !value)}
-          title={
-            playing
-              ? "Pause the demonstration and characters"
-              : "Play the demonstration and characters"
-          }
-          aria-label={
-            playing ? "Pause tie demonstration" : "Play tie demonstration"
-          }
-        >
-          {playing ? (
-            <Pause size={14} aria-hidden="true" />
-          ) : (
-            <Play size={14} aria-hidden="true" />
-          )}
-          {playing ? "Pause" : "Play"}
-        </button>
       </div>
     </figure>
   );

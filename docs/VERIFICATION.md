@@ -122,3 +122,17 @@ The preceding release used the older `main` frontend. This corrective merge brin
 - An independent source review found no blocking regression in trial ownership, cookie verification, review permissions or missing-key handling.
 
 Tests use simulated camera input and mocked external providers; no live paid AI request was made. Supabase/Auth/Storage and OpenAI remain unconfigured in production. This corrective release does not apply remote database migrations or change subscriptions, checkout or pricing.
+
+## Creative learning experience — 17 October 2026
+
+The redesign builds on the restored frontend. It adds the editorial hero, contained demo stage, interactive illustrated MomentFinder, redesigned catalog, section entrances and persistent animation preference. The existing rotating phone, clay companions, subscriptions and service boundaries are retained. No dependencies, API handlers or database migrations changed.
+
+- All 228 unit/API tests pass; TypeScript and the production build pass.
+- All 69 browser scenarios are verified across the full suite and focused reruns. The last full run passed 68/69, with one accessible-name finding then fixed. The final 22-scenario focus run passed 21/22; its remaining frozen-clock scroll synchronization assumption was corrected, and all four hero scenarios passed on rerun. These are combined results, not a single 69/69 final-source run.
+- Browser coverage includes keyboard moment selection and real lesson destinations, all nine catalog entries, search/filter/progress, pause persistence, actual animation/opacity checks, reduced motion, responsive overflow, unchanged subscription actions, camera flows, account/trial boundaries and strict Axe checks. Visible names now match spoken names for tabs, lesson links and the motion control.
+- Visual captures at 375px, 768px and 1440px cover the hero, demo stage, practice steps, life moments, skill cards, community entry, privacy, signup and catalog. Mobile moment tabs are stacked; the module companion clears its caption.
+- Playback now sits inside the phone's top bar, avoiding a short-viewport focus scroll that previously hid the control during the phone transition. The control retains a 44px target.
+- The global pause preference stops decorative CSS/WAAPI motion, preview clocks and smooth hash scrolling. It persists across reloads and the separate coach root; explicit play remains available. Reduced-motion content remains visible and usable.
+- One mobile Lighthouse audit of the final local production build measured Performance 84, Accessibility 100, Best Practices 100 and SEO 100, with FCP 1.7s, LCP 4.2s, TBT 120ms and CLS 0. These are simulated local results, not deployed field measurements. Shared JavaScript and render-blocking styles remain performance opportunities; the historical score above does not describe this redesign. Lighthouse used the working Playwright Chromium connection after the standalone Chrome launcher failed.
+
+External-provider tests remain mocked. Live AI quality, account delivery and connected teacher workflows still require the previously documented service configuration.
