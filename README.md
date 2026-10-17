@@ -4,6 +4,10 @@ A practical-skills learning app with nine illustrated starter lessons, automatic
 
 The latest public frontend is preserved: the rotating hero phone, clay companions, module rail, account pages and planned Starter/Plus/Teams subscriptions. The dedicated `/coach` experience remains available alongside the expanded catalog. All nine skills have seven illustrated steps, preparation lists, checkpoints, navigation and a completion screen. The built-in lessons work without credentials or external services. Automatic camera coaching is built into the lessons and uses a server-only OpenAI key. Video and an external demo link remain optional.
 
+## Installable mobile app
+
+The Android/iOS Capacitor app lives in [`mobile/`](mobile/README.md). It bundles all nine illustrated lessons for offline practice with device-local progress. Run `npm ci`, `npm --prefix mobile ci`, then `npm run mobile:dev`. See the mobile README for native builds, installation and the features that remain on the website.
+
 ## Run locally
 
 ```sh

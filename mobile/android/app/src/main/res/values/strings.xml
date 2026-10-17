@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">plsteach.me</string>
+    <string name="title_activity_main">plsteach.me</string>
+    <string name="package_name">me.plsteach.app</string>
+    <string name="custom_url_scheme">me.plsteach.app</string>
+</resources>
