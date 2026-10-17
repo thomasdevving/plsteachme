@@ -1,5 +1,19 @@
 # Verification — landing website replacement
 
+## Current connected-test readiness — 17 October 2026
+
+This latest entry supersedes historical readiness statements below. The app is prepared for a private connected test after Supabase/Auth/Storage and OpenAI setup. Real external email, storage and model quality still require that connected acceptance run; no paid inference or remote schema mutation was performed in this pass.
+
+- All **266 unit/API/database tests across 27 files** pass. New coverage includes incoming stream size/deadline/cancellation, bounded service calls, configuration fallback and public-key safety, read-only setup verification, public-host login callbacks, complete local-data deletion, and execution of all four migrations together in isolated PGlite with simulated Auth/Storage schemas.
+- Final TypeScript check and production build pass. The installed production dependencies reported **zero known vulnerabilities** in the audit performed during this pass.
+- All **72 main browser scenarios** have passing coverage. The full run passed 71/72; its retry fixture changed service availability before the account-triggered refresh finished. The public-browsing fixture was corrected and all three recovery checks passed. After the final copy and sprite adjustments, all **17 affected browser checks passed together** on the rebuilt source, including those three recovery cases. Assertions were preserved.
+- The separate **30 coach/device checks pass together**, covering 375px, 414px and desktop. They include real local MediaPipe models on simulated camera input, permission denial, pause/stop, complete walkthrough, malformed saved data, and deletion of both older and newer progress namespaces. External account and AI responses remain test fixtures.
+- Visual review at 375px and 1280px confirms the magnifying-glass mascot in the privacy section, the green seated pose aligned with the shelf in the waitlist and account pages, the new teacher/login header links, and direct account copy. No horizontal overflow was found. The source sprite's neighboring orange pixels are clipped from the green head.
+- Fixes include a real valid-origin rejection when Next uses its internal bind address, redirect URLs leaking that address, missing time limits on ordinary network operations, automatic database read retries outlasting the UI deadline, malformed platform responses being accepted as success, and local deletion missing newer lesson progress.
+- Every account retains one durable, resumable free coaching session. A missing AI configuration cannot consume it. Existing subscriptions and pricing were not changed.
+
+Run `npm run verify:setup -- --url https://plsteachme.vercel.app` with the intended environment configured. It checks schema/function presence, denied anonymous table access, private storage, reviewers, model metadata and deployment availability without writes, email or inference. Follow `docs/TEST_READINESS.md` for configuration and real browser acceptance. At the live configuration check before release, accounts and AI both reported unavailable.
+
 Verified locally on 13 October 2026 against the production build. This revision replaces the prior walkthrough website on GitHub main with the selected landing design.
 
 ## Passing checks

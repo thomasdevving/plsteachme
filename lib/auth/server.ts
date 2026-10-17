@@ -2,11 +2,13 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { authConfig } from "./config";
+import { serviceFetch } from "../network";
 export async function authClient() {
   const { url, key, enabled } = authConfig();
   if (!enabled) return null;
   const jar = await cookies();
   return createServerClient(url!, key!, {
+    global: { fetch: serviceFetch },
     cookieOptions: {
       httpOnly: true,
       sameSite: "lax",

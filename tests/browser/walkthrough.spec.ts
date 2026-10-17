@@ -142,14 +142,11 @@ test("complete a seven-step lesson with buttons and no camera", async ({
     fullPage: true,
     animations: "disabled",
   });
-  await page.getByRole("button", { name: copy.completion.again }).focus();
+  await expect(page.getByRole("button", { name: copy.completion.again })).toHaveCount(0);
+  await page.locator('.completion-actions').getByRole('link', { name: 'My account' }).focus();
   await page.keyboard.press("Enter");
-  await expect(
-    page.getByRole("heading", { name: "Drape the tie", exact: true }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "Drape the tie", exact: true }),
-  ).toBeFocused();
+  await expect(page).toHaveURL(/\/account$/);
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
   expect(errors).toEqual([]);
 });
 

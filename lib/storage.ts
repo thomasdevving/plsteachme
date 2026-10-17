@@ -1,11 +1,13 @@
 import 'server-only';
 import { createClient } from '@supabase/supabase-js';
 import { randomBytes, createHash } from 'node:crypto';
-const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
-export const mockMode = !supabaseUrl || !process.env.SUPABASE_SERVICE_ROLE_KEY;
+import { authConfig } from './auth/config';
+import { serviceFetch } from './network';
+const supabaseUrl = authConfig().url;
+export const mockMode = !supabaseUrl || !process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 export function db() {
   if (mockMode) throw new Error('Storage not configured');
-  return createClient(supabaseUrl!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false, autoRefreshToken: false } });
+  return createClient(supabaseUrl!, process.env.SUPABASE_SERVICE_ROLE_KEY!.trim(), { auth: { persistSession: false, autoRefreshToken: false }, db: { timeout: 15_000, retry: false }, global: { fetch: serviceFetch } });
 }
 export const token = () => randomBytes(24).toString('base64url');
 export const hash = (value: string) => createHash('sha256').update(value).digest('hex');

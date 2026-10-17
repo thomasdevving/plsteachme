@@ -29,7 +29,7 @@ it("honestly disables unconfigured providers and email", () => {
       .getAllByRole("button")
       .every((button) => (button as HTMLButtonElement).disabled),
   ).toBe(true);
-  expect(screen.getByRole("status").textContent).toContain("coming soon");
+  expect(screen.getByRole("status").textContent).toContain("temporarily unavailable");
 });
 it("submits email registration explicitly, then focuses the confirmation", async () => {
   fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });

@@ -1,4 +1,4 @@
-import { ArrowRight, ShieldCheck, ArrowUpRight, BookOpen, MessageCircle, Heart } from "lucide-react";
+import { ArrowRight, ArrowUpRight, BookOpen, MessageCircle, Heart } from "lucide-react";
 import { pathFor, type Locale } from "@/lib/config";
 import type { Copy } from "@/lib/i18n";
 import { Section } from "./ui";
@@ -87,7 +87,7 @@ export function Landing({
       <Section className="privacy-section" labelledBy="privacy-title">
         <div className="privacy-heading" data-reveal>
           <div className="section-heading">
-          <ShieldCheck size={35} strokeWidth={1.25} aria-hidden="true" />
+          <div className="privacy-companion"><Mascot pose="inspecting" /></div>
           <h2 id="privacy-title">{c.privacy.title}</h2>
           </div>
         </div>
@@ -128,7 +128,7 @@ export function Landing({
             <p className="lead">{c.form.intro}</p>
             <div className="waitlist-companions" aria-hidden="true">
               <Mascot pose="sitting" color="orange" />
-              <Mascot pose="cross-legged" />
+              <Mascot pose="sitting" color="green" />
             </div>
           </div>
           <WaitlistForm

@@ -13,7 +13,7 @@ vi.mock('@supabase/supabase-js',()=>({createClient:()=>({auth:{getUser:state.use
 },storage:{from:()=>({createSignedUploadUrl:state.signed,list:state.list,createSignedUrl:state.video,download:state.download})}})}));
 import { GET, POST } from '../app/api/platform/route';
 import { platformActionSchema, MAX_VIDEO_BYTES, publicationIssues, type LessonDocument } from '../lib/platform-contract';
-import { platformRateAllowed, reviewerAllowed } from '../lib/platform-server';
+import { platformRateAllowed, reviewerAllowed, platformConfigured } from '../lib/platform-server';
 const userId='11111111-1111-4111-8111-111111111111',otherId='22222222-2222-4222-8222-222222222222',lessonId='33333333-3333-4333-8333-333333333333';
 const document:LessonDocument={title:'Tie a simple knot',category:'clothing',objective:'Learn a simple knot independently.',materials:['Tie'],safety:['Keep the tie loose.'],prerequisites:[],alternatives:[],completionCheck:'Inspect the finished knot.',steps:[{title:'Cross the ends',instruction:'Cross the wide end over the narrow end.',tip:'Keep the fabric flat.',check:'The ends cross.',evidence:['Wide end is on top.'],commonMistakes:['Twisted fabric.'],uncertainty:'Show both ends clearly.',manualAlternative:'Inspect which end is on top.',visuallyCheckable:true}]};
 let frame:string;
@@ -59,4 +59,12 @@ describe('published lesson camera and limits',()=>{
  it('uses a reviewed snapshot and conservatively handles nonvisual criteria',async()=>{publicRows(false);const response=await POST(post(coach(),{authorization:''}));expect(response.status).toBe(200);expect(await response.json()).toMatchObject({id:lessonId,version:2,step:0,feedback:{status:'not_verifiable',confidence:'low'}});expect(state.user).not.toHaveBeenCalled();});
  it('never turns uncertain AI feedback into a verified checkpoint',async()=>{publicRows();state.ai.mockResolvedValue({output:{status:'looks_right',confidence:'medium',observation:'Maybe crossed.',guidance:'Continue.'}});expect(await (await POST(post(coach()))).json()).toMatchObject({feedback:{status:'unclear'}});});
  it('applies separate bounded generation and upload budgets with expiry',()=>{const id=`rate-${Math.random()}`,now=Date.now();for(let i=0;i<6;i++)expect(platformRateAllowed(id,'generate',now)).toBe(true);expect(platformRateAllowed(id,'generate',now)).toBe(false);expect(platformRateAllowed(id,'upload',now)).toBe(true);expect(platformRateAllowed(id,'generate',now+600001)).toBe(true);});
+});
+
+it('uses the same normalized Supabase project settings as account authentication', async()=>{
+ vi.stubEnv('SUPABASE_URL',' ');vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL',' https://fallback.supabase.co ');
+ vi.stubEnv('SUPABASE_ANON_KEY',' public-fallback ');vi.stubEnv('OPENAI_API_KEY',' ');
+ expect(platformConfigured()).toBe(true);
+ expect(await (await GET(new NextRequest('http://localhost/api/platform?view=config'))).json()).toMatchObject({available:true,supabaseUrl:'https://fallback.supabase.co',publishableKey:'public-fallback',aiAvailable:false});
+ vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY',' ');expect(platformConfigured()).toBe(false);
 });

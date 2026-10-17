@@ -4,7 +4,7 @@ The code is ready, but sign-in is deliberately unavailable until a real Supabase
 
 ## 1. Supabase and database
 
-Use the project's Supabase project (or create one if it does not yet exist). Apply `supabase/migrations/202610170001_accounts_and_trials.sql` through your normal migration workflow or Supabase SQL editor. The migration adds one row per auth account, RLS, and two server-only transactional functions. It does not modify the waitlist tables.
+Use the project's Supabase project (or create one if it does not yet exist). Apply all four files in `supabase/migrations/` in filename order through your normal migration workflow or Supabase SQL editor. The accounts migration adds one row per auth account, RLS, and two server-only transactional functions; the subsequent platform migration adds the teacher/community workflow and private storage bucket. Follow `docs/TEST_READINESS.md` for the full setup check and acceptance run.
 
 In Vercel → agr18 → plsteachme → Settings → Environment Variables, configure Production:
 

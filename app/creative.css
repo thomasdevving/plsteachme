@@ -91,7 +91,9 @@
 .creative-home .privacy-section{max-width:none}
 .creative-home .privacy-section>.container{display:grid;grid-template-columns:.8fr 1.2fr;gap:80px;align-items:start}
 .privacy-heading .section-heading{display:flex;flex-direction:column;gap:26px}
-.privacy-heading .section-heading>svg{width:65px;height:65px;padding:14px;border:1px solid #c1cdb5;border-radius:50%;background:#e8ecdf}
+.privacy-companion{flex-shrink:0;width:112px}
+.privacy-companion>.mascot{position:relative;--mascot-size:100%;aspect-ratio:640 / 761}
+.mascot-inspector{position:absolute;inset:0;background:url('/mascots/green-magnifier.webp') center / contain no-repeat;transform-origin:50% 98%;animation:mascot-peek 10s ease-in-out infinite;animation-play-state:paused}
 .creative-home .privacy-section h2{font-size:clamp(2.2rem,3.8vw,3.5rem);max-width:13ch}
 .privacy-details{padding:34px 35px;background:#f0f0e7;border:1px solid #d9dfcf;border-radius:8px}
 .creative-home .privacy-points{gap:19px}
@@ -108,7 +110,7 @@
 .creative-home .waitlist-layout .form-submit{border-radius:9px}
 .creative-home .waitlist-companions{margin-top:42px;width:300px;height:170px}
 .creative-home .waitlist-companions>.mascot--orange{--mascot-size:117px}
-.creative-home .waitlist-companions>.mascot--green{--mascot-size:90px}
+.creative-home .waitlist-companions>.mascot--green{--mascot-size:106px}
 .creative-home .faq-items details{padding-inline:5px}
 .creative-home .faq-items summary{min-height:82px;font-size:.92rem}
 .creative-home .faq-items details[open]{background:#f0eee5;padding-inline:18px;border-radius:10px}
@@ -155,6 +157,7 @@
  .creative-home .waitlist-layout .signup-form{padding:24px}
 }
 @media(max-width:600px){
+ .nav-actions>.nav-teacher{display:none}
  .nav-inner{min-height:74px}
  .creative-home .hero{padding:36px 0 85px}
  .creative-home .hero-grid{grid-template-columns:1fr;gap:64px;min-height:0}
@@ -197,7 +200,7 @@
  .creative-home .scope-cards h3{font-size:1.6rem;max-width:19ch}
  .creative-home .scope-cards p{font-size:.85rem}
  .privacy-heading .section-heading{gap:16px}
- .privacy-heading .section-heading>svg{width:52px;height:52px;padding:10px}
+ .privacy-companion{width:80px}
  .creative-home .privacy-section h2{font-size:2rem}
  .privacy-details{padding:25px 22px;border-radius:8px}
  .creative-home .privacy-points li{font-size:.84rem}
@@ -205,7 +208,7 @@
  .creative-home .waitlist-copy h2{font-size:2.6rem}
  .creative-home .waitlist-companions{margin-top:22px;height:145px;width:260px}
  .creative-home .waitlist-companions>.mascot--orange{--mascot-size:100px}
- .creative-home .waitlist-companions>.mascot--green{--mascot-size:80px}
+ .creative-home .waitlist-companions>.mascot--green{--mascot-size:90px}
  .creative-home .waitlist-layout .signup-form{padding:23px 19px}
  .creative-home .faq-items summary{min-height:74px;font-size:.86rem}
 }

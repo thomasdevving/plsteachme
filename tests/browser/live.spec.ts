@@ -88,9 +88,15 @@ test("eval metrics, frame-free export and delete data work", async ({
   await page.getByRole("button", { name: c.exportCSV }).click();
   expect((await download).suggestedFilename()).toMatch(/\.csv$/);
   await page.goto("/coach/settings");
+  await page.evaluate(() => {
+    for (const key of ['plsteach.learning.v1','plsteach.published-progress.v1.lesson.1','plsteach:attribution','plsteach.me:lesson:tie-four-in-hand']) localStorage.setItem(key,'fixture');
+    sessionStorage.setItem('plsteach:attribution','fixture');
+    localStorage.setItem('unrelated-setting','preserve');
+  });
   page.on("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: c.delete, exact: true }).click();
   await expect(page.getByRole("status")).toHaveText(c.deleted);
+  expect(await page.evaluate(() => ({remaining:Object.keys(localStorage).filter(key=>key.startsWith('plsteach')),session:Object.keys(sessionStorage).filter(key=>key.startsWith('plsteach')),unrelated:localStorage.getItem('unrelated-setting')}))).toEqual({remaining:[],session:[],unrelated:'preserve'});
   await page.goto("/coach/eval");
   await expect(page.getByText(c.emptyEval)).toBeVisible();
 });
@@ -106,6 +112,9 @@ test("real MediaPipe models load on a camera stream and pause cleanly", async ({
   page,
 }, info) => {
   test.setTimeout(90000);
+  // Models and simulated camera are real; provider availability is a fixture.
+  await page.route('**/api/config', route => route.fulfill({json:{available:true,mock:false}}));
+  await page.route('**/api/verify-step', route => route.fulfill({status:503,json:{error:'offline'}}));
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/coach/session/tie-four-in-hand?debug=1");

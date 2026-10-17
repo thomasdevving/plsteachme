@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithTimeout } from '@/lib/network';
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Mail, LoaderCircle } from "lucide-react";
 export function AuthForm({
@@ -39,7 +40,7 @@ export function AuthForm({
     setBusy(action);
     setError("");
     try {
-      const response = await fetch("/api/auth/action", {
+      const response = await fetchWithTimeout("/api/auth/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
@@ -207,8 +208,8 @@ export function AuthForm({
       )}
       {!enabled && (
         <p className="auth-unavailable" role="status">
-          Account sign-in is coming soon. <a href="/#demo">Explore the demo</a>{" "}
-          while we get things ready.
+          Sign-in is temporarily unavailable. <a href="/learn">Explore the lessons</a>{" "}
+          and try again later. Your free session has not been used.
         </p>
       )}
       <p className="auth-switch">

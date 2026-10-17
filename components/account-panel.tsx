@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithTimeout } from '@/lib/network';
 import { useCallback, useEffect, useState } from "react";
 import { ArrowRight, LogOut } from "lucide-react";
 import type { Trial } from "@/lib/auth/trial";
@@ -14,7 +15,7 @@ export function AccountPanel() {
   const load = useCallback(async () => {
     setError("");
     try {
-      const response = await fetch("/api/auth/session", { cache: "no-store" });
+      const response = await fetchWithTimeout("/api/auth/session", { cache: "no-store" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       setAccount(data);
@@ -29,7 +30,7 @@ export function AccountPanel() {
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/auth/action", {
+      const response = await fetchWithTimeout("/api/auth/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "signout" }),

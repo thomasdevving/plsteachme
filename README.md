@@ -13,6 +13,8 @@ npm run dev
 
 Use Node.js 24. Open http://localhost:3100. For a production server, run `npm run build` then `npm start`. No environment variables are needed for local preview. With storage unconfigured, forms validate but save no data and clearly say so.
 
+For connected testing after setting up Supabase and OpenAI, follow [the setup and acceptance checklist](docs/TEST_READINESS.md), then run `npm run verify:setup -- --url https://plsteachme.vercel.app`. The checker only reads service configuration and reports missing setup without printing credentials or making AI inference calls. Email login becomes available when Supabase Auth is configured; each account receives one resumable free coaching session.
+
 ## Pages and implementation
 
 - `/`: landing, phone example, module library, waitlist and FAQ.

@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithTimeout } from '@/lib/network';
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -27,7 +28,7 @@ export function TrialGate({
   const load = useCallback(async () => {
     setError("");
     try {
-      const response = await fetch("/api/auth/session", { cache: "no-store" });
+      const response = await fetchWithTimeout("/api/auth/session", { cache: "no-store" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
       setAccount(data);
@@ -42,7 +43,7 @@ export function TrialGate({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/trial", {
+      const response = await fetchWithTimeout("/api/trial", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "start", skillId: skill.id }),
@@ -126,8 +127,8 @@ export function TrialGate({
           </div>
           {!account.configured && (
             <p className="small-note">
-              Account sign-in is coming soon.{" "}
-              <a href="/#demo">Explore the demo</a> in the meantime.
+              Sign-in is temporarily unavailable.{" "}
+              <a href="/learn">Explore the lessons</a> and try again later.
             </p>
           )}
         </>

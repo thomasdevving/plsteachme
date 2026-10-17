@@ -1,4 +1,5 @@
 'use client';
+import { fetchWithTimeout } from '@/lib/network';
 import { useEffect, useId, useRef, useState } from 'react';
 import { MessageCircle, Volume2 } from 'lucide-react';
 import type { SkillId } from '@/lib/config';
@@ -19,7 +20,7 @@ export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step
   const publishedVersion=publishedLesson?.version;
   useEffect(()=>{
     const controller=new AbortController();
-    fetch('/api/coaching/session',{signal:controller.signal,cache:'no-store'})
+    fetchWithTimeout('/api/coaching/session',{signal:controller.signal,cache:'no-store'})
       .then(response=>response.json()).then(data=>{if(!controller.signal.aborted)setAvailable(data.available===true);}).catch(()=>{});
     return ()=>controller.abort();
   },[]);

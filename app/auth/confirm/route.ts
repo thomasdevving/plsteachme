@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authClient } from "@/lib/auth/server";
+import { requestOrigin } from '@/lib/request-origin';
 function redirect(url: URL) {
   const response = NextResponse.redirect(url);
   response.headers.set("Cache-Control", "private, no-store");
@@ -14,10 +15,10 @@ export async function GET(request: NextRequest) {
         token_hash,
         type: "email",
       });
-      if (!error) return redirect(new URL("/account", request.url));
+      if (!error) return redirect(new URL("/account", requestOrigin(request)));
     }
   } catch {
     /* Do not expose tokens or provider messages. */
   }
-  return redirect(new URL("/login?error=link", request.url));
+  return redirect(new URL("/login?error=link", requestOrigin(request)));
 }

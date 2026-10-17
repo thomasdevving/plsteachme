@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithTimeout } from '@/lib/network';
 import { useEffect, useReducer, useRef, useState } from "react";
 import Link from "next/link";
 import {
@@ -126,7 +127,7 @@ export function LiveCoach({
     active.current = true;
     sessionId.current = crypto.randomUUID();
     setVoiceSupported(!!recognitionConstructor());
-    fetch("/api/config")
+    fetchWithTimeout("/api/config")
       .then((r) => r.json())
       .then((v) => {
         if (active.current) { setMock(v.mock === true); setAvailable(v.available !== false); }

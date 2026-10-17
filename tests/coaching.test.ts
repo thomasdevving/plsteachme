@@ -141,7 +141,8 @@ describe('vision feedback boundaries',()=>{
     expect(feedbackSchema.safeParse({status:'approved'}).success).toBe(false);
   });
   it('propagates request cancellation to the AI provider',async()=>{
-    const controller=new AbortController();controller.abort();
+    const controller=new AbortController();
+    ai.generateText.mockImplementationOnce(async()=>{controller.abort();throw controller.signal.reason;});
     const req=new NextRequest('http://localhost:3100/api/coaching/check',{method:'POST',signal:controller.signal,headers:{origin:'http://localhost:3100','content-type':'application/json',cookie:`pt-coach=${createCoachSession()}`,'x-forwarded-for':`abort-${Math.random()}`},body:JSON.stringify(payload())});
     await check(req);
     expect(ai.generateText.mock.calls[0][0].abortSignal.aborted).toBe(true);

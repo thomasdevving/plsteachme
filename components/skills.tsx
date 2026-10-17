@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithTimeout } from '@/lib/network';
 import { useEffect, useRef, useState } from "react";
 import { Check, ArrowUpRight, ArrowRight, ArrowLeft, X } from "lucide-react";
 import { skillIds, pathFor, type Locale, type SkillId } from "@/lib/config";
@@ -84,7 +85,7 @@ export function Skills({
     setMessage("");
     setGate(null);
     try {
-      const res = await fetch("/api/votes", {
+      const res = await fetchWithTimeout("/api/votes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ skill, over16: true, website: "" }),
