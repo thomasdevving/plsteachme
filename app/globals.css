@@ -139,3 +139,26 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 @media(max-width:600px){.module-preview.module-lesson{padding-top:45px}.lesson-player .lesson-copy>p{font-size:.9rem}.lesson-player h4{font-size:1.3rem}.lesson-art>svg{height:210px}.lesson-player .lesson-controls .button{font-size:.75rem}}
 .lesson-player .lesson-copy{animation:none}
 .interactive-phone figcaption{white-space:normal;line-height:1.4;padding-inline:5px}
+
+/* Automatic camera coaching shares the lesson's quiet, readable controls. */
+.camera-coach{margin-top:30px;border-top:1px solid var(--line);padding-top:24px}
+.camera-coach>h4{display:flex;align-items:center;gap:10px;font:600 1.05rem/1.4 var(--font-body),sans-serif}
+.camera-coach p,.camera-coach label{font-size:.85rem;line-height:1.65}
+.camera-intro{margin:12px 0 20px;color:var(--muted)}
+.camera-consent{margin-bottom:18px}
+.camera-consent>p{margin-bottom:16px}
+.camera-consent label{display:flex;gap:10px;align-items:flex-start;margin:12px 0;cursor:pointer}
+.camera-consent input{width:18px;height:18px;flex-shrink:0;margin:5px 0 0;accent-color:var(--accent)}
+.camera-notice{margin-bottom:18px;color:var(--muted)}
+.camera-preview{position:relative;overflow:hidden;border-radius:12px;background:#22372c;margin-top:18px;aspect-ratio:4/3}
+.camera-preview[hidden]{display:none}
+.camera-preview video{display:block;width:100%;height:100%;object-fit:contain}
+.camera-preview video.mirrored{transform:scaleX(-1)}
+.camera-indicator{position:absolute;left:10px;bottom:10px;padding:5px 9px;border-radius:5px;background:var(--paper);color:var(--ink);font-size:.7rem}
+.camera-framing{margin-top:14px;color:var(--muted)}
+.camera-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.camera-controls .button{font-size:.75rem;padding-inline:10px}
+.camera-feedback:has(strong),.camera-feedback:has(p){margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:7px;background:var(--paper)}
+.camera-feedback strong{display:block;font-size:.9rem}
+.camera-feedback small{display:block;color:var(--muted);margin-top:10px}
+.camera-limit{margin-top:16px;font-size:.75rem!important;color:var(--muted)}

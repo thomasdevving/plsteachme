@@ -21,7 +21,7 @@ test('all nine lessons can be completed, reviewed and restarted without external
     await player.getByText('What you’ll need',{exact:true}).click();
     await expect(player.locator('.lesson-materials li')).toHaveCount(lesson.materials.length);
     for (let step=0;step<lesson.steps.length;step++) {
-      await expect(player.locator('h4')).toHaveText(lesson.steps[step].title);
+      await expect(player.locator('.lesson-copy h4')).toHaveText(lesson.steps[step].title);
       await expect(player.locator('.lesson-check')).toContainText(lesson.steps[step].check);
       await expect(player.locator('svg[role="img"]')).toHaveAttribute('data-step',String(step+1));
       await expect(player.locator('svg[role="img"]')).toHaveAccessibleName(new RegExp(`^Step ${step+1}:`));
@@ -30,12 +30,12 @@ test('all nine lessons can be completed, reviewed and restarted without external
     }
     await expect(player.locator('.lesson-copy')).toContainText(lesson.outcome);
     await expect(player.getByRole('progressbar')).toHaveAttribute('aria-valuenow',String(lesson.steps.length));
-    await expect(player.locator('h4')).toBeFocused();
+    await expect(player.locator('.lesson-copy h4')).toBeFocused();
     await player.getByRole('button',{name:'Previous lesson step'}).click();
-    await expect(player.locator('h4')).toHaveText(lesson.steps.at(-1)!.title);
+    await expect(player.locator('.lesson-copy h4')).toHaveText(lesson.steps.at(-1)!.title);
     await player.getByRole('button',{name:'Finish walkthrough'}).click();
     await player.getByRole('button',{name:'Practice again'}).click();
-    await expect(player.locator('h4')).toHaveText(lesson.steps[0].title);
+    await expect(player.locator('.lesson-copy h4')).toHaveText(lesson.steps[0].title);
     await expect(player.getByRole('progressbar')).toHaveAttribute('aria-valuenow','0');
   }
   expect(errors).toEqual([]);

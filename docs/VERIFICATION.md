@@ -75,3 +75,24 @@ Verified against a completed local production build:
 - A desktop/mobile visual review and an eight-module artwork contact sheet confirm readable instructions, original SVG scenes and the existing cream/green/orange brand. The completed walkthrough test records no browser page errors.
 
 No new dependencies, API routes or database changes. Supabase and email remain unconfigured and were not live-tested; existing mock form tests pass. Camera/AI coaching is not implemented or implied by these illustrated walkthroughs. Completion is a self-check in transient client state, without automatic verification or saved progress. No new Lighthouse or deployed performance claim is made.
+
+## Automatic camera/AI coaching — 17 October 2026
+
+Story: open a full lesson, confirm age and consent, start the camera, receive automatic feedback for the selected step, adjust while checks repeat, then move on at your own pace. There is no manual check/capture button. The hero remains illustrative.
+
+Verified against the completed local production build:
+
+- `npm test`: all 35 unit/API tests pass (19 new coaching tests and the existing 16 validation/authorization tests).
+- `npm run typecheck` and `npm run build`: pass, including the two dynamic coaching API routes.
+- `npm run test:e2e`: all 30 production browser tests pass, including 11 camera-coaching tests using Chromium’s simulated camera and mocked AI responses.
+- Automatic first checks and automatic retries for unclear feedback; matching results stop repeated checks until the next step. There are no overlapping requests or manual check controls.
+- Consent precedes camera access; capture requests audio:false. Permission denial remains recoverable and does not break lesson navigation.
+- Pause prevents uploads, Resume restarts checks, hidden pages stop all tracks, and lesson switches/completion release hardware. A permission request resolving after Stop immediately releases its newly obtained tracks.
+- Step changes cancel pending checks and stale responses cannot update the new step. Hazard/rate feedback pauses checks. Expired sessions/unavailable services release the camera and clear the busy state.
+- Signed HttpOnly consent sessions, origin checks, request/streamed-body limits, bounded JPEG decoding/resizing, corrupt/decompression input rejection, server-owned lesson prompts, storage-disabled provider requests, conservative confidence/nonvisual handling and sanitized errors.
+- Mobile coaching controls/feedback pass Axe WCAG A/AA checks and have no horizontal overflow. Existing four-page mobile/desktop accessibility and overflow tests also pass. The provider policy URL is rendered as a readable link after an overflow finding.
+- A batched visual review inspected consent and active coaching on desktop and at 375px using a simulated camera. The current instruction/checkpoint, automatic status, controls and feedback remain readable. Existing brand and illustration styling are preserved.
+
+The user will add the OpenAI API key after the build. No live paid OpenAI request was made, so model accuracy, latency, account/model availability and real mobile camera behavior remain to be checked with credentials and real devices. API tests mock only the provider generation; they exercise actual request validation, cookies and image decoding. Browser checks use simulated camera input and intercepted coaching responses. Missing-key behavior is checked against the actual local API.
+
+No camera image or feedback persistence is implemented. OpenAI receives resized stills with store:false; provider retention is disclosed and zero retention is not claimed. The beta rate limiter is per process, with shared limits/provider spend controls required before scaling. Node.js 22+ is required by the installed AI SDK 7/OpenAI provider 4. Supabase and email remain unchanged and were not live-tested. No new deployed performance claim is made.
