@@ -3,8 +3,10 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { MessageCircle, Volume2 } from 'lucide-react';
 import type { SkillId } from '@/lib/config';
 import { answerSchema, type PublishedHelpReference } from '@/lib/lesson-help';
+import { useLearnerTrial } from './learner-trial';
 
 export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step:number;publishedLesson?:PublishedHelpReference}) {
+  const trialId=useLearnerTrial();
   const [question,setQuestion]=useState('');
   const [consent,setConsent]=useState(false);
   const [available,setAvailable]=useState(false);
@@ -32,7 +34,7 @@ export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step
     setBusy(true);setMessage('');setAnswer(null);
     try {
       const context=publishedLesson?{publishedLesson}:{skill};
-      const response=await fetch('/api/coaching/question',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...context,step,question,consent:true,over16:true}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])});
+      const response=await fetch('/api/coaching/question',{method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{})},body:JSON.stringify({...context,step,question,consent:true,over16:true}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])});
       if(controller.signal.aborted)return;
       if(!response.ok){setMessage(response.status===409?'This lesson has changed. Reload it before asking another question.':response.status===404?'This lesson is no longer available. Return to the catalog.':response.status===429?'Please wait ten minutes before asking more questions.':'The coach could not answer. Try again, or use the written tip above.');return;}
       const data=await response.json();

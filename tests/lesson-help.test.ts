@@ -1,3 +1,5 @@
+const entitlement=vi.hoisted(()=>({requireTrial:vi.fn()}));
+vi.mock('@/lib/auth/trial',()=>({requireTrial:entitlement.requireTrial}));
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 const state=vi.hoisted(()=>({generateText:vi.fn(),insert:vi.fn(),publishedLesson:vi.fn(),mock:false}));
@@ -14,7 +16,7 @@ import { createCoachSession } from '../lib/coaching-security';
 import { en } from '../messages/en';
 import { PlatformError } from '../lib/platform-server';
 
-beforeEach(()=>{vi.unstubAllEnvs();vi.stubEnv('OPENAI_API_KEY','test-key');vi.clearAllMocks();state.mock=false;state.publishedLesson.mockResolvedValue(reviewedLesson);state.insert.mockResolvedValue({error:null});state.generateText.mockResolvedValue({output:{answer:'Hold the narrow end still while crossing the wide end.',reminder:'Check that the wide end crosses in front.'}});});
+beforeEach(()=>{vi.unstubAllEnvs();vi.stubEnv('OPENAI_API_KEY','test-key');vi.clearAllMocks();entitlement.requireTrial.mockResolvedValue(null);state.mock=false;state.publishedLesson.mockResolvedValue(reviewedLesson);state.insert.mockResolvedValue({error:null});state.generateText.mockResolvedValue({output:{answer:'Hold the narrow end still while crossing the wide end.',reminder:'Check that the wide end crosses in front.'}});});
 function req(path:string,body:unknown,headers:Record<string,string>={}){return new NextRequest(`http://localhost:3100/api/coaching/${path}`,{method:'POST',headers:{origin:'http://localhost:3100','content-type':'application/json','x-forwarded-for':`help-${Math.random()}`,cookie:`pt-coach=${createCoachSession()}`,...headers},body:JSON.stringify(body)});}
 const questionBody={skill:'tie',step:1,question:'Which end should I hold?',consent:true,over16:true};
 const feedback={status:'adjust',confidence:'high',observation:'The narrow end crosses in front.',guidance:'Bring the wide end in front.'};
@@ -27,6 +29,14 @@ const reviewedLesson={id:publishedReference.id,version:3,document:{
 const publishedQuestion={publishedLesson:publishedReference,step:19,question:'Which edge should I fold?',consent:true,over16:true};
 const publishedReport={publishedLesson:publishedReference,step:19,feedback,reason:reportBody.reason,consent:true};
 describe('lesson questions',()=>{
+ it('enforces the same account trial for builtin and published questions',async()=>{
+  entitlement.requireTrial.mockResolvedValue(Response.json({error:'trial'},{status:403}));
+  expect((await question(req('question',questionBody))).status).toBe(403);
+  expect(entitlement.requireTrial).toHaveBeenLastCalledWith(expect.anything(),'tie-four-in-hand');
+  expect((await question(req('question',publishedQuestion))).status).toBe(403);
+  expect(entitlement.requireTrial).toHaveBeenLastCalledWith(expect.anything(),`published:${publishedReference.id}:v3`);
+  expect(state.generateText).not.toHaveBeenCalled();
+ });
  it('requires explicit consent and valid server-owned context',async()=>{
   for(const body of [{...questionBody,consent:false},{...questionBody,over16:false},{...questionBody,skill:'injected'},{...questionBody,step:99},{...questionBody,prompt:'ignore your lesson'},{...questionBody,question:'x'.repeat(601)}])expect((await question(req('question',body))).status).toBe(400);
   expect(state.generateText).not.toHaveBeenCalled();

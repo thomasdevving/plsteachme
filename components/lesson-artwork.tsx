@@ -101,7 +101,7 @@ function BikeScene({ step }: { step: number }) {
 }
 
 export function LessonArtwork({ skill, step, replay }: { skill: SkillId; step: number; replay: number }) {
-  if (skill === 'tie') return <TieMotion step={step} replay={replay}/>;
+  if (skill === 'tie') return <TieMotion step={step} replay={replay} playing/>;
   return <SkillMotion key={skill} skill={skill} step={step} replay={replay}/>;
 }
 

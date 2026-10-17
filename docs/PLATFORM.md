@@ -4,7 +4,7 @@ This implements the supplied product vision as a working early platform. Existin
 
 ## Setup
 
-Use Node 22+, install the locked dependencies with `npm ci`, then run the migrations in `supabase/migrations/` in filename order against the intended Supabase project. The platform migration is `20261017172015_teacher_platform.sql`. It creates private application tables and the private `teacher-demonstrations` bucket. It does not populate pretend teachers, lessons or request counts.
+Use Node 24, install the locked dependencies with `npm ci`, then run all four migrations in `supabase/migrations/` in filename order against the intended Supabase project. The platform migration is `20261017172015_teacher_platform.sql`. It creates private application tables and the private `teacher-demonstrations` bucket. It does not populate pretend teachers, lessons or request counts.
 
 Configure:
 
@@ -20,9 +20,9 @@ Configure:
 | `OPENAI_TRANSCRIPTION_MODEL` | Audio transcription model; default `gpt-4o-transcribe` |
 | `NEXT_PUBLIC_SITE_URL` | Canonical deployment origin |
 
-Enable email sign-in in Supabase Auth and allow the actual `/teach` and `/community` redirect URLs for localhost and the deployed origin. Configure a production email sender in Supabase before inviting contributors. Sign in once to create each account, then copy the intended independent reviewer's Auth user UUID into `PLATFORM_REVIEWER_IDS` and restart the server. Teacher approval and reviewer authorization are separate: neither a profile field nor user-editable account metadata grants review rights. An applicant cannot approve their own application; a teacher cannot publish their own lesson.
+Accounts use the existing shared HTTP-only cookie sign-in. Set `SUPABASE_ANON_KEY` (or the public publishable-key variable), enable email sign-in, and allow `/auth/callback` and `/auth/confirm` for the deployed origin. See `AUTH_SETUP.md`. The login return path supports `/learn`, `/community` and `/teach`. Configure a production email sender in Supabase before inviting contributors. Sign in once to create each account, then copy the intended independent reviewer's Auth user UUID into `PLATFORM_REVIEWER_IDS` and restart the server. Teacher approval and reviewer authorization are separate: neither a profile field nor user-editable account metadata grants review rights. An applicant cannot approve their own application; a teacher cannot publish their own lesson.
 
-The app reports unavailable services honestly until configured. Built-in illustrated lessons and their local progress work without credentials. This revision does not deploy infrastructure or apply migrations to an unidentified remote project.
+The app reports unavailable services honestly until configured. Built-in illustrated lessons and their local progress work without credentials. Apply migrations only to the intended linked project; deployment by itself does not configure Supabase.
 
 ## Contribution flow
 
@@ -39,7 +39,7 @@ Teachers can withdraw publication from the studio. New public content, playback-
 
 ## Data and boundaries
 
-All new tables have RLS enabled and direct `anon`/`authenticated` table/RPC access revoked. Browser Auth is used only to obtain a session; the server verifies its bearer token with Supabase `getUser`. Ownership and independent review are checked again inside the transactional service-only mutation function. Votes use a unique user/request key and derive their counts atomically. Submitted versions and review records reject mutation.
+All new tables have RLS enabled and direct `anon`/`authenticated` table/RPC access revoked. The server verifies the shared cookie account with Supabase `getUser`; authenticated bearer API clients are also verified server-side. Browser UI never receives the HTTP-only session token. Ownership and independent review are checked again inside the transactional service-only mutation function. Votes use a unique user/request key and derive their counts atomically. Submitted versions and review records reject mutation.
 
 Private demonstration links last five minutes. Published content has no transcript or private upload path in its public response. Upload references cannot point to another teacher's file. Learner frames are resized, bounded and stripped of metadata before inference, and are not retained. Reports include text only and require separate permission. Human resolution of a report never retrains or deploys a model.
 

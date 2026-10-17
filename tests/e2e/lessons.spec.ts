@@ -41,21 +41,6 @@ test('all nine lessons can be completed, reviewed and restarted without external
   expect(errors).toEqual([]);
 });
 
-test('hero includes every module, resets on switching and follows the same lesson content',async({page})=>{
-  await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
-  const choices=page.locator('.hero-module-options');
-  for (const skill of skillIds) {
-    await choices.getByRole('button',{name:en.skills.names[skill],exact:true}).click();
-    const start=skill==='tie'?2:0;
-    await expect(page.locator('.coach-step')).toContainText(modules[skill].steps[start].title);
-    await page.getByRole('button',{name:'Next step',exact:true}).click();
-    await expect(page.locator('.coach-step')).toContainText(modules[skill].steps[start+1].title);
-  }
-  await choices.getByRole('button',{name:'Shave',exact:true}).click();
-  await expect(page.locator('.coach-step')).toContainText('Step 1 of 7');
-  await expect(page.getByRole('button',{name:'Previous example step'})).toBeDisabled();
-});
-
 test('lesson switching discards completion and library filters close the player',async({page})=>{
   await page.emulateMedia({reducedMotion:'reduce'}); await page.goto('/');
   await page.getByRole('button',{name:'Explore lesson: Shave',exact:true}).click();
@@ -73,14 +58,15 @@ test('lesson switching discards completion and library filters close the player'
 });
 
 test('new artwork plays once, holds, replays, pauses offscreen and respects preference changes',async({page})=>{
-  await page.emulateMedia({reducedMotion:'no-preference'}); await page.goto('/');
-  await page.locator('.hero-module-options').getByRole('button',{name:'Shave',exact:true}).click();
+  await page.emulateMedia({reducedMotion:'no-preference'}); await page.goto('/demo');
+  await page.getByRole('group',{name:'Choose a lesson'}).getByRole('button',{name:'Shave',exact:true}).click();
   const art=page.locator('.skill-motion');
+  await art.scrollIntoViewIfNeeded();
   await expect.poll(()=>art.evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.playState==='running'))).toBe(true);
   await expect.poll(()=>art.evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.playState==='running')),{timeout:3500}).toBe(false);
   await page.getByRole('button',{name:'Replay this lesson step'}).click();
   await expect.poll(()=>art.evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.playState==='running'))).toBe(true);
-  await page.evaluate(()=>window.scrollTo({top:3000,behavior:'instant'}));
+  await page.locator('.site-footer').scrollIntoViewIfNeeded();
   await expect.poll(()=>art.evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.playState==='paused'))).toBe(true);
   await page.emulateMedia({reducedMotion:'reduce'});
   await expect.poll(()=>art.evaluate(el=>el.getAnimations({subtree:true}).some(a=>a.playState==='running'||a.playState==='paused'))).toBe(false);

@@ -3,6 +3,8 @@ import { generateText, Output } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { questionSchema, answerSchema } from '@/lib/lesson-help';
 import { LessonHelpError, resolveLessonHelp } from '@/lib/lesson-help-context';
+import { requireTrial } from '@/lib/auth/trial';
+import { builtinTrialId, publishedTrialId } from '@/lib/auth/trial-reference';
 import { coachJson, coachingConfigured, sameOrigin, coachingRateAllowed, limitedJson } from '@/lib/coaching-security';
 
 export const runtime = 'nodejs';
@@ -17,6 +19,8 @@ export async function POST(request: NextRequest) {
   if ('error' in body) return coachJson({error:body.error},body.error==='size'?413:400);
   const parsed = questionSchema.safeParse(body.data);
   if (!parsed.success) return coachJson({error:'validation'},400);
+  const identity='skill' in parsed.data?builtinTrialId(parsed.data.skill):publishedTrialId(parsed.data.publishedLesson.id,parsed.data.publishedLesson.version);
+  const denied=await requireTrial(request,identity);if(denied)return denied;
   const {question} = parsed.data;
   const timeout = AbortSignal.timeout(22000);
   try {

@@ -1,6 +1,8 @@
+import { installActiveTrial, trialFixtureId } from './trial-fixture';
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 test.use({launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']}});
+test.beforeEach(async({page})=>installActiveTrial(page));
 
 const positive={status:'looks_right',confidence:'high',observation:'Both tie ends are visible, with the wide end longer.',guidance:'Keep the fabric flat as you continue.'};
 const unclear={status:'unclear',confidence:'low',observation:'The crossing is out of view.',guidance:'Move the collar into the center of the frame.'};
@@ -39,7 +41,7 @@ test('missing provider configuration disables camera coaching honestly',async({p
 
 test('consent starts camera-only capture and checks the current step automatically',async({page})=>{
   const sent:unknown[]=[];
-  await page.route('**/api/coaching/check',async route=>{const body=route.request().postDataJSON();sent.push(body);await route.fulfill({json:{skill:body.skill,step:body.step,feedback:positive}});});
+  await page.route('**/api/coaching/check',async route=>{expect(route.request().headers()['x-coaching-session']).toBe(trialFixtureId);const body=route.request().postDataJSON();sent.push(body);await route.fulfill({json:{skill:body.skill,step:body.step,feedback:positive}});});
   await setup(page);
   const coach=page.locator('.camera-coach');
   await expect(coach.getByRole('button',{name:'Start camera coaching'})).toBeDisabled();

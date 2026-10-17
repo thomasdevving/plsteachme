@@ -2,7 +2,7 @@
 
 A practical-skills learning app with nine illustrated starter lessons, automatic camera coaching, learning journeys, community requests and a reviewed teacher-contribution studio. The existing waitlist, organization forms and pricing remain in place.
 
-This replaces the previous walkthrough website on `main`; that implementation remains in Git history at `19489f1`. All nine skills have seven illustrated steps, preparation lists, checkpoints, navigation and a completion screen. The built-in lessons work without credentials or external services. Automatic camera coaching is built into the lessons and uses a server-only OpenAI key. Video and an external demo link remain optional.
+The latest public frontend is preserved: the rotating hero phone, clay companions, module rail, account pages and planned Starter/Plus/Teams subscriptions. The dedicated `/coach` experience remains available alongside the expanded catalog. All nine skills have seven illustrated steps, preparation lists, checkpoints, navigation and a completion screen. The built-in lessons work without credentials or external services. Automatic camera coaching is built into the lessons and uses a server-only OpenAI key. Video and an external demo link remain optional.
 
 ## Run locally
 
@@ -11,11 +11,14 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:3100. For a production server, run `npm run build` then `npm start`. No environment variables are needed for local preview. With storage unconfigured, forms validate but save no data and clearly say so.
+Use Node.js 24. Open http://localhost:3100. For a production server, run `npm run build` then `npm start`. No environment variables are needed for local preview. With storage unconfigured, forms validate but save no data and clearly say so.
 
 ## Pages and implementation
 
 - `/`: landing, phone example, module library, waitlist and FAQ.
+- `/subscriptions`: existing coming-soon plans and pricing.
+- `/login`, `/signup`, `/account`: shared account and one free coaching session.
+- `/coach`: dedicated camera-coaching experience, intake, local progress and settings.
 - `/organizations`: pilot interest form.
 - `/demo`: all nine interactive lessons with optional automatic camera coaching, plus an optional demo video and external demo link.
 - `/learn`: searchable skills, six real-life categories, learning journeys, saved progress and published teacher lessons.
@@ -53,7 +56,7 @@ Public environment variables require a rebuild. Never expose the Supabase servic
 
 ## Storage
 
-Run all SQL migrations in `supabase/migrations/` in filename order. The second extends vote support for laundry, cooking and bike care. The third adds community requests, teacher applications, private demonstrations, immutable submitted lesson versions, review records and consented feedback reports. See [platform setup](docs/PLATFORM.md).
+Run all SQL migrations in `supabase/migrations/` in filename order. The second extends vote support for laundry, cooking and bike care. The teacher-platform migration adds community requests, teacher applications, private demonstrations, immutable submitted lesson versions, review records and consented feedback reports. See [platform setup](docs/PLATFORM.md).
 
 RLS denies direct browser access, including INSERT. All writes pass server validation with a service-role client. Under-16 submissions discard email, free text, preferences and attribution; only the anonymous aggregate is incremented. Follow-ups use an opaque HttpOnly session cookie, never a query-provided signup ID. Mock mode logs no personal data and retains nothing.
 
@@ -70,13 +73,13 @@ Browser checks use Chromium on port 3100 and should run against `npm start` for 
 
 For a migrated test Supabase project, `npm run verify:rls` verifies direct anon access is denied. Live storage, email and deployed performance require configured services; local mock tests do not verify those integrations. Historic planning documents in `docs/` describe earlier iterations; `docs/VERIFICATION.md` records this revision's checks.
 
-Hero preview: all nine module choices update the illustrated phone in place. Native animations play once, hold their result, replay and pause offscreen or in a hidden document. Reduced motion shows the final artwork immediately. Full lessons add materials, prerequisites, safety limits, per-step evidence, common mistakes, a manual alternative and a checkpoint record. Browser-local versioned progress resumes across visits, with Reset and Practice again controls. Camera-confirmed visible checkpoints, self-checks and unresolved steps are reported separately. The hero stays illustrative.
+Hero preview: the tie example cycles through seven steps, and the shared phone rotates into the demo as visitors scroll. The module rail opens all nine full lessons. Lesson animations play once, hold their result, replay and pause offscreen or in a hidden document; reduced motion shows static artwork. Full lessons add materials, prerequisites, safety limits, per-step evidence, common mistakes, a manual alternative and a checkpoint record. Browser-local versioned progress resumes across visits, with Reset and Practice again controls. Camera-confirmed visible checkpoints, self-checks and unresolved steps are reported separately. The hero stays illustrative.
 
 Logo exploration: `/brand/logo-directions.html` compares three vector concepts at display, header and app-icon sizes. Its local preview does not change the main site logo. SVG sources live under `public/brand/concepts/`.
 
 ## Automatic camera coaching
 
-Set `OPENAI_API_KEY` in `.env.local` or the deployment’s server environment, then restart/redeploy. `OPENAI_VISION_MODEL` defaults to `gpt-6-luna`; use an image-capable Responses API model available to your account. The key never goes to the browser. An optional `COACHING_SESSION_SECRET` separates session signing from the API key. No database is required. Without a key, lessons remain fully usable and camera coaching visibly reports that it is not connected.
+Set `OPENAI_API_KEY` in `.env.local` or the deployment’s server environment, then restart/redeploy. `OPENAI_VISION_MODEL` defaults to `gpt-6-luna`; use an image-capable Responses API model available to your account. The key never goes to the browser. An optional `COACHING_SESSION_SECRET` separates session signing from the API key. Authenticated AI practice uses the existing Supabase one-session trial; illustrated practice needs no database. Without a key, lessons remain fully usable and camera coaching visibly reports that it is not connected.
 
 In any full lesson, confirm age 16+ and consent, then select **Start camera coaching**. The browser requests camera access without microphone access. Checks happen automatically: a pair of resized JPEG frames, captured 600ms apart, is sent after camera startup; subsequent checks wait six seconds after the previous request completes. A high-confidence match to a visually checkable checkpoint records confirmation and advances after a cancellable four-second countdown. Learners can disable automatic advancement or stay on the current step. Uncertain, correction, hazard and nonvisual results never advance automatically. Pause stops image uploads, Resume restarts them, Switch camera changes the preferred facing direction, and Stop releases hardware. Switching lessons, completing/closing a lesson, hiding the page or leaving it stops the camera. The local preview may be mirrored; submitted images stay in camera coordinates.
 
@@ -84,7 +87,7 @@ Requests never overlap. Step changes, pause and stop cancel the current request;
 
 Frames are capped at 200KB each; request bodies are capped while streaming. The server fully decodes JPEGs, bounds input pixels, resizes to 640px and removes metadata before inference. Lesson instructions come from server-owned content, not client prompts. The AI returns validated structured feedback. Low-confidence matches/corrections become unclear; steps involving nonvisual properties (including drill operation and brake performance) cannot receive successful verification. Visible hazards pause coaching. Feedback is advisory and never automatically certifies safety.
 
-The app saves no learner camera frames in files, databases, analytics or application logs. Sending an incorrect-feedback report requires separate consent and saves only the feedback text, skill, step and explanation for human review. Opening the report pauses coaching. Questions also require separate consent and never change progress. OpenAI Responses requests use `store:false`; this does not guarantee zero provider retention. See [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data). Camera access requires HTTPS, with localhost supported for development. Microphone access is available only in the teacher studio for an explicitly started demonstration recording. Geolocation stays disabled.
+The app saves no learner camera frames in files, databases, analytics or application logs. Sending an incorrect-feedback report requires separate consent and saves only the feedback text, skill, step and explanation for human review. Opening the report pauses coaching. Questions also require separate consent and never change progress. OpenAI Responses requests use `store:false`; this does not guarantee zero provider retention. See [OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data). Camera access requires HTTPS, with localhost supported for development. Microphone access is available in the teacher studio for an explicitly started demonstration recording and in the dedicated `/coach` for optional voice commands. Geolocation stays disabled.
 
 The beta limiter is per server process: 30 session starts and 120 checks per network identifier per ten minutes, with a bounded in-memory map. Before scaling across instances, use a shared rate limiter and configure provider/project spend limits. A trusted reverse proxy must supply the network identifier. No public or unlimited-cost inference endpoint should be deployed without those operating controls.
 

@@ -1,7 +1,9 @@
+import { installActiveTrial } from './trial-fixture';
 import { test,expect,type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { PROGRESS_KEY } from '../../lib/learning-progress';
 test.use({launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']}});
+test.beforeEach(async({page})=>installActiveTrial(page));
 const positive={status:'looks_right',confidence:'high',observation:'The wide end is longer and both ends are flat.',guidance:'Keep the crossing in view.'};
 const uncertain={status:'unclear',confidence:'low',observation:'The object is out of view.',guidance:'Move the result into the frame.'};
 async function startCamera(page:Page) {
