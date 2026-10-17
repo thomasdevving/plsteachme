@@ -80,6 +80,7 @@ export function SettingsPage() {
       <h1>{c.settings}</h1>
       <PrivacyText />
       <p>{c.privacyStorage}</p>
+      <p>For account or cloud-data deletion, see <Link href="/privacy">your privacy choices and contact details</Link>.</p>
       <button
         className="button secondary"
         onClick={async () => {

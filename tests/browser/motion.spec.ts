@@ -1,10 +1,47 @@
 import { test, expect } from "@playwright/test";
 import { copy } from "../../lib/copy/en";
+import AxeBuilder from '@axe-core/playwright';
+
+test('module library filters working lessons and keeps the guide separate', async ({ page }, testInfo) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/coach');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Your modules.');
+  const library = page.getByRole('region', { name: 'Module library' });
+  await expect(library.locator('.module-item')).toHaveCount(9);
+  await expect(page.locator('#lesson-preview, .how-section, .coming-soon')).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Guide', exact: true })).toHaveAttribute('href', '/coach/guide');
+  const links = await library.locator('.module-link').evaluateAll(items => items.map(item => item.getAttribute('href')!));
+  expect(new Set(links).size).toBe(9);
+  await library.getByRole('button', { name: 'Personal care', exact: true }).focus();
+  await page.keyboard.press('Enter');
+  await expect(library.locator('.module-item')).toHaveCount(2);
+  await page.getByRole('searchbox', { name: 'Search modules' }).fill('beard');
+  await expect(library.getByRole('link')).toHaveCount(1);
+  await expect(library.getByRole('link')).toHaveAccessibleName('Trim your beard');
+  await page.getByRole('searchbox', { name: 'Search modules' }).fill('no-matching-skill');
+  await expect(page.getByRole('heading', { name: 'No modules found.' })).toBeVisible();
+  await page.getByRole('button', { name: 'Show all modules' }).click();
+  await expect(library.locator('.module-item')).toHaveCount(9);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  const accessibility = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze();
+  expect(accessibility.violations.map(item => item.id)).toEqual([]);
+  await page.screenshot({ path: `.impeccable/review/${testInfo.project.name}-coach-library.png`, fullPage: true, animations: 'disabled' });
+  for (const href of links) {
+    await page.goto(href);
+    if (href.includes('/coach/skills/')) await expect(page.locator('.step-list li')).toHaveCount(7);
+    else await expect(page.locator('.lesson-player')).toHaveAttribute('data-skill', new URL(href, 'https://plsteach.me').searchParams.get('skill')!);
+  }
+  await page.goto('/coach/guide');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('How coaching works.');
+  await expect(page.locator('#lesson-preview')).toBeVisible();
+  await page.getByRole('link', { name: 'Modules', exact: true }).click();
+  await expect(page).toHaveURL(/\/coach$/);
+});
 
 test("lesson preview plays, pauses, and supports manual steps", async ({
   page,
 }) => {
-  await page.goto("/coach");
+  await page.goto("/coach/guide");
   const preview = page.locator(".skill-preview");
   await page.getByRole("button", { name: copy.motion.pause }).click();
   await expect(preview).toHaveClass(/is-paused/);
@@ -19,7 +56,9 @@ test("lesson preview plays, pauses, and supports manual steps", async ({
     "Cross over",
     { timeout: 7000 },
   );
-  await page.locator("#how-title").scrollIntoViewIfNeeded();
+  // The shorter guide can leave part of the preview visible beside the next
+  // heading. Move far enough down to exercise actual offscreen suspension.
+  await page.locator("#future-title").scrollIntoViewIfNeeded();
   await expect(preview).toHaveClass(/is-paused/);
   await page.locator(".how-stage").nth(2).click();
   await expect(page.locator(".how-visual-caption strong")).toHaveText(
@@ -38,7 +77,7 @@ test("reduced motion keeps diagrams complete and manual preview controls usable"
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/coach");
+  await page.goto("/coach/guide");
   const preview = page.locator(".skill-preview");
   await expect(preview).toHaveClass(/is-static/);
   await expect(
@@ -64,7 +103,7 @@ test("reduced motion keeps diagrams complete and manual preview controls usable"
 test("headline dashes select the matching diagram and stay in sync with playback", async ({
   page,
 }) => {
-  await page.goto("/coach");
+  await page.goto("/coach/guide");
   const navigation = page.getByRole("group", { name: copy.motion.choose });
   const preview = page.locator(".skill-preview");
   await expect(navigation.getByRole("button")).toHaveCount(7);
@@ -108,67 +147,4 @@ test("headline dashes select the matching diagram and stay in sync with playback
   expect(bounds.right).toBeLessThanOrEqual(
     (page.viewportSize()?.width ?? 375) - 16,
   );
-});
-
-test("module filters and every planned module lead to usable detail pages", async ({
-  page,
-}, testInfo) => {
-  await page.goto("/coach");
-  await page
-    .getByRole("link", { name: copy.modules.browse, exact: true })
-    .click();
-  const library = page.locator("#modules");
-  await expect(library.locator(".module-item")).toHaveCount(5);
-  await library
-    .getByRole("button", { name: copy.modules.ready, exact: true })
-    .click();
-  await expect(library.locator(".module-item")).toHaveCount(1);
-  await expect(library.getByRole("heading", { level: 3 })).toHaveText(
-    "Tie a tie (four-in-hand knot)",
-  );
-  await library
-    .getByRole("button", { name: copy.modules.soon, exact: true })
-    .focus();
-  await page.keyboard.press("Enter");
-  await expect(library.locator(".module-item")).toHaveCount(4);
-  const links = await library.locator(".module-link").evaluateAll((items) =>
-    items.map((item) => ({
-      href: item.getAttribute("href")!,
-      title: item.querySelector("h3")!.textContent!,
-    })),
-  );
-  for (const module of links) {
-    await library.locator(`a[href="${module.href}"]`).click();
-    await expect(
-      page.getByRole("heading", { name: module.title, exact: true }),
-    ).toBeVisible();
-    await expect(
-      page.getByText(copy.modules.plannedNote, { exact: true }),
-    ).toBeVisible();
-    await expect(page.locator(".step-list li")).toHaveCount(3);
-    await expect(
-      page.getByRole("link", { name: copy.intro.start }),
-    ).toHaveCount(0);
-    expect(
-      await page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth,
-      ),
-    ).toBe(true);
-    if (module.href === "/skills/sew-a-button")
-      await page.screenshot({
-        path: `.impeccable/review/${testInfo.project.name}-module.png`,
-        fullPage: true,
-        animations: "disabled",
-      });
-    await page
-      .getByRole("link", { name: copy.modules.browse, exact: true })
-      .click();
-    await library
-      .getByRole("button", { name: copy.modules.soon, exact: true })
-      .click();
-  }
-  await library
-    .getByRole("button", { name: copy.modules.all, exact: true })
-    .click();
-  await expect(library.locator(".module-item")).toHaveCount(5);
 });

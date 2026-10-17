@@ -12,7 +12,8 @@ import { mockMode } from "@/lib/storage";
 import { Header, Footer } from "@/components/shell";
 import { Utilities } from "@/components/utilities";
 import { Landing } from "@/components/landing";
-import { Organizations, DemoPage, PrivacyPage } from "@/components/pages";
+import { Organizations, DemoPage } from "@/components/pages";
+import { PrivacyPage, TermsPage } from "@/components/legal-pages";
 import { Subscriptions } from "@/components/subscriptions";
 import { LearningCatalog } from "@/components/learning-catalog";
 import { CommunityBoard } from "@/components/community-board";
@@ -35,6 +36,7 @@ export function generateStaticParams() {
         "organizations",
         "demo",
         "privacy",
+        "terms",
         "thanks",
         "learn",
         "community",
@@ -66,6 +68,7 @@ export async function generateMetadata({
     organizations: c.org.title,
     demo: c.demo.videoLabel,
     privacy: c.legal.title,
+    terms: "Terms of use",
     thanks: c.thanks.title,
     learn: "Your next practical skill",
     community: "Skills shaped by you",
@@ -146,7 +149,9 @@ export default async function Page({ params }: { params: Params }) {
         ) : page === "teach" ? (
           <TeacherStudio />
         ) : page === "privacy" ? (
-          <PrivacyPage c={c} />
+          <PrivacyPage />
+        ) : page === "terms" ? (
+          <TermsPage />
         ) : page === "thanks" ? (
           <Thanks
             c={{ thanks: c.thanks, form: c.form, demo: c.demo, nav: c.nav }}
@@ -162,7 +167,7 @@ export default async function Page({ params }: { params: Params }) {
         page={page === "styleguide" ? "home" : page}
         contact={process.env.CONTACT_EMAIL}
       />
-      <Utilities locale={locale} />
+      <Utilities />
       {process.env.NODE_ENV === "development" && mockMode && (
         <div className="mock-badge">Mock mode · no data stored</div>
       )}

@@ -1,95 +1,57 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
-import { ArrowUpRight, BookOpen } from "lucide-react";
-import type { Skill } from "@/lib/skills/schema";
-import { copy } from "@/lib/copy/en";
 
-export function ModuleLibrary({ skills }: { skills: Skill[] }) {
-  const [filter, setFilter] = useState<"all" | Skill["status"]>("all");
-  const filtered = skills.filter(
-    (skill) => filter === "all" || skill.status === filter,
+import Link from 'next/link';
+import { useState } from 'react';
+import { ArrowUpRight, Search, X } from 'lucide-react';
+import type { SkillId } from '@/lib/config';
+import { SkillIcon } from './illustrations';
+
+type ModuleEntry = {
+  id: SkillId; title: string; description: string; category: string; steps: number; href: string;
+};
+
+export function ModuleLibrary({ entries }: { entries: ModuleEntry[] }) {
+  const [query, setQuery] = useState('');
+  const [category, setCategory] = useState('All modules');
+  const categories = ['All modules', ...new Set(entries.map(entry => entry.category))];
+  const filtered = entries.filter(entry =>
+    (category === 'All modules' || entry.category === category) &&
+    `${entry.title} ${entry.description}`.toLowerCase().includes(query.trim().toLowerCase()),
   );
-  return (
-    <section
-      id="modules"
-      className="module-library page-width"
-      aria-labelledby="modules-title"
-    >
-      <div className="module-heading">
-        <h2 id="modules-title">{copy.modules.title}</h2>
-        <p>{copy.modules.intro}</p>
+
+  return <section id="modules" className="coach-module-library" aria-label="Module library">
+    <div className="coach-module-tools">
+      <div className="module-filters" role="group" aria-label="Filter modules by category">
+        {categories.map(value => <button type="button" key={value} aria-pressed={category === value} onClick={() => setCategory(value)}>{value}</button>)}
       </div>
-      <div
-        className="module-filters"
-        role="group"
-        aria-label={copy.modules.filters}
-      >
-        {(
-          [
-            ["all", copy.modules.all],
-            ["available", copy.modules.ready],
-            ["coming_soon", copy.modules.soon],
-          ] as const
-        ).map(([value, label]) => (
-          <button
-            type="button"
-            key={value}
-            aria-pressed={filter === value}
-            onClick={() => setFilter(value)}
-          >
-            {label}
-            <span aria-hidden="true">
-              {value === "all"
-                ? skills.length
-                : skills.filter((skill) => skill.status === value).length}
-            </span>
-          </button>
-        ))}
+      <div className="module-search">
+        <Search size={18} aria-hidden="true" />
+        <label className="sr-only" htmlFor="module-search">Search modules</label>
+        <input id="module-search" type="search" value={query} onChange={event => setQuery(event.target.value)} placeholder="Find a skill…" />
+        {query && <button type="button" onClick={() => setQuery('')} aria-label="Clear search"><X size={17} aria-hidden="true" /></button>}
       </div>
-      <ul className="module-grid" aria-live="polite">
-        {filtered.map((skill) => (
-          <li
-            key={skill.id}
-            className={
-              skill.status === "coming_soon"
-                ? "module-item coming-soon"
-                : "module-item"
-            }
-          >
-            <Link href={`/coach/skills/${skill.id}`} className="module-link">
-              <div className="module-art" aria-hidden="true">
-                {skill.catalog ? (
-                  <img
-                    src={skill.catalog.previewAsset}
-                    alt=""
-                    width="320"
-                    height="200"
-                    loading="lazy"
-                  />
-                ) : (
-                  <BookOpen size={60} strokeWidth={1.2} />
-                )}
-              </div>
-              <div className="module-copy">
-                <span
-                  className={`badge ${skill.status === "available" ? "badge-ready" : ""}`}
-                >
-                  {skill.status === "available"
-                    ? copy.modules.ready
-                    : copy.modules.soon}
-                </span>
-                <h3>{skill.title}</h3>
-                <p>{skill.description}</p>
-                <span className="module-action">
-                  {copy.modules.view}
-                  <ArrowUpRight size={20} aria-hidden="true" />
-                </span>
-              </div>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
+    </div>
+    <p className="module-results" role="status">{filtered.length} {filtered.length === 1 ? 'module' : 'modules'}{category !== 'All modules' ? ` · ${category}` : ''}{query.trim() ? ` matching “${query.trim()}”` : ''}</p>
+    <ul className="module-grid">
+      {filtered.map(entry => <li className="module-item" key={entry.id}>
+        <Link href={entry.href} className="module-link" aria-labelledby={`module-${entry.id}-title`}>
+          <div className="module-art" data-category={entry.category} aria-hidden="true">
+            <span className="module-category-label">{entry.category}</span>
+            <SkillIcon skill={entry.id} size={92} />
+            <span className="module-card-arrow"><ArrowUpRight size={22} /></span>
+          </div>
+          <div className="module-copy">
+            <h2 id={`module-${entry.id}-title`}>{entry.title}</h2>
+            <p>{entry.description}</p>
+            <span className="module-action"><span>{entry.steps} steps</span><span>Open module <ArrowUpRight size={17} aria-hidden="true" /></span></span>
+          </div>
+        </Link>
+      </li>)}
+    </ul>
+    {!filtered.length && <div className="module-empty">
+      <h2>No modules found.</h2>
+      <p>Try a different skill or clear your filters.</p>
+      <button className="button secondary" type="button" onClick={() => { setQuery(''); setCategory('All modules'); }}>Show all modules</button>
+    </div>}
+  </section>;
 }

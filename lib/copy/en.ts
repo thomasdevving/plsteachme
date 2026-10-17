@@ -40,7 +40,7 @@ export const copy = {
     readyNote: "In the meantime, there’s one skill you can try today.",
   },
   how: {
-    title: "Small steps. Real progress.",
+    title: "Follow the steps",
     intro:
       "You don’t need to get it all at once. A lesson breaks one everyday skill into moves you can see, try, and repeat.",
     example: "A peek inside the lesson",
@@ -72,15 +72,15 @@ export const copy = {
     patientSecond:
       "No timer to beat. No score to chase. Just clear directions, a little practice, and room to figure it out.",
     try: "Try the tie lesson",
-    futureTitle: "A coach that takes a second look.",
+    futureTitle: "Choose how you practice",
     futureIntro:
       "Choose camera coaching for spoken guidance and step checks, or learn with the illustrated walkthrough.",
     cameraTitle: "A second look, when you need it",
     cameraBody:
-      "Camera coaching checks each step and offers one small correction at a time. Important steps need a confident check; ambiguous intermediate moves can be practiced without verification.",
+      "With your permission, camera coaching checks what it can see and offers feedback as you practice. Unclear or nonvisual steps still need your own check. AI feedback can be wrong and cannot certify that a task is safe.",
     privacyTitle: "You stay in control",
     privacyBody:
-      "Live video is processed on your device. After you give consent, a few cropped stills go to the AI service for each check. Watch-only mode keeps the camera off.",
+      "Your live video stays on your device. After you give consent, selected still images go to the AI service for checks. Pause stops uploads, and Stop turns off the camera. Walkthrough mode keeps it off.",
     closingTitle: "Start with one small thing.",
     closingBody:
       "A tie, a few quiet minutes, and a little patience with yourself.",
@@ -191,7 +191,7 @@ export const liveCopy = {
   sessionModes: (mock: number, watch: number) =>
     `${mock} simulated · ${watch} watch-only`,
   privacyStorage:
-    "No analytics, accounts or trackers. Progress stays in this browser. Evaluation frames are saved locally only if you explicitly enable that option.",
+    "Detailed practice and evaluation records stay in this browser. Your account and free-session entitlement are stored separately in Supabase. Clearing this device does not delete your account or reset the free session. Evaluation frames are saved locally only if you explicitly enable that option.",
   includeMock: "Include simulated results",
   allModels: "All models",
   labeledTotal: "Labeled / total",
@@ -274,7 +274,7 @@ export const liveCopy = {
   eval: "Evaluation",
   emptyProgress:
     "Your first practice is waiting. Completed lessons will appear here.",
-  delete: "Delete my data",
+  delete: "Clear data on this device",
   deleteConfirm:
     "Delete all saved practice, consent and evaluation records on this device?",
   deleted: "Your local data has been deleted.",

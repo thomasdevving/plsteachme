@@ -1,9 +1,8 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
   poweredByHeader: false,
-  outputFileTracingIncludes: {
-    "/*": ["./skills/**/*.json", "./public/skills/**/*.svg"],
-  },
+  // Authored brand assets are served directly; no paid Images binding is required.
+  images: { unoptimized: true },
   async redirects() {
     return [
       {

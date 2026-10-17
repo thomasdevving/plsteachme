@@ -4,8 +4,12 @@ const mocks = vi.hoisted(() => ({
   user: vi.fn(),
   rpc: vi.fn(),
   maybeSingle: vi.fn(),
-  oauth: vi.fn(),
-  otp: vi.fn(),
+  signup: vi.fn(),
+  login: vi.fn(),
+  reset: vi.fn(),
+  resend: vi.fn(),
+  update: vi.fn(),
+  getUser: vi.fn(),
   signout: vi.fn(),
   enabled: true,
 }));
@@ -16,8 +20,12 @@ vi.mock("@/lib/auth/server", () => ({
   authenticatedUser: mocks.user,
   authClient: async () => ({
     auth: {
-      signInWithOAuth: mocks.oauth,
-      signInWithOtp: mocks.otp,
+      signUp: mocks.signup,
+      signInWithPassword: mocks.login,
+      resetPasswordForEmail: mocks.reset,
+      resend: mocks.resend,
+      updateUser: mocks.update,
+      getUser: mocks.getUser,
       signOut: mocks.signout,
     },
   }),
@@ -32,7 +40,11 @@ vi.mock("@/lib/storage", () => ({
 }));
 import { safeNext } from "../lib/auth/redirect";
 import { requireTrial } from "../lib/auth/trial";
-import { builtinTrialId, publishedTrialId, trialResumeHref } from '../lib/auth/trial-reference';
+import {
+  builtinTrialId,
+  publishedTrialId,
+  trialResumeHref,
+} from "../lib/auth/trial-reference";
 import { POST as trialAction } from "../app/api/trial/route";
 import { POST as authAction } from "../app/api/auth/action/route";
 const trial = {
@@ -55,29 +67,78 @@ function req(body = {}, extra: Record<string, string> = {}) {
   });
 }
 beforeEach(() => {
-  vi.stubEnv("OPENAI_API_KEY","test-key");
+  vi.stubEnv("OPENAI_API_KEY", "test-key");
   vi.resetAllMocks();
   mocks.enabled = true;
   mocks.user.mockResolvedValue({ id: "verified-user" });
   mocks.maybeSingle.mockResolvedValue({ data: trial, error: null });
   mocks.rpc.mockResolvedValue({ data: trial, error: null });
-  mocks.otp.mockResolvedValue({ error: null });
-  mocks.oauth.mockResolvedValue({
-    data: { url: "https://provider.example/authorize" },
+  for (const method of [
+    mocks.signup,
+    mocks.reset,
+    mocks.resend,
+    mocks.update,
+    mocks.signout,
+  ])
+    method.mockResolvedValue({ error: null });
+  mocks.login.mockResolvedValue({ data: { session: {} }, error: null });
+  mocks.getUser.mockResolvedValue({
+    data: { user: { id: "verified-user" } },
     error: null,
   });
 });
 describe("one free session authorization", () => {
-  it('does not consume a trial when OpenAI is absent',async()=>{vi.stubEnv('OPENAI_API_KEY','');expect((await trialAction(req({action:'start',skillId:trial.skill_id}))).status).toBe(503);expect(mocks.rpc).not.toHaveBeenCalled();});
-  it('rejects anonymous Supabase accounts',async()=>{mocks.user.mockResolvedValue({id:'guest',is_anonymous:true});expect((await requireTrial(req(),trial.skill_id))?.status).toBe(401);expect((await trialAction(req({action:'start',skillId:trial.skill_id}))).status).toBe(401);expect(mocks.rpc).not.toHaveBeenCalled();});
-  it('uses the same durable trial for new lessons and preserves the previous chosen skill',async()=>{
-    expect((await trialAction(req({action:'start',skillId:'builtin:laundry'}))).status).toBe(409);
-    expect(mocks.rpc).toHaveBeenCalledWith('claim_coaching_trial',{p_user_id:'verified-user',p_skill_id:'builtin:laundry',p_total_steps:7});
-    expect(builtinTrialId('tie')).toBe(trial.skill_id);
-    expect((await trialAction(req({action:'start',skillId:'builtin:tie'}))).status).toBe(404);
+  it("does not consume a trial when OpenAI is absent", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "");
+    expect(
+      (await trialAction(req({ action: "start", skillId: trial.skill_id })))
+        .status,
+    ).toBe(503);
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
-  it('requires an active matching account session even for the consent endpoint',async()=>{expect(await requireTrial(req())).toBeNull();mocks.maybeSingle.mockResolvedValue({data:{...trial,completed_at:'2026-10-17'},error:null});expect((await requireTrial(req()))?.status).toBe(403);});
-  it('resumes new lessons without creating a separate account entitlement',()=>{expect(trialResumeHref('builtin:laundry')).toBe('/learn?skill=laundry');const id='11111111-1111-4111-8111-111111111111';expect(trialResumeHref(publishedTrialId(id,2))).toBe(`/learn?lesson=${id}`);expect(trialResumeHref(trial.skill_id)).toBe('/coach/session/tie-four-in-hand');});
+  it("rejects anonymous Supabase accounts", async () => {
+    mocks.user.mockResolvedValue({ id: "guest", is_anonymous: true });
+    expect((await requireTrial(req(), trial.skill_id))?.status).toBe(401);
+    expect(
+      (await trialAction(req({ action: "start", skillId: trial.skill_id })))
+        .status,
+    ).toBe(401);
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+  it("uses the same durable trial for new lessons and preserves the previous chosen skill", async () => {
+    expect(
+      (await trialAction(req({ action: "start", skillId: "builtin:laundry" })))
+        .status,
+    ).toBe(409);
+    expect(mocks.rpc).toHaveBeenCalledWith("claim_coaching_trial", {
+      p_user_id: "verified-user",
+      p_skill_id: "builtin:laundry",
+      p_total_steps: 7,
+    });
+    expect(builtinTrialId("tie")).toBe(trial.skill_id);
+    expect(
+      (await trialAction(req({ action: "start", skillId: "builtin:tie" })))
+        .status,
+    ).toBe(404);
+  });
+  it("requires an active matching account session even for the consent endpoint", async () => {
+    expect(await requireTrial(req())).toBeNull();
+    mocks.maybeSingle.mockResolvedValue({
+      data: { ...trial, completed_at: "2026-10-17" },
+      error: null,
+    });
+    expect((await requireTrial(req()))?.status).toBe(403);
+  });
+  it("resumes new lessons without creating a separate account entitlement", () => {
+    expect(trialResumeHref("builtin:laundry")).toBe("/learn?skill=laundry");
+    const id = "11111111-1111-4111-8111-111111111111";
+    expect(trialResumeHref(publishedTrialId(id, 2))).toBe(
+      `/learn?lesson=${id}`,
+    );
+    expect(trialResumeHref(trial.skill_id)).toBe(
+      "/coach/session/tie-four-in-hand",
+    );
+  });
   it("rejects anonymous access before calling storage", async () => {
     mocks.user.mockResolvedValue(null);
     expect((await requireTrial(req(), trial.skill_id))?.status).toBe(401);
@@ -178,36 +239,261 @@ describe("authentication boundaries", () => {
       "/coach/session/tie-four-in-hand?mode=watch",
     );
   });
-  it.each(['/learn?skill=shaving','/community','/teach?request=123'])('preserves shared account return destination %s',value=>{expect(safeNext(value)).toBe(value);});
-  it("email sign-in cannot silently create an account", async () => {
+  it.each(["/learn?skill=shaving", "/community", "/teach?request=123"])(
+    "preserves shared account return destination %s",
+    (value) => {
+      expect(safeNext(value)).toBe(value);
+    },
+  );
+
+  it("logs in with a password and sanitizes return URLs", async () => {
     const response = await authAction(
-      req({ action: "email", email: "person@example.com", signup: false }),
+      req({
+        action: "login",
+        email: " Person@Example.com ",
+        password: "some password",
+        next: "https://evil.example",
+      }),
     );
-    expect(response.status).toBe(200);
-    expect(mocks.otp.mock.calls[0][0].options.shouldCreateUser).toBe(false);
+    expect(await response.json()).toEqual({ url: "/account" });
+    expect(mocks.login).toHaveBeenCalledWith({
+      email: "person@example.com",
+      password: "some password",
+    });
+    expect(mocks.signup).not.toHaveBeenCalled();
   });
-  it("email sign-up explicitly enables registration", async () => {
-    await authAction(
-      req({ action: "email", email: "person@example.com", signup: true }),
-    );
-    expect(mocks.otp.mock.calls[0][0].options.shouldCreateUser).toBe(true);
+  it("creates an account without trusting injected entitlement fields", async () => {
+    expect(
+      (
+        await authAction(
+          req({
+            action: "signup",
+            email: "person@example.com",
+            password: "twelve words here",
+            trials: 999,
+          }),
+        )
+      ).status,
+    ).toBe(200);
+    expect(mocks.signup).toHaveBeenCalledWith({
+      email: "person@example.com",
+      password: "twelve words here",
+      options: {
+        emailRedirectTo: "https://plsteach.me/auth/callback?next=%2Faccount",
+      },
+    });
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
-  it("does not reveal whether an email is registered", async () => {
-    mocks.otp.mockResolvedValue({ error: { status: 400 } });
+  it.each(["short", "a".repeat(73), "😀".repeat(19)])(
+    "rejects weak or bcrypt-truncated passwords",
+    async (password) => {
+      for (const action of ["signup", "update-password"])
+        expect(
+          (
+            await authAction(
+              req({ action, email: "person@example.com", password }),
+            )
+          ).status,
+        ).toBe(400);
+      expect(mocks.signup).not.toHaveBeenCalled();
+      expect(mocks.update).not.toHaveBeenCalled();
+    },
+  );
+  it("does not disclose existing accounts during registration", async () => {
+    mocks.signup.mockResolvedValue({
+      error: { code: "user_already_exists", status: 422 },
+    });
     expect(
       await (
         await authAction(
-          req({ action: "email", email: "unknown@example.com", signup: false }),
+          req({
+            action: "signup",
+            email: "person@example.com",
+            password: "twelve words here",
+          }),
         )
       ).json(),
     ).toEqual({ ok: true });
   });
-  it("sanitizes the OAuth redirect", async () => {
+  it.each([
+    "email_address_not_authorized",
+    "email_provider_disabled",
+    "signup_disabled",
+  ])(
+    "reports mail configuration failures without leaking provider details: %s",
+    async (code) => {
+      for (const [action, mock] of [
+        ["signup", mocks.signup],
+        ["reset-password", mocks.reset],
+        ["resend-confirmation", mocks.resend],
+      ] as const) {
+        mock.mockResolvedValue({
+          error: { code, status: 400, message: "private provider config" },
+        });
+        const response = await authAction(
+          req({
+            action,
+            email: "person@example.com",
+            password: "twelve words here",
+          }),
+        );
+        expect(response.status).toBe(503);
+        expect(JSON.stringify(await response.json())).not.toContain(
+          "private provider",
+        );
+      }
+    },
+  );
+  it.each(["invalid_credentials", "user_not_found"])(
+    "uses the same invalid-login message: %s",
+    async (code) => {
+      mocks.login.mockResolvedValue({ data: {}, error: { code, status: 400 } });
+      const response = await authAction(
+        req({
+          action: "login",
+          email: "person@example.com",
+          password: "anything",
+        }),
+      );
+      expect(response.status).toBe(401);
+      expect(await response.json()).toEqual({
+        error:
+          "Email or password is incorrect. Try again or reset your password.",
+      });
+    },
+  );
+  it("offers confirmation for an unverified login", async () => {
+    mocks.login.mockResolvedValue({
+      data: {},
+      error: { code: "email_not_confirmed", status: 400 },
+    });
+    expect(
+      await (
+        await authAction(
+          req({
+            action: "login",
+            email: "person@example.com",
+            password: "anything",
+          }),
+        )
+      ).json(),
+    ).toMatchObject({ code: "email_not_confirmed" });
+  });
+  it("sends recovery to the protected password page", async () => {
     await authAction(
-      req({ action: "oauth", provider: "apple", next: "https://evil.example" }),
+      req({ action: "reset-password", email: "person@example.com" }),
     );
-    expect(mocks.oauth.mock.calls[0][0].options.redirectTo).toBe(
-      "https://plsteach.me/auth/callback?next=%2Faccount",
+    expect(mocks.reset).toHaveBeenCalledWith("person@example.com", {
+      redirectTo:
+        "https://plsteach.me/auth/callback?next=%2Faccount%2Fpassword",
+    });
+  });
+  it("resends confirmation without needing or retaining the password", async () => {
+    await authAction(
+      req({ action: "resend-confirmation", email: "person@example.com" }),
     );
+    expect(mocks.resend).toHaveBeenCalledWith({
+      type: "signup",
+      email: "person@example.com",
+      options: { emailRedirectTo: "https://plsteach.me/auth/callback" },
+    });
+  });
+  it.each([null, { id: "guest", is_anonymous: true }])(
+    "rejects password changes without a verified account",
+    async (user) => {
+      mocks.getUser.mockResolvedValue({ data: { user }, error: null });
+      expect(
+        (
+          await authAction(
+            req({
+              action: "update-password",
+              password: "twelve words here",
+              user_id: "victim",
+            }),
+          )
+        ).status,
+      ).toBe(401);
+      expect(mocks.update).not.toHaveBeenCalled();
+    },
+  );
+  it("changes only the current account password", async () => {
+    expect(
+      (
+        await authAction(
+          req({
+            action: "update-password",
+            password: "twelve words here",
+            user_id: "victim",
+          }),
+        )
+      ).status,
+    ).toBe(200);
+    expect(mocks.update).toHaveBeenCalledWith({
+      password: "twelve words here",
+    });
+  });
+  it("requires fresh verification when the session is too old", async () => {
+    mocks.update.mockResolvedValue({
+      error: { code: "reauthentication_needed", status: 400 },
+    });
+    expect(
+      await (
+        await authAction(
+          req({ action: "update-password", password: "twelve words here" }),
+        )
+      ).json(),
+    ).toMatchObject({ code: "reauthentication_needed" });
+  });
+  it.each([
+    "signup",
+    "login",
+    "reset-password",
+    "resend-confirmation",
+    "update-password",
+    "signout",
+  ])("rejects cross-origin %s", async (action) => {
+    expect(
+      (
+        await authAction(
+          req(
+            {
+              action,
+              email: "person@example.com",
+              password: "twelve words here",
+            },
+            { origin: "https://other.example" },
+          ),
+        )
+      ).status,
+    ).toBe(403);
+    expect(mocks.signup).not.toHaveBeenCalled();
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+  it.each(["email", "oauth"])(
+    "rejects discontinued sign-in action %s",
+    async (action) => {
+      expect(
+        (
+          await authAction(
+            req({
+              action,
+              email: "person@example.com",
+              signup: true,
+              provider: "google",
+            }),
+          )
+        ).status,
+      ).toBe(400);
+    },
+  );
+  it("keeps provider rate limits visible", async () => {
+    mocks.reset.mockResolvedValue({ error: { status: 429 } });
+    expect(
+      (
+        await authAction(
+          req({ action: "reset-password", email: "person@example.com" }),
+        )
+      ).status,
+    ).toBe(429);
   });
 });

@@ -2,7 +2,7 @@ import { generateText, Output } from "ai";
 import type { NextRequest } from "next/server";
 import { requireTrial } from "@/lib/auth/trial";
 import { z } from "zod";
-import { getSkill } from "@/lib/skills/loader";
+import { getSkill } from "@/lib/skills/catalog";
 import { askInputSchema } from "@/lib/ai/schemas";
 import { askPrompt } from "@/lib/ai/prompts";
 import { coachingRateAllowed } from "@/lib/coaching-security";

@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@supabase/server": "npm:@supabase/server@1",
+    "jpeg-js": "npm:jpeg-js@0.4.4",
+    "server-only": "./server-only.ts"
+  }
+}

@@ -1,0 +1,6 @@
+[functions.clean-camera-frame]
+# Server-to-server auth is enforced by withSupabase({ auth: 'secret:*' }).
+# Modern secret keys are not JWTs. Public and missing keys are refused.
+verify_jwt = false
+import_map = "./functions/clean-camera-frame/deno.json"
+entrypoint = "./functions/clean-camera-frame/index.ts"

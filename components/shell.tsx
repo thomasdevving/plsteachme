@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { BRAND, pathFor, type Locale, type Page } from "@/lib/config";
 import type { Copy } from "@/lib/i18n";
-import { MobileMenu } from "./mobile-menu";
+import { AccountNavigation } from "./account-navigation";
 import { BrandMark } from "./brand";
 import { Mascot, MascotMotionControl } from "./mascot";
 export function Header({
@@ -39,13 +39,7 @@ export function Header({
             </a>
             <a href={pathFor(locale, "organizations")}>{c.nav.org}</a>
           </nav>
-          <div className="nav-actions">
-            <a className="button secondary compact nav-teacher" href="/teach">
-              Become a teacher
-            </a>
-            <a className="button primary compact" href="/login">Log in</a>
-            <MobileMenu c={c.nav} home={home} page={page} />
-          </div>
+          <AccountNavigation c={c.nav} home={home} page={page} />
         </div>
       </header>
     </>
@@ -95,6 +89,7 @@ export function Footer({
           <a href={pathFor(locale, "organizations")}>{c.nav.org}</a>
           <a href={pathFor(locale, "subscriptions")}>{c.nav.subscriptions}</a>
           <a href={pathFor(locale, "privacy")}>{c.form.privacy}</a>
+          <a href={pathFor(locale, "terms")}>Terms</a>
           {contact ? (
             <a href={`mailto:${contact}`}>{contact}</a>
           ) : (

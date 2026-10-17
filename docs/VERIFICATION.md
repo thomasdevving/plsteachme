@@ -1,5 +1,34 @@
 # Verification — landing website replacement
 
+## Persistent account navigation — 18 October 2026
+
+The public desktop/mobile header previously displayed Log in regardless of the actual session, and the login/signup pages showed their forms to signed-in users. The header now reads the server session, rechecks restored/focused pages and keeps the last confirmed state during temporary failures. Login/signup recognize an authenticated user and redirect to a validated destination. Unconfigured social providers are hidden; the form and OAuth action discover actual Supabase provider availability automatically.
+
+TypeScript and the Cloudflare production build pass. All 60 targeted auth, provider, navigation and network tests pass. Six connected browser checks pass against both the local Cloudflare build and the deployed custom domain: home/reload persistence, login/signup redirects, safe return destinations, phone navigation and browser Back, expiry-triggered cookie renewal and explicit sign-out. A public-header routing check also passes, and the signed-in desktop layout was visually reviewed. The connected checks use and remove disposable fixtures, send no email or AI requests and do not claim a coaching session. Real Google consent remains an external acceptance step until provider setup is complete.
+
+## Module-focused coach — 18 October 2026
+
+`/coach` now opens directly on nine working modules with category filters, search and the existing local resume shortcut. The long introduction, animated lesson example, camera explanation and account guidance live at `/coach/guide`. Modules, Guide, Account, Progress and Settings have clear navigation; lesson/session controls retain their focused back navigation. The index links to existing working lesson routes rather than the outdated planned-module cards. Subscriptions, authentication and trial logic are unchanged.
+
+TypeScript and the Cloudflare production build pass. All 18 affected coach scenarios have passing coverage at 375px, 414px and desktop, including all nine module destinations, keyboard filtering, empty-search recovery, accessibility, guide playback and a complete resumable walkthrough. Two offscreen-animation checks needed their scroll target moved farther down the shorter guide; their pause assertions were retained and all three viewport cases passed together on rerun. Three additional routing/responsive/animation-preference checks passed. Desktop and phone screenshots were visually reviewed for layout and overflow. No real account entitlement or AI inference was used.
+
+## Real signup confirmation — 18 October 2026
+
+The operator received the real signup message through Resend and Cloudflare forwarding, confirmed the email and signed in. A targeted database check confirmed the account is verified, non-anonymous and active, with zero trial sessions started or completed. Its one free session remains unused. Live login/account/lesson pages and account/community endpoints return successfully. OpenAI availability is still false, as intended until the operator adds the key; real AI inference has not been tested. The existing seven connected entitlement checks remain applicable to the unchanged deployed code.
+
+## Cloudflare and connected accounts — 17 October 2026
+
+This entry supersedes the earlier local-only readiness entries below. The current frontend is deployed at https://plsteach.me on Cloudflare Workers Free (version `92920710-b08e-4d30-a4e5-389ca58fc72e`). Supabase Free in Frankfurt contains the four migrations, protected tables and private teacher bucket. Resend SMTP and Cloudflare contact forwarding are configured; actual inbox delivery remains a separate user acceptance check.
+
+- **290 unit/API/database tests across 30 files passed**, including JPEG orientation, bounds and metadata stripping, private processor failures and browser privacy cleanup.
+- The final OpenNext build and TypeScript compilation passed. The dependency audit reported zero known vulnerabilities during this setup pass.
+- **12 read-only browser checks passed against the deployed custom domain**, covering the selected design, module navigation, mobile/tablet/desktop sizing, reduced motion, animation controls, accessibility and canonical legacy redirects.
+- **7 connected account checks passed on the custom domain**: secure email-token login, unused entitlement, missing-AI protection, concurrent claims, cross-account isolation, monotonic progress/completion and rejected unauthenticated/cross-site writes. Both disposable fixture accounts and their trials were removed. These checks generated tokens administratively; they did not send emails or call AI.
+- The deployed private Supabase camera function rejected missing, public and forged credentials (401). A synthetic oriented image returned a correctly rotated 480×640 metadata-free JPEG; malformed images/limits returned 400 and GET returned 405. No personal camera images were used.
+- The final read-only setup report passed **36/40 checks**. The outstanding items are the intentionally absent OpenAI key, an independent reviewer account, and the corresponding deployed AI availability checks. Database, account configuration, table isolation and private storage checks passed.
+
+Real signup email delivery, OpenAI inference/quality, teacher transcription/publication and actual-phone camera behavior still need the connected acceptance run. Free-plan capacity and per-process rate limiting are operational limits, not load-tested guarantees. Necessary privacy/terms pages and a public contact are present, without analytics or a cookie banner; this is not a legal certification. See [current deployment instructions](CLOUDFLARE_SETUP.md).
+
 ## Current connected-test readiness — 17 October 2026
 
 This latest entry supersedes historical readiness statements below. The app is prepared for a private connected test after Supabase/Auth/Storage and OpenAI setup. Real external email, storage and model quality still require that connected acceptance run; no paid inference or remote schema mutation was performed in this pass.
@@ -162,3 +191,18 @@ The homepage now has one skill-discovery section. The redundant MomentFinder and
 - No API, database, subscription, dependency or authentication behavior changed. Earlier unit-suite and Lighthouse measurements above are historical; they were not repeated for this copy/layout cleanup.
 
 Backend readiness was audited separately. The implemented AI routes require configured OpenAI plus Supabase Auth, database migrations, private teacher storage, email/redirect settings and independent reviewers. Public production currently reports both AI and accounts unavailable. Provider responses remain mocked in automated tests; real account delivery, uploads/playback, model feedback and physical cameras still need connected validation. Feedback reports are for human review; there is no automatic model retraining pipeline.
+
+
+## Email/password accounts — 18 October 2026
+
+The live app now offers email/password registration and login, email confirmation/resend, password recovery and authenticated password setup for existing accounts. Social sign-in actions and provider discovery are removed. Subscription presentation and the account-bound one-session trial are unchanged.
+
+- All 323 unit/API tests pass, including password validation, generic account-existence responses, same-origin checks, authenticated password updates, recovery token types and pre-hydration form protection.
+- TypeScript and the Cloudflare production build pass. Production is deployed to the existing free Worker.
+- Nine connected password checks pass on the deployed site: mobile layout and Axe accessibility, unconfirmed-account rejection, confirmation, wrong/correct passwords, persistent secure cookies, password changes, one-use recovery, anonymous/cross-site rejection and password setup for existing passwordless accounts. Disposable accounts are removed; their free sessions stay unused throughout.
+- Six connected navigation checks pass: home/reload, safe login/signup destinations, mobile/back navigation, actual refresh-token renewal and explicit sign-out.
+- Real signup and password-recovery submissions each sent one SMTP email to the explicitly approved Resend delivery simulator. Both appear as Delivered in Resend. This verifies provider delivery simulation, not inbox placement for real recipients. No personal accounts were modified.
+- Live testing exposed early input being cleared during hydration. Forms now stay disabled until their client handlers are ready and declare POST as the fallback method so passwords cannot enter URL parameters. The connected password flow passes after this fix.
+- The reset email template uses a direct one-use token hash and the recovery token type, with branded content. Supabase email confirmation and secure password changes stay enabled.
+
+OpenAI inference remains untested and requires the operator's key. No AI calls or trial claims were made by these checks.

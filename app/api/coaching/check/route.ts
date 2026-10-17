@@ -4,6 +4,7 @@ import { COACH_COOKIE, coachJson, coachingConfigured, sameOrigin, coachingRateAl
 import { assessCoachStep, decodeCoachFrame } from '@/lib/coaching-ai';
 import { requireTrial } from '@/lib/auth/trial';
 import { builtinTrialId } from '@/lib/auth/trial-reference';
+import { CameraProcessingUnavailable } from '@/lib/camera-processor';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -20,7 +21,7 @@ export async function POST(request: NextRequest) {
   const denied=await requireTrial(request,builtinTrialId(parsed.data.skill));if(denied)return denied;
   let frames: Buffer[];
   try { frames = await Promise.all(parsed.data.frames.map(decodeCoachFrame)); }
-  catch { return coachJson({error:'image'},400); }
+  catch (error) { return error instanceof CameraProcessingUnavailable ? coachJson({error:'provider'},503) : coachJson({error:'image'},400); }
   const timeout = AbortSignal.timeout(22000);
   try {
     const feedback = await assessCoachStep(parsed.data.skill,parsed.data.step,frames,AbortSignal.any([request.signal,timeout]));

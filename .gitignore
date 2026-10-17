@@ -10,3 +10,7 @@ test-results/
 .DS_Store
 debug.log
 public/mediapipe/wasm/
+.generated/
+.open-next/
+.wrangler/
+.dev.vars*

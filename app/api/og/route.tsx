@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
     raw === "organizations" ||
     raw === "demo" ||
     raw === "privacy" ||
+    raw === "terms" ||
     raw === "thanks" ||
     raw === "learn" ||
     raw === "community" ||
@@ -24,6 +25,7 @@ export async function GET(req: NextRequest) {
     organizations: c.org.title,
     demo: c.demo.videoLabel,
     privacy: c.legal.title,
+    terms: "Terms of use.",
     thanks: c.thanks.title,
     learn: "Your next practical skill.",
     community: "Skills shaped by you.",
