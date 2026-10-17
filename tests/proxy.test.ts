@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { unstable_doesMiddlewareMatch } from "next/experimental/testing/server";
+vi.mock("server-only", () => ({}));
 import { config } from "../proxy";
 
 describe("public mascot assets", () => {

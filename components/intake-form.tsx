@@ -20,6 +20,14 @@ export function IntakeForm({ skill }: { skill: AvailableSkill }) {
     if (index + 1 < skill.intake.length) setIndex(index + 1);
     else {
       saveDraft(skill, createSession(answers));
+      try {
+        sessionStorage.setItem(
+          `plsteach.me:intake:${skill.id}`,
+          JSON.stringify({ answers, at: Date.now() }),
+        );
+      } catch {
+        /* Intake still works when browser storage is unavailable. */
+      }
       router.push(`/coach/session/${skill.id}`);
     }
   }

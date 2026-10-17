@@ -5,6 +5,7 @@ vi.mock("@anthropic-ai/sdk", () => ({
     messages = { create };
   },
 }));
+vi.mock("@/lib/auth/trial", () => ({ requireTrial: vi.fn().mockResolvedValue(null) }));
 import { POST } from "../app/api/verify-step/route";
 import { POST as ASK } from "../app/api/ask/route";
 import { createSession, sessionReducer } from "../lib/session/machine";

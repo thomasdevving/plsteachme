@@ -227,8 +227,12 @@ export const en = {
         body: `${BRAND} is an early demo for practical skills. TODO: add legal name, business address, registration number and privacy contact.`,
       },
       {
-        title: "What this website collects",
-        body: "When you sign up, we store your email, age bracket, consent and the preferences you enter. We also store campaign fields, referrer domain, language, landing path and any referral code. We do not store a full referring URL. Organizations provide contact details and pilot interests.",
+        title: "What the waitlist collects",
+        body: "When you join the waitlist, we store your email, age bracket, consent and the preferences you enter. We also store campaign fields, referrer domain, language, landing path and any referral code. We do not store a full referring URL. Organizations provide contact details and pilot interests.",
+      },
+      {
+        title: "Accounts and your free session",
+        body: "When account sign-in is enabled, Supabase handles authentication with Google, Apple or an email link. We keep the account identifier, email and sign-in session, plus the skill, start time, progress and completion status of your one free coaching session. Signing out does not reset the free session. Essential cookies keep you signed in. Camera frames are not stored in your account or trial record.",
       },
       {
         title: "Why, and with what permission",
@@ -236,7 +240,7 @@ export const en = {
       },
       {
         title: "If you’re under 16",
-        body: "We do not store email, free text or other personal data from the form. We count only how often this path is used. A parent can sign up. The website does not record your camera.",
+        body: "The under-16 option on the waitlist form does not store email, free text or other personal data. We count only how often this path is used. A parent can sign up. The website does not record your camera.",
       },
       {
         title: "Camera and the demo",

@@ -25,10 +25,7 @@ import {
   type HandSample,
   type LandmarkFrame,
 } from "@/lib/vision/prechecks";
-import {
-  framingChecks,
-  ambiguousSubject,
-} from "@/lib/vision/framing";
+import { framingChecks, ambiguousSubject } from "@/lib/vision/framing";
 import { getROI } from "@/lib/vision/roi";
 import { captureFrames } from "@/lib/vision/capture";
 import { speak, stopSpeech } from "@/lib/speech/tts";
@@ -47,23 +44,31 @@ import { copy, liveCopy as c } from "@/lib/copy/en";
 import { CameraView } from "./camera-view";
 import { AnimatedDiagram } from "./animated-diagram";
 import { EvalPanel } from "./eval-panel";
+import {
+  useTrialProgress,
+  type TrialAccess,
+} from "@/lib/auth/use-trial-progress";
+import { TrialSaveStatus } from "./trial-save-status";
 export function LiveCoach({
   skill,
   initial,
   graphics,
   debug,
   onExit,
+  trial,
 }: {
   skill: AvailableSkill;
   initial: SessionContext;
   graphics: Record<string, string>;
   debug: boolean;
+  trial?: TrialAccess;
   onExit: (context: SessionContext) => void;
 }) {
   const [context, dispatch] = useReducer(
     (s: SessionContext, e: SessionEvent) => sessionReducer(s, e, skill),
     { ...initial, mode: "live" },
   );
+  const trialProgress = useTrialProgress(trial, context, skill.steps.length);
   const [confirmedCamera, setConfirmedCamera] = useState(""),
     [paused, setPaused] = useState(false),
     [error, setError] = useState(""),
@@ -252,7 +257,10 @@ export function LiveCoach({
         speaking = setTimeout(() => void speak(c.looking), 1800);
         const response = await fetch("/api/verify-step", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(trial ? { "x-coaching-session": trial.id } : {}),
+          },
           signal: abort.signal,
           body: JSON.stringify({
             skillId: skill.id,
@@ -326,7 +334,10 @@ export function LiveCoach({
     try {
       const response = await fetch("/api/ask", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(trial ? { "x-coaching-session": trial.id } : {}),
+        },
         signal: abort.signal,
         body: JSON.stringify({
           skillId: skill.id,
@@ -526,20 +537,27 @@ export function LiveCoach({
           ))}
         </ul>
         <p role="status">{storageError}</p>
+        <TrialSaveStatus {...trialProgress} />
         <div className="completion-actions">
-          <button
-            className="button primary"
-            onClick={() => {
-              sessionId.current = crypto.randomUUID();
-              logged.current = false;
-              setConfirmedCamera("");
-              setEvalRecord(null);
-              setFrames([]);
-              dispatch({ type: "RESTART" });
-            }}
-          >
-            {copy.completion.again}
-          </button>
+          {trial ? (
+            <Link className="button primary" href="/account">
+              My account
+            </Link>
+          ) : (
+            <button
+              className="button primary"
+              onClick={() => {
+                sessionId.current = crypto.randomUUID();
+                logged.current = false;
+                setConfirmedCamera("");
+                setEvalRecord(null);
+                setFrames([]);
+                dispatch({ type: "RESTART" });
+              }}
+            >
+              {copy.completion.again}
+            </button>
+          )}
           <Link className="button secondary" href="/coach/progress">
             {c.progress}
           </Link>
@@ -566,6 +584,7 @@ export function LiveCoach({
   const prechecks = frame ? checks(frame, camera.minLuminance) : null;
   return (
     <main className="page-width live-session">
+      <TrialSaveStatus {...trialProgress} />
       <div className="session-topline">
         <p>
           {setup

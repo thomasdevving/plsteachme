@@ -2115,3 +2115,4 @@ input::placeholder {
   font-size: 16px;
   line-height: 1.5;
 }
+.trial-gate .session-buttons{margin-block:26px}.trial-gate>.button{margin-top:26px}.trial-gate .small-note{margin-top:18px}.trial-gate [role=alert]{margin-top:24px}.trial-save-status{padding:16px;border:1px solid var(--brand-orange,#b94d27);border-radius:8px;margin-bottom:20px}.trial-save-status p{margin-bottom:12px}

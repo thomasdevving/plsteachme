@@ -16,20 +16,27 @@ import {
   type SessionContext,
   type SessionEvent,
 } from "@/lib/session/machine";
-import { restoreDraft, saveDraft } from "@/lib/session/draft";
+import { contextSchema, restoreDraft, saveDraft } from "@/lib/session/draft";
 import { AnimatedDiagram } from "./animated-diagram";
 import { LiveCoach } from "./live-coach";
 import { Consent } from "./consent";
 import { readLocal, writeLocal, completeSession } from "@/lib/storage/store";
 import { copy, liveCopy as c } from "@/lib/copy/en";
+import {
+  useTrialProgress,
+  type TrialAccess,
+} from "@/lib/auth/use-trial-progress";
+import { TrialSaveStatus } from "./trial-save-status";
 export function SessionCoach({
   skill,
   debug,
   graphics,
+  trial,
 }: {
   skill: AvailableSkill;
   debug: boolean;
   graphics: Record<string, string>;
+  trial?: TrialAccess;
 }) {
   const [initial, setInitial] = useState<SessionContext | null>(null);
   const [view, setView] = useState<"choose" | "consent" | "live" | "watch">(
@@ -39,7 +46,24 @@ export function SessionCoach({
   useEffect(() => {
     let active = true;
     void Promise.all([
-      restoreDraft(skill),
+      trial
+        ? readLocal<SessionContext>(`trial:${trial.id}`).then((value) => {
+            const parsed = contextSchema.safeParse(value);
+            const state = parsed.success ? parsed.data : createSession();
+            const stepIndex = Math.min(
+              skill.steps.length - 1,
+              Math.max(state.stepIndex, trial.completedSteps),
+            );
+            return {
+              ...state,
+              stepIndex,
+              state:
+                state.state === "COMPLETE"
+                  ? ("COMPLETE" as const)
+                  : ("INSTRUCTING" as const),
+            };
+          })
+        : restoreDraft(skill),
       readLocal<boolean>("consent:v1"),
     ]).then(([draft, consent]) => {
       if (!active) return;
@@ -56,7 +80,7 @@ export function SessionCoach({
     return () => {
       active = false;
     };
-  }, [skill]);
+  }, [skill, trial]);
   if (!initial)
     return (
       <div className="lesson-loading" role="status">
@@ -67,7 +91,9 @@ export function SessionCoach({
     setInitial(
       current
         ? { ...current, mode: "walkthrough", state: "INSTRUCTING" }
-        : createSession(initial.intake),
+        : trial
+          ? { ...initial, mode: "walkthrough", state: "INSTRUCTING" }
+          : createSession(initial.intake),
     );
     setView("watch");
   };
@@ -117,6 +143,7 @@ export function SessionCoach({
         debug={debug}
         initial={initial}
         graphics={graphics}
+        trial={trial}
         onExit={watch}
       />
     );
@@ -124,6 +151,7 @@ export function SessionCoach({
     <HydratedCoach
       skill={skill}
       debug={debug}
+      trial={trial}
       initial={{ ...initial, mode: "walkthrough" }}
       graphics={graphics}
     />
@@ -135,17 +163,20 @@ function HydratedCoach({
   debug,
   graphics,
   initial,
+  trial,
 }: {
   skill: AvailableSkill;
   debug: boolean;
   graphics: Record<string, string>;
   initial: SessionContext;
+  trial?: TrialAccess;
 }) {
   const [context, dispatch] = useReducer(
     (state: SessionContext, event: SessionEvent) =>
       sessionReducer(state, event, skill),
     initial,
   );
+  const trialProgress = useTrialProgress(trial, context, skill.steps.length);
   const sessionId = useRef("");
   const logged = useRef(false);
   useEffect(() => {
@@ -239,18 +270,26 @@ function HydratedCoach({
             </ul>
           </section>
         </div>
+        <TrialSaveStatus {...trialProgress} />
         <div className="completion-actions">
-          <button
-            className="button primary"
-            onClick={() => {
-              logged.current = false;
-              sessionId.current = crypto.randomUUID();
-              dispatch({ type: "RESTART" });
-            }}
-          >
-            <RotateCcw size={20} aria-hidden="true" />
-            {copy.completion.again}
-          </button>
+          {trial ? (
+            <Link className="button primary" href="/account">
+              My account
+              <ArrowRight size={20} aria-hidden="true" />
+            </Link>
+          ) : (
+            <button
+              className="button primary"
+              onClick={() => {
+                logged.current = false;
+                sessionId.current = crypto.randomUUID();
+                dispatch({ type: "RESTART" });
+              }}
+            >
+              <RotateCcw size={20} aria-hidden="true" />
+              {copy.completion.again}
+            </button>
+          )}
           <Link className="button secondary" href="/coach">
             {copy.common.home}
             <ArrowRight size={20} aria-hidden="true" />
@@ -260,6 +299,7 @@ function HydratedCoach({
     );
   return (
     <main className="session-page page-width">
+      <TrialSaveStatus {...trialProgress} />
       <div className="session-topline">
         <p className="progress-label">
           {copy.session.progress(context.stepIndex + 1, skill.steps.length)}

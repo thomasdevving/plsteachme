@@ -41,6 +41,7 @@ export function Header({
             <a href={pathFor(locale, "organizations")}>{c.nav.org}</a>
           </nav>
           <div className="nav-actions">
+            <a className="nav-login" href="/login">Log in</a>
             <a className="button secondary compact" href="/coach">
               Try the coach
             </a>

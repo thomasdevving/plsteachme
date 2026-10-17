@@ -2,7 +2,7 @@ import { readLocal, writeLocal, removeLocal } from "../storage/store";
 import { z } from "zod";
 import type { AvailableSkill } from "../skills/schema";
 import type { SessionContext } from "./machine";
-const contextSchema: z.ZodType<SessionContext> = z.object({
+export const contextSchema: z.ZodType<SessionContext> = z.object({
   state: z.enum([
     "INSTRUCTING",
     "PRACTICING",

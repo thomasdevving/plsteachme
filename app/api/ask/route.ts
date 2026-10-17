@@ -1,3 +1,4 @@
+import { requireTrial } from "@/lib/auth/trial";
 import { z } from "zod";
 import { getSkill } from "@/lib/skills/loader";
 import { askInputSchema } from "@/lib/ai/schemas";
@@ -16,6 +17,8 @@ export async function POST(request: Request) {
     return json({ error: "Skill not found." }, 404);
   const step = skill.steps.find((s) => s.id === input.stepId);
   if (!step) return json({ error: "Step not found." }, 404);
+  const denied = await requireTrial(request, skill.id);
+  if (denied) return denied;
   if (isMock())
     return json({
       answer: step.instruction.split(/\s+/).slice(0, 40).join(" "),

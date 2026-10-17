@@ -25,6 +25,7 @@ export function Header({
         </Link>
       ) : (
         <nav className="header-links" aria-label={c.navMain}>
+          <Link href="/account">Account</Link>
           <Link href="/coach/progress">{c.navProgress}</Link>
           <Link href="/coach/settings">{c.navSettings}</Link>
         </nav>
