@@ -26,9 +26,9 @@ Observation: one concrete, relevant visible fact, or clearly state what cannot b
 export async function assessCoachStep(skill: SkillId, step: number, frames: Buffer[], signal: AbortSignal) {
   const lesson = modules[skill];
   const current = lesson.steps[step];
-  const provider = createOpenAI({apiKey:process.env.OPENAI_API_KEY});
+  const provider = createOpenAI({apiKey:process.env.OPENAI_API_KEY?.trim()});
   const result = await generateText({
-    model: provider.responses(process.env.OPENAI_VISION_MODEL || 'gpt-6-luna'),
+    model: provider.responses(process.env.OPENAI_VISION_MODEL?.trim() || 'gpt-6-luna'),
     system: SYSTEM,
     output: Output.object({schema:feedbackSchema}),
     messages: [{role:'user',content:[

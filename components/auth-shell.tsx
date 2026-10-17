@@ -19,19 +19,14 @@ export function AuthShell({ children }: { children: ReactNode }) {
       </header>
       <main id="main" className="auth-layout container">
         <aside className="auth-welcome" aria-label="Your first session">
-          <h2>
-            A small step.
-            <br />
-            <span>A little more confidence.</span>
-          </h2>
+          <h2>Your learning account.</h2>
           <p>
-            A tie. A shirt. A loose button.
-            <br />
-            Start with something you’d like to learn.
+            Start your free coaching session or continue the skill you’ve
+            already chosen.
           </p>
           <div className="auth-companions" aria-hidden="true">
             <Mascot pose="sitting" color="orange" />
-            <Mascot pose="cross-legged" />
+            <Mascot pose="sitting" color="green" />
           </div>
           <div className="auth-motion-control">
             <MascotMotionControl />

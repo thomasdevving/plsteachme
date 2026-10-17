@@ -1,0 +1,6 @@
+{
+  "mode": "Built-in image_gen",
+  "reference": "public/mascots/expressive-atlas.webp (green character identity and clay material)",
+  "prompt": "Use case: stylized-concept. Asset type: transparent website mascot illustration. Input image is a CHARACTER IDENTITY AND MATERIAL REFERENCE only: use the GREEN character from the reference, never the orange one. Create a single full-body pose of that exact dark forest-green 3D clay mascot: oversized wide softly rounded rectangular head, two large white oval eyes with dark pupils, tiny white curved smile, small rounded body and stubby feet. The green mascot stands and holds one clearly recognizable magnifying glass in its hand beside and slightly in front of its face, looking curiously through it; keep both eyes and friendly expression readable, one eye mildly magnified. Round lens, dark warm graphite rim and short handle, physically held by the hand. Soft matte clay texture and soft studio lighting match the reference exactly. Frame the entire character and magnifying glass with modest transparent padding; center on square canvas. One character, no text, no background, no floor, no cast shadow outside the character, no extra objects. True transparent alpha, preserve opaque white eyes.",
+  "production_asset": "640 x 761 WebP, alpha preserved, 54846 bytes"
+}

@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         ? reply({ error: "Could not sign out. Please try again." }, 503)
         : reply({ ok: true });
     }
-    const callback = new URL("/auth/callback", request.url);
+    const callback = new URL("/auth/callback", request.headers.get('origin')!);
     callback.searchParams.set("next", safeNext(data.next));
     if (data.action === "email") {
       const { error } = await client.auth.signInWithOtp({

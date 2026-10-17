@@ -5,7 +5,7 @@ import { Pause, Play } from "lucide-react";
 import { mascotFrames, mascotFrameStyle } from "@/lib/mascot-frames";
 
 const illustratedPoses = mascotFrames;
-type MascotPose = "sitting" | "standing" | keyof typeof illustratedPoses;
+type MascotPose = "sitting" | "standing" | "inspecting" | keyof typeof illustratedPoses;
 
 /** Decorative clay poses; each illustration has its own grounded motion. */
 export function Mascot({
@@ -52,7 +52,9 @@ export function Mascot({
       aria-hidden="true"
       data-active="false"
     >
-      {illustrated ? (
+      {pose === "inspecting" ? (
+        <span className="mascot-inspector mascot-motion" />
+      ) : illustrated ? (
         <span className="mascot-illustration mascot-motion" />
       ) : (
         <>

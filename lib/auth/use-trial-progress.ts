@@ -1,4 +1,5 @@
 "use client";
+import { fetchWithTimeout } from '@/lib/network';
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SessionContext } from "@/lib/session/machine";
 import { writeLocal } from "@/lib/storage/store";
@@ -22,7 +23,7 @@ export function useTrialProgress(
     let active = true;
     setSaving(true);
     setError("");
-    fetch("/api/trial", {
+    fetchWithTimeout("/api/trial", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -155,10 +155,15 @@ describe("OpenAI coach API boundary", () => {
   it("combines caller cancellation with a twenty-second deadline", async () => {
     const timeout = vi.spyOn(AbortSignal, "timeout");
     const abort = new AbortController();
-    abort.abort();
+    generateText.mockImplementationOnce(async () => { abort.abort(); throw abort.signal.reason; });
     await POST(request(payload(), {}, abort.signal));
     expect(timeout).toHaveBeenCalledWith(20_000);
     expect(generateText.mock.calls[0][0].abortSignal.aborted).toBe(true);
+  });
+  it("does not start paid inference when the request is already cancelled", async () => {
+    const abort = new AbortController(); abort.abort();
+    expect((await POST(request(payload(), {}, abort.signal))).status).toBe(400);
+    expect(generateText).not.toHaveBeenCalled();
   });
   it("rejects unknown skills and steps", async () => {
     expect(

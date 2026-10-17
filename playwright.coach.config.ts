@@ -2,8 +2,10 @@ import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests/browser",
   fullyParallel: true,
+  workers: 2,
+  webServer: process.env.TEST_BASE_URL ? undefined : {command:'npm run start',url:'http://localhost:3100',reuseExistingServer:true,timeout:60000},
   use: {
-    baseURL: process.env.TEST_BASE_URL || "http://localhost:3000",
+    baseURL: process.env.TEST_BASE_URL || "http://localhost:3100",
     launchOptions: {
       executablePath: process.env.TEST_BROWSER_PATH,
       args: [

@@ -42,7 +42,7 @@ export function MobileMenu({
         <a href={`${home}#skills`}>{c.skills}</a>
         <a href="/learn" aria-current={page === "learn" ? "page" : undefined}>Learn</a>
         <a href="/community" aria-current={page === "community" ? "page" : undefined}>Community</a>
-        <a href="/teach" aria-current={page === "teach" ? "page" : undefined}>Teach</a>
+        <a href="/teach" aria-current={page === "teach" ? "page" : undefined}>Become a teacher</a>
         <a
           href="/subscriptions"
           aria-current={page === "subscriptions" ? "page" : undefined}
@@ -55,9 +55,8 @@ export function MobileMenu({
         >
           {c.org}
         </a>
-        <a href="/login">Log in / Sign up</a>
+        <a href="/login">Log in</a>
         <a href="/account">My account</a>
-        <a href={`${home}#waitlist`}>{c.join}</a>
       </nav>
     </details>
   );

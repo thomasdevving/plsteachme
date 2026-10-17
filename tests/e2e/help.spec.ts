@@ -28,7 +28,7 @@ test('new product navigation reaches learning, requests and teacher studio on mo
  await nav.getByRole('link',{name:'Learn',exact:true}).click();
  await expect(page).toHaveURL(/\/learn$/);await expect(page.getByRole('heading',{level:1})).toHaveText('Your next practical skill.');
  await page.getByLabel('Navigation menu',{exact:true}).click();await nav.getByRole('link',{name:'Community',exact:true}).click();await expect(page).toHaveURL(/\/community$/);
- await page.getByLabel('Navigation menu',{exact:true}).click();await nav.getByRole('link',{name:'Teach',exact:true}).click();await expect(page).toHaveURL(/\/teach$/);
+ await page.getByLabel('Navigation menu',{exact:true}).click();await nav.getByRole('link',{name:'Become a teacher',exact:true}).click();await expect(page).toHaveURL(/\/teach$/);
 });
 
 test('published lesson questions and feedback reports retain the reviewed lesson identity beyond seven steps',async({page})=>{

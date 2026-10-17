@@ -93,9 +93,17 @@ export async function labelEval(
   }
 }
 export async function deleteMyData() {
-  await clear(store());
-  for (const key of Object.keys(sessionStorage))
-    if (key.startsWith("plsteach.me:")) sessionStorage.removeItem(key);
-  for (const key of Object.keys(localStorage))
-    if (key.startsWith("plsteach.me:")) localStorage.removeItem(key);
+  let failed=false;
+  try { await clear(store()); } catch { failed=true; }
+  for (const area of ['sessionStorage','localStorage'] as const) {
+    try {
+      const storage=window[area];
+      for (const key of Object.keys(storage))
+        if (/^plsteach(?:\.me:|[.:])/.test(key) || key==='plsteach-motion-paused') storage.removeItem(key);
+    } catch { failed=true; }
+  }
+  document.documentElement.dataset.motionPaused='false';
+  window.dispatchEvent(new Event('plsteach-progress-change'));
+  window.dispatchEvent(new Event('plsteach:motion-preference'));
+  if(failed)throw new Error('Some local data could not be deleted.');
 }

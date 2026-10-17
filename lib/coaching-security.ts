@@ -1,7 +1,7 @@
 import 'server-only';
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { NextRequest, NextResponse } from 'next/server';
-import { SITE_URL } from './config';
+import { isSameOrigin } from './request-origin';
 
 export const COACH_COOKIE = 'pt-coach';
 export const SESSION_SECONDS = 30 * 60;
@@ -10,8 +10,7 @@ export function coachJson(body: unknown, status = 200, extra: Record<string,stri
   return NextResponse.json(body, { status, headers: { 'Cache-Control':'no-store, max-age=0', 'X-Content-Type-Options':'nosniff', ...extra } });
 }
 export function sameOrigin(request: NextRequest) {
-  const origin = request.headers.get('origin');
-  return Boolean(origin && [request.nextUrl.origin, SITE_URL].includes(origin)) && request.headers.get('sec-fetch-site') !== 'cross-site';
+  return isSameOrigin(request);
 }
 function signature(value: string) {
   const secret = process.env.COACHING_SESSION_SECRET || process.env.OPENAI_API_KEY;
@@ -48,23 +47,31 @@ export function coachingRateAllowed(request: NextRequest, kind: 'session' | 'che
 }
 
 // Read incrementally: a missing or dishonest Content-Length cannot bypass the cap.
-export async function limitedJson(request: NextRequest, limit: number): Promise<{data:unknown} | {error:'size'|'validation'}> {
-  if (!request.headers.get('content-type')?.startsWith('application/json')) return {error:'validation'};
+export async function limitedJson(request: Request, limit: number): Promise<{data:unknown} | {error:'size'|'validation'}> {
+  if (request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() !== 'application/json') return {error:'validation'};
   const length = request.headers.get('content-length');
   if (length && (!/^\d+$/.test(length) || Number(length)>limit)) return {error:'size'};
   const reader = request.body?.getReader();
   if (!reader) return {error:'validation'};
   const chunks: Uint8Array[] = [];
   let size = 0;
+  const signal = AbortSignal.any([request.signal, AbortSignal.timeout(10_000)]);
+  const cancel = () => { void reader.cancel().catch(() => {}); };
+  let onAbort: () => void = () => {};
+  const aborted = new Promise<never>((_, reject) => {
+    onAbort = () => { cancel(); reject(new Error('Request interrupted')); };
+    signal.addEventListener('abort', onAbort, {once:true});
+  });
   try {
+    if (signal.aborted) { cancel(); return {error:'validation'}; }
     while (true) {
-      const next = await reader.read();
+      const next = await Promise.race([reader.read(), aborted]);
       if (next.done) break;
       size += next.value.byteLength;
-      if (size>limit) { await reader.cancel(); return {error:'size'}; }
+      if (size>limit) { cancel(); return {error:'size'}; }
       chunks.push(next.value);
     }
     return {data:JSON.parse(Buffer.concat(chunks).toString('utf8'))};
   } catch { return {error:'validation'}; }
-  finally { reader.releaseLock(); }
+  finally { signal.removeEventListener('abort', onAbort); reader.releaseLock(); }
 }

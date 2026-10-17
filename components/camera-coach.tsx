@@ -1,4 +1,5 @@
 'use client';
+import { fetchWithTimeout } from '@/lib/network';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Camera, CameraOff, Pause, Play, RefreshCw } from 'lucide-react';
 import type { SkillId } from '@/lib/config';
@@ -88,7 +89,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
 
   useEffect(()=>{
     const controller=new AbortController();
-    fetch('/api/coaching/session',{cache:'no-store',signal:controller.signal})
+    fetchWithTimeout('/api/coaching/session',{cache:'no-store',signal:controller.signal})
       .then(async response=>{
         if (!response.ok) throw new Error('availability');
         const data=await response.json();

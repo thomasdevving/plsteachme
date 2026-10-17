@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { BRAND, pathFor, type Locale, type Page } from "@/lib/config";
 import type { Copy } from "@/lib/i18n";
-import { Cta } from "./utilities";
 import { MobileMenu } from "./mobile-menu";
 import { BrandMark } from "./brand";
 import { Mascot, MascotMotionControl } from "./mascot";
@@ -41,15 +40,10 @@ export function Header({
             <a href={pathFor(locale, "organizations")}>{c.nav.org}</a>
           </nav>
           <div className="nav-actions">
-            <a className="nav-login" href="/login">Log in</a>
-            <a className="button secondary compact" href="/coach">
-              Try the coach
+            <a className="button secondary compact nav-teacher" href="/teach">
+              Become a teacher
             </a>
-            <span className="nav-waitlist">
-              <Cta href={`${home}#waitlist`} kind="waitlist" compact>
-                {c.nav.join}
-              </Cta>
-            </span>
+            <a className="button primary compact" href="/login">Log in</a>
             <MobileMenu c={c.nav} home={home} page={page} />
           </div>
         </div>

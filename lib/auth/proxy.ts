@@ -1,11 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest, NextResponse } from "next/server";
 import { authConfig } from "./config";
+import { serviceFetch } from "../network";
 export async function refreshAuth(request: NextRequest) {
   const { url, key, enabled } = authConfig();
   let response = NextResponse.next({ request });
   if (!enabled) return response;
   const client = createServerClient(url!, key!, {
+    global: { fetch: serviceFetch },
     cookieOptions: {
       httpOnly: true,
       sameSite: "lax",

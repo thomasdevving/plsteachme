@@ -1,8 +1,11 @@
 import { test, expect } from '@playwright/test';
-test('landing links to the restored coach with camera access and the current brand', async ({page, request}) => {
+test('header links to teaching and login while the coach retains camera access and the current brand', async ({page, request}) => {
  await page.goto('/');
- await page.getByRole('link',{name:'Try the coach',exact:true}).click();
- await expect(page).toHaveURL(/\/coach$/);
+ const actions=page.locator('.nav-actions');
+ await expect(actions.getByRole('link',{name:'Log in',exact:true})).toHaveAttribute('href','/login');
+ await actions.getByRole('link',{name:'Become a teacher',exact:true}).click();
+ await expect(page).toHaveURL(/\/teach$/);
+ await page.goto('/coach');
  await expect(page.locator('.wordmark img')).toHaveAttribute('src',/hands-filled/);
  await expect(page.locator('body')).toHaveCSS('background-color','rgb(250, 247, 242)');
  const coach = await request.get('/coach/session/tie-four-in-hand');

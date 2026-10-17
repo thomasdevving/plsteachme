@@ -280,6 +280,8 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 /* Crop sprite padding in CSS, then anchor the visible contact point. */
 .mascot .mascot-illustration{background-size:var(--sprite-size);background-position:var(--sprite-position);transform-origin:50% var(--pose-pivot)}
 .mascot--sitting.mascot--orange{--seat-drop:calc(var(--mascot-size) * .21)}
+/* Exclude two pixels of the orange neighbor at the sprite quadrant edge. */
+.mascot--sitting.mascot--green .mascot-head{clip-path:inset(0 0 0 1%)}
 .journey-device{--device-scale:1}
 .journey-device .demo-player-toggle{min-height:calc(44px / var(--device-scale));min-width:calc(80px / var(--device-scale));font-size:calc(13px / var(--device-scale));padding:calc(7px / var(--device-scale)) calc(12px / var(--device-scale));bottom:calc(12px / var(--device-scale));right:calc(18px / var(--device-scale))}
 .journey-device .demo-player-toggle svg{width:calc(18px / var(--device-scale));height:calc(18px / var(--device-scale))}

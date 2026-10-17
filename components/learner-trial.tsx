@@ -1,4 +1,5 @@
 'use client';
+import { fetchWithTimeout } from '@/lib/network';
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Trial } from '@/lib/auth/trial';
 import { trialResumeHref } from '@/lib/auth/trial-reference';
@@ -11,17 +12,17 @@ export function LearnerTrial({skillId,completedSteps,totalSteps,children,onResum
  const saved=useRef(0);
  const resume=useRef(onResume);resume.current=onResume;
  useEffect(()=>{const abort=new AbortController();setAccount(null);setMessage('');
-  Promise.all([fetch('/api/auth/session',{cache:'no-store',signal:abort.signal}),fetch('/api/coaching/session',{cache:'no-store',signal:abort.signal})]).then(async([auth,ai])=>{if(!auth.ok||!ai.ok)throw new Error();const [value,service]=await Promise.all([auth.json(),ai.json()]);if(!abort.signal.aborted){setAccount(value);setAvailable(service.available===true);saved.current=value.trial?.completed_steps||0;if(value.user&&value.trial?.skill_id===skillId&&!value.trial.completed_at)resume.current?.(saved.current);}}).catch(()=>{if(!abort.signal.aborted)setMessage('Your coaching account could not load. Reload to try again.');});
+  Promise.all([fetchWithTimeout('/api/auth/session',{cache:'no-store',signal:abort.signal}),fetchWithTimeout('/api/coaching/session',{cache:'no-store',signal:abort.signal})]).then(async([auth,ai])=>{if(!auth.ok||!ai.ok)throw new Error();const [value,service]=await Promise.all([auth.json(),ai.json()]);if(!abort.signal.aborted){setAccount(value);setAvailable(service.available===true);saved.current=value.trial?.completed_steps||0;if(value.user&&value.trial?.skill_id===skillId&&!value.trial.completed_at)resume.current?.(saved.current);}}).catch(()=>{if(!abort.signal.aborted)setMessage('Your coaching account could not load. Reload to try again.');});
   return()=>abort.abort();
  },[skillId]);
  const trial=account?.trial;const active=Boolean(account?.user&&trial&&!trial.completed_at&&trial.skill_id===skillId);
  useEffect(()=>{
   if(!active||!trial||completedSteps<=saved.current)return;
   let current=true;setBusy(true);setMessage('');
-  fetch('/api/trial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'progress',sessionId:trial.id,completedSteps:Math.min(completedSteps,totalSteps)})}).then(async response=>{const data=await response.json();if(!response.ok)throw new Error();if(current){saved.current=Math.max(saved.current,completedSteps);if(data.trial?.completed_at)setAccount(value=>value?{...value,trial:data.trial}:value);}}).catch(()=>{if(current)setMessage('Your coaching progress could not be saved. Retry before leaving.');}).finally(()=>{if(current)setBusy(false);});
+  fetchWithTimeout('/api/trial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'progress',sessionId:trial.id,completedSteps:Math.min(completedSteps,totalSteps)})}).then(async response=>{const data=await response.json();if(!response.ok)throw new Error();if(current){saved.current=Math.max(saved.current,completedSteps);if(data.trial?.completed_at)setAccount(value=>value?{...value,trial:data.trial}:value);}}).catch(()=>{if(current)setMessage('Your coaching progress could not be saved. Retry before leaving.');}).finally(()=>{if(current)setBusy(false);});
   return()=>{current=false;};
  },[active,trial,completedSteps,totalSteps,retry]);
- async function start(){setBusy(true);setMessage('');try{const response=await fetch('/api/trial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'start',skillId})});const data=await response.json();if(data.trial)setAccount(value=>value?{...value,trial:data.trial}:value);if(!response.ok)throw new Error(data.error||'Your session could not start.');saved.current=data.trial.completed_steps;}catch(error){setMessage(error instanceof Error?error.message:'Your session could not start.');}finally{setBusy(false);}}
+ async function start(){setBusy(true);setMessage('');try{const response=await fetchWithTimeout('/api/trial',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'start',skillId})});const data=await response.json();if(data.trial)setAccount(value=>value?{...value,trial:data.trial}:value);if(!response.ok)throw new Error(data.error||'Your session could not start.');saved.current=data.trial.completed_steps;}catch(error){setMessage(error instanceof Error?error.message:'Your session could not start.');}finally{setBusy(false);}}
  const next=typeof window==='undefined'?'/learn':window.location.pathname+window.location.search;
  if(active)return <TrialContext.Provider value={trial!.id}>{children}{message&&<p role="alert">{message} <button type="button" className="text-link" disabled={busy} onClick={()=>setRetry(value=>value+1)}>Retry saving progress</button></p>}</TrialContext.Provider>;
  if(completedSteps>=totalSteps)return message?<p role="status">{message}</p>:null;
