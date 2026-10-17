@@ -110,3 +110,15 @@ Story: a learner discovers a skill or requests one; an approved teacher records 
 - The pricing regression asserts the original free-demo FAQ and payment preference options. No subscription, credit, checkout, rollover or royalty implementation was changed.
 
 Live boundaries: the available remote Supabase project had an empty public schema and no repository link, so it was inspected read-only and left unchanged. Apply the checked-in migrations to the intended project, configure Auth redirects/reviewers and server credentials, then verify real email delivery, uploads/playback, provider output and physical mobile cameras. See `docs/PLATFORM.md` and `.env.example`. No production deployment or remote schema mutation was performed.
+
+## Restore the current frontend and integrate the expanded scope — 17 October 2026
+
+The preceding release used the older `main` frontend. This corrective merge brings in `codex/restore-coach` at `ce06fca`, preserving its rotating hero phone, clay companions, module rail, account journey and original Starter/Plus/Teams subscription cards. The hero, phone journey, coaching preview and subscription components have no changes relative to that frontend. The expanded learning, community and teacher features remain available through entry cards, footer and mobile navigation.
+
+- TypeScript and the production Next.js build pass on Node 24. All 228 unit/API tests pass; the subsequently adjusted mascot accessibility label also passes its three focused tests.
+- All 62 production browser scenarios pass across the full run and targeted reruns. The first run passed 56 of 62; a 23-scenario rerun passed 19, then all four hero checks and the mobile/desktop accessibility check passed after the final corrections. Fixes cover obsolete hero selectors, service-worker interference with mocked account responses, removed FAQ structured data, the mascot pause label, and a transient opacity/contrast issue when the unresolved-step button becomes enabled. The final build passes. Accessibility assertions remain strict across five routes at both 375px and 1280px.
+- Desktop and 375px visual captures confirm the restored homepage, supplied mascot art, rotating phone and unchanged coming-soon subscription cards. The restored account/signup journey and its single free session remain covered alongside free illustrated practice and the new learning pages.
+- Shared HTTP-only Supabase authentication and the existing durable trial gate all learner AI paths. A missing OpenAI key prevents claiming the trial. Production ignores the local mock-verifier option and reports unavailable services. Legacy coaching now uses the same server-only OpenAI provider as the new lessons.
+- An independent source review found no blocking regression in trial ownership, cookie verification, review permissions or missing-key handling.
+
+Tests use simulated camera input and mocked external providers; no live paid AI request was made. Supabase/Auth/Storage and OpenAI remain unconfigured in production. This corrective release does not apply remote database migrations or change subscriptions, checkout or pricing.

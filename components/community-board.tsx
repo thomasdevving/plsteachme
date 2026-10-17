@@ -13,9 +13,9 @@ function Board(){
   const [title,setTitle]=useState('');const [description,setDescription]=useState('');const [category,setCategory]=useState<typeof platformCategories[number]>('independent-living');
   const refresh=useCallback(async()=>{
     const accessToken=await token();
-    const [publicData,me]=await Promise.all([platformFetch<{available:boolean;requests:CommunityRequest[]}>('view=public'),accessToken?platformFetch<PlatformMe>('view=me',accessToken):Promise.resolve(null)]);
+    const [publicData,me]=await Promise.all([platformFetch<{available:boolean;requests:CommunityRequest[]}>('view=public'),session?.user?platformFetch<PlatformMe>('view=me',accessToken):Promise.resolve(null)]);
     setRequests(publicData.requests || []);setSupported(me?.supportedRequestIds || []);
-  },[token]);
+  },[token,session?.user.id]);
   useEffect(()=>{let active=true;setLoading(true);setError('');refresh().catch(error=>{if(active)setError(messageOf(error));}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[refresh,session?.user.id]);
   async function support(request:CommunityRequest){setBusy(request.id);setMessage('');try{await platformAction({action:'support',requestId:request.id,support:!supported.includes(request.id)},await token());await refresh();}catch(error){setMessage(messageOf(error));}finally{setBusy('');}}
   async function submit(event:React.FormEvent){event.preventDefault();setBusy('new');setMessage('');try{await platformAction({action:'request',title,description,category},await token());setTitle('');setDescription('');await refresh();setMessage('Your skill request is now on the board.');}catch(error){setMessage(messageOf(error));}finally{setBusy('');}}

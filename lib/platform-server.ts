@@ -5,6 +5,9 @@ import { NextRequest } from 'next/server';
 import { generateText, Output, transcribe } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { decodeCoachFrame } from './coaching-ai';
+import { authenticatedUser } from './auth/server';
+import { requireTrial } from './auth/trial';
+import { publishedTrialId } from './auth/trial-reference';
 import { feedbackSchema } from './coaching-contract';
 import { lessonDocumentSchema, publicationIssues, VIDEO_BUCKET, MAX_VIDEO_BYTES, CONTRIBUTION_LICENSE_VERSION, type LessonDocument, type PlatformAction, type StudioLesson, type TeacherProfile } from './platform-contract';
 
@@ -18,6 +21,11 @@ type DB = ReturnType<typeof platformDb>;
 type Row = Record<string,any>; // Database JSON is validated at the document boundary below.
 export function reviewerAllowed(id:string) { return (process.env.PLATFORM_REVIEWER_IDS || '').split(',').map(value=>value.trim()).filter(Boolean).includes(id); }
 export async function platformUser(request:NextRequest, client:DB) {
+ if(!request.headers.has('authorization')) {
+  const user=await authenticatedUser();
+  if(!user || user.is_anonymous)throw new PlatformError(401,'sign_in','Sign in to continue.');
+  return user;
+ }
  const match=/^Bearer ([^\s]+)$/.exec(request.headers.get('authorization') || '');
  if (!match || match[1].length>10000) throw new PlatformError(401,'sign_in','Sign in to continue.');
  const {data,error}=await client.auth.getUser(match[1]);
@@ -36,7 +44,7 @@ export async function publishedLesson(client:DB,id:string) {
 }
 export async function platformRead(request:NextRequest) {
  const view=request.nextUrl.searchParams.get('view') || request.nextUrl.searchParams.get('resource') || 'public';
- if(view==='config') return {available:platformConfigured(),supabaseUrl:process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || null,publishableKey:process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || null,aiAvailable:Boolean(process.env.OPENAI_API_KEY)};
+ if(view==='config') return {available:platformConfigured(),supabaseUrl:process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || null,publishableKey:process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || null,aiAvailable:Boolean(process.env.OPENAI_API_KEY)};
  const client=platformDb();
  if(view==='public') {
   const requests=checked(await client.from('community_requests').select('id,title,description,category,support_count,created_at').order('support_count',{ascending:false}).limit(100));
@@ -51,8 +59,9 @@ export async function platformRead(request:NextRequest) {
   if(!id || !/^[a-f0-9-]{36}$/i.test(id))throw new PlatformError(400,'validation','Choose a valid lesson.');
   let path:string|null=null;
   // Owners/reviewers need the current draft recording, even when an older version is public.
-  if(request.headers.has('authorization')) {
-   const user=await platformUser(request,client);
+  const videoUser=request.headers.has('authorization')?await platformUser(request,client):await authenticatedUser();
+  if(videoUser && !videoUser.is_anonymous) {
+   const user=videoUser;
    const row=checked(await client.from('platform_lessons').select('teacher_id,demo_path').eq('id',id).maybeSingle());
    if(row && (row.teacher_id===user.id || reviewerAllowed(user.id))) path=row.demo_path;
   }
@@ -124,6 +133,8 @@ async function coachPublished(client:DB,action:Extract<PlatformAction,{action:'l
 export async function platformWrite(request:NextRequest,action:PlatformAction) {
  const client=platformDb();
  if(action.action==='lesson.coach') {
+  const denied=await requireTrial(request,publishedTrialId(action.id,action.version));
+  if(denied)throw new PlatformError(denied.status,'trial','An active free session for this lesson is required. Sign in or resume your chosen lesson.');
   const ip=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
   if(!platformRateAllowed(createHash('sha256').update(ip).digest('hex'),action.action))throw new PlatformError(429,'rate','Too many checks. Pause for ten minutes.');
   return coachPublished(client,action,request);

@@ -1,3 +1,5 @@
+const entitlement=vi.hoisted(()=>({requireTrial:vi.fn()}));
+vi.mock('@/lib/auth/trial',()=>({requireTrial:entitlement.requireTrial}));
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import sharp from 'sharp';
@@ -19,7 +21,7 @@ beforeAll(async()=>{
 });
 beforeEach(()=>{
   vi.unstubAllEnvs();vi.stubEnv('OPENAI_API_KEY','test-key-not-a-real-credential');
-  vi.clearAllMocks();ai.generateText.mockResolvedValue({output:positive});
+  vi.clearAllMocks();entitlement.requireTrial.mockResolvedValue(null);ai.generateText.mockResolvedValue({output:positive});
 });
 function request(path: string, body: unknown, headers: Record<string,string>={}) {
   return new NextRequest(`http://localhost:3100/api/coaching/${path}`,{method:'POST',headers:{origin:'http://localhost:3100','content-type':'application/json','x-forwarded-for':`test-${Math.random()}`,cookie:`pt-coach=${createCoachSession()}`,...headers},body:JSON.stringify(body)});
@@ -27,6 +29,13 @@ function request(path: string, body: unknown, headers: Record<string,string>={})
 const payload=()=>({skill:'tie',step:0,frames:[frame]});
 
 describe('coaching consent and session boundaries',()=>{
+  it('cannot issue coaching access or call AI after the account trial is denied',async()=>{
+    entitlement.requireTrial.mockResolvedValue(Response.json({error:'trial'},{status:403}));
+    expect((await session(request('session',{consent:true,over16:true}))).status).toBe(403);
+    expect((await check(request('check',payload()))).status).toBe(403);
+    expect(entitlement.requireTrial).toHaveBeenLastCalledWith(expect.anything(),'tie-four-in-hand');
+    expect(ai.generateText).not.toHaveBeenCalled();
+  });
   it('reports real configuration and never fabricates coaching in unconfigured mode',async()=>{
     vi.stubEnv('OPENAI_API_KEY','');
     expect(await GET().json()).toMatchObject({available:false});

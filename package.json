@@ -1,1 +1,59 @@
-{"name":"plsteach-landing","version":"1.0.0","private":true,"scripts":{"dev":"next dev --hostname 0.0.0.0 -p 3100","build":"next build --webpack","start":"next start --hostname 0.0.0.0 -p 3100","typecheck":"tsc --noEmit","test":"vitest run","test:e2e":"playwright test","verify:rls":"node scripts/verify-rls.mjs"},"dependencies":{"@ai-sdk/openai":"^4.0.96","@supabase/supabase-js":"^2.0.0","ai":"^7.0.143","lucide-react":"^0.468.0","next":"^16.4.0","react":"^19.2.0","react-dom":"^19.2.0","server-only":"^0.0.1","sharp":"^0.35.5","zod":"^4.0.0"},"devDependencies":{"@axe-core/playwright":"^4.10.0","@electric-sql/pglite":"0.5.10","@playwright/test":"^1.56.0","@tailwindcss/postcss":"^4.0.0","@types/node":"^22.0.0","@types/react":"^19.2.0","@types/react-dom":"^19.2.0","lighthouse":"^13.5.0","tailwindcss":"^4.0.0","typescript":"^5.9.0","vitest":"^3.2.0"},"engines":{"node":">=22"}}
+{
+  "name": "plsteach-me",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run prepare:vision && next dev --hostname 0.0.0.0 -p 3100",
+    "build": "npm run prepare:vision && npm run validate:skills && next build --webpack",
+    "start": "next start --hostname 0.0.0.0 -p 3100",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "verify:rls": "node scripts/verify-rls.mjs",
+    "prepare:vision": "node scripts/prepare-vision.mjs",
+    "validate:skills": "node --import tsx scripts/validate-skills.ts",
+    "test:browser": "playwright test --config=playwright.coach.config.ts",
+    "test:camera-fixture": "node tests/preview-server.mjs",
+    "test:camera-flow": "node tests/capture-live.mjs"
+  },
+  "dependencies": {
+    "@fontsource/dm-sans": "5.3.0",
+    "@fontsource/lora": "5.3.0",
+    "@mediapipe/tasks-vision": "^1.1.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.0.0",
+    "idb-keyval": "^6.3.0",
+    "lucide-react": "1.55.0",
+    "next": "16.4.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "^0.0.1",
+    "zod": "4.6.7",
+    "@ai-sdk/openai": "^4.0.96",
+    "ai": "^7.0.143",
+    "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "1.64.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@testing-library/react": "^16.3.3",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "jsdom": "^30.1.2",
+    "lighthouse": "^13.5.0",
+    "postcss": "8.5.30",
+    "prettier": "^3.9.10",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.4",
+    "@electric-sql/pglite": "0.5.10"
+  },
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  }
+}

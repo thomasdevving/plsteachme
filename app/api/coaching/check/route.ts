@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { coachRequestSchema, MAX_COACH_BODY_BYTES } from '@/lib/coaching-contract';
 import { COACH_COOKIE, coachJson, coachingConfigured, sameOrigin, coachingRateAllowed, limitedJson, validCoachSession } from '@/lib/coaching-security';
 import { assessCoachStep, decodeCoachFrame } from '@/lib/coaching-ai';
+import { requireTrial } from '@/lib/auth/trial';
+import { builtinTrialId } from '@/lib/auth/trial-reference';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -15,6 +17,7 @@ export async function POST(request: NextRequest) {
   if ('error' in body) return coachJson({error:body.error},body.error==='size'?413:400);
   const parsed = coachRequestSchema.safeParse(body.data);
   if (!parsed.success) return coachJson({error:'validation'},400);
+  const denied=await requireTrial(request,builtinTrialId(parsed.data.skill));if(denied)return denied;
   let frames: Buffer[];
   try { frames = await Promise.all(parsed.data.frames.map(decodeCoachFrame)); }
   catch { return coachJson({error:'image'},400); }

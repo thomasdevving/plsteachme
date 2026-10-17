@@ -1,10 +1,12 @@
+import { installActiveTrial, trialFixtureId } from './trial-fixture';
 import { expect, test } from '@playwright/test';
 test.use({launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']}});
+test.beforeEach(async({page})=>installActiveTrial(page));
 
 test('questions use current step, explicit consent and discard a previous-step answer',async({page})=>{
  await page.route('**/api/coaching/session',route=>route.fulfill({json:{available:true}}));
  let payload:Record<string,unknown>|undefined;
- await page.route('**/api/coaching/question',async route=>{payload=route.request().postDataJSON();await route.fulfill({json:{skill:payload!.skill,step:payload!.step,answer:'Hold the narrow end still.',reminder:'Check that both ends are flat.'}});});
+ await page.route('**/api/coaching/question',async route=>{expect(route.request().headers()['x-coaching-session']).toBe(trialFixtureId);payload=route.request().postDataJSON();await route.fulfill({json:{skill:payload!.skill,step:payload!.step,answer:'Hold the narrow end still.',reminder:'Check that both ends are flat.'}});});
  await page.goto('/demo');
  const help=page.locator('.lesson-questions');
  await expect(help.getByRole('button',{name:'Ask the coach'})).toBeDisabled();
@@ -21,15 +23,17 @@ test('questions use current step, explicit consent and discard a previous-step a
 test('new product navigation reaches learning, requests and teacher studio on mobile',async({page})=>{
  await page.setViewportSize({width:375,height:812});
  await page.goto('/');
- const nav=page.getByRole('navigation',{name:'Explore plsteach.me',exact:true});
+ const nav=page.getByRole('navigation',{name:'Mobile navigation',exact:true});
+ await page.getByLabel('Navigation menu',{exact:true}).click();
  await nav.getByRole('link',{name:'Learn',exact:true}).click();
  await expect(page).toHaveURL(/\/learn$/);await expect(page.getByRole('heading',{level:1})).toHaveText('Your next practical skill.');
- await nav.getByRole('link',{name:'Community',exact:true}).click();await expect(page).toHaveURL(/\/community$/);
- await nav.getByRole('link',{name:'Teach',exact:true}).click();await expect(page).toHaveURL(/\/teach$/);
+ await page.getByLabel('Navigation menu',{exact:true}).click();await nav.getByRole('link',{name:'Community',exact:true}).click();await expect(page).toHaveURL(/\/community$/);
+ await page.getByLabel('Navigation menu',{exact:true}).click();await nav.getByRole('link',{name:'Teach',exact:true}).click();await expect(page).toHaveURL(/\/teach$/);
 });
 
 test('published lesson questions and feedback reports retain the reviewed lesson identity beyond seven steps',async({page})=>{
  const id='66666666-6666-4666-8666-666666666666';const version=3;
+ await installActiveTrial(page,{id,version,steps:8});
  const step={title:'Align the paper edges',instruction:'Bring the two corners together and flatten the paper.',tip:'Keep both corners visible.',check:'The two corners are aligned.',evidence:['Both corners align.'],commonMistakes:['Leaving one corner offset.'],uncertainty:'Show both corners clearly.',manualAlternative:'Compare the two corners yourself.',visuallyCheckable:true};
  const document={title:'Fold a paper bookmark',category:'hobbies',objective:'Practice a simple bookmark fold on a clear table.',materials:['A square of paper'],safety:['Use a clear table.'],prerequisites:[],alternatives:[],completionCheck:'The folded corners are aligned.',steps:Array.from({length:8},()=>step)};
  await page.addInitScript(({id,version})=>localStorage.setItem(`plsteach.published-progress.v1.${id}.${version}`,JSON.stringify({step:7,completed:false,results:Array(8).fill('pending')})),{id,version});

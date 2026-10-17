@@ -1,0 +1,21 @@
+import { test, expect } from '@playwright/test';
+test('landing links to the restored coach with camera access and the current brand', async ({page, request}) => {
+ await page.goto('/');
+ await page.getByRole('link',{name:'Try the coach',exact:true}).click();
+ await expect(page).toHaveURL(/\/coach$/);
+ await expect(page.locator('.wordmark img')).toHaveAttribute('src',/hands-filled/);
+ await expect(page.locator('body')).toHaveCSS('background-color','rgb(250, 247, 242)');
+ const coach = await request.get('/coach/session/tie-four-in-hand');
+ expect(coach.status()).toBe(200);
+ expect(coach.headers()['permissions-policy']).toContain('camera=(self)');
+ const landing = await request.get('/');
+ expect(landing.headers()['permissions-policy']).toContain('camera=(self)');
+ const legacy = await request.get('/session/tie-four-in-hand?debug=1');
+ expect(new URL(legacy.url()).pathname).toBe('/coach/session/tie-four-in-hand');
+ expect(new URL(legacy.url()).searchParams.get('debug')).toBe('1');
+ const manifest = await request.get('/manifest.webmanifest');
+ expect(manifest.status()).toBe(200);
+ expect(await manifest.json()).toMatchObject({start_url:'/coach', icons:[{src:'/brand/hands-filled.png'}]});
+ const asset = await request.get('/skills/tie/drape.svg');
+ expect(asset.headers()['content-type']).toContain('image/svg');
+});

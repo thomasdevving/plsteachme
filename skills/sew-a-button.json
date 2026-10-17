@@ -1,0 +1,16 @@
+{
+  "id": "sew-a-button",
+  "version": 1,
+  "title": "Sew a button",
+  "description": "A loose button doesn\u2019t have to mean the end of a favourite shirt.",
+  "status": "coming_soon",
+  "catalog": {
+    "previewAsset": "/skills/modules/button.svg",
+    "outline": [
+      "Thread the needle and knot the end",
+      "Position the button and make the first stitch",
+      "Build secure stitches and finish the thread"
+    ]
+  },
+  "steps": []
+}

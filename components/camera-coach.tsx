@@ -7,6 +7,7 @@ import { CHECK_INTERVAL_MS, feedbackSchema, framingHints, type CoachFeedback } f
 import { getCheckpoint } from '@/lib/learning-catalog';
 import type { LessonDocument } from '@/lib/platform-contract';
 import { ReportFeedback } from './report-feedback';
+import { useLearnerTrial } from './learner-trial';
 
 type Mode = 'off' | 'starting' | 'running' | 'paused';
 const feedbackTitles: Record<CoachFeedback['status'],string> = {
@@ -48,6 +49,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   onAutoAdvance?:(step:number)=>void;
   publishedLesson?:{id:string;version:number;document:LessonDocument};
 }) {
+  const trialId=useLearnerTrial();
   const [availability,setAvailability] = useState<'loading'|'ready'|'unavailable'|'error'>('loading');
   const [mode,setMode] = useState<Mode>('off');
   const [consent,setConsent] = useState(false);
@@ -113,7 +115,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     }
     try {
       const controller=new AbortController(); request.current=controller;
-      const response=await fetch('/api/coaching/session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({consent:true,over16:true}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(10000)])});
+      const response=await fetch('/api/coaching/session',{method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{})},body:JSON.stringify({consent:true,over16:true}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(10000)])});
       if (current!==generation.current) return;
       if (!response.ok) { setMessage(response.status===429?'Please wait ten minutes before starting another coaching session.':'Camera coaching is unavailable right now. Try again later.'); setMode('off'); setStatus(''); return; }
       const next=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:nextFacing},width:{ideal:640},height:{ideal:480}}});
@@ -154,7 +156,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
           if(document.hidden || !video.current)return;
           const frames=[first,capture(video.current)];
           const response=await fetch(publishedId?'/api/platform':'/api/coaching/check',{
-            method:'POST',headers:{'Content-Type':'application/json'},
+            method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{})},
             body:JSON.stringify(publishedId?{action:'lesson.coach',id:publishedId,version:publishedVersion,step,frames,consent:true,over16:true}:{skill,step,frames}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])
           });
           if(controller.signal.aborted)return;
@@ -190,7 +192,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     }
     void run();
     return ()=>{controller.abort();};
-  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify]);
+  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify,trialId]);
 
   useEffect(()=>{
     const result=feedback?.step===step?feedback.value:null;
