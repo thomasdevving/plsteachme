@@ -1,11 +1,12 @@
 import { generateText, Output } from "ai";
 import type { NextRequest } from "next/server";
 import { requireTrial } from "@/lib/auth/trial";
-import { getSkill } from "@/lib/skills/loader";
+import { getSkill } from "@/lib/skills/catalog";
 import { verificationResultSchema } from "@/lib/session/decision";
 import { verifyInputSchema } from "@/lib/ai/schemas";
 import { verifierPrompt } from "@/lib/ai/prompts";
 import { coachingRateAllowed } from "@/lib/coaching-security";
+import { CameraProcessingUnavailable } from '@/lib/camera-processor';
 import {
   client,
   decodeFrame,
@@ -47,7 +48,8 @@ export async function POST(request: Request) {
   let frames: Buffer[];
   try {
     frames = await Promise.all(input.frames.map(decodeFrame));
-  } catch {
+  } catch (error) {
+    if (error instanceof CameraProcessingUnavailable) return json({error:'Camera processing is temporarily unavailable. Please try again.'},503);
     return json(
       {
         error:

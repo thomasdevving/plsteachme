@@ -59,6 +59,13 @@ export async function POST(request: Request) {
           { error: "Please wait a minute before requesting another link." },
           429,
         );
+      // These are delivery/configuration failures, not an unknown account.
+      // In particular, Supabase's built-in mailer rejects non-team recipients.
+      if (error?.code && ['email_address_not_authorized', 'email_provider_disabled', 'signup_disabled'].includes(error.code))
+        return reply(
+          { error: "Email sign-in is temporarily unavailable. Please try again later." },
+          503,
+        );
       // Do not disclose whether an address is already registered.
       if (error && error.status !== 400 && error.status !== 422)
         return reply(

@@ -191,7 +191,7 @@ export const liveCopy = {
   sessionModes: (mock: number, watch: number) =>
     `${mock} simulated · ${watch} watch-only`,
   privacyStorage:
-    "No analytics, accounts or trackers. Progress stays in this browser. Evaluation frames are saved locally only if you explicitly enable that option.",
+    "Detailed practice and evaluation records stay in this browser. Your account and free-session entitlement are stored separately in Supabase. Clearing this device does not delete your account or reset the free session. Evaluation frames are saved locally only if you explicitly enable that option.",
   includeMock: "Include simulated results",
   allModels: "All models",
   labeledTotal: "Labeled / total",
@@ -274,7 +274,7 @@ export const liveCopy = {
   eval: "Evaluation",
   emptyProgress:
     "Your first practice is waiting. Completed lessons will appear here.",
-  delete: "Delete my data",
+  delete: "Clear data on this device",
   deleteConfirm:
     "Delete all saved practice, consent and evaluation records on this device?",
   deleted: "Your local data has been deleted.",

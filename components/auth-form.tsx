@@ -221,7 +221,8 @@ export function AuthForm({
         </a>
       </p>
       <p className="auth-privacy">
-        Your privacy matters. Read{" "}
+        Accounts are for people aged 16 and over. By continuing, you agree to our{" "}
+        <a href="/terms">Terms of use</a>. Read{" "}
         <a href="/privacy">how we handle your data</a>.
       </p>
     </div>

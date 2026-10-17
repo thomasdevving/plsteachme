@@ -13,7 +13,7 @@ npm run dev
 
 Use Node.js 24. Open http://localhost:3100. For a production server, run `npm run build` then `npm start`. No environment variables are needed for local preview. With storage unconfigured, forms validate but save no data and clearly say so.
 
-For connected testing after setting up Supabase and OpenAI, follow [the setup and acceptance checklist](docs/TEST_READINESS.md), then run `npm run verify:setup -- --url https://plsteachme.vercel.app`. The checker only reads service configuration and reports missing setup without printing credentials or making AI inference calls. Email login becomes available when Supabase Auth is configured; each account receives one resumable free coaching session.
+For connected testing after setting up Supabase and OpenAI, follow [the setup and acceptance checklist](docs/TEST_READINESS.md), then run `npm run verify:setup -- --url https://plsteach.me`. The checker only reads service configuration and reports missing setup without printing credentials or making AI inference calls. Email login becomes available when Supabase Auth is configured; each account receives one resumable free coaching session.
 
 ## Pages and implementation
 
@@ -26,7 +26,7 @@ For connected testing after setting up Supabase and OpenAI, follow [the setup an
 - `/learn`: searchable skills, six real-life categories, learning journeys, saved progress and published teacher lessons.
 - `/community`: request a skill and support other learners' requests.
 - `/teach`: teacher applications, demonstration recording/upload, lesson editing, AI assistance and independent review.
-- `/privacy`: visible draft with outstanding business/provider details.
+- `/privacy`, `/terms`: current data practices, account terms and content-reporting contact.
 - `/thanks`: honest mock acknowledgement or signup follow-up.
 - `/dev/styleguide`: development only.
 
@@ -36,7 +36,7 @@ The logo is the supplied transparent PNG at `public/brand/hands-filled.png`. The
 
 ## Optional services
 
-Copy `.env.example` to `.env.local` and set only the services you use:
+Copy `.env.example` to ignored `.dev.vars` for local credentials and set only the services you use. Keep secrets out of `.env*` when building for Cloudflare; use encrypted Worker secrets in production. See [Cloudflare setup](docs/CLOUDFLARE_SETUP.md).
 
 | Variable | Purpose |
 |---|---|
@@ -46,10 +46,6 @@ Copy `.env.example` to `.env.local` and set only the services you use:
 | `SUPABASE_URL` | Server-only storage URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only storage secret |
 | `CONTACT_EMAIL` | Public contact address |
-| `NEXT_PUBLIC_ANALYTICS_PROVIDER` | Empty/off, `plausible` or `umami` |
-| `NEXT_PUBLIC_ANALYTICS_DOMAIN` | Plausible domain |
-| `NEXT_PUBLIC_UMAMI_SCRIPT_URL` | Umami script URL |
-| `NEXT_PUBLIC_UMAMI_WEBSITE_ID` | Umami website ID |
 | `ENABLE_CONFIRMATION_EMAIL` | Defaults to false; opt in to Resend |
 | `RESEND_API_KEY` | Server-only email secret |
 | `CONFIRMATION_EMAIL_FROM` | Verified sender with monitored replies |
@@ -81,7 +77,7 @@ Logo exploration: `/brand/logo-directions.html` compares three vector concepts a
 
 ## Automatic camera coaching
 
-Set `OPENAI_API_KEY` in `.env.local` or the deployment’s server environment, then restart/redeploy. `OPENAI_VISION_MODEL` defaults to `gpt-6-luna`; use an image-capable Responses API model available to your account. The key never goes to the browser. An optional `COACHING_SESSION_SECRET` separates session signing from the API key. Authenticated AI practice uses the existing Supabase one-session trial; illustrated practice needs no database. Without a key, lessons remain fully usable and camera coaching visibly reports that it is not connected.
+Set `OPENAI_API_KEY` in `.dev.vars` or the deployment’s server environment, then restart/redeploy. `OPENAI_VISION_MODEL` defaults to `gpt-6-luna`; use an image-capable Responses API model available to your account. The key never goes to the browser. An optional `COACHING_SESSION_SECRET` separates session signing from the API key. Authenticated AI practice uses the existing Supabase one-session trial; illustrated practice needs no database. Without a key, lessons remain fully usable and camera coaching visibly reports that it is not connected.
 
 In any full lesson, confirm age 16+ and consent, then select **Start camera coaching**. The browser requests camera access without microphone access. Checks happen automatically: a pair of resized JPEG frames, captured 600ms apart, is sent after camera startup; subsequent checks wait six seconds after the previous request completes. A high-confidence match to a visually checkable checkpoint records confirmation and advances after a cancellable four-second countdown. Learners can disable automatic advancement or stay on the current step. Uncertain, correction, hazard and nonvisual results never advance automatically. Pause stops image uploads, Resume restarts them, Switch camera changes the preferred facing direction, and Stop releases hardware. Switching lessons, completing/closing a lesson, hiding the page or leaving it stops the camera. The local preview may be mirrored; submitted images stay in camera coordinates.
 

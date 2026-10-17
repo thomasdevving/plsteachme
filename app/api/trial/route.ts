@@ -4,7 +4,7 @@ import { authenticatedUser } from "@/lib/auth/server";
 import { sameOrigin } from "@/lib/auth/redirect";
 import { db } from "@/lib/storage";
 import { readJSON } from "@/lib/ai/server";
-import { getSkill } from "@/lib/skills/loader";
+import { getSkill } from "@/lib/skills/catalog";
 import { modules } from '@/lib/modules';
 import { skillIds, type SkillId } from '@/lib/config';
 import { coachingConfigured } from '@/lib/coaching-security';

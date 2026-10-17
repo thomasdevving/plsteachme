@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refreshAuth } from "@/lib/auth/proxy";
-export async function proxy(request: NextRequest) {
+// Keep the supported Edge middleware convention for the Cloudflare adapter.
+// Next's Node-only proxy convention requires an experimental OpenNext path.
+export async function middleware(request: NextRequest) {
   const authPath =
     /^\/(?:(?:en|nl)\/)?(?:login|signup|account|learn|community|teach|demo)(?:\/|$)/.test(
       request.nextUrl.pathname,

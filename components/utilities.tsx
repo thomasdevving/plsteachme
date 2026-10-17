@@ -1,39 +1,12 @@
 "use client";
 import { useEffect } from "react";
-import Script from "next/script";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
-import { attribution } from "@/lib/attribution";
 import { track } from "@/lib/analytics";
-import { type Locale } from "@/lib/config";
-export function Utilities({ locale }: { locale: Locale }) {
+export function Utilities() {
   useEffect(() => {
-    attribution(locale);
-  }, [locale]);
-  const provider = process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER;
-  const domain = process.env.NEXT_PUBLIC_ANALYTICS_DOMAIN;
-  if (provider === "plausible" && domain)
-    return (
-      <Script
-        defer
-        data-domain={domain}
-        src="https://plausible.io/js/script.js"
-        strategy="afterInteractive"
-      />
-    );
-  const script = process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL;
-  if (
-    provider === "umami" &&
-    script &&
-    process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID
-  )
-    return (
-      <Script
-        defer
-        data-website-id={process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID}
-        src={script}
-        strategy="afterInteractive"
-      />
-    );
+    // Remove campaign data saved by earlier versions. No tracking is started.
+    try { sessionStorage.removeItem('plsteach:attribution'); } catch { /* Storage may be blocked. */ }
+  }, []);
   return null;
 }
 export function Cta({

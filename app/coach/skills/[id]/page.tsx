@@ -2,9 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, Check, Clock3 } from "lucide-react";
 import { AnimatedDiagram } from "@/components/animated-diagram";
-import { loadSkillGraphics } from "@/lib/skills/graphics";
+import { loadSkillGraphics } from "@/lib/skills/catalog";
 import { Header } from "@/components/header";
-import { getSkill, loadSkills } from "@/lib/skills/loader";
+import { getSkill, loadSkills } from "@/lib/skills/catalog";
 import { copy } from "@/lib/copy/en";
 export function generateStaticParams() {
   return loadSkills().map((skill) => ({ id: skill.id }));

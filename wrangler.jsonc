@@ -1,0 +1,25 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "plsteachme",
+  "main": ".open-next/worker.js",
+  "account_id": "a6d8740a330b9414a5156037b16d70d6",
+  "compatibility_date": "2026-10-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    { "pattern": "plsteach.me", "custom_domain": true },
+    { "pattern": "www.plsteach.me", "custom_domain": true }
+  ],
+  "assets": { "directory": ".open-next/assets", "binding": "ASSETS" },
+  "services": [{ "binding": "WORKER_SELF_REFERENCE", "service": "plsteachme" }],
+  "observability": { "enabled": false },
+  "vars": {
+    "NEXT_PUBLIC_SITE_URL": "https://plsteach.me",
+    "SUPABASE_URL": "https://gftceofvypaviluwercw.supabase.co",
+    "SUPABASE_ANON_KEY": "sb_publishable_xV-SQMYwXapPvs7sgnVK4g_hb33zHXe",
+    "OPERATOR_NAME": "Thomas Nguyen",
+    "CONTACT_EMAIL": "contact@plsteach.me",
+    "CAMERA_PROCESSOR": "supabase"
+  }
+}

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { IntakeForm } from "@/components/intake-form";
-import { getSkill, loadSkills } from "@/lib/skills/loader";
+import { getSkill, loadSkills } from "@/lib/skills/catalog";
 import { copy } from "@/lib/copy/en";
 export function generateStaticParams() {
   return loadSkills()

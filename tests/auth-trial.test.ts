@@ -202,6 +202,19 @@ describe("authentication boundaries", () => {
       ).json(),
     ).toEqual({ ok: true });
   });
+  it.each(['email_address_not_authorized', 'email_provider_disabled', 'signup_disabled'])('does not pretend an email was sent when delivery is unavailable: %s', async code => {
+    mocks.otp.mockResolvedValue({ error: { status: 400, code, message: 'Provider internals and private configuration' } });
+    for (const signup of [false, true]) {
+      const response = await authAction(req({ action: 'email', email: 'person@example.com', signup }));
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({ error: 'Email sign-in is temporarily unavailable. Please try again later.' });
+    }
+  });
+  it('keeps an unknown-account OTP rejection private', async () => {
+    mocks.otp.mockResolvedValue({ error: { status: 422, code: 'otp_disabled' } });
+    const response = await authAction(req({ action: 'email', email: 'unknown@example.com', signup: false }));
+    expect(await response.json()).toEqual({ ok: true });
+  });
   it("sanitizes the OAuth redirect", async () => {
     await authAction(
       req({ action: "oauth", provider: "apple", next: "https://evil.example" }),

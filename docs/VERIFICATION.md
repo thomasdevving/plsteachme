@@ -1,5 +1,18 @@
 # Verification — landing website replacement
 
+## Cloudflare and connected accounts — 17 October 2026
+
+This entry supersedes the earlier local-only readiness entries below. The current frontend is deployed at https://plsteach.me on Cloudflare Workers Free (version `92920710-b08e-4d30-a4e5-389ca58fc72e`). Supabase Free in Frankfurt contains the four migrations, protected tables and private teacher bucket. Resend SMTP and Cloudflare contact forwarding are configured; actual inbox delivery remains a separate user acceptance check.
+
+- **290 unit/API/database tests across 30 files passed**, including JPEG orientation, bounds and metadata stripping, private processor failures and browser privacy cleanup.
+- The final OpenNext build and TypeScript compilation passed. The dependency audit reported zero known vulnerabilities during this setup pass.
+- **12 read-only browser checks passed against the deployed custom domain**, covering the selected design, module navigation, mobile/tablet/desktop sizing, reduced motion, animation controls, accessibility and canonical legacy redirects.
+- **7 connected account checks passed on the custom domain**: secure email-token login, unused entitlement, missing-AI protection, concurrent claims, cross-account isolation, monotonic progress/completion and rejected unauthenticated/cross-site writes. Both disposable fixture accounts and their trials were removed. These checks generated tokens administratively; they did not send emails or call AI.
+- The deployed private Supabase camera function rejected missing, public and forged credentials (401). A synthetic oriented image returned a correctly rotated 480×640 metadata-free JPEG; malformed images/limits returned 400 and GET returned 405. No personal camera images were used.
+- The final read-only setup report passed **36/40 checks**. The outstanding items are the intentionally absent OpenAI key, an independent reviewer account, and the corresponding deployed AI availability checks. Database, account configuration, table isolation and private storage checks passed.
+
+Real signup email delivery, OpenAI inference/quality, teacher transcription/publication and actual-phone camera behavior still need the connected acceptance run. Free-plan capacity and per-process rate limiting are operational limits, not load-tested guarantees. Necessary privacy/terms pages and a public contact are present, without analytics or a cookie banner; this is not a legal certification. See [current deployment instructions](CLOUDFLARE_SETUP.md).
+
 ## Current connected-test readiness — 17 October 2026
 
 This latest entry supersedes historical readiness statements below. The app is prepared for a private connected test after Supabase/Auth/Storage and OpenAI setup. Real external email, storage and model quality still require that connected acceptance run; no paid inference or remote schema mutation was performed in this pass.

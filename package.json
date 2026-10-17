@@ -3,39 +3,47 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run prepare:vision && next dev --hostname 0.0.0.0 -p 3100",
+    "dev": "npm run validate:skills && npm run prepare:vision && node --env-file-if-exists=.dev.vars node_modules/next/dist/bin/next dev --hostname 0.0.0.0 -p 3100",
     "build": "npm run prepare:vision && npm run validate:skills && next build --webpack",
     "start": "next start --hostname 0.0.0.0 -p 3100",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "verify:rls": "node scripts/verify-rls.mjs",
-    "verify:setup": "node --import tsx scripts/verify-setup.ts",
+    "verify:setup": "node --env-file-if-exists=.dev.vars --import tsx scripts/verify-setup.ts",
     "prepare:vision": "node scripts/prepare-vision.mjs",
     "validate:skills": "node --import tsx scripts/validate-skills.ts",
     "test:browser": "playwright test --config=playwright.coach.config.ts",
     "test:camera-fixture": "node tests/preview-server.mjs",
-    "test:camera-flow": "node tests/capture-live.mjs"
+    "test:camera-flow": "node tests/capture-live.mjs",
+    "pretypecheck": "npm run validate:skills",
+    "pretest": "npm run validate:skills",
+    "build:cloudflare": "node scripts/build-cloudflare.mjs",
+    "preview:cloudflare": "opennextjs-cloudflare preview",
+    "deploy:cloudflare": "npm run build:cloudflare && opennextjs-cloudflare deploy"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^4.0.96",
     "@fontsource/dm-sans": "5.3.0",
     "@fontsource/lora": "5.3.0",
     "@mediapipe/tasks-vision": "^1.1.0",
+    "@opennextjs/cloudflare": "1.20.12",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.0.0",
+    "ai": "^7.0.143",
     "idb-keyval": "^6.3.0",
+    "jpeg-js": "0.4.4",
     "lucide-react": "1.55.0",
-    "next": "16.4.0",
+    "next": "16.4.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "^0.0.1",
-    "zod": "4.6.7",
-    "@ai-sdk/openai": "^4.0.96",
-    "ai": "^7.0.143",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",
+    "@electric-sql/pglite": "0.5.10",
     "@playwright/test": "1.64.0",
     "@tailwindcss/postcss": "4.3.3",
     "@testing-library/react": "^16.3.3",
@@ -51,10 +59,15 @@
     "typescript": "7.0.2",
     "vite": "8.3.4",
     "vitest": "5.0.4",
-    "@electric-sql/pglite": "0.5.10"
+    "wrangler": "4.151.1"
   },
   "type": "module",
   "engines": {
     "node": "24.x"
+  },
+  "overrides": {
+    "@node-minify/core": {
+      "glob": "10.5.0"
+    }
   }
 }

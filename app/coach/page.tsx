@@ -2,8 +2,8 @@ import { Header } from "@/components/header";
 import { HomeHero } from "@/components/home-hero";
 import { ModuleLibrary } from "@/components/module-library";
 import { HowItWorks } from "@/components/how-it-works";
-import { loadSkillGraphics } from "@/lib/skills/graphics";
-import { loadSkills } from "@/lib/skills/loader";
+import { loadSkillGraphics } from "@/lib/skills/catalog";
+import { loadSkills } from "@/lib/skills/catalog";
 import { copy } from "@/lib/copy/en";
 
 export default function Home() {
