@@ -8,6 +8,7 @@ import { HeroDemo } from "./hero-demo";
 import { Skills } from "./skills";
 import { WaitlistForm } from "./forms";
 import { Mascot } from "./mascot";
+import { MomentFinder } from "./moment-finder";
 export function Landing({
   c,
   locale,
@@ -18,20 +19,23 @@ export function Landing({
   mock: boolean;
 }) {
   return (
-    <>
+    <div className="creative-home">
       <HeroDemo hero={<Hero c={{ hero: c.hero }} />} c={{ demo: c.demo }} />
-      <Section id="how" labelledBy="how-title">
-        <div className="section-heading">
+      <div className="practice-values container" aria-label="A little help, your way"><span>Made for everyday life</span><span>One step at a time</span><span>Room to try again</span></div>
+      <Section id="how" className="practice-method" labelledBy="how-title">
+        <div className="section-heading" data-reveal>
+          <p className="chapter-label">02 / FIND YOUR RHYTHM</p>
           <h2 id="how-title">{c.how.title}</h2>
-          <p>{c.how.intro}</p>
+          <p>Something new feels easier when you can take it one small step at a time.</p>
+          <a href="/learn" className="text-link method-link">Let’s find your first skill<ArrowRight size={18} aria-hidden="true"/></a>
         </div>
         <ol className="steps">
           {c.how.steps.map((step, i) => {
             const Icon = StepIcons[i];
             return (
-              <li key={step.title}>
+              <li key={step.title} data-reveal data-reveal-delay={i * 70}>
                 {i === 0 && <Mascot pose="peeking" />}
-                <span className="step-index">{i + 1}</span>
+                <span className="step-index">0{i + 1}</span>
                 <Icon size={30} strokeWidth={1.4} aria-hidden="true" />
                 <h3>{step.title}</h3>
                 <p>{step.body}</p>
@@ -40,39 +44,46 @@ export function Landing({
           })}
         </ol>
       </Section>
-      <Section id="skills" labelledBy="skills-title">
-        <div className="section-heading">
+      <MomentFinder/>
+      <Section id="skills" className="creative-skills" labelledBy="skills-title">
+        <div className="section-heading" data-reveal>
+          <p className="chapter-label">04 / THE EVERYDAY COLLECTION</p>
           <h2 id="skills-title">{c.skills.title}</h2>
           <p>{c.skills.intro}</p>
+          <a href="/learn" className="text-link collection-link">Explore the whole library<ArrowUpRight size={18} aria-hidden="true"/></a>
         </div>
         <Skills
           c={{ skills: c.skills, form: c.form, demo: c.demo }}
           locale={locale}
         />
         <div className="module-companion" aria-hidden="true">
+          <span className="module-caption">Everyone starts somewhere.</span>
           <Mascot pose="lounging" />
         </div>
       </Section>
       <Section className="scope-entry" labelledBy="scope-title">
-        <div className="section-heading">
-          <p className="lesson-eyebrow">Human knowledge. Help while you practice.</p>
+        <div className="section-heading" data-reveal>
+          <p className="chapter-label">05 / BETTER, TOGETHER</p>
           <h2 id="scope-title">A skill starts with someone sharing it.</h2>
           <p>Follow a learning journey, help choose the next lesson, or share a skill you know well.</p>
         </div>
         <div className="scope-cards">
-          <article>
+          <article data-reveal>
+            <span className="scope-card-index" aria-hidden="true">01</span>
             <BookOpen aria-hidden="true" />
             <h3>Find your starting point</h3>
             <p>Explore skills for your first interview, everyday routines and independent living. Pick up where you left off.</p>
             <a className="text-link" href={pathFor(locale, "learn")}>Explore learning journeys <ArrowRight size={17} aria-hidden="true" /></a>
           </article>
-          <article>
+          <article data-reveal data-reveal-delay="90">
+            <span className="scope-card-index" aria-hidden="true">02</span>
             <MessageCircle aria-hidden="true" />
             <h3>Tell us what’s missing</h3>
             <p>Request a practical skill and support ideas from other learners. Help teachers see what people want to learn.</p>
             <a className="text-link" href={pathFor(locale, "community")}>Visit the request board <ArrowRight size={17} aria-hidden="true" /></a>
           </article>
-          <article>
+          <article data-reveal data-reveal-delay="180">
+            <span className="scope-card-index" aria-hidden="true">03</span>
             <Heart aria-hidden="true" />
             <h3>Share what you know</h3>
             <p>Apply to teach, add a demonstration and shape a lesson with AI assistance. An independent reviewer checks it before publication.</p>
@@ -81,10 +92,14 @@ export function Landing({
         </div>
       </Section>
       <Section className="privacy-section" labelledBy="privacy-title">
-        <div className="section-heading">
+        <div className="privacy-heading" data-reveal>
+          <p className="chapter-label">YOUR PRACTICE. YOUR CHOICE.</p>
+          <div className="section-heading">
           <ShieldCheck size={35} strokeWidth={1.25} aria-hidden="true" />
           <h2 id="privacy-title">{c.privacy.title}</h2>
+          </div>
         </div>
+        <div className="privacy-details" data-reveal>
         <ul className="privacy-points">
           {c.privacy.points.map((point) => (
             <li key={point}>
@@ -98,6 +113,7 @@ export function Landing({
           {c.privacy.link}
           <ArrowRight size={18} aria-hidden="true" />
         </a>
+        </div>
       </Section>
       <Section className="org-teaser" labelledBy="org-title">
         <div>
@@ -116,6 +132,7 @@ export function Landing({
       >
         <div className="waitlist-layout">
           <div className="waitlist-copy">
+            <p className="chapter-label">A GOOD PLACE TO BEGIN</p>
             <h2 id="waitlist-title">{c.form.title}</h2>
             <p className="lead">{c.form.intro}</p>
             <div className="waitlist-companions" aria-hidden="true">
@@ -132,7 +149,7 @@ export function Landing({
       </Section>
       <Section labelledBy="faq-title">
         <div className="faq-layout">
-          <h2 id="faq-title">{c.faq.title}</h2>
+          <div data-reveal><p className="chapter-label">A FEW THINGS TO KNOW</p><h2 id="faq-title">{c.faq.title}</h2><p className="faq-note">Curiosity is a good starting point.</p></div>
           <div className="faq-items">
             {c.faq.items.map((item) => (
               <details key={item.q}>
@@ -146,7 +163,7 @@ export function Landing({
           </div>
         </div>
       </Section>
-    </>
+    </div>
   );
 }
 function CheckMark() {

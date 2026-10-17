@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import type { AvailableSkill } from "@/lib/skills/schema";
 import { AnimatedDiagram } from "./animated-diagram";
 import { copy } from "@/lib/copy/en";
+import { setMotionPaused, useMotionPaused } from "@/lib/motion-preference";
 
 const STEP_DURATION_MS = 3600;
 export function SkillPreview({
@@ -20,6 +21,7 @@ export function SkillPreview({
   onTogglePlay: () => void;
 }) {
   const { index, previous, paused } = selection;
+  const motionPaused = useMotionPaused();
   const [visible, setVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
   const surface = useRef<HTMLDivElement>(null);
@@ -47,7 +49,7 @@ export function SkillPreview({
       document.removeEventListener("visibilitychange", visibility);
     };
   }, []);
-  const playing = !paused && visible && !reducedMotion;
+  const playing = !paused && visible && !reducedMotion && !motionPaused;
   useEffect(() => {
     if (!playing) return;
     const timer = window.setTimeout(() => {
@@ -85,7 +87,7 @@ export function SkillPreview({
           />
           <circle r="4" />
         </svg>
-        {previous !== null && !reducedMotion && (
+        {previous !== null && !reducedMotion && !motionPaused && (
           <AnimatedDiagram
             key={`previous-${previous}`}
             className="preview-diagram outgoing"
@@ -120,7 +122,12 @@ export function SkillPreview({
             className="preview-control"
             aria-label={playing ? copy.motion.pause : copy.motion.play}
             disabled={reducedMotion}
-            onClick={onTogglePlay}
+            onClick={() => {
+              if (motionPaused) {
+                setMotionPaused(false);
+                if (paused) onTogglePlay();
+              } else onTogglePlay();
+            }}
           >
             {playing ? (
               <Pause size={16} aria-hidden="true" />

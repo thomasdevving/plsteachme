@@ -1,5 +1,6 @@
 "use client";
 import { useLayoutEffect, useRef } from "react";
+import { useMotionPaused } from "@/lib/motion-preference";
 
 type Point = readonly [number, number];
 type Pose = {
@@ -180,6 +181,7 @@ export function TieMotion({
     previousReplay = useRef(replay),
     animations = useRef<Animation[]>([]);
   const pose = poses[step];
+  const motionPaused = useMotionPaused();
   useLayoutEffect(() => {
     animations.current = [];
     const repeated = previousReplay.current !== replay;
@@ -188,7 +190,7 @@ export function TieMotion({
     previousReplay.current = replay;
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
     // Reset the demonstration directly; never morph a finished knot into a drape.
-    if (from === step || step === 0 || preference.matches) return;
+    if (from === step || step === 0 || preference.matches || motionPaused) return;
     const active: Animation[] = [];
     for (const [element, start, end] of [
       [wide.current, shapes[from], shapes[step]],
@@ -211,7 +213,7 @@ export function TieMotion({
       active.forEach((animation) => animation.cancel());
       preference.removeEventListener("change", reduce);
     };
-  }, [step, pose, replay]);
+  }, [step, pose, replay, motionPaused]);
   useLayoutEffect(() => {
     const node = svg.current;
     if (!node) return;
@@ -219,7 +221,7 @@ export function TieMotion({
     const sync = () =>
       animations.current.forEach((animation) => {
         if (animation.playState !== "finished")
-          playing && visible && !document.hidden
+          playing && !motionPaused && visible && !document.hidden
             ? animation.play()
             : animation.pause();
       });
@@ -234,7 +236,7 @@ export function TieMotion({
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
     };
-  }, [playing, step, replay]);
+  }, [playing, step, replay, motionPaused]);
   return (
     <svg
       ref={svg}

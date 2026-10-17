@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef } from 'react';
 import type { SkillId } from '@/lib/config';
 import { modules } from '@/lib/modules';
 import { TieMotion } from './tie-motion';
+import { useMotionPaused } from '@/lib/motion-preference';
 
 const ink = '#52614f';
 const orange = '#bb4827';
@@ -107,12 +108,13 @@ export function LessonArtwork({ skill, step, replay }: { skill: SkillId; step: n
 
 function SkillMotion({ skill, step, replay }: { skill: Exclude<SkillId,'tie'>; step: number; replay: number }) {
   const svg = useRef<SVGSVGElement>(null);
+  const motionPaused = useMotionPaused();
   useLayoutEffect(() => {
     const node = svg.current;
     if (!node) return;
     const preference = matchMedia('(prefers-reduced-motion: reduce)');
     const animations: Animation[] = [];
-    if (!preference.matches) {
+    if (!preference.matches && !motionPaused) {
       const scene = node.querySelector('.lesson-scene');
       if (scene) animations.push(scene.animate([{opacity:.4},{opacity:1}],{duration:1100,easing:'ease-out'}));
       node.querySelectorAll('.lesson-moving').forEach(element => {
@@ -130,7 +132,7 @@ function SkillMotion({ skill, step, replay }: { skill: Exclude<SkillId,'tie'>; s
     document.addEventListener('visibilitychange',sync);
     preference.addEventListener('change',sync);
     return () => { animations.forEach(animation=>animation.cancel()); observer.disconnect(); document.removeEventListener('visibilitychange',sync); preference.removeEventListener('change',sync); };
-  },[step,replay]);
+  },[step,replay,motionPaused]);
   return <svg ref={svg} className="skill-motion" data-skill={skill} data-step={step+1} viewBox="0 0 420 340" role="img" aria-label={`Step ${step+1}: ${modules[skill].steps[step].title}`} fill="none" stroke={ink} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <g className="lesson-scene">{skill === 'shaving' ? <Face step={step} beard={false}/> : skill === 'beard' ? <Face step={step} beard/> : skill === 'ironing' ? <Ironing step={step}/> : skill === 'button' ? <ButtonScene step={step}/> : skill === 'drill' ? <DrillScene step={step}/> : skill === 'laundry' ? <Laundry step={step}/> : skill === 'cooking' ? <Cooking step={step}/> : <BikeScene step={step}/>}</g>
   </svg>;
