@@ -3,18 +3,15 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowDown, ArrowRight, Clock3 } from "lucide-react";
 import { SkillPreview } from "./skill-preview";
-import { ResumeLesson } from "./resume-lesson";
 import type { AvailableSkill } from "@/lib/skills/schema";
 import { copy } from "@/lib/copy/en";
 
 export function HomeHero({
   skill,
   graphics,
-  available,
 }: {
   skill: AvailableSkill;
   graphics: Record<string, string>;
-  available: AvailableSkill[];
 }) {
   const [selection, setSelection] = useState<{
     index: number;
@@ -41,16 +38,9 @@ export function HomeHero({
     <div className="home-layout page-width">
       <section className="home-intro">
         <h1>
-          {copy.home.title.split("\n").map((line, index) => (
-            <span
-              key={line}
-              className={index === 1 ? "accent-line" : undefined}
-            >
-              {line}
-            </span>
-          ))}
+          How coaching works.
         </h1>
-        <p className="lead">{copy.home.intro}</p>
+        <p className="lead">Choose a module, follow the illustrated steps, and practice with optional camera feedback. Here’s an example using the tie lesson.</p>
         <div className="preview-navigation">
           <p id="preview-navigation-label">{copy.motion.choose}</p>
           <div
@@ -79,15 +69,13 @@ export function HomeHero({
             {skill.steps[selection.index].title}
           </p>
         </div>
-        <a href="#modules" className="quiet-link browse-modules">
-          {copy.modules.browse}
+        <Link href="/coach" className="quiet-link browse-modules">
+          Back to modules
           <ArrowDown size={18} aria-hidden="true" />
-        </a>
-        <p className="intro-footnote">{copy.home.footer}</p>
+        </Link>
       </section>
       <section className="skill-picker" aria-labelledby="skills-title">
-        <h2 id="skills-title">{copy.home.skills}</h2>
-        <ResumeLesson skills={available} />
+        <h2 id="skills-title">Explore a lesson</h2>
         <article className="skill-card">
           <SkillPreview
             skill={skill}

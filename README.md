@@ -20,7 +20,8 @@ For connected testing after setting up Supabase and OpenAI, follow [the setup an
 - `/`: landing, phone example, module library, waitlist and FAQ.
 - `/subscriptions`: existing coming-soon plans and pricing.
 - `/login`, `/signup`, `/account`: shared account and one free coaching session.
-- `/coach`: dedicated camera-coaching experience, intake, local progress and settings.
+- `/coach`: a searchable module library linking all nine working lessons, with the existing resume shortcut.
+- `/coach/guide`: the interactive lesson example, walkthrough/camera explanation and free-session guidance; account, progress and settings remain separate destinations.
 - `/organizations`: pilot interest form.
 - `/demo`: all nine interactive lessons with optional automatic camera coaching, plus an optional demo video and external demo link.
 - `/learn`: searchable skills, six real-life categories, learning journeys, saved progress and published teacher lessons.

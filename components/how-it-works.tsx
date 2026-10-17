@@ -83,26 +83,12 @@ export function HowItWorks({
           </div>
         </div>
       </section>
-      <section className="kindness-section">
-        <div className="kindness-inner page-width">
-          <h2>{copy.how.patientTitle}</h2>
-          <div>
-            <p>{copy.how.patientBody}</p>
-            <p>{copy.how.patientSecond}</p>
-            <Link href={`/coach/skills/${skill.id}`} className="quiet-link">
-              {copy.how.try}
-              <ArrowRight size={19} aria-hidden="true" />
-            </Link>
-          </div>
-        </div>
-      </section>
       <section
         className="future-section page-width"
         aria-labelledby="future-title"
       >
         <div className="future-title">
           <h2 id="future-title">{copy.how.futureTitle}</h2>
-          <span className="badge">{copy.home.soon}</span>
         </div>
         <p className="future-intro">{copy.how.futureIntro}</p>
         <div className="future-columns">
@@ -118,13 +104,15 @@ export function HowItWorks({
           </div>
         </div>
       </section>
-      <section className="closing-section page-width">
-        <h2>{copy.how.closingTitle}</h2>
-        <p>{copy.how.closingBody}</p>
-        <Link href={`/coach/skills/${skill.id}`} className="button primary">
-          {copy.how.try}
-          <ArrowRight size={21} aria-hidden="true" />
-        </Link>
+      <section className="guide-account page-width">
+        <h2>Your free coaching session</h2>
+        <p>Every account includes one free AI coaching session for a module you choose. You can resume it until you finish. Signing up or browsing the lessons does not use it.</p>
+        <p>Illustrated walkthroughs are available without the camera. If camera coaching is unavailable, your unused free session stays available.</p>
+        <div className="guide-links">
+          <Link href="/account">Your account <ArrowRight size={17} aria-hidden="true" /></Link>
+          <Link href="/coach/progress">Your progress <ArrowRight size={17} aria-hidden="true" /></Link>
+          <Link href="/coach/settings">Privacy and settings <ArrowRight size={17} aria-hidden="true" /></Link>
+        </div>
       </section>
     </>
   );

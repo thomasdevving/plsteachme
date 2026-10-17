@@ -4,7 +4,7 @@ import { loadSkills } from "@/lib/skills/catalog";
 export default function Page() {
   return (
     <>
-      <Header backHref="/coach" />
+      <Header current="progress" />
       <ProgressPage skills={loadSkills()} />
     </>
   );

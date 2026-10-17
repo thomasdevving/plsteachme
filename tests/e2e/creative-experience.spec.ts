@@ -122,8 +122,8 @@ test('animation preference survives the separate coach root and controls its pre
   await page.clock.runFor(800);
   await page.getByRole('button', { name: 'Pause animations', exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-motion-paused', 'true');
-  // /coach has a different root layout, so this is a real document navigation.
-  await page.goto('/coach');
+  // The guide uses the separate coach root layout.
+  await page.goto('/coach/guide');
   await expect(page.locator('html')).toHaveAttribute('data-motion-paused', 'true');
   const preview = page.locator('#lesson-preview');
   await preview.scrollIntoViewIfNeeded();

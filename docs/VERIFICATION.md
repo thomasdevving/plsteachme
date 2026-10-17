@@ -1,5 +1,11 @@
 # Verification — landing website replacement
 
+## Module-focused coach — 18 October 2026
+
+`/coach` now opens directly on nine working modules with category filters, search and the existing local resume shortcut. The long introduction, animated lesson example, camera explanation and account guidance live at `/coach/guide`. Modules, Guide, Account, Progress and Settings have clear navigation; lesson/session controls retain their focused back navigation. The index links to existing working lesson routes rather than the outdated planned-module cards. Subscriptions, authentication and trial logic are unchanged.
+
+TypeScript and the Cloudflare production build pass. All 18 affected coach scenarios have passing coverage at 375px, 414px and desktop, including all nine module destinations, keyboard filtering, empty-search recovery, accessibility, guide playback and a complete resumable walkthrough. Two offscreen-animation checks needed their scroll target moved farther down the shorter guide; their pause assertions were retained and all three viewport cases passed together on rerun. Three additional routing/responsive/animation-preference checks passed. Desktop and phone screenshots were visually reviewed for layout and overflow. No real account entitlement or AI inference was used.
+
 ## Real signup confirmation — 18 October 2026
 
 The operator received the real signup message through Resend and Cloudflare forwarding, confirmed the email and signed in. A targeted database check confirmed the account is verified, non-anonymous and active, with zero trial sessions started or completed. Its one free session remains unused. Live login/account/lesson pages and account/community endpoints return successfully. OpenAI availability is still false, as intended until the operator adds the key; real AI inference has not been tested. The existing seven connected entitlement checks remain applicable to the unchanged deployed code.
