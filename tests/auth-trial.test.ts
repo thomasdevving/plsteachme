@@ -12,6 +12,9 @@ const mocks = vi.hoisted(() => ({
 vi.mock("@/lib/auth/config", () => ({
   authConfig: () => ({ enabled: mocks.enabled, google: true, apple: true }),
 }));
+vi.mock("@/lib/auth/providers", () => ({
+  authProviders: async () => ({ google: true, apple: true }),
+}));
 vi.mock("@/lib/auth/server", () => ({
   authenticatedUser: mocks.user,
   authClient: async () => ({

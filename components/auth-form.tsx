@@ -116,8 +116,8 @@ export function AuthForm({
               ? "Create your account. Your first coaching session is free."
               : "Sign in and pick up where you left off."}
           </p>
-          <div className="auth-providers">
-            <button
+          {(google || apple) && <div className="auth-providers">
+            {google && <button
               className="auth-provider"
               disabled={!enabled || !google || !!busy}
               onClick={() => submit("google")}
@@ -133,8 +133,8 @@ export function AuthForm({
                   aria-hidden="true"
                 />
               )}
-            </button>
-            <button
+            </button>}
+            {apple && <button
               className="auth-provider"
               disabled={!enabled || !apple || !!busy}
               onClick={() => submit("apple")}
@@ -150,19 +150,11 @@ export function AuthForm({
                   aria-hidden="true"
                 />
               )}
-            </button>
-          </div>
-          {enabled && (!google || !apple) && (
-            <p className="auth-hint">
-              {!google && !apple
-                ? "Google and Apple sign-in are coming soon."
-                : `${!google ? "Google" : "Apple"} sign-in is coming soon.`}{" "}
-              You can continue with email.
-            </p>
-          )}
-          <div className="auth-divider">
+            </button>}
+          </div>}
+          {(google || apple) && <div className="auth-divider">
             <span>or use your email</span>
-          </div>
+          </div>}
           <form
             onSubmit={(event) => {
               event.preventDefault();

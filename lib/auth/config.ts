@@ -11,7 +11,5 @@ export function authConfig() {
     url,
     key,
     enabled: Boolean(url && key),
-    google: process.env.AUTH_GOOGLE_ENABLED === "true",
-    apple: process.env.AUTH_APPLE_ENABLED === "true",
   };
 }

@@ -8,10 +8,14 @@ export function MobileMenu({
   c,
   home,
   page,
+  accountHref,
+  accountLabel,
 }: {
   c: Copy["nav"];
   home: string;
   page: Page;
+  accountHref: string;
+  accountLabel: string;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   function close() {
@@ -55,8 +59,7 @@ export function MobileMenu({
         >
           {c.org}
         </a>
-        <a href="/login">Log in</a>
-        <a href="/account">My account</a>
+        <a href={accountHref}>{accountLabel}</a>
       </nav>
     </details>
   );

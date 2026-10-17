@@ -1,5 +1,11 @@
 # Verification — landing website replacement
 
+## Persistent account navigation — 18 October 2026
+
+The public desktop/mobile header previously displayed Log in regardless of the actual session, and the login/signup pages showed their forms to signed-in users. The header now reads the server session, rechecks restored/focused pages and keeps the last confirmed state during temporary failures. Login/signup recognize an authenticated user and redirect to a validated destination. Unconfigured social providers are hidden; the form and OAuth action discover actual Supabase provider availability automatically.
+
+TypeScript and the Cloudflare production build pass. All 60 targeted auth, provider, navigation and network tests pass. Six connected browser checks pass against both the local Cloudflare build and the deployed custom domain: home/reload persistence, login/signup redirects, safe return destinations, phone navigation and browser Back, expiry-triggered cookie renewal and explicit sign-out. A public-header routing check also passes, and the signed-in desktop layout was visually reviewed. The connected checks use and remove disposable fixtures, send no email or AI requests and do not claim a coaching session. Real Google consent remains an external acceptance step until provider setup is complete.
+
 ## Module-focused coach — 18 October 2026
 
 `/coach` now opens directly on nine working modules with category filters, search and the existing local resume shortcut. The long introduction, animated lesson example, camera explanation and account guidance live at `/coach/guide`. Modules, Guide, Account, Progress and Settings have clear navigation; lesson/session controls retain their focused back navigation. The index links to existing working lesson routes rather than the outdated planned-module cards. Subscriptions, authentication and trial logic are unchanged.

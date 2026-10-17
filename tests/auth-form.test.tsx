@@ -19,7 +19,7 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
-it("honestly disables unconfigured providers and email", () => {
+it("hides unconfigured providers and disables unavailable email", () => {
   render(<AuthForm enabled={false} google={false} apple={false} signup />);
   expect(
     (screen.getByLabelText("Email address") as HTMLInputElement).disabled,
@@ -30,6 +30,14 @@ it("honestly disables unconfigured providers and email", () => {
       .every((button) => (button as HTMLButtonElement).disabled),
   ).toBe(true);
   expect(screen.getByRole("status").textContent).toContain("temporarily unavailable");
+  expect(screen.queryByRole("button", { name: /Continue with Google/ })).toBeNull();
+  expect(screen.queryByRole("button", { name: /Continue with Apple/ })).toBeNull();
+});
+it("offers only configured providers without coming-soon promises", () => {
+  render(<AuthForm enabled google apple={false} />);
+  expect((screen.getByRole("button", { name: "Continue with Google" }) as HTMLButtonElement).disabled).toBe(false);
+  expect(screen.queryByRole("button", { name: /Continue with Apple/ })).toBeNull();
+  expect(screen.queryByText(/coming soon/)).toBeNull();
 });
 it("submits email registration explicitly, then focuses the confirmation", async () => {
   fetchMock.mockResolvedValue({ ok: true, json: async () => ({ ok: true }) });

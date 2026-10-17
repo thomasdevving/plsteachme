@@ -22,7 +22,9 @@ npx opennextjs-cloudflare deploy
 
 Wrangler authentication is already configured on the operator's machine. No paid plan is required by this configuration. `SUPABASE_SERVICE_ROLE_KEY` is already a Worker secret. Add `OPENAI_API_KEY` through the Cloudflare Worker Settings > Variables and Secrets panel as a **Secret**, or interactively with `npx wrangler secret put OPENAI_API_KEY`. Never paste credentials into chat or public variables. A secret update creates a new Worker version; verify that it is deployed.
 
-`OPENAI_VISION_MODEL` defaults to `gpt-6-luna` and `OPENAI_TRANSCRIPTION_MODEL` to `gpt-4o-transcribe`. Verify access and paid inference separately after adding the key. Keep provider budget controls appropriate for testing. Google/Apple require their own provider configuration; the UI labels them unavailable.
+`OPENAI_VISION_MODEL` defaults to `gpt-6-luna` and `OPENAI_TRANSCRIPTION_MODEL` to `gpt-4o-transcribe`. Verify access and paid inference separately after adding the key. Keep provider budget controls appropriate for testing. Google/Apple require their own provider configuration. The login page and OAuth action read Supabase's public provider settings and only offer enabled providers; an optional `AUTH_GOOGLE_ENABLED=false` or `AUTH_APPLE_ENABLED=false` can explicitly disable one. No second deployment flag is required to enable a configured provider. Discovery failures leave email login available.
+
+The public header checks the server session rather than displaying a fixed Log in button. It rechecks on browser history restoration and focus, retaining the last confirmed state on a temporary network failure. Auth cookies remain HttpOnly, secure in production and scoped to `/`. Login/signup redirect an already authenticated user to their safe app destination. Verify the complete home/account/renewal/sign-out flow with `node --env-file=.dev.vars scripts/verify-auth-navigation.mjs https://plsteach.me`; it removes its disposable fixture and sends no email or AI request.
 
 ## Camera processing on the free plan
 

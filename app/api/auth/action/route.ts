@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { authClient } from "@/lib/auth/server";
-import { authConfig } from "@/lib/auth/config";
+import { authProviders } from "@/lib/auth/providers";
 import { safeNext, sameOrigin } from "@/lib/auth/redirect";
 import { readJSON } from "@/lib/ai/server";
 const input = z.discriminatedUnion("action", [
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
         );
       return reply({ ok: true });
     }
-    if (!authConfig()[data.provider])
+    if (!(await authProviders())[data.provider])
       return reply(
         {
           error: "This sign-in option is not available yet. Please use email.",
