@@ -57,3 +57,56 @@ The subsequent B adjustment reduces only the green hand’s silhouette and refin
 The user’s `ChatGPT-afbeelding 13 okt 2026, 13_28_11.png` is preserved byte-for-byte at `public/brand/hands-filled.png` (SHA-256 `5ed2894d4e7cb9f851541c376e1de41b4e73ae14e75ca4d919fdee308f1b0694`). It replaces the earlier outline mark in the shared header/404 BrandMark, footer and browser/apple icon metadata. Next Image serves appropriately sized header/footer images; the supplied source is unchanged. Existing compact optical sizing and brand text colors remain.
 
 Production build and four relevant browser checks pass, including mobile/desktop WCAG checks, no horizontal overflow, dark OS/reduced motion, module controls and concept-preview isolation. One batched 375px/1280px visual check confirms the transparent cream-backed header/footer presentation, loaded optimized images and the new icon URL. Earlier vector concepts remain review references rather than the selected identity.
+
+## Complete illustrated modules — 17 October 2026
+
+Story: choose any of nine skills in the hero, filtered library or `/demo`, follow the shared seven-step lesson, check each instruction, finish, review and restart. The lessons are client-side and need no external service.
+
+Verified against a completed local production build:
+
+- `npm test`: all 16 validation and server authorization tests pass.
+- `npm run typecheck`: passes.
+- `npm run build`: passes.
+- `npm run test:e2e`: all 19 production browser tests pass, including five new module tests.
+- All nine full lessons complete, review their final step and restart; materials, checkpoints, artwork labels and semantic progress agree with lesson content.
+- All nine hero selections use shared instructions and reset appropriately on module changes; library close restores focus and filtering closes the lesson.
+- New illustration motion plays once, holds, replays, pauses offscreen and finishes when reduced motion is enabled. All 63 steps have static reduced-motion artwork.
+- Axe WCAG A/AA checks and overflow checks pass at 375px and 1280px, including expanded lesson materials. Removed the inherited opacity animation from lesson text after it produced a transient contrast finding.
+- A desktop/mobile visual review and an eight-module artwork contact sheet confirm readable instructions, original SVG scenes and the existing cream/green/orange brand. The completed walkthrough test records no browser page errors.
+
+No new dependencies, API routes or database changes. Supabase and email remain unconfigured and were not live-tested; existing mock form tests pass. Camera/AI coaching is not implemented or implied by these illustrated walkthroughs. Completion is a self-check in transient client state, without automatic verification or saved progress. No new Lighthouse or deployed performance claim is made.
+
+## Automatic camera/AI coaching — 17 October 2026
+
+Story: open a full lesson, confirm age and consent, start the camera, receive automatic feedback for the selected step, adjust while checks repeat, then move on at your own pace. There is no manual check/capture button. The hero remains illustrative.
+
+Verified against the completed local production build:
+
+- `npm test`: all 35 unit/API tests pass (19 new coaching tests and the existing 16 validation/authorization tests).
+- `npm run typecheck` and `npm run build`: pass, including the two dynamic coaching API routes.
+- `npm run test:e2e`: all 30 production browser tests pass, including 11 camera-coaching tests using Chromium’s simulated camera and mocked AI responses.
+- Automatic first checks and automatic retries for unclear feedback; matching results stop repeated checks until the next step. There are no overlapping requests or manual check controls.
+- Consent precedes camera access; capture requests audio:false. Permission denial remains recoverable and does not break lesson navigation.
+- Pause prevents uploads, Resume restarts checks, hidden pages stop all tracks, and lesson switches/completion release hardware. A permission request resolving after Stop immediately releases its newly obtained tracks.
+- Step changes cancel pending checks and stale responses cannot update the new step. Hazard/rate feedback pauses checks. Expired sessions/unavailable services release the camera and clear the busy state.
+- Signed HttpOnly consent sessions, origin checks, request/streamed-body limits, bounded JPEG decoding/resizing, corrupt/decompression input rejection, server-owned lesson prompts, storage-disabled provider requests, conservative confidence/nonvisual handling and sanitized errors.
+- Mobile coaching controls/feedback pass Axe WCAG A/AA checks and have no horizontal overflow. Existing four-page mobile/desktop accessibility and overflow tests also pass. The provider policy URL is rendered as a readable link after an overflow finding.
+- A batched visual review inspected consent and active coaching on desktop and at 375px using a simulated camera. The current instruction/checkpoint, automatic status, controls and feedback remain readable. Existing brand and illustration styling are preserved.
+
+The user will add the OpenAI API key after the build. No live paid OpenAI request was made, so model accuracy, latency, account/model availability and real mobile camera behavior remain to be checked with credentials and real devices. API tests mock only the provider generation; they exercise actual request validation, cookies and image decoding. Browser checks use simulated camera input and intercepted coaching responses. Missing-key behavior is checked against the actual local API.
+
+No camera image or feedback persistence is implemented. OpenAI receives resized stills with store:false; provider retention is disclosed and zero retention is not claimed. The beta rate limiter is per process, with shared limits/provider spend controls required before scaling. Node.js 22+ is required by the installed AI SDK 7/OpenAI provider 4. Supabase and email remain unchanged and were not live-tested. No new deployed performance claim is made.
+
+## Expanded learning and teacher platform — 17 October 2026
+
+Story: a learner discovers a skill or requests one; an approved teacher records and structures a demonstration; an independent reviewer publishes an immutable version; learners practice with automatic camera checks, contextual questions and a checkpoint record.
+
+- `npm test`: 82 tests passed across validation, routes, coaching, learning progress, questions/reports, platform APIs and isolated PostgreSQL.
+- `npm run typecheck`: passed. `npm run build`: passed, including all new public pages and dynamic APIs.
+- Full production browser run: 52 of 53 passed. The remaining test identified a transient low-contrast Next button while its disabled opacity faded after progress hydration. Removed that opacity transition, rebuilt, then reran the three relevant accessibility suites: all 3 passed (camera, expanded lessons, and all existing page layouts at mobile/desktop sizes).
+- Browser coverage includes camera consent/cleanup, high-confidence automatic advancement, cancellation/opt-out, nonvisual/uncertain results, resume/reset, questions and consented text-only reports for both built-in and published lessons, community support, teacher applications, video/audio recording, upload, transcription, editable AI proposals, independent review, published progress, and switching between lesson types.
+- PostgreSQL tests execute the actual migration using PGlite with stubbed Supabase Auth/Storage schemas and the actual service_role grants. They exercise duplicate voting, ownership, stale submission/review rejection, publication, withdrawal, immutable history and denied anon/authenticated table/function access.
+- Desktop/mobile captures show no horizontal overflow; microphone permissions are enabled only for the teacher studio. Native media tests use simulated camera/audio devices. External API/Auth/Storage responses are mocked in browser/API tests; no paid OpenAI request was made.
+- The pricing regression asserts the original free-demo FAQ and payment preference options. No subscription, credit, checkout, rollover or royalty implementation was changed.
+
+Live boundaries: the available remote Supabase project had an empty public schema and no repository link, so it was inspected read-only and left unchanged. Apply the checked-in migrations to the intended project, configure Auth redirects/reviewers and server credentials, then verify real email delivery, uploads/playback, provider output and physical mobile cameras. See `docs/PLATFORM.md` and `.env.example`. No production deployment or remote schema mutation was performed.

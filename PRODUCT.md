@@ -7,7 +7,7 @@ Next.js App Router, strict TypeScript, Tailwind, Zod, Supabase server SDK; Verce
 ## Users
 Young people learning practical skills; supporters; schools, youth work and employers interested in pilots. Mobile social traffic first.
 ## Product Purpose
-Explain plsteach.me and collect waitlist signups, skill demand, willingness to pay and pilot inquiries. Mission: Nobody should have to figure everything out alone.
+Help people learn practical skills through structured practice, evidence-aware AI coaching and human-reviewed teaching contributions. Collect skill demand and pilot interest alongside the learning product. Mission: Nobody should have to figure everything out alone.
 ## Capabilities and Constraints
 Early demo/beta. First skill: tying a tie. Future skills must be labelled coming soon. No invented proof. English-only public site. Under-16 form stores no personal data, only an aggregate count. Missing Supabase uses an explicitly disclosed nonpersistent mock. Actual demo and video URLs, business details and founder bio await owner configuration.
 ## Brand Commitments
@@ -19,3 +19,19 @@ WCAG AA, keyboard navigation, visible focus, reduced motion, dark mode, 375px fi
 
 ## Current shipped surface
 The user selected this landing website to replace the prior website on main. Public copy is English-only. Brand: supplied hands logo, green plsteach and orange .me. Hero text is user-pinned, with the second line orange. Nine modules offer honest text previews and interest voting; the phone is an interactive, explicitly illustrative coaching example. Waitlist and organization forms retain mock mode until services are configured.
+
+## Complete illustrated modules — 17 October 2026
+
+The user requested that the remaining modules work too. All nine skills now offer complete seven-step illustrated walkthroughs. This supersedes the earlier coming-soon/text-preview restriction for the local lessons. Camera coaching remains a future integration and is not claimed by any lesson. The hero, filtered library and `/demo` share the same lesson content. Each full lesson includes materials, instructions, checkpoints, tips, completion and restart. Lesson progress is transient client state; no account, camera or new storage is needed.
+
+## Automatic camera coaching — 17 October 2026
+
+The user requested built-in camera/AI coaching and explicitly required automatic checks. Full lessons now offer optional camera coaching with age confirmation, consent and browser permission. The hero remains an illustration. Active coaching sends reduced-size still-image pairs to OpenAI automatically, without a manual capture/check button. Learners control lesson advancement. Pause stops uploads; Stop, hidden pages, lesson switches and completion release the camera. The server validates requests and frames, uses server-owned lesson instructions, and normalizes uncertain or nonvisual checks. Missing configuration is visibly unavailable, with the illustrated lesson still working. This supersedes the previous future-integration statement. Camera content is not saved by this app; provider retention is disclosed. Live quality testing awaits the API key the user will configure after the build.
+
+## Expanded product scope — 17 October 2026
+
+The supplied Product Vision & Concept Overview adds a learner catalog, real-life journeys, community skill requests and a teacher studio. Existing subscriptions and pricing are expressly preserved; the proposed $9.99 credit/rollover model is not implemented.
+
+Learners search six real-life categories, resume browser-local progress, ask step-specific questions and receive an honest checkpoint summary. A high-confidence visible match now records the checkpoint and advances after a four-second cancellable countdown, unless the learner opts out. This supersedes the previous manual-advancement-only behavior. Uncertain, nonvisual and hazardous checks remain unresolved until an appropriate self-check or clearer observation. Incorrect feedback can be sent for human review with separate text-only consent.
+
+Accounts support requests and unique support votes. Teachers apply with experience and qualifications, record/upload a demonstration, optionally transcribe its audio and generate an editable structured draft from text and selected frames. Teacher approval precedes independent review. Published immutable versions power learner demonstrations and camera coaching. Changes require another review; teachers can withdraw publication. Submission/version checks prevent stale review decisions. Model training and payouts are not invented: optional training permission is recorded, reports require human review, and subscription/payment mechanics are unchanged. Setup and operating boundaries are documented in docs/PLATFORM.md.

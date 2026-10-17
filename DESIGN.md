@@ -293,3 +293,21 @@ The refined B concept is the default selection in the logo comparison. Its mark 
 B’s green rear hand is reduced in height and width relative to the orange hand, with slimmer fingers, gentler fingertip curves and a smoother palm-to-wrist contour. The orange hand, lettering, spacing and palette are preserved.
 
 Latest supplied identity: the filled two-hands PNG uploaded on 13 October replaces the earlier outline logo across header, 404, footer and browser/apple icon metadata. The original PNG is preserved byte-for-byte; Next Image serves size-appropriate header/footer derivatives. The compact lockup and green/orange wordmark remain. Earlier vector concepts are exploration references.
+
+## Complete illustrated lessons — 17 October 2026
+
+This supersedes the earlier six-choice hero and three-step text previews. All nine skills are selectable in the hero and use seven-step lesson data shared with the full library player and `/demo`. Eight additional SVG scenes illustrate preparation, practice and cleanup; the tie keeps its existing fabric poses. Native finite animations hold their final result, replay, pause offscreen and in hidden documents, and finish immediately when reduced motion is enabled.
+
+The expanded card panel and demo player use a two-column overview/workspace above 800px and a single column below. Materials sit in a native disclosure; the workspace has a cream/green drawing, a semantic progress rail, instructions, tips, a self-check and Back/Next controls. Finish shows an explicitly self-reported completion screen with review and restart. Keyboard navigation focuses the updated heading; closing a library lesson restores focus to its opener. There are no camera or AI verification claims. Text changes have no opacity transition, preserving contrast throughout. The supplied logo, colors and typography remain unchanged.
+
+## Optional automatic camera coach — 17 October 2026
+
+Full lesson workspaces now include a bordered camera-coaching section beneath the existing controls. It provides an accessible consent/age gate, local camera preview, framing hint, automatic-check status, short feedback and Pause/Resume/Switch/Stop controls. The preview is muted and inline; front-camera mirroring affects only the display. There is no manual check button. Existing lesson navigation remains available without camera permission or credentials. Automatic checks finish on a clear result or nonvisual checkpoint and resume for the next lesson step. Feedback never advances the lesson or claims overall safety. Status and errors use a polite live region, with no color-only distinctions. Controls wrap at 375px, and existing reduced-motion behavior is preserved.
+
+## Learning, community and studio — 17 October 2026
+
+The header now leads to Learn, Community and Teach, with a compact visible mobile navigation row. `/learn` combines search, six category filters, skill cards, saved practice and themed journeys; published teacher lessons carry a teacher name and reviewed version. Starter artwork stays labeled illustrated. All new surfaces continue the cream, green and terracotta palette, Lora headings and DM Sans body copy.
+
+The player distinguishes camera-confirmed visible evidence, self-checks and unresolved checkpoints in text. High-confidence visible confirmation can now advance after a four-second countdown with Stay and opt-out controls. This supersedes the earlier no-advancement rule. Reporting incorrect feedback pauses the camera loop so the form stays stable. Question answers can be read aloud. Completion reports list each checkpoint and related skills.
+
+Community requests show actual stored counts with search and filters. The studio separates applications, private drafts, demonstration recording/upload, transcription, structured editing and independent review. Private, submitted, changes requested and published states are explicit. Contribution permission, optional training permission and AI-processing consent have separate controls. A reviewer sees the exact submitted version, the demonstration and criteria before deciding. Forms and status regions are labeled, controls wrap on mobile, and missing service configuration is shown honestly.

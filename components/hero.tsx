@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { Check, ArrowRight } from 'lucide-react';
 import type { Copy } from '@/lib/i18n';
-import type { SkillId } from '@/lib/config';
+import { skillIds, type SkillId } from '@/lib/config';
 import { SkillIcon } from './illustrations';
 import { CoachPreview } from './coach-preview';
 import { Cta } from './utilities';
-const heroSkills: SkillId[] = ['tie', 'shaving', 'button', 'ironing', 'cooking', 'bike'];
+const heroSkills = skillIds;
 export function Hero({ c }: { c: Pick<Copy, 'hero' | 'skills'> }) {
   const [skill, setSkill] = useState<SkillId>('tie');
   return <section className="hero"><div className="container hero-grid">
