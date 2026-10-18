@@ -95,6 +95,13 @@ export function Footer({
           <a href={pathFor(locale, "organizations")}>{c.nav.org}</a>
           <a href={pathFor(locale, "subscriptions")}>{c.nav.subscriptions}</a>
           <a href={pathFor(locale, "privacy")}>{c.form.privacy}</a>
+          <a
+            href="https://www.linkedin.com/company/plsteach-me/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            LinkedIn
+          </a>
           {contact ? (
             <a href={`mailto:${contact}`}>{contact}</a>
           ) : (
