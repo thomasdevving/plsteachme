@@ -2,6 +2,7 @@ import { ArrowRight, ArrowUpRight, BookOpen, MessageCircle, Heart } from "lucide
 import { pathFor, type Locale } from "@/lib/config";
 import type { Copy } from "@/lib/i18n";
 import { Section } from "./ui";
+import { StepIcons } from "./illustrations";
 import { Hero } from "./hero";
 import { HeroDemo } from "./hero-demo";
 import { Skills } from "./skills";
@@ -25,16 +26,19 @@ export function Landing({
           <p>Follow each lesson step, watch the demonstration, and practice at your own pace.</p>
           <a href="/learn" className="text-link method-link">Let’s find your first skill<ArrowRight size={18} aria-hidden="true"/></a>
         </div>
-        <ol className="method-sequence" role="list">
-          {c.how.steps.map((step, i) => (
-            <li key={step.title}>
-              <span className="method-step-number" aria-hidden="true">0{i + 1}</span>
-              <div>
+        <ol className="steps">
+          {c.how.steps.map((step, i) => {
+            const Icon = StepIcons[i];
+            return (
+              <li key={step.title}>
+                {i === 0 && <Mascot pose="peeking" />}
+                <span className="step-index">0{i + 1}</span>
+                <Icon size={30} strokeWidth={1.4} aria-hidden="true" />
                 <h3>{step.title}</h3>
                 <p>{step.body}</p>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
       </Section>
       <Section id="skills" className="creative-skills" labelledBy="skills-title">

@@ -51,16 +51,18 @@
 .creative-home .journey-demo-actions .button:hover{background:#3c5140}
 .creative-home .journey-demo-actions .muted{color:#d5dece;font-size:.7rem}
 .practice-method>.container{display:grid;grid-template-columns:.8fr 1.2fr;gap:65px;align-items:start}
-.practice-method .section-heading{margin:0}
+.practice-method .section-heading{margin:0;position:sticky;top:140px}
 .practice-method .section-heading h2{max-width:11ch}
 .practice-method .section-heading p{font-size:.95rem;max-width:32ch}
 .method-link{margin-top:28px;font-size:.85rem}
-.method-sequence{display:grid;list-style:none;margin:0;padding:0}
-.method-sequence li{position:relative;display:grid;grid-template-columns:40px minmax(0,1fr);gap:20px;padding:22px 0}
-.method-sequence li:not(:last-child):after{content:"";position:absolute;left:16px;top:60px;bottom:0;width:1px;background:var(--line)}
-.method-step-number{color:var(--accent);font:400 1.25rem/1.4 var(--font-lora),serif;letter-spacing:-.025em}
-.method-sequence h3{font-size:1.15rem;line-height:1.45}
-.method-sequence p{margin-top:7px;font-size:.91rem;line-height:1.65;color:var(--muted)}
+.creative-home .steps{grid-template-columns:1fr 1fr;gap:22px;padding:36px 0 0}
+.creative-home .steps li{padding:28px 25px 25px;background:#f0eee5;border:1px solid #dfdfd2;border-radius:3px 8px 3px 3px;min-height:225px;transition:transform .4s var(--ease-out),background-color .3s}
+.creative-home .steps li:nth-child(2),.creative-home .steps li:nth-child(3){background:#fffdf9}
+.creative-home .step-index{position:static;background:none;border:0;border-radius:0;width:auto;height:auto;display:block;text-align:right;font:400 2.4rem/1 var(--font-lora),serif;color:#69775e}
+.creative-home .steps li>svg{width:32px;height:32px;margin:-27px 0 25px}
+.creative-home .steps h3{font-size:1.05rem;min-height:0}
+.creative-home .steps p{font-size:.83rem;margin-top:12px;max-width:25ch}
+.creative-home .steps li>.mascot{--mascot-size:68px;right:16px}
 .creative-skills{position:relative}
 .creative-skills .section-heading{max-width:none;padding-right:240px;position:relative}
 .creative-skills .section-heading h2{max-width:18ch}
@@ -117,6 +119,7 @@
 .site-footer{padding-bottom:65px}
 
 @media(hover:hover) and (prefers-reduced-motion:no-preference){
+ .creative-home .steps li:hover{transform:translateY(-5px);background:#e8ecdf}
  .creative-home .skill-card:hover{border-color:#718568;transform:translateY(-3px)}
  .creative-home .skill-card:hover .skill-art>svg{transform:translateY(-4px) rotate(-6deg) scale(1.07)}
  .creative-home .skill-card:hover .skill-art:before{transform:rotate(16deg) scale(.96)}
@@ -137,9 +140,10 @@
  .creative-home .hero-actions .button{padding-inline:18px;font-size:.76rem}
  .creative-home .section{padding-block:75px}
  .practice-method>.container{grid-template-columns:1fr;gap:30px}
- .practice-method .section-heading{max-width:580px}
+ .practice-method .section-heading{position:static;max-width:580px}
  .practice-method .section-heading h2{max-width:17ch}
  .practice-method .section-heading p{max-width:50ch}
+ .creative-home .steps{padding-top:45px}
  .creative-skills .section-heading{padding-right:0}
  .collection-link{position:static;margin-top:23px}
  .demo-studio{padding-inline:28px;border-radius:12px}
@@ -177,11 +181,13 @@
  .creative-home .journey-demo-actions .muted{font-size:.64rem;max-width:32ch}
  .creative-home .section{padding-block:64px}
  .creative-home .section-heading h2{font-size:2.3rem}
- .method-sequence li{grid-template-columns:32px minmax(0,1fr);gap:16px;padding:18px 0}
- .method-sequence li:not(:last-child):after{left:12px;top:53px}
- .method-step-number{font-size:1.1rem}
- .method-sequence h3{font-size:1.05rem}
- .method-sequence p{font-size:.87rem}
+ .creative-home .steps{gap:15px;padding-top:40px}
+ .creative-home .steps li{padding:22px 18px;min-height:210px;border-top-right-radius:8px}
+ .creative-home .step-index{font-size:1.8rem}
+ .creative-home .steps li>svg{width:25px;height:25px;margin:-24px 0 24px}
+ .creative-home .steps h3{font-size:.9rem;line-height:1.35}
+ .creative-home .steps p{font-size:.77rem}
+ .creative-home .steps li>.mascot{--mascot-size:55px;right:6px}
  .creative-home .skill-art{height:160px}
  .creative-home .skill-art>svg{width:76px;height:76px}
  .creative-home .skill-info{padding:21px}
