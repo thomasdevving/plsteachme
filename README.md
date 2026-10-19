@@ -19,11 +19,13 @@ For connected testing after setting up Supabase and OpenAI, follow [the setup an
 
 ### Cloudflare Workers deployment status
 
-Cloudflare Workers Builds should connect to this repository's `main` branch, use the repository root, and deploy to the existing Worker `plsteachme`. Set the deploy command to `npm run deploy:cloudflare`; leave the dashboard build command empty because `wrangler.jsonc` runs `npm run build:cloudflare` before deployment. Dependencies must include development dependencies for the build tools. Node.js 24 is required.
+Cloudflare Workers Builds should connect to this repository's `main` branch, use the repository root, and deploy to the existing Worker `plsteachme`. Set the deploy command to `npm run deploy:cloudflare` and leave the dashboard build command empty. This script explicitly runs the OpenNext build before calling `opennextjs-cloudflare deploy`. Dependencies must include development dependencies for the build tools. Node.js 24 is required.
+
+Alternatively, set the dashboard build command to `npm run build:cloudflare` and the deploy command to `npx opennextjs-cloudflare deploy`. Do not use only `npm run build`: it builds Next.js but does not compile the OpenNext deployment configuration. Avoid relying on Wrangler's custom build hook: a real `wrangler deploy` delegates to OpenNext before that hook runs, while `wrangler deploy --dry-run` skips the delegation and can give misleading results.
 
 `wrangler.jsonc` explicitly sets both the Worker name and the `WORKER_SELF_REFERENCE` service to `plsteachme`. Keep those names in sync: a service named `plsteach-me` does not refer to `plsteachme` and causes Cloudflare error 10143. Existing dashboard variables are preserved by `keep_vars`; configure build-time variables in Workers Builds and runtime variables/secrets on the Worker.
 
-To validate the production build and upload bundle locally without deploying, run `npx wrangler deploy --dry-run`. `npm run deploy:cloudflare` publishes to Cloudflare using the same build pipeline.
+To validate the production build and OpenNext deployment pipeline locally without uploading the Worker, run `npm run deploy:cloudflare -- --dry-run`. This exercises the OpenNext deploy command as well as bundling. `npm run deploy:cloudflare` publishes to Cloudflare using the same build pipeline.
 
 The Next.js proxy trace explicitly includes the ESM files from `@opentelemetry/api`, a production dependency. OpenNext resolves its ESM entry point when bundling Node.js middleware, whereas Next.js normally traces its CommonJS entry point. Keep this include to avoid `Could not resolve "@opentelemetry/api"` during middleware bundling.
 

@@ -6,7 +6,7 @@
     "dev": "npm run prepare:vision && next dev --hostname 0.0.0.0 -p 3100",
     "build": "npm run prepare:vision && npm run validate:skills && next build --webpack",
     "build:cloudflare": "opennextjs-cloudflare build",
-    "deploy:cloudflare": "wrangler deploy",
+    "deploy:cloudflare": "npm run build:cloudflare && opennextjs-cloudflare deploy",
     "start": "next start --hostname 0.0.0.0 -p 3100",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
