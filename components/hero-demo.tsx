@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 import type { Copy } from "@/lib/i18n";
-import { DEMO_URL } from "@/lib/config";
 import {
   phoneJourneyFrame,
   type PhoneJourneyGeometry,
@@ -186,7 +185,7 @@ export function HeroDemo({
           </div>
           <div className="demo-stage"><span className="demo-orbit demo-orbit-one" data-ambient aria-hidden="true"/><span className="demo-orbit demo-orbit-two" data-ambient aria-hidden="true"/><div className="demo-phone-anchor" ref={target} aria-hidden="true" /></div>
           <div className="journey-demo-actions">
-            <a className="button secondary" href={DEMO_URL}>
+            <a className="button secondary" href="/learn">
               {c.demo.try}
               <ArrowUpRight size={18} aria-hidden="true" />
             </a>

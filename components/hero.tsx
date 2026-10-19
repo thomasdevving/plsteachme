@@ -1,13 +1,14 @@
 import type { Copy } from "@/lib/i18n";
 import { Cta } from "./utilities";
 import { Mascot } from "./mascot";
-import { ArrowUpRight, Check } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
   return (
     <section className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">
+          <p className="hero-beta"><span aria-hidden="true" />Live in beta · Try your first skill free</p>
           <h1>
             <span>A tutorial shows </span>
             <span>
@@ -21,7 +22,7 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
             <p className="hero-emphasis">{c.hero.support}</p>
           </div>
           <div className="hero-actions">
-            <a className="button primary" href="/learn">Find your first skill<ArrowUpRight size={18} aria-hidden="true"/></a>
+            <a className="button primary" href="/learn">Try your first skill free<ArrowUpRight size={18} aria-hidden="true"/></a>
             <div className="mascot-button">
               <Mascot pose="waving" />
               <Cta href="#demo" kind="demo" secondary>
@@ -29,7 +30,6 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
               </Cta>
             </div>
           </div>
-          <p className="hero-footnote"><Check size={15} aria-hidden="true"/>Nine illustrated skills. Start where you are.</p>
         </div>
         <div className="hero-visual">
           <div className="hero-orbit" data-ambient aria-hidden="true"/>

@@ -1,7 +1,6 @@
 "use client";
-import { fetchWithTimeout } from '@/lib/network';
 import { useEffect, useRef, useState } from "react";
-import { Check, ArrowUpRight, ArrowRight, ArrowLeft, X } from "lucide-react";
+import { ArrowUpRight, ArrowRight, ArrowLeft, X } from "lucide-react";
 import { skillIds, pathFor, type Locale, type SkillId } from "@/lib/config";
 import { categories, modules, type Category } from "@/lib/modules";
 import type { Copy } from "@/lib/i18n";
@@ -15,11 +14,6 @@ export function Skills({
   c: Pick<Copy, "skills" | "form" | "demo">;
   locale: Locale;
 }) {
-  const [voted, setVoted] = useState<SkillId[]>([]);
-  const [pending, setPending] = useState<SkillId | null>(null);
-  const [gate, setGate] = useState<SkillId | null>(null);
-  const [ageConfirmed, setAgeConfirmed] = useState(false);
-  const [message, setMessage] = useState("");
   const [category, setCategory] = useState<Category>("All skills");
   const [selected, setSelected] = useState<SkillId | null>(null);
   const rail = useRef<HTMLDivElement>(null);
@@ -80,28 +74,6 @@ export function Skills({
     (skill) =>
       category === "All skills" || modules[skill].category === category,
   );
-  async function vote(skill: SkillId) {
-    setPending(skill);
-    setMessage("");
-    setGate(null);
-    try {
-      const res = await fetchWithTimeout("/api/votes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skill, over16: true, website: "" }),
-      });
-      const data = await res.json();
-      if (!res.ok)
-        throw new Error(data.error === "rate" ? c.form.rate : c.form.error);
-      if (data.mock) setMessage(c.form.mockSuccess);
-      setVoted((v) => [...v, skill]);
-      track("skill_vote", { skill });
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : c.form.error);
-    } finally {
-      setPending(null);
-    }
-  }
   function explore(skill: SkillId, button: HTMLButtonElement) {
     opener.current = button;
     setSelected(skill);
@@ -131,7 +103,6 @@ export function Skills({
               onClick={() => {
                 setCategory(item);
                 setSelected(null);
-                setGate(null);
               }}
             >
               {item}
@@ -200,9 +171,6 @@ export function Skills({
               <span className="module-category">{modules[skill].category}</span>
             </div>
             <div className="skill-info">
-              <span className="status-pill">
-                {c.skills.available}
-              </span>
               <h3>{c.skills.names[skill]}</h3>
               <p>{c.skills.descriptions[skill]}</p>
               <button
@@ -218,37 +186,14 @@ export function Skills({
                 Explore lesson
                 <ArrowRight size={16} aria-hidden="true" />
               </button>
-              {skill === "tie" ? (
-                <a
-                  href={pathFor(locale, "demo")}
-                  className="text-link module-demo"
-                  onClick={() => track("cta_demo_click")}
-                >
-                  {c.demo.try}
-                  <ArrowUpRight size={17} aria-hidden="true" />
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  className="vote-button"
-                  disabled={voted.includes(skill) || pending !== null}
-                  onClick={() => (ageConfirmed ? vote(skill) : setGate(skill))}
-                >
-                  {voted.includes(skill) ? (
-                    <>
-                      <Check size={17} aria-hidden="true" />
-                      {c.skills.voted}
-                    </>
-                  ) : pending === skill ? (
-                    c.skills.pending
-                  ) : (
-                    <>
-                      {c.skills.vote}
-                      <span aria-hidden="true">+</span>
-                    </>
-                  )}
-                </button>
-              )}
+              <a
+                href={`${pathFor(locale, "learn")}?skill=${skill}`}
+                className="text-link module-demo"
+                onClick={() => track("cta_demo_click")}
+              >
+                Start lesson
+                <ArrowUpRight size={17} aria-hidden="true" />
+              </a>
             </div>
           </article>
         ))}
@@ -276,32 +221,6 @@ export function Skills({
           </button>
         </div>
       )}
-      {gate && (
-        <div className="vote-gate">
-          <p>{c.skills.ageGate}</p>
-          <button
-            className="button primary compact"
-            onClick={() => {
-              setAgeConfirmed(true);
-              vote(gate);
-            }}
-          >
-            {c.skills.yes16}
-          </button>
-          <button
-            className="button secondary compact"
-            onClick={() => {
-              setGate(null);
-              setMessage(c.skills.ageNote);
-            }}
-          >
-            {c.skills.no16}
-          </button>
-        </div>
-      )}
-      <p className="form-message" role="status">
-        {message}
-      </p>
     </>
   );
 }

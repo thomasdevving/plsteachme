@@ -33,6 +33,12 @@ export function Header({
             <a href={`${home}#how`}>{c.nav.how}</a>
             <a href={`${home}#skills`}>{c.nav.skills}</a>
             <a
+              href={pathFor(locale, "learn")}
+              aria-current={page === "learn" ? "page" : undefined}
+            >
+              Learn
+            </a>
+            <a
               href={pathFor(locale, "subscriptions")}
               aria-current={page === "subscriptions" ? "page" : undefined}
             >
@@ -44,7 +50,8 @@ export function Header({
             <a className="button secondary compact nav-teacher" href="/teach">
               Become a teacher
             </a>
-            <a className="button primary compact" href="/login">Log in</a>
+            <a className="nav-login" href="/login">Log in</a>
+            <a className="button primary compact" href="/signup?next=%2Flearn">Start free</a>
             <MobileMenu c={c.nav} home={home} page={page} />
           </div>
         </div>

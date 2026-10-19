@@ -6,7 +6,6 @@ import { StepIcons } from "./illustrations";
 import { Hero } from "./hero";
 import { HeroDemo } from "./hero-demo";
 import { Skills } from "./skills";
-import { WaitlistForm } from "./forms";
 import { Mascot } from "./mascot";
 export function Landing({
   c,
@@ -116,27 +115,6 @@ export function Landing({
           {c.org.cta}
           <ArrowUpRight size={18} aria-hidden="true" />
         </a>
-      </Section>
-      <Section
-        id="waitlist"
-        className="waitlist-section"
-        labelledBy="waitlist-title"
-      >
-        <div className="waitlist-layout">
-          <div className="waitlist-copy">
-            <h2 id="waitlist-title">{c.form.title}</h2>
-            <p className="lead">{c.form.intro}</p>
-            <div className="waitlist-companions" aria-hidden="true">
-              <Mascot pose="sitting" color="orange" />
-              <Mascot pose="sitting" color="green" />
-            </div>
-          </div>
-          <WaitlistForm
-            c={{ form: c.form, skills: c.skills }}
-            locale={locale}
-            mock={mock}
-          />
-        </div>
       </Section>
       <Section labelledBy="faq-title">
         <div className="faq-layout">

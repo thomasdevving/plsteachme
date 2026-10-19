@@ -146,7 +146,7 @@ export default async function Page({ params }: { params: Params }) {
         ) : page === "demo" ? (
           <DemoPage c={c} locale={locale} />
         ) : page === "learn" ? (
-          <div className="container learning-page"><header className="subpage-hero"><p className="lesson-eyebrow">Learn by doing</p><h1>Your next practical skill.</h1><p className="lead">Find a skill for the life you’re building. Practice with clear steps, automatic camera checks and room to try again.</p></header><LearningCatalog names={c.skills.names}/><PublishedLessons/></div>
+          <div className="container learning-page"><LearningCatalog names={c.skills.names}/><PublishedLessons/></div>
         ) : page === "community" ? (
           <CommunityBoard />
         ) : page === "teach" ? (

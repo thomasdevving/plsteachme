@@ -4,16 +4,8 @@ test('English canonical pages and legacy redirects preserve query parameters', a
  for (const path of ['/','/subscriptions','/organizations','/demo','/learn','/community','/teach','/privacy','/thanks']) { const response=await page.goto(path); expect(response?.status()).toBe(200); await expect(page.locator('html')).toHaveAttribute('lang','en'); await expect(page.locator('h1')).toHaveCount(1); }
  for (const [alias,target] of [['/en','/'],['/nl','/'],['/organisaties','/organizations'],['/en/organizations','/organizations'],['/bedankt','/thanks']]) { await page.goto(`${alias}?ref=FRIEND`); expect(new URL(page.url()).pathname).toBe(target); expect(new URL(page.url()).searchParams.get('ref')).toBe('FRIEND'); }
 });
-test('mobile signup keeps first-touch attribution and uses an honest mock acknowledgement', async ({page}) => {
- await page.setViewportSize({width:375,height:812}); await page.goto('/?utm_source=tiktok&utm_campaign=tie&ref=FRIEND'); await page.locator('#age').selectOption('18-24'); await page.locator('#email').fill('test@example.com'); await page.getByRole('checkbox').check();
- const submission=page.waitForRequest(req=>req.url().endsWith('/api/waitlist') && req.method()==='POST'); await page.locator('.form-submit').click(); const req=await submission; expect(req.postDataJSON().attribution).toMatchObject({utm_source:'tiktok',utm_campaign:'tie',referral:'FRIEND',landing_path:'/',language:'en'}); await expect(page).toHaveURL(/\/thanks\?preview=1/); await expect(page.getByRole('heading',{name:'Your form has been tested.'})).toBeVisible();
-});
-test('under-16 submit sends no email, attribution, skills or free text',async({page})=>{
- await page.goto('/'); await page.locator('#email').fill('child@example.com'); await page.locator('#age').selectOption('under16'); await expect(page.locator('#email')).toHaveCount(0); const submission=page.waitForRequest(req=>req.url().endsWith('/api/waitlist') && req.method()==='POST'); await page.locator('.form-submit').click(); expect((await submission).postDataJSON()).toEqual({age:'under16',website:''}); await expect(page.locator('.signup-form .form-message')).toContainText('We won’t store your email address.');
-});
-test('organization form and skill vote work in mock mode',async({page})=>{
+test('organization form works in mock mode',async({page})=>{
  await page.goto('/en/organizations'); await page.locator('#name').fill('Test Teacher'); await page.locator('#organization').fill('Test School'); await page.locator('#role').fill('Teacher'); await page.locator('#type').selectOption('school'); await page.locator('#email').fill('teacher@example.com'); await page.locator('#needs').fill('Tying ties'); await page.getByRole('checkbox').check(); await page.locator('.form-submit').click(); await expect(page.locator('.success-panel')).toContainText('No data has been stored');
- await page.goto('/en'); await page.getByRole('button',{name:'I want to learn this',exact:true}).first().click(); await page.getByRole('button',{name:'Yes, save my interest'}).click(); await expect(page.getByRole('button',{name:'Interest noted'})).toBeVisible();
 });
 test('server rejects invalid submissions, cross-origin requests, oversize payloads and honeypots',async({request})=>{
  const invalid=await request.post('/api/waitlist',{data:{age:'18-24',email:'bad'}}); expect(invalid.status()).toBe(400);
@@ -54,4 +46,26 @@ test('three logo directions preview in the header without changing the main bran
  for(const design of ['A','B','C']) { const button=page.getByRole('button',{name:`Preview ${design}`,exact:true}); await button.click(); await expect(button).toHaveAttribute('aria-pressed','true'); await expect(page.locator('#selection')).toContainText(design+' — '); }
  await expect(page.locator('#header-logo img')).toHaveAttribute('src','/brand/concepts/passing-on.svg');
  await page.goto('/'); await expect(page.locator('.wordmark img')).toHaveAttribute('src',/hands-filled\.png/);
+});
+
+test('the homepage is live in beta: free first skill, no waitlist or interest votes',async({page})=>{
+ await page.goto('/');
+ await expect(page.locator('.hero-beta')).toHaveText('Live in beta · Try your first skill free');
+ await expect(page.locator('.hero').getByRole('link',{name:'Try your first skill free'})).toHaveAttribute('href','/learn');
+ await expect(page.getByText('Nine illustrated skills',{exact:false})).toHaveCount(0);
+ await expect(page.locator('#waitlist')).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'I want to learn this'})).toHaveCount(0);
+ await expect(page.locator('#skills .status-pill')).toHaveCount(0);
+ await expect(page.locator('#skills .skill-card').first().getByRole('link',{name:'Start lesson'})).toHaveAttribute('href','/learn?skill=tie');
+ const header=page.locator('.site-header');
+ await expect(header.getByRole('link',{name:'Learn',exact:true})).toHaveAttribute('href','/learn');
+ await expect(header.getByRole('link',{name:'Start free'})).toHaveAttribute('href','/signup?next=%2Flearn');
+ await expect(header.getByRole('link',{name:'Log in'})).toBeVisible();
+ await expect(page.locator('#demo a.button')).toHaveAttribute('href','/learn');
+});
+test('the organization page matches the organization plan',async({page})=>{
+ await page.goto('/organizations');
+ await expect(page.getByRole('heading',{level:1})).toHaveText('Your training, guided by AI.');
+ for(const title of ['Demonstrate it','Upload your manual','Enroll and monitor'])await expect(page.getByRole('heading',{name:title})).toBeVisible();
+ await expect(page.locator('.org-pricing .training-price')).toHaveText(['$100/month','$200/month','$350/month','$500/month']);
 });

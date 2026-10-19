@@ -2,9 +2,8 @@ import { ArrowRight, Check } from "lucide-react";
 import type { Copy } from "@/lib/i18n";
 import { pathFor, type Locale } from "@/lib/config";
 import { Mascot } from "./mascot";
-import { WaitlistForm } from "./forms";
 
-export function Subscriptions({ c, locale, mock }: { c: Copy; locale: Locale; mock: boolean }) {
+export function Subscriptions({ c, locale }: { c: Copy; locale: Locale; mock?: boolean }) {
   return (
     <div className="container subscriptions-page">
       <header className="subscriptions-intro">
@@ -44,7 +43,7 @@ export function Subscriptions({ c, locale, mock }: { c: Copy; locale: Locale; mo
               href={
                 index === 2
                   ? pathFor(locale, "organizations") + "#pilot"
-                  : "#testing-access"
+                  : "/signup?next=%2Flearn"
               }
             >
               {plan.action}
@@ -55,39 +54,15 @@ export function Subscriptions({ c, locale, mock }: { c: Copy; locale: Locale; mo
       </section>
       <p className="subscription-note">{c.subscriptions.note}</p>
       <section
-        id="testing-access"
-        className="subscription-testing"
-        aria-labelledby="subscription-testing-title"
-      >
-        <div>
-          <h2 id="subscription-testing-title">{c.subscriptions.testing.title}</h2>
-          <p>{c.subscriptions.testing.intro}</p>
-          <p className="small">{c.subscriptions.testing.note}</p>
-        </div>
-        <WaitlistForm
-          c={{
-            form: {
-              ...c.form,
-              submit: c.subscriptions.testing.action,
-              consent: c.subscriptions.testing.consent,
-            },
-            skills: c.skills,
-          }}
-          locale={locale}
-          mock={mock}
-          compact
-        />
-      </section>
-      <section
         className="subscription-demo"
         aria-labelledby="subscription-demo-title"
       >
         <div>
-          <h2 id="subscription-demo-title">Start with a skill today.</h2>
-          <p>The early coaching demo is free to try.</p>
+          <h2 id="subscription-demo-title">Your first skill is free.</h2>
+          <p>plsteach.me is live in beta. Start with any lesson today.</p>
         </div>
-        <a className="text-link" href="/coach">
-          Try the coach
+        <a className="text-link" href="/learn">
+          Start learning
           <ArrowRight size={19} aria-hidden="true" />
         </a>
       </section>

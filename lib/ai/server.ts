@@ -1,6 +1,7 @@
 import "server-only";
 import { createOpenAI } from "@ai-sdk/openai";
 import { limitedJson } from "../coaching-security";
+import { normalizeFrame } from "../vision/frames";
 import { isSameOrigin } from '../request-origin';
 export const isMock = () =>
   process.env.MOCK_VERIFIER === "true" && process.env.NODE_ENV !== "production";
@@ -25,15 +26,8 @@ export async function decodeFrame(encoded: string): Promise<Buffer> {
     bytes[2] !== 0xff
   )
     throw new Error("Invalid frame");
-  // Decode the full JPEG, bound memory, orient it and remove all metadata.
-  // Loaded on demand: the native module is unavailable on some runtimes (such as
-  // Cloudflare Workers), and every route importing this file must still load.
-  const { default: sharp } = await import("sharp");
-  return sharp(bytes, { limitInputPixels: 1_048_576, failOn: "warning" })
-    .rotate()
-    .resize(640, 640, { fit: "inside", withoutEnlargement: true })
-    .jpeg({ quality: 65 })
-    .toBuffer();
+  // Bound dimensions and remove all metadata before forwarding.
+  return normalizeFrame(bytes);
 }
 export function json(body: unknown, status = 200) {
   return Response.json(body, {

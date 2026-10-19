@@ -26,7 +26,7 @@ test('new product navigation reaches learning, requests and teacher studio on mo
  const nav=page.getByRole('navigation',{name:'Mobile navigation',exact:true});
  await page.getByLabel('Navigation menu',{exact:true}).click();
  await nav.getByRole('link',{name:'Learn',exact:true}).click();
- await expect(page).toHaveURL(/\/learn$/);await expect(page.getByRole('heading',{level:1})).toHaveText('Your next practical skill.');
+ await expect(page).toHaveURL(/\/learn$/);await expect(page.getByRole('heading',{level:1})).toContainText('useful skill.');
  await page.getByLabel('Navigation menu',{exact:true}).click();await nav.getByRole('link',{name:'Community',exact:true}).click();await expect(page).toHaveURL(/\/community$/);
  await page.getByLabel('Navigation menu',{exact:true}).click();await nav.getByRole('link',{name:'Become a teacher',exact:true}).click();await expect(page).toHaveURL(/\/teach$/);
 });
