@@ -73,7 +73,7 @@ export async function generateMetadata({
   }[page];
   const image = `/api/og?lang=${locale}&page=${page}`;
   return {
-    title,
+    title: page === "home" ? { absolute: `${BRAND} • Learn with AI coaching` } : title,
     description: c.meta[page],
     alternates: { canonical: pathFor("en", page) },
     robots: { index: page !== "thanks", follow: true },
