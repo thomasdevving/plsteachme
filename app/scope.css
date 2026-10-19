@@ -1,4 +1,4 @@
-.mobile-product-nav{display:none}.nav-links a[aria-current=page],.mobile-product-nav a[aria-current=page]{text-decoration:underline;text-underline-offset:6px}
+.mobile-product-nav{display:none}.mobile-product-nav a[aria-current=page]{text-decoration:underline;text-underline-offset:6px}
 /* Enabling navigation after local progress loads must restore full contrast immediately. */
 .lesson-controls .button{transition:background-color .2s ease,color .2s ease}
 .learning-page,.platform-page{padding-bottom:5rem}.scope-entry{background:#f0efe5}.scope-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.5rem}.scope-cards article{border-top:1px solid #c7ccc0;padding:1.5rem 0}.scope-cards h3{font-size:1.45rem;margin:1rem 0}.scope-cards p{max-width:36ch}.scope-cards .text-link{gap:.5rem}
