@@ -49,9 +49,10 @@ export function AuthForm({
             : { action: "oauth", provider: action, next },
         ),
       });
-      const result = await response.json();
-      if (!response.ok)
-        throw new Error(result.error || "Could not sign in. Please try again.");
+      // An error page from the host is not JSON; show a readable message instead of a parser error.
+      const result = await response.json().catch(() => null);
+      if (!response.ok || !result)
+        throw new Error(result?.error || "Sign-in is temporarily unavailable. Please try again in a moment.");
       if (result.url) {
         window.location.assign(result.url);
         return;

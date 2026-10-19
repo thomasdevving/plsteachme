@@ -1,6 +1,5 @@
 import "server-only";
 import { createOpenAI } from "@ai-sdk/openai";
-import sharp from "sharp";
 import { limitedJson } from "../coaching-security";
 import { isSameOrigin } from '../request-origin';
 export const isMock = () =>
@@ -27,6 +26,9 @@ export async function decodeFrame(encoded: string): Promise<Buffer> {
   )
     throw new Error("Invalid frame");
   // Decode the full JPEG, bound memory, orient it and remove all metadata.
+  // Loaded on demand: the native module is unavailable on some runtimes (such as
+  // Cloudflare Workers), and every route importing this file must still load.
+  const { default: sharp } = await import("sharp");
   return sharp(bytes, { limitInputPixels: 1_048_576, failOn: "warning" })
     .rotate()
     .resize(640, 640, { fit: "inside", withoutEnlargement: true })

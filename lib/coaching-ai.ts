@@ -1,7 +1,6 @@
 import 'server-only';
 import { generateText, Output } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
-import sharp from 'sharp';
 import type { SkillId } from './config';
 import { modules } from './modules';
 import { getCheckpoint } from './learning-catalog';
@@ -12,6 +11,8 @@ export async function decodeCoachFrame(data: string) {
   const bytes = Buffer.from(encoded,'base64');
   if (bytes.length>MAX_FRAME_BYTES || bytes.toString('base64')!==encoded || bytes[0]!==0xff || bytes[1]!==0xd8 || bytes[2]!==0xff) throw new Error('Invalid frame');
   // Fully decode, bound dimensions and strip metadata before forwarding.
+  // Loaded on demand so routes that never decode frames still load where the native module is unavailable.
+  const { default: sharp } = await import('sharp');
   return sharp(bytes,{limitInputPixels:1_048_576,failOn:'warning'}).rotate().resize(640,640,{fit:'inside',withoutEnlargement:true}).jpeg({quality:65}).toBuffer();
 }
 
