@@ -10,6 +10,8 @@ import type { LessonDocument } from '@/lib/platform-contract';
 import { ReportFeedback } from './report-feedback';
 import { useLearnerTrial } from './learner-trial';
 import { OnDeviceModel } from './on-device-model';
+import { ObjectTracking } from './object-tracking';
+import { builtinObjects, objectFromMaterials } from '@/lib/vision/objects';
 import { builtinSteps, builtinTarget, lessonSteps, lessonTarget } from '@/lib/vision-contract';
 
 type Mode = 'off' | 'starting' | 'running' | 'paused';
@@ -78,6 +80,8 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const visionSteps=useMemo(()=>publishedLesson?lessonSteps(publishedLesson.document):builtinSteps(skill),[publishedLesson,skill]);
   const canVerify=publishedLesson?Boolean(currentStep && publishedLesson.document.steps[step]?.visuallyCheckable):getCheckpoint(skill,step).visuallyCheckable;
   const video = useRef<HTMLVideoElement>(null);
+  const objectOverlay = useRef<HTMLCanvasElement>(null);
+  const objectName = publishedLesson?objectFromMaterials(publishedLesson.document.materials):builtinObjects[skill];
   const stream = useRef<MediaStream|null>(null);
   const request = useRef<AbortController|null>(null);
   const generation = useRef(0);
@@ -239,7 +243,8 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       <button type="button" className="button secondary compact" disabled={availability!=='ready'||!consent||!over16||hidden} onClick={()=>void startCamera()}><Camera size={17} aria-hidden="true"/>Start camera coaching</button>
     </>}
     {active && <p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>}
-    <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
+    <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
+    <ObjectTracking objectName={objectName} video={video} overlay={objectOverlay} active={mode==='running'||mode==='paused'} mirrored={facing==='user'}/>
     {!organizationModule && <OnDeviceModel target={visionTarget} steps={visionSteps} step={step} video={video} running={mode==='running'&&!hidden} feedback={feedback}/>}
     {active && <>
       <p className="camera-framing">{publishedLesson?'Show the tools and result for this checkpoint. Never hold the camera while using tools.':framingHints[skill]}</p>

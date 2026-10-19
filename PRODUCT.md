@@ -56,3 +56,7 @@ The user asked for the $100–$500/month organization capability, especially cre
 ## Specialized vision models — 20 October 2026 (current)
 
 The user's product description plans specialized computer vision models trained on teacher-contributed demonstrations, and asked for a working MVP. `/vision` lets staff (built-in lessons) and consenting teachers (their own lessons, via the existing optional training permission) record labelled clips (step done right, common mistake, in between) as on-device MediaPipe landmarks only. The server trains a small per-lesson neural network, evaluates it on held-out whole clips, and enforces a quality gate before staff can activate it. Active models run on learners' devices in shadow mode during camera coaching: they display what they recognize, are scored against the cloud coach's verdicts, and never confirm or advance steps. Details and limits are in docs/VISION_MODELS.md.
+
+## Object enrollment and tracking — 20 October 2026 (current)
+
+The user asked for one-shot/few-shot object enrollment followed by tracking, visible in the learner's own video. The camera coach offers "Show me the <object>" (or drawing a box): it learns the learner's object from five views and tracks it with an on-device colour-likelihood mean-shift tracker, verified against shape templates, with whole-frame reacquisition. A labelled box is drawn on the live preview. Nothing is sent or stored for this. It locates objects but does not yet judge their state.

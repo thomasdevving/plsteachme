@@ -15,6 +15,19 @@ plsteach.me's camera coaching uses a general AI vision model in the cloud. This 
 4. **Quality gate.** A model can be activated only if the held-out results reach macro F1 ≥ 80%, clip accuracy ≥ 80%, and recall ≥ 60% for every label, each label having at least one held-out clip. The database enforces this (`vision_activate`) along with a single active model per lesson.
 5. **Shadow deployment.** For any built-in or published lesson with an active model, the camera coach downloads it and runs it on the device at about 7 frames per second. Predictions are smoothed over time, and it abstains below 60% confidence. It shows what it recognizes (step result, a likely mistake, or "not sure"), **but never confirms or advances a step**. Each cloud-coach verdict scores the on-device prediction for the same step. A `looks_right` verdict agrees when the model saw that step's result; an `adjust` verdict agrees when it saw a mistake or another state. Unclear and non-visual verdicts are not scored. The lab shows each model's agreement rate. Only the model ID, step, predicted label, confidence and cloud verdict are sent, and only inside a consented coaching session.
 
+## Object enrollment and tracking
+
+Hand landmarks do not see the razor, tie or button. As the first step towards object-aware coaching, the camera coach can learn and follow the learner's own object (`lib/vision/object-tracker.ts`, `components/object-tracking.tsx`):
+
+1. **Show me the razor.** Each lesson names its main object: built-in lessons in `lib/vision/objects.ts`, teacher lessons from their first listed material. The learner holds it inside a guide box on their preview. Alternatively, they draw a box around it with a finger or the mouse.
+2. **Few-shot enrollment.** After a short countdown, five views are captured 0.3 s apart while the learner turns the object slightly. From these, the tracker learns:
+   - which colours belong to the object rather than its immediate surroundings: a hue/saturation histogram, with greys binned by brightness so lighting matters less
+   - five small greyscale shape templates
+3. **Tracking.** About 12 times a second, on a 160-pixel-wide copy of the frame, mean shift moves the box toward object-coloured pixels. Small size changes are tried with a mild preference for the enrolled size. Each box gets a match score combining colour contrast with its surroundings and the best template correlation. After five weak frames (for example, when the hands cover the object), the tracker searches the whole frame and only reacquires on a stronger match. This takes about 2 ms per frame on a laptop CPU.
+4. **On the learner's video.** The box and a "Razor · 82% match" label are drawn over the live preview, mirrored to match it. When the object is lost, a "Looking for the razor…" note appears. Status changes are announced to screen readers.
+
+All of this runs in the browser: no frames, crops or object data are sent or stored for it. It locates the object; it does not yet judge its state (knot neatness, a loose button). The next step is feeding the tracked box (position relative to the hands, face and shoulders) into the step models, and classifying object crops for state checks.
+
 ## Who can contribute
 
 - **Built-in lessons**: vision lab staff, meaning platform reviewers (`PLATFORM_REVIEWER_IDS`) and verified emails in `VISION_LAB_EMAILS`. When that variable is unset, the owner account is used; set it empty to restrict the lab to reviewers.
