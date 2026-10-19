@@ -8,7 +8,6 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
     <section className="hero">
       <div className="container hero-grid">
         <div className="hero-copy">
-          <p className="hero-beta"><span aria-hidden="true" />Live in beta · Try your first skill free</p>
           <h1>
             <span>A tutorial shows </span>
             <span>
@@ -22,7 +21,7 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
             <p className="hero-emphasis">{c.hero.support}</p>
           </div>
           <div className="hero-actions">
-            <a className="button primary" href="/learn">Try your first skill free<ArrowUpRight size={18} aria-hidden="true"/></a>
+            <a className="button primary" href="/learn">Find your first skill<ArrowUpRight size={18} aria-hidden="true"/></a>
             <div className="mascot-button">
               <Mascot pose="waving" />
               <Cta href="#demo" kind="demo" secondary>

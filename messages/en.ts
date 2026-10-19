@@ -39,8 +39,8 @@ export const en = {
     title: "See it. Try it.",
     intro: "Your first tie. Seven guided steps.",
     watch: "Watch the demo",
-    try: "Try your first skill free",
-    phone: "Live in beta. Works best on your phone.",
+    try: "Try the demo",
+    phone: "Works best on your phone.",
     missing: "The demo app will be linked here soon.",
     missingVideo: "The demo video is coming soon.",
     poster: "One tie. Seven little steps.",
@@ -163,7 +163,7 @@ export const en = {
     saved: "Saved.",
     optional: "optional",
   },
-  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `Your first skill is free while plsteach.me is live in beta. Every illustrated lesson is free to follow, and a free account includes one full session with camera coaching. Starter ($6/month), Plus ($20/month) and organization plans ($100–$500/month, depending on student count) are coming soon.` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: 'Live video stays on your device. During camera coaching, still images go to OpenAI automatically. This app does not save them. OpenAI may retain API data under its data controls; see the privacy details.' }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
+  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `plsteach.me is in a live test phase. Every illustrated lesson is free to follow, and with a free account you can currently complete one module with camera coaching. Subscriptions will be available later: Starter ($6/month), Plus ($20/month) and organization plans ($100–$500/month, depending on student count).` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: 'Live video stays on your device. During camera coaching, still images go to OpenAI automatically. This app does not save them. OpenAI may retain API data under its data controls; see the privacy details.' }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
   thanks: {
     title: "You’re on the list.",
     intro:
@@ -194,7 +194,7 @@ export const en = {
     title: "A plan for the way you learn.",
     intro:
       "Start with the essentials. Build your confidence. Or bring practical learning to your whole team.",
-    note: "plsteach.me is live in beta and your first skill is free. These paid plans are coming soon and are not available to purchase yet.",
+    note: "plsteach.me is in a live test phase. These subscriptions will be available later and cannot be purchased yet.",
     comingSoon: "Coming soon",
     billing: "per month",
     testing: {
@@ -215,7 +215,7 @@ export const en = {
           "Step-by-step practice",
           "Personal progress",
         ],
-        action: "Start free",
+        action: "Create an account",
       },
       {
         name: "Plus",
@@ -227,7 +227,7 @@ export const en = {
           "A wider library of practical skills",
           "More AI-guided practice",
         ],
-        action: "Start free",
+        action: "Create an account",
       },
       {
         name: "For organizations",
@@ -244,14 +244,14 @@ export const en = {
     ],
   },
   meta: {
-    home: `Learn practical skills with a patient AI coach. ${BRAND} is live in beta: try your first skill free.`,
+    home: `Learn practical skills with a patient AI coach. ${BRAND} is in a live test phase: create an account and try one module for free.`,
     organizations:
       "Create AI-guided training modules from your demonstrations and manuals, enroll students or employees and monitor their progress. $100–$500/month by learner count.",
     demo: "Practice nine everyday skills with complete, illustrated step-by-step walkthroughs.",
     privacy: `Read what data ${BRAND} processes and how you stay in control.`,
     thanks: `Thank you for your interest in ${BRAND}.`,
     subscriptions:
-      "Live in beta: try your first skill free. Coming soon: Starter at $6/month, Plus at $20/month, and organization plans at $100–$500/month based on student count.",
+      "In a live test phase. Coming later: Starter at $6/month, Plus at $20/month, and organization plans at $100–$500/month based on student count.",
     learn: "Find a practical skill, follow a learning journey, and track your checkpoint progress.",
     community: "Request the practical skills you want to learn and support ideas from other learners.",
     teach: "Apply to teach, turn a demonstration into a reviewed lesson, and share practical knowledge.",

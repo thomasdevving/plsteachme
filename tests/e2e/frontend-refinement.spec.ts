@@ -44,7 +44,7 @@ test('requested landing copy is removed from the visible page and FAQ schema', a
   expect(await page.locator('script[type="application/ld+json"]').textContent()).not.toContain('When can I learn to shave?');
 });
 
-test('subscriptions show monthly prices, coming-soon plans and the free beta start', async ({page}) => {
+test('subscriptions show monthly prices, coming-soon plans and the live test phase', async ({page}) => {
   await page.goto('/subscriptions');
   await expect(page).toHaveTitle(/A plan for the way you learn/);
   for (const name of ['Starter','Plus','For organizations']) await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
@@ -53,10 +53,10 @@ test('subscriptions show monthly prices, coming-soon plans and the free beta sta
   await expect(page.locator('.plan-availability', {hasText:'Coming soon'})).toHaveCount(3);
   await expect(page.getByText('Total monthly price depends on the number of students',{exact:false})).toBeVisible();
   await expect(page.getByText('Create AI-guided modules by demonstrating a skill on camera')).toBeVisible();
-  await expect(page.getByText('plsteach.me is live in beta and your first skill is free.',{exact:false})).toBeVisible();
+  await expect(page.getByText('plsteach.me is in a live test phase.',{exact:false})).toBeVisible();
   await expect(page.locator('#testing-access')).toHaveCount(0);
-  await expect(page.getByRole('link',{name:'Start free'}).first()).toHaveAttribute('href','/signup?next=%2Flearn');
-  await expect(page.locator('.subscription-demo')).toContainText('Your first skill is free.');
+  await expect(page.getByRole('link',{name:'Create an account'}).first()).toHaveAttribute('href','/signup?next=%2Flearn');
+  await expect(page.locator('.subscription-demo')).toContainText('Try one module for free.');
   await expect(page.locator('.subscription-demo a')).toHaveAttribute('href','/learn');
   await page.goto('/subscriptions');
   await page.getByRole('link',{name:'Explore a pilot'}).click();

@@ -58,8 +58,8 @@ export function Subscriptions({ c, locale }: { c: Copy; locale: Locale; mock?: b
         aria-labelledby="subscription-demo-title"
       >
         <div>
-          <h2 id="subscription-demo-title">Your first skill is free.</h2>
-          <p>plsteach.me is live in beta. Start with any lesson today.</p>
+          <h2 id="subscription-demo-title">Try one module for free.</h2>
+          <p>During the live test phase, a free account includes one module with camera coaching.</p>
         </div>
         <a className="text-link" href="/learn">
           Start learning

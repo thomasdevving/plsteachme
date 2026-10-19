@@ -138,6 +138,6 @@ describe('published lesson feedback reports',()=>{
 it('shows planned monthly pricing while preserving payment preference options',()=>{
  const answer=en.faq.items.find(item=>item.q==='Is it free?')?.a;
  for(const price of ['$6/month','$20/month','$100–$500/month'])expect(answer).toContain(price);
- expect(answer).toContain('Your first skill is free while plsteach.me is live in beta.');expect(answer).toContain('are coming soon.');
+ expect(answer).toContain('plsteach.me is in a live test phase.');expect(answer).toContain('Subscriptions will be available later');
  expect(en.form.payOptions).toEqual(['Only if it’s free','A few euros per month','€5–10 per month','One-time purchase per skill','Not sure yet']);
 });

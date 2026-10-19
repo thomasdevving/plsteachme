@@ -50,8 +50,7 @@ export function Header({
             <a className="button secondary compact nav-teacher" href="/teach">
               Become a teacher
             </a>
-            <a className="nav-login" href="/login">Log in</a>
-            <a className="button primary compact" href="/signup?next=%2Flearn">Start free</a>
+            <a className="button primary compact" href="/login">Log in</a>
             <MobileMenu c={c.nav} home={home} page={page} />
           </div>
         </div>

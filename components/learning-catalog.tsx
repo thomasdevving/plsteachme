@@ -95,7 +95,7 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
 
     <section className="learning-discovery" aria-labelledby="catalog-title">
       <header className="catalog-masthead">
-        <div><p className="lesson-eyebrow">Live in beta · Your first skill is free</p><h1 id="catalog-title">Find your next<br /><em>useful skill.</em></h1><p>Practice with clear steps, automatic camera checks and room to try again. Start with a small task and build from there.</p></div>
+        <div><h1 id="catalog-title">Find your next<br /><em>useful skill.</em></h1><p>Practice with clear steps, automatic camera checks and room to try again. Start with a small task and build from there.</p></div>
         <div className="catalog-edition"><span aria-hidden="true">{String(skillIds.length).padStart(2, '0')}</span><p><span className="sr-only">{skillIds.length} </span>practical skills</p></div>
       </header>
 

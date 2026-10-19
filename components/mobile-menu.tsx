@@ -55,7 +55,6 @@ export function MobileMenu({
         >
           {c.org}
         </a>
-        <a href="/signup?next=%2Flearn">Start free</a>
         <a href="/login">Log in</a>
         <a href="/account">My account</a>
       </nav>

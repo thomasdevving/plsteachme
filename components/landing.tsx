@@ -116,6 +116,26 @@ export function Landing({
           <ArrowUpRight size={18} aria-hidden="true" />
         </a>
       </Section>
+      <Section id="test-phase" className="test-phase-section" labelledBy="test-phase-title">
+        <div className="test-phase-layout">
+          <div>
+            <p className="test-phase-label">Live test phase</p>
+            <h2 id="test-phase-title">We’re testing with real learners.</h2>
+            <p className="lead">plsteach.me is live, and we’re improving it with the people who use it.</p>
+          </div>
+          <div className="test-phase-details">
+            <ul>
+              <li><CheckMark />Create a free account and complete one module with camera coaching.</li>
+              <li><CheckMark />Every illustrated lesson stays free to explore.</li>
+              <li><CheckMark />Subscriptions will be available later.</li>
+            </ul>
+            <div className="test-phase-actions">
+              <a className="button primary" href="/signup?next=%2Flearn">Create an account<ArrowUpRight size={18} aria-hidden="true" /></a>
+              <a className="text-link" href={pathFor(locale, "learn")}>Explore the lessons<ArrowRight size={17} aria-hidden="true" /></a>
+            </div>
+          </div>
+        </div>
+      </Section>
       <Section labelledBy="faq-title">
         <div className="faq-layout">
           <div><h2 id="faq-title">{c.faq.title}</h2></div>

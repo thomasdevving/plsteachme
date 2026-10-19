@@ -48,19 +48,23 @@ test('three logo directions preview in the header without changing the main bran
  await page.goto('/'); await expect(page.locator('.wordmark img')).toHaveAttribute('src',/hands-filled\.png/);
 });
 
-test('the homepage is live in beta: free first skill, no waitlist or interest votes',async({page})=>{
+test('the homepage explains the live test phase, without a waitlist or interest votes',async({page})=>{
  await page.goto('/');
- await expect(page.locator('.hero-beta')).toHaveText('Live in beta · Try your first skill free');
- await expect(page.locator('.hero').getByRole('link',{name:'Try your first skill free'})).toHaveAttribute('href','/learn');
+ await expect(page.locator('.hero-beta')).toHaveCount(0);
+ await expect(page.locator('.hero').getByRole('link',{name:'Find your first skill'})).toHaveAttribute('href','/learn');
  await expect(page.getByText('Nine illustrated skills',{exact:false})).toHaveCount(0);
  await expect(page.locator('#waitlist')).toHaveCount(0);
+ const phase=page.locator('#test-phase');
+ await expect(phase).toContainText('Create a free account and complete one module with camera coaching.');
+ await expect(phase).toContainText('Subscriptions will be available later.');
+ await expect(phase.getByRole('link',{name:'Create an account'})).toHaveAttribute('href','/signup?next=%2Flearn');
  await expect(page.getByRole('button',{name:'I want to learn this'})).toHaveCount(0);
  await expect(page.locator('#skills .status-pill')).toHaveCount(0);
  await expect(page.locator('#skills .skill-card').first().getByRole('link',{name:'Start lesson'})).toHaveAttribute('href','/learn?skill=tie');
  const header=page.locator('.site-header');
  await expect(header.getByRole('link',{name:'Learn',exact:true})).toHaveAttribute('href','/learn');
- await expect(header.getByRole('link',{name:'Start free'})).toHaveAttribute('href','/signup?next=%2Flearn');
- await expect(header.getByRole('link',{name:'Log in'})).toBeVisible();
+ await expect(header.getByRole('link',{name:'Start free'})).toHaveCount(0);
+ await expect(header.locator('a.button.primary',{hasText:'Log in'})).toHaveAttribute('href','/login');
  await expect(page.locator('#demo a.button')).toHaveAttribute('href','/learn');
 });
 test('the organization page matches the organization plan',async({page})=>{
