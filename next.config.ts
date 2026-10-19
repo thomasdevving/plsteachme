@@ -52,7 +52,7 @@ const config: NextConfig = {
           },
         ],
       },
-      ...["/teach", "/en/teach", "/nl/teach"].map((source) => ({
+      ...["/teach", "/en/teach", "/nl/teach", "/training", "/en/training", "/nl/training"].map((source) => ({
         source,
         headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=()" }],
       })),

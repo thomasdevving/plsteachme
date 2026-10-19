@@ -17,6 +17,7 @@ import { Subscriptions } from "@/components/subscriptions";
 import { LearningCatalog } from "@/components/learning-catalog";
 import { CommunityBoard } from "@/components/community-board";
 import { TeacherStudio } from "@/components/teacher-studio";
+import { TrainingWorkspace } from "@/components/training-workspace";
 import { PublishedLessons } from "@/components/published-lesson";
 import dynamic from "next/dynamic";
 const Thanks = dynamic(() =>
@@ -39,6 +40,7 @@ export function generateStaticParams() {
         "learn",
         "community",
         "teach",
+        "training",
       ] as const
     ).map((page) => ({
       locale,
@@ -70,13 +72,14 @@ export async function generateMetadata({
     learn: "Your next practical skill",
     community: "Skills shaped by you",
     teach: "Share what you know",
+    training: "Organization training",
   }[page];
   const image = `/api/og?lang=${locale}&page=${page}`;
   return {
     title: page === "home" ? { absolute: `${BRAND} • Learn with AI coaching` } : title,
     description: c.meta[page],
     alternates: { canonical: pathFor("en", page) },
-    robots: { index: page !== "thanks", follow: true },
+    robots: { index: page !== "thanks" && page !== "training", follow: true },
     openGraph: {
       type: "website",
       siteName: BRAND,
@@ -145,6 +148,8 @@ export default async function Page({ params }: { params: Params }) {
           <CommunityBoard />
         ) : page === "teach" ? (
           <TeacherStudio />
+        ) : page === "training" ? (
+          <TrainingWorkspace />
         ) : page === "privacy" ? (
           <PrivacyPage c={c} />
         ) : page === "thanks" ? (

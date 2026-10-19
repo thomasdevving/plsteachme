@@ -20,7 +20,7 @@ export function platformDb() {
  if (!platformConfigured()) throw new PlatformError(503,'unavailable','The community platform is not configured yet.');
  return createClient(authConfig().url!,process.env.SUPABASE_SERVICE_ROLE_KEY!.trim(),{auth:{persistSession:false,autoRefreshToken:false},db:{timeout:15_000,retry:false},global:{fetch:serviceFetch}});
 }
-type DB = ReturnType<typeof platformDb>;
+export type DB = ReturnType<typeof platformDb>;
 type Row = Record<string,any>; // Database JSON is validated at the document boundary below.
 export function reviewerAllowed(id:string) { return (process.env.PLATFORM_REVIEWER_IDS || '').split(',').map(value=>value.trim()).filter(Boolean).includes(id); }
 export async function platformUser(request:NextRequest, client:DB) {
@@ -37,7 +37,7 @@ export async function platformUser(request:NextRequest, client:DB) {
 }
 export function teacherRow(row:Row):TeacherProfile { return {userId:row.user_id,displayName:row.display_name,expertise:row.expertise,experience:row.experience,qualifications:row.qualifications,status:row.status,reviewNotes:row.review_notes,createdAt:row.created_at,updatedAt:row.updated_at}; }
 export function lessonRow(row:Row):StudioLesson {return {id:row.id,teacherId:row.teacher_id,status:row.status,document:lessonDocumentSchema.parse(row.document),transcript:row.transcript,demoPath:row.demo_path,contributionLicense:row.contribution_license,trainingOptIn:row.training_opt_in,reviewNotes:row.review_notes,version:row.version,createdAt:row.created_at,requestId:row.request_id,teacherName:row.teacher_name,submittedVersionId:row.submitted_version_id,publishedVersionId:row.published_version_id};}
-function checked<T>(result:{data:T;error:unknown}):T { if(result.error) throw new PlatformError(503,'storage','The platform could not load or save data. Please try again.'); return result.data; }
+export function checked<T>(result:{data:T;error:unknown}):T { if(result.error) throw new PlatformError(503,'storage','The platform could not load or save data. Please try again.'); return result.data; }
 export async function publishedLesson(client:DB,id:string) {
  const row=checked(await client.from('platform_lessons').select('id,published_version_id,published_at').eq('id',id).maybeSingle());
  if(!row?.published_version_id) throw new PlatformError(404,'not_found','This lesson has not been published.');
@@ -133,6 +133,24 @@ async function coachPublished(client:DB,action:Extract<PlatformAction,{action:'l
  else if(['looks_right','adjust'].includes(feedback.status) && feedback.confidence!=='high')feedback={status:'unclear',confidence:feedback.confidence,observation:'There is not enough clear visual evidence yet.',guidance:step.uncertainty.slice(0,350)||'Show the checkpoint from a clearer angle.'};
  return {id:action.id,version:action.version,step:action.step,feedback};
 }
+/** Transcribes a private MP4/WebM recording under 25 MB. The caller checks ownership of the path. */
+export async function transcribeStoredRecording(client:DB,bucket:string,path:string,signal:AbortSignal) {
+ if(!process.env.OPENAI_API_KEY?.trim())throw new PlatformError(503,'ai_unavailable','AI transcription is not configured yet. You can type your explanation instead.');
+ const directory=path.slice(0,path.lastIndexOf('/'));const name=path.slice(directory.length+1);
+ const objects=checked(await client.storage.from(bucket).list(directory,{search:name,limit:10}));const object=objects?.find(item=>item.name===name);
+ const maxBytes=25*1024*1024;
+ if(!object?.metadata || !['video/mp4','video/webm'].includes(object.metadata.mimetype) || !(object.metadata.size>0 && object.metadata.size<=maxBytes))throw new PlatformError(400,'transcription_size','For transcription, attach an MP4 or WebM under 25 MB, or type your explanation instead.');
+ const recording=checked(await client.storage.from(bucket).download(path,{}, {signal}));
+ if(!recording || recording.size===0 || recording.size>maxBytes)throw new PlatformError(400,'transcription_size','The recording is too large to transcribe. Use a shorter clip or type your explanation.');
+ const audio=Buffer.from(await recording.arrayBuffer());
+ const mp4=audio.length>12 && audio.toString('ascii',4,8)==='ftyp';
+ const webm=audio.length>4 && audio.subarray(0,4).equals(Buffer.from([0x1a,0x45,0xdf,0xa3]));
+ if(!mp4 && !webm)throw new PlatformError(400,'invalid_video','This recording is not a supported MP4 or WebM file.');
+ const provider=createOpenAI({apiKey:process.env.OPENAI_API_KEY?.trim()});
+ const result=await transcribe({model:provider.transcription(process.env.OPENAI_TRANSCRIPTION_MODEL?.trim() || 'gpt-4o-transcribe'),audio,maxRetries:0,abortSignal:signal});
+ if(!result.text?.trim() || result.text.length>20000)throw new PlatformError(400,'transcription_length','No usable transcript was returned. Use a shorter recording or type your explanation.');
+ return result.text.trim();
+}
 export async function platformWrite(request:NextRequest,action:PlatformAction) {
  const client=platformDb();
  if(action.action==='lesson.coach') {
@@ -172,21 +190,7 @@ export async function platformWrite(request:NextRequest,action:PlatformAction) {
   if(!lesson.demo_path)throw new PlatformError(400,'no_video','Upload and attach your demonstration first.');
   const path=String(lesson.demo_path);
   if(!path.startsWith(`${user.id}/${action.lessonId}/`))throw new PlatformError(403,'forbidden','This recording does not belong to your lesson.');
-  const directory=path.slice(0,path.lastIndexOf('/'));const name=path.slice(directory.length+1);
-  const objects=checked(await client.storage.from(VIDEO_BUCKET).list(directory,{search:name,limit:10}));const object=objects?.find(item=>item.name===name);
-  const maxBytes=25*1024*1024;
-  if(!object?.metadata || !['video/mp4','video/webm'].includes(object.metadata.mimetype) || !(object.metadata.size>0 && object.metadata.size<=maxBytes))throw new PlatformError(400,'transcription_size','For transcription, attach an MP4 or WebM under 25 MB, or type your explanation instead.');
-  const signal=AbortSignal.any([request.signal,AbortSignal.timeout(45000)]);
-  const recording=checked(await client.storage.from(VIDEO_BUCKET).download(path,{}, {signal}));
-  if(!recording || recording.size===0 || recording.size>maxBytes)throw new PlatformError(400,'transcription_size','The recording is too large to transcribe. Use a shorter clip or type your explanation.');
-  const audio=Buffer.from(await recording.arrayBuffer());
-  const mp4=audio.length>12 && audio.toString('ascii',4,8)==='ftyp';
-  const webm=audio.length>4 && audio.subarray(0,4).equals(Buffer.from([0x1a,0x45,0xdf,0xa3]));
-  if(!mp4 && !webm)throw new PlatformError(400,'invalid_video','This recording is not a supported MP4 or WebM file.');
-  const provider=createOpenAI({apiKey:process.env.OPENAI_API_KEY?.trim()});
-  const result=await transcribe({model:provider.transcription(process.env.OPENAI_TRANSCRIPTION_MODEL?.trim() || 'gpt-4o-transcribe'),audio,maxRetries:0,abortSignal:signal});
-  if(!result.text?.trim() || result.text.length>20000)throw new PlatformError(400,'transcription_length','No usable transcript was returned. Use a shorter recording or type your explanation.');
-  return {text:result.text.trim()};
+  return {text:await transcribeStoredRecording(client,VIDEO_BUCKET,path,AbortSignal.any([request.signal,AbortSignal.timeout(45000)]))};
  }
  if(action.action==='submit') {
   const row=await ownDraft(client,user.id,action.lessonId);const issues=publicationIssues(lessonDocumentSchema.parse(row.document));

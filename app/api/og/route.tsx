@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
     raw === "thanks" ||
     raw === "learn" ||
     raw === "community" ||
-    raw === "teach"
+    raw === "teach" ||
+    raw === "training"
       ? raw
       : "home";
   const title = {
@@ -28,6 +29,7 @@ export async function GET(req: NextRequest) {
     learn: "Your next practical skill.",
     community: "Skills shaped by you.",
     teach: "Share what you know.",
+    training: "Your training, guided by AI.",
   }[page];
   return new ImageResponse(
     <div
