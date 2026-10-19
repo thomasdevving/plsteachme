@@ -77,7 +77,7 @@ test('the active model runs on the learner’s device and is scored against the 
   await coach.getByRole('checkbox',{name:'Automatically advance camera-confirmed checkpoints'}).uncheck();
   await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();
   await coach.getByRole('checkbox',{name:'I agree to automatic image checks'}).check();
-  await coach.getByRole('button',{name:'Start camera coaching'}).click();
+  await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Skip this step'}).click();
   await expect(coach.locator('.on-device-model')).toContainText('On-device model v1 (beta)',{timeout:20000});
   await expect(coach).toContainText('This part looks right',{timeout:25000});
   await expect.poll(()=>shadow.length).toBe(1);

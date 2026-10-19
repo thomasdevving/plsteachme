@@ -19,7 +19,7 @@ plsteach.me's camera coaching uses a general AI vision model in the cloud. This 
 
 Hand landmarks do not see the razor, tie or button. As the first step towards object-aware coaching, the camera coach can learn and follow the learner's own object (`lib/vision/object-tracker.ts`, `components/object-tracking.tsx`):
 
-1. **Show me the razor.** Each lesson names its main object: built-in lessons in `lib/vision/objects.ts`, teacher lessons from their first listed material. The learner holds it inside a guide box on their preview. Alternatively, they draw a box around it with a finger or the mouse.
+1. **Show me the razor.** This is the first camera step of every lesson: it starts on its own when camera coaching starts, and step checks wait until it is done or skipped. An object learned earlier in the visit is reused when the camera restarts. Each lesson names its main object: built-in lessons in `lib/vision/objects.ts`, teacher lessons from their first listed material. The learner holds it inside a guide box on their preview. At any moment during the step they can instead drag a box around it on the preview, and later redraw it with “Draw a new box”.
 2. **Few-shot enrollment.** After a short countdown, five views are captured 0.3 s apart while the learner turns the object slightly. From these, the tracker learns:
    - which colours belong to the object rather than its immediate surroundings: a hue/saturation histogram, with greys binned by brightness so lighting matters less
    - five small greyscale shape templates

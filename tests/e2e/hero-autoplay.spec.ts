@@ -67,7 +67,7 @@ test("phone advances every three seconds through seven distinct tie states and l
   expect(await art.locator('.tie-wide-end').getAttribute('d')).toBe(shapes[0]);
 });
 
-test("pause stops the clock and fabric motion; offscreen and hidden tabs stop advancement", async ({
+test("the hero plays without pause controls; offscreen and hidden tabs stop advancement", async ({
   page,
 }) => {
   await freezeClock(page);
@@ -79,19 +79,7 @@ test("pause stops the clock and fabric motion; offscreen and hidden tabs stop ad
   await expect(figure).toHaveAttribute("data-playing", "true");
   await page.clock.runFor(3000);
   await expect(art).toHaveAttribute("data-step", "2");
-  await page.getByRole("button", { name: "Pause tie demonstration" }).click();
-  await expect(figure).toHaveAttribute("data-playing", "false");
-  await page.clock.runFor(6000);
-  await expect(art).toHaveAttribute("data-step", "2");
-  expect(
-    await art.evaluate((el) =>
-      el
-        .getAnimations({ subtree: true })
-        .every((animation) => animation.playState !== "running"),
-    ),
-  ).toBe(true);
-  await page.getByRole("button", { name: "Play tie demonstration" }).click();
-  await expect(figure).toHaveAttribute("data-playing", "true");
+  await expect(page.getByRole("button", { name: /pause|resume|play tie/i })).toHaveCount(0);
   await page.clock.runFor(3000);
   await expect(art).toHaveAttribute("data-step", "3");
   await page.locator("#skills").scrollIntoViewIfNeeded();
@@ -128,7 +116,7 @@ test("pause stops the clock and fabric motion; offscreen and hidden tabs stop ad
   await expect(art).not.toHaveAttribute("data-step", offscreen!);
 });
 
-test("reduced motion starts static and explicit play changes steps without fabric morphs", async ({
+test("reduced motion keeps the hero still, without playback controls", async ({
   page,
 }) => {
   await freezeClock(page);
@@ -136,15 +124,10 @@ test("reduced motion starts static and explicit play changes steps without fabri
   await page.goto("/");
   const art = page.locator("#hero-preview .phone-coaching-content .tie-motion");
   await page.locator("#hero-preview").scrollIntoViewIfNeeded();
-  await expect(
-    page.getByRole("button", { name: "Play tie demonstration" }),
-  ).toBeVisible();
+  await expect(page.locator("#hero-preview")).toHaveAttribute("data-playing", "false");
+  await expect(page.getByRole("button", { name: /tie demonstration/i })).toHaveCount(0);
   await page.clock.runFor(9000);
   await expect(art).toHaveAttribute("data-step", "1");
-  await page.getByRole("button", { name: "Play tie demonstration" }).click();
-  await expect(page.locator("#hero-preview")).toHaveAttribute("data-playing", "true");
-  await page.clock.runFor(3000);
-  await expect(art).toHaveAttribute("data-step", "2");
   expect(
     await art.evaluate((el) => el.getAnimations({ subtree: true }).length),
   ).toBe(0);

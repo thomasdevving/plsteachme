@@ -2,24 +2,17 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Pause, Play } from "lucide-react";
-import { MOTION_KEY, setMotionPaused, useMotionPaused } from "@/lib/motion-preference";
+import { MOTION_KEY, setMotionPaused } from "@/lib/motion-preference";
 
-/** Shared animation preference and visibility tracking for ambient artwork. */
+/** Visibility tracking for ambient artwork. */
 export function SiteMotion() {
-  const paused = useMotionPaused();
   const pathname = usePathname();
 
+  // Animations always run (the OS reduced-motion setting still applies); an
+  // earlier stored "paused" choice from the removed control is cleared.
   useEffect(() => {
-    const read = () => {
-      let saved = false;
-      try { saved = localStorage.getItem(MOTION_KEY) === "true"; } catch { /* Private browsing. */ }
-      setMotionPaused(saved, false);
-    };
-    const storage = (event: StorageEvent) => { if (event.key === MOTION_KEY || event.key === null) read(); };
-    read();
-    window.addEventListener("storage", storage);
-    return () => window.removeEventListener("storage", storage);
+    try { localStorage.removeItem(MOTION_KEY); } catch { /* Private browsing. */ }
+    setMotionPaused(false, false);
   }, []);
 
   useEffect(() => {
@@ -40,8 +33,5 @@ export function SiteMotion() {
     };
   }, [pathname]);
 
-  return <button className="site-motion-control" type="button" aria-label={paused ? "Resume animations" : "Pause animations"} aria-pressed={paused} onClick={() => setMotionPaused(!paused)}>
-    {paused ? <Play size={13} aria-hidden="true" /> : <Pause size={13} aria-hidden="true" />}
-    <span>{paused ? "Resume animations" : "Pause animations"}</span>
-  </button>;
+  return null;
 }

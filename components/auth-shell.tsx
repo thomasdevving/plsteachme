@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowLeft, Check } from "lucide-react";
 import { BrandMark } from "./brand";
-import { Mascot, MascotMotionControl } from "./mascot";
+import { Mascot } from "./mascot";
 export function AuthShell({ children }: { children: ReactNode }) {
   return (
     <>
@@ -29,7 +29,6 @@ export function AuthShell({ children }: { children: ReactNode }) {
             <Mascot pose="sitting" color="green" />
           </div>
           <div className="auth-motion-control">
-            <MascotMotionControl />
           </div>
           <div className="auth-trial-note">
             <Check size={19} aria-hidden="true" />

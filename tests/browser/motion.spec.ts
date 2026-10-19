@@ -1,23 +1,19 @@
 import { test, expect } from "@playwright/test";
 import { copy } from "../../lib/copy/en";
 
-test("lesson preview plays, pauses, and supports manual steps", async ({
+test("lesson preview plays without a pause control, and manual steps take over", async ({
   page,
 }) => {
   await page.goto("/coach");
   const preview = page.locator(".skill-preview");
-  await page.getByRole("button", { name: copy.motion.pause }).click();
-  await expect(preview).toHaveClass(/is-paused/);
+  await expect(preview).toHaveClass(/is-playing/);
+  await expect(page.getByRole("button", { name: copy.motion.pause })).toHaveCount(0);
   await page.getByRole("button", { name: copy.motion.next }).click();
+  await expect(preview).toHaveClass(/is-paused/);
   await expect(preview.locator(".preview-step-title")).toHaveText("Cross over");
   await page.getByRole("button", { name: copy.motion.previous }).click();
   await expect(preview.locator(".preview-step-title")).toHaveText(
     "Drape the tie",
-  );
-  await page.getByRole("button", { name: copy.motion.play }).click();
-  await expect(preview.locator(".preview-step-title")).toHaveText(
-    "Cross over",
-    { timeout: 7000 },
   );
   await page.locator("#how-title").scrollIntoViewIfNeeded();
   await expect(preview).toHaveClass(/is-paused/);
@@ -43,7 +39,7 @@ test("reduced motion keeps diagrams complete and manual preview controls usable"
   await expect(preview).toHaveClass(/is-static/);
   await expect(
     page.getByRole("button", { name: copy.motion.play }),
-  ).toBeDisabled();
+  ).toHaveCount(0);
   await page.getByRole("button", { name: copy.motion.next }).click();
   await expect(preview.locator(".preview-step-title")).toHaveText("Cross over");
   const style = await preview
@@ -61,7 +57,7 @@ test("reduced motion keeps diagrams complete and manual preview controls usable"
   ).toBe(true);
 });
 
-test("headline dashes select the matching diagram and stay in sync with playback", async ({
+test("headline dashes select the matching diagram and stay in sync with manual steps", async ({
   page,
 }) => {
   await page.goto("/coach");
@@ -84,12 +80,6 @@ test("headline dashes select the matching diagram and stay in sync with playback
   await expect(navigation.getByRole("button").nth(4)).toHaveAttribute(
     "aria-pressed",
     "true",
-  );
-  await page.getByRole("button", { name: copy.motion.play }).click();
-  await expect(navigation.getByRole("button").nth(5)).toHaveAttribute(
-    "aria-pressed",
-    "true",
-    { timeout: 7000 },
   );
   const sizes = await navigation.getByRole("button").evaluateAll((buttons) =>
     buttons.map((button) => ({

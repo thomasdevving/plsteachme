@@ -10,7 +10,7 @@ async function startCamera(page:Page) {
   const coach=page.locator('.camera-coach');
   await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();
   await coach.getByRole('checkbox',{name:'I agree to automatic image checks'}).check();
-  await coach.getByRole('button',{name:'Start camera coaching'}).click();
+  await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Skip this step'}).click();
   return coach;
 }
 async function mockCamera(page:Page,feedback=positive) {

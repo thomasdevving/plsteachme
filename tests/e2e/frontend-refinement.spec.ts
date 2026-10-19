@@ -51,8 +51,8 @@ test('subscriptions show monthly prices, coming-soon plans and testing access', 
   await expect(page.locator('.plan-price p')).toHaveText(['$6','$20','$100–$500']);
   await expect(page.locator('.plan-price>span')).toHaveText(['per month','per month','per month']);
   await expect(page.locator('.plan-availability', {hasText:'Coming soon'})).toHaveCount(3);
-  await expect(page.getByText('Total monthly price depends on the number of students.')).toBeVisible();
-  await expect(page.getByText('Create and customize your own training')).toBeVisible();
+  await expect(page.getByText('Total monthly price depends on the number of students',{exact:false})).toBeVisible();
+  await expect(page.getByText('Create AI-guided modules by demonstrating a skill on camera')).toBeVisible();
   await expect(page.getByText('These are our planned subscription levels.',{exact:false})).toBeVisible();
   await page.getByRole('link',{name:'Request testing access'}).first().click();
   await expect(page).toHaveURL(/\/subscriptions#testing-access$/);

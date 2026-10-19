@@ -60,3 +60,7 @@ The user's product description plans specialized computer vision models trained 
 ## Object enrollment and tracking — 20 October 2026 (current)
 
 The user asked for one-shot/few-shot object enrollment followed by tracking, visible in the learner's own video. The camera coach offers "Show me the <object>" (or drawing a box): it learns the learner's object from five views and tracks it with an on-device colour-likelihood mean-shift tracker, verified against shape templates, with whole-frame reacquisition. A labelled box is drawn on the live preview. Nothing is sent or stored for this. It locates objects but does not yet judge their state.
+
+## Website motion — 20 October 2026 (current)
+
+The user asked to remove all pause buttons: the floating animation control, "Pause characters", the hero phone's play/pause and the lesson preview's play/pause are gone, and any stored paused preference is cleared. The OS reduced-motion setting is still honoured, and the demo player keeps Play/Replay to start the demo. "Watch the demo" now glides to the demo over about three seconds with sine easing, so the phone's turn is visible; any scroll input from the visitor stops the glide. "Back to the top" targets a fixed anchor, because the sticky header could not be scrolled to. In camera coaching, "Show me the <object>" is now the first camera step rather than a button. These supersede the earlier pause-control statements above.

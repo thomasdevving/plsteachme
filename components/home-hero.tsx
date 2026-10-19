@@ -94,12 +94,6 @@ export function HomeHero({
             graphics={graphics}
             selection={selection}
             onSelect={select}
-            onTogglePlay={() =>
-              setSelection((current) => ({
-                ...current,
-                paused: !current.paused,
-              }))
-            }
           />
           <div className="skill-card-content">
             <div className="metadata">

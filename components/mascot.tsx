@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Pause, Play } from "lucide-react";
+import { useEffect, useRef } from "react";
+
 import { mascotFrames, mascotFrameStyle } from "@/lib/mascot-frames";
 
 const illustratedPoses = mascotFrames;
@@ -63,32 +63,5 @@ export function Mascot({
         </>
       )}
     </span>
-  );
-}
-
-export function MascotMotionControl() {
-  const [paused, setPaused] = useState(false);
-  useEffect(() => {
-    document.documentElement.dataset.mascotsPaused = String(paused);
-    return () => {
-      delete document.documentElement.dataset.mascotsPaused;
-    };
-  }, [paused]);
-  return (
-    <button
-      className="mascot-motion-control"
-      type="button"
-      onClick={() => setPaused((value) => !value)}
-      aria-label={
-        paused ? "Resume characters" : "Pause characters"
-      }
-    >
-      {paused ? (
-        <Play size={13} aria-hidden="true" />
-      ) : (
-        <Pause size={13} aria-hidden="true" />
-      )}
-      {paused ? "Resume characters" : "Pause characters"}
-    </button>
   );
 }

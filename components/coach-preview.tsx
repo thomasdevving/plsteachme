@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { MessageCircle, Pause, Play } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { TieMotion } from "./tie-motion";
-import { setMotionPaused, useMotionPaused } from "@/lib/motion-preference";
+import { useMotionPaused } from "@/lib/motion-preference";
 const tieSteps = [
   [
     "Start with the wide end longer.",
@@ -95,22 +95,6 @@ export function CoachPreview({
               <span className="brand-me">.me</span>
             </span>
             <span className="camera-dot" />
-            <div className="preview-playback" hidden={suspended}>
-              <button
-                type="button"
-                onClick={() => {
-                  if (motionPaused) {
-                    setMotionPaused(false);
-                    setPlaying(true);
-                  } else setPlaying(value => !value);
-                }}
-                title={running ? "Pause the demonstration and characters" : "Play the demonstration and characters"}
-                aria-label={running ? "Pause tie demonstration" : "Play tie demonstration"}
-              >
-                {running ? <Pause size={14} aria-hidden="true" /> : <Play size={14} aria-hidden="true" />}
-                {running ? "Pause" : "Play"}
-              </button>
-            </div>
           </div>
           <div className="viewfinder">
             <div className="camera-corner tl" />

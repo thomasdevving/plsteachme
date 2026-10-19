@@ -135,7 +135,7 @@ test('invited learner joins, practices with camera coaching and reports progress
   const coach=player.locator('.camera-coach');
   await coach.getByLabel('I am 16 or older.',{exact:true}).check();
   await coach.getByLabel('I agree to automatic image checks',{exact:false}).check();
-  await coach.getByRole('button',{name:'Start camera coaching'}).click();
+  await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Skip this step'}).click();
   await expect(player.getByText('Step 2 of 2')).toBeVisible({timeout:15000});
   await coach.getByRole('button',{name:'Stop camera'}).click();
   await player.getByRole('button',{name:'Finish with my own check'}).click();

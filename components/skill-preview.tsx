@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { AvailableSkill } from "@/lib/skills/schema";
 import { AnimatedDiagram } from "./animated-diagram";
 import { copy } from "@/lib/copy/en";
-import { setMotionPaused, useMotionPaused } from "@/lib/motion-preference";
+import { useMotionPaused } from "@/lib/motion-preference";
 
 const STEP_DURATION_MS = 3600;
 export function SkillPreview({
@@ -12,13 +12,11 @@ export function SkillPreview({
   graphics,
   selection,
   onSelect,
-  onTogglePlay,
 }: {
   skill: AvailableSkill;
   graphics: Record<string, string>;
   selection: { index: number; previous: number | null; paused: boolean };
   onSelect: (index: number, pause?: boolean) => void;
-  onTogglePlay: () => void;
 }) {
   const { index, previous, paused } = selection;
   const motionPaused = useMotionPaused();
@@ -116,24 +114,6 @@ export function SkillPreview({
             onClick={() => navigate(-1)}
           >
             <ChevronLeft size={19} aria-hidden="true" />
-          </button>
-          <button
-            type="button"
-            className="preview-control"
-            aria-label={playing ? copy.motion.pause : copy.motion.play}
-            disabled={reducedMotion}
-            onClick={() => {
-              if (motionPaused) {
-                setMotionPaused(false);
-                if (paused) onTogglePlay();
-              } else onTogglePlay();
-            }}
-          >
-            {playing ? (
-              <Pause size={16} aria-hidden="true" />
-            ) : (
-              <Play size={16} aria-hidden="true" />
-            )}
           </button>
           <button
             type="button"

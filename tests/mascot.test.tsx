@@ -8,7 +8,7 @@ import {
   render,
   screen,
 } from "@testing-library/react";
-import { Mascot, MascotMotionControl } from "../components/mascot";
+import { Mascot } from "../components/mascot";
 
 let notifyVisibility: (visible: boolean) => void;
 const disconnect = vi.fn();
@@ -63,16 +63,3 @@ it.each(["sitting", "peeking"] as const)(
   },
 );
 
-it("can pause and resume all characters on a page without a hero demo", () => {
-  const { unmount } = render(<MascotMotionControl />);
-  fireEvent.click(
-    screen.getByRole("button", { name: "Pause characters" }),
-  );
-  expect(document.documentElement.dataset.mascotsPaused).toBe("true");
-  fireEvent.click(
-    screen.getByRole("button", { name: "Resume characters" }),
-  );
-  expect(document.documentElement.dataset.mascotsPaused).toBe("false");
-  unmount();
-  expect(document.documentElement.dataset.mascotsPaused).toBeUndefined();
-});

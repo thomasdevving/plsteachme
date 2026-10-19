@@ -117,11 +117,39 @@ export function HeroDemo({
         return;
       event.preventDefault();
       history.pushState(null, "", "#demo");
-      window.scrollTo({
-        top: geometry.endScroll,
-        behavior: preference.matches || motionIsPaused() ? "instant" : "smooth",
-      });
+      if (preference.matches || motionIsPaused())
+        window.scrollTo({ top: geometry.endScroll, behavior: "instant" });
+      else glideTo(geometry.endScroll);
     };
+    // A slow eased scroll, so visitors can watch the phone turn into the demo.
+    // The browser's own smooth scroll is too quick for that.
+    let glide = 0;
+    const stopGlide = () => {
+      cancelAnimationFrame(glide);
+      glide = 0;
+    };
+    const glideTo = (top: number) => {
+      stopGlide();
+      const from = window.scrollY;
+      const distance = top - from;
+      const duration = Math.min(3600, Math.max(2800, Math.abs(distance) * 3));
+      const started = performance.now();
+      // Sine easing keeps the middle, where the phone turns, unhurried.
+      const ease = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
+      const step = (now: number) => {
+        const t = Math.min(1, (now - started) / duration);
+        window.scrollTo({ top: from + distance * ease(t), behavior: "instant" });
+        glide = t < 1 ? requestAnimationFrame(step) : 0;
+      };
+      glide = requestAnimationFrame(step);
+    };
+    // Any scroll input from the visitor takes over immediately.
+    const interrupt = () => {
+      if (glide) stopGlide();
+    };
+    window.addEventListener("wheel", interrupt, { passive: true });
+    window.addEventListener("touchstart", interrupt, { passive: true });
+    window.addEventListener("keydown", interrupt);
     container.addEventListener("click", jumpToDemo);
     document.fonts?.ready.then(() => {
       if (!disposed) measure();
@@ -136,6 +164,10 @@ export function HeroDemo({
       preference.removeEventListener("change", measure);
       window.removeEventListener(MOTION_EVENT, measure);
       container.removeEventListener("click", jumpToDemo);
+      stopGlide();
+      window.removeEventListener("wheel", interrupt);
+      window.removeEventListener("touchstart", interrupt);
+      window.removeEventListener("keydown", interrupt);
     };
   }, []);
 

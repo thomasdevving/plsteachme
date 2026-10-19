@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Pause, Play, RotateCcw } from "lucide-react";
+import { Play, RotateCcw } from "lucide-react";
 import { VIDEO_URL } from "@/lib/config";
 import { track } from "@/lib/analytics";
 import { TieMotion } from "./tie-motion";
@@ -140,30 +140,26 @@ export function DemoPlayer({
           </div>
         </div>
       )}
-      {(!src || !playing || error) && (
+      {(!playing || error) && (
         <button
           type="button"
           className="demo-player-toggle"
           onClick={toggle}
           disabled={!active}
           aria-label={
-            playing
-              ? "Pause demo preview"
-              : ended
+            ended
                 ? "Replay demo preview"
                 : src
                   ? "Play demo video"
                   : "Play demo preview"
           }
         >
-          {playing ? (
-            <Pause size={20} aria-hidden="true" />
-          ) : ended ? (
+          {ended ? (
             <RotateCcw size={20} aria-hidden="true" />
           ) : (
             <Play size={20} aria-hidden="true" />
           )}
-          <span>{playing ? "Pause" : ended ? "Replay" : "Play"}</span>
+          <span>{ended ? "Replay" : "Play"}</span>
         </button>
       )}
       {error && (

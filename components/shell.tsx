@@ -3,7 +3,7 @@ import { BRAND, pathFor, type Locale, type Page } from "@/lib/config";
 import type { Copy } from "@/lib/i18n";
 import { MobileMenu } from "./mobile-menu";
 import { BrandMark } from "./brand";
-import { Mascot, MascotMotionControl } from "./mascot";
+import { Mascot } from "./mascot";
 export function Header({
   c,
   locale,
@@ -19,7 +19,8 @@ export function Header({
       <a className="skip-link" href="#main">
         {c.nav.skip}
       </a>
-      <header className="site-header" id="top">
+      <div id="top" className="page-top" aria-hidden="true" />
+      <header className="site-header">
         <div className="container nav-inner">
           <a
             href={home}
@@ -71,7 +72,6 @@ export function Footer({
             <Mascot pose="standing" />
           </div>
           <div className="footer-controls">
-            <MascotMotionControl />
             <a href="#top">{c.footer.top} ↑</a>
           </div>
         </div>

@@ -70,6 +70,9 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const [autoAdvance,setAutoAdvance]=useState(true);
   const [countdown,setCountdown]=useState<number|null>(null);
   const [advanceCancelled,setAdvanceCancelled]=useState(false);
+  // The first camera step, “Show me the …”, comes before any step is checked.
+  const [objectReady,setObjectReady]=useState(false);
+  const objectReadyRef=useRef(objectReady);objectReadyRef.current=objectReady;
   const callbacks=useRef({onFeedback,onAutoAdvance});
   useEffect(()=>{callbacks.current={onFeedback,onAutoAdvance};},[onFeedback,onAutoAdvance]);
   const hasAutoAdvance=Boolean(onAutoAdvance);
@@ -140,7 +143,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       video.current.srcObject=next;
       await video.current.play();
       if(current!==generation.current)return;
-      setMode('running'); setStatus('Automatic checks are starting.');
+      setMode('running'); setStatus(objectReadyRef.current?'Automatic checks are starting.':`Automatic checks start after you show the ${objectName}.`);
     } catch(error) {
       if(current!==generation.current)return;
       releaseCamera();setMode('off');setStatus('');setMessage(cameraError(error));
@@ -148,7 +151,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   }
 
   useEffect(()=>{
-    if(mode!=='running' || hidden)return;
+    if(mode!=='running' || hidden || !objectReady)return;
     const controller=new AbortController();
     request.current=controller;
     let failures=0;
@@ -206,7 +209,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     }
     void run();
     return ()=>{controller.abort();};
-  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify,trialId,organizationModule]);
+  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify,trialId,organizationModule,objectReady]);
 
   useEffect(()=>{
     const result=feedback?.step===step?feedback.value:null;
@@ -240,11 +243,11 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
         <label htmlFor={ageId}><input id={ageId} type="checkbox" checked={over16} onChange={event=>setOver16(event.target.checked)}/>I am 16 or older.</label>
         <label htmlFor={consentId}><input id={consentId} type="checkbox" checked={consent} onChange={event=>setConsent(event.target.checked)}/>I agree to automatic image checks while camera coaching is active.</label>
       </div>}
-      <button type="button" className="button secondary compact" disabled={availability!=='ready'||!consent||!over16||hidden} onClick={()=>void startCamera()}><Camera size={17} aria-hidden="true"/>Start camera coaching</button>
+      <button type="button" className="button secondary compact" disabled={availability!=='ready'||!consent||!over16||hidden} onClick={()=>{setObjectReady(false);void startCamera();}}><Camera size={17} aria-hidden="true"/>Start camera coaching</button>
     </>}
-    {active && <p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>}
+    {active && (objectReady?<p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>:<p className="camera-current-step"><strong>Before step {step+1}: show me the {objectName}</strong><br/>The coach learns what your {objectName} looks like, then follows it while you practice.</p>)}
     <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
-    <ObjectTracking objectName={objectName} video={video} overlay={objectOverlay} active={mode==='running'||mode==='paused'} mirrored={facing==='user'}/>
+    <ObjectTracking objectName={objectName} video={video} overlay={objectOverlay} active={mode==='running'||mode==='paused'} mirrored={facing==='user'} onReady={()=>setObjectReady(true)}/>
     {!organizationModule && <OnDeviceModel target={visionTarget} steps={visionSteps} step={step} video={video} running={mode==='running'&&!hidden} feedback={feedback}/>}
     {active && <>
       <p className="camera-framing">{publishedLesson?'Show the tools and result for this checkpoint. Never hold the camera while using tools.':framingHints[skill]}</p>
