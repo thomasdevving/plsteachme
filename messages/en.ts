@@ -163,7 +163,7 @@ export const en = {
     saved: "Saved.",
     optional: "optional",
   },
-  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `Free during the demo. Future pricing is still open.` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: 'Live video stays on your device. During camera coaching, still images go to OpenAI automatically. This app does not save them. OpenAI may retain API data under its data controls; see the privacy details.' }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
+  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `The demo is free to try. Starter is planned at $6/month, Plus at $20/month, and organization plans at $100–$500/month depending on student count. All subscriptions are coming soon.` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: 'Live video stays on your device. During camera coaching, still images go to OpenAI automatically. This app does not save them. OpenAI may retain API data under its data controls; see the privacy details.' }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
   thanks: {
     title: "You’re on the list.",
     intro:
@@ -194,35 +194,50 @@ export const en = {
     title: "A plan for the way you learn.",
     intro:
       "Start with the essentials. Build your confidence. Or bring practical learning to your whole team.",
-    note: "These are our planned subscription levels. Features and pricing are still being shaped; all plans are coming soon.",
+    note: "These are our planned subscription levels. All plans are coming soon and are not available to purchase yet.",
+    comingSoon: "Coming soon",
+    billing: "per month",
+    testing: {
+      title: "Request access during testing.",
+      intro: "plsteach.me is still in the demo and testing phase. Leave your email to request access during testing.",
+      note: "We’ll email you about availability. Requesting access does not start a paid subscription.",
+      action: "Request testing access",
+      consent: "I agree to the privacy statement and may be contacted about testing access to plsteach.me.",
+    },
     plans: [
       {
         name: "Starter",
         description: "A place to begin with everyday skills.",
+        price: "$6",
+        priceNote: "For individual learners.",
         features: [
           "Essential guided lessons",
           "Step-by-step practice",
           "Personal progress",
         ],
-        action: "Get launch updates",
+        action: "Request testing access",
       },
       {
         name: "Plus",
         description: "More room to practice and keep growing.",
+        price: "$20",
+        priceNote: "For individual learners.",
         features: [
           "Everything planned for Starter",
           "A wider library of practical skills",
           "More AI-guided practice",
         ],
-        action: "Get launch updates",
+        action: "Request testing access",
       },
       {
-        name: "Teams",
-        description: "Practical guidance for schools and organizations.",
+        name: "For organizations",
+        description: "Practical learning shaped around your students and your training.",
+        price: "$100–$500",
+        priceNote: "Total monthly price depends on the number of students.",
         features: [
-          "Learning for your group",
-          "Support getting started",
-          "A pilot shaped around your needs",
+          "Create and customize your own training",
+          "Use your organization’s training content",
+          "Guided practice for your students",
         ],
         action: "Explore a pilot",
       },
@@ -236,7 +251,7 @@ export const en = {
     privacy: `Read what data ${BRAND} processes and how you stay in control.`,
     thanks: `Thank you for your interest in ${BRAND}.`,
     subscriptions:
-      "Explore planned Starter, Plus, and Teams subscriptions. Pricing coming soon.",
+      "Coming soon: Starter at $6/month, Plus at $20/month, and organization plans at $100–$500/month based on student count. Request testing access.",
     learn: "Find a practical skill, follow a learning journey, and track your checkpoint progress.",
     community: "Request the practical skills you want to learn and support ideas from other learners.",
     teach: "Apply to teach, turn a demonstration into a reviewed lesson, and share practical knowledge.",

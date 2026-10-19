@@ -16,9 +16,10 @@ test('the current illustrated frontend retains subscriptions alongside the new p
   const entries=page.locator('.scope-entry');
   for(const [label,path] of [['Explore learning journeys','/learn'],['Visit the request board','/community'],['Open the teacher studio','/teach']])await expect(entries.getByRole('link',{name:label})).toHaveAttribute('href',path);
   await page.goto('/subscriptions');
-  await expect(page.locator('.subscription-plan h2')).toHaveText(['Starter','Plus','Teams']);
-  await expect(page.locator('.plan-price>p')).toHaveText(['Coming soon','Coming soon','Coming soon']);
-  await expect(page.locator('.plan-price>span')).toHaveText(['Pricing to be announced','Pricing to be announced','Pricing to be announced']);
+  await expect(page.locator('.subscription-plan h2')).toHaveText(['Starter','Plus','For organizations']);
+  await expect(page.locator('.plan-price>p')).toHaveText(['$6','$20','$100–$500']);
+  await expect(page.locator('.plan-price>span')).toHaveText(['per month','per month','per month']);
+  await expect(page.locator('.plan-availability')).toHaveText(['Coming soon','Coming soon','Coming soon']);
   await expect(page.locator('.plan-plus .mascot--peeking')).toBeVisible();
   await expect(page.getByText('Free during demo',{exact:true})).toHaveCount(0);
   await expect(page.getByText('$9.99',{exact:false})).toHaveCount(0);
@@ -45,7 +46,8 @@ test('the restored account journey preserves one free session and returns to exi
   await expect(page.getByRole('heading',{name:'Your free session is complete.'})).toBeVisible();
   await page.getByRole('link',{name:'Explore plans'}).click();
   await expect(page).toHaveURL(/\/subscriptions$/);
-  await expect(page.locator('.plan-price>p')).toHaveText(['Coming soon','Coming soon','Coming soon']);
+  await expect(page.locator('.plan-price>p')).toHaveText(['$6','$20','$100–$500']);
+  await expect(page.locator('.plan-availability')).toHaveText(['Coming soon','Coming soon','Coming soon']);
 });
 
 test('new learning pages share the existing account entitlement while written lessons remain usable',async({page})=>{

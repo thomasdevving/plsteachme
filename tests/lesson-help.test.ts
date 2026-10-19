@@ -135,7 +135,9 @@ describe('published lesson feedback reports',()=>{
   expect(state.insert).not.toHaveBeenCalled();
  });
 });
-it('preserves the existing pricing and payment preference options',()=>{
- expect(en.faq.items.find(item=>item.q==='Is it free?')?.a).toBe('Free during the demo. Future pricing is still open.');
+it('shows planned monthly pricing while preserving payment preference options',()=>{
+ const answer=en.faq.items.find(item=>item.q==='Is it free?')?.a;
+ for(const price of ['$6/month','$20/month','$100–$500/month'])expect(answer).toContain(price);
+ expect(answer).toContain('All subscriptions are coming soon.');
  expect(en.form.payOptions).toEqual(['Only if it’s free','A few euros per month','€5–10 per month','One-time purchase per skill','Not sure yet']);
 });

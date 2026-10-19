@@ -44,19 +44,55 @@ test('requested landing copy is removed from the visible page and FAQ schema', a
   expect(await page.locator('script[type="application/ld+json"]').textContent()).not.toContain('When can I learn to shave?');
 });
 
-test('subscriptions show planned levels with coming-soon pricing and working next steps', async ({page}) => {
+test('subscriptions show monthly prices, coming-soon plans and testing access', async ({page}) => {
   await page.goto('/subscriptions');
   await expect(page).toHaveTitle(/A plan for the way you learn/);
-  for (const name of ['Starter','Plus','Teams']) await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
-  await expect(page.locator('.plan-price p', {hasText:'Coming soon'})).toHaveCount(3);
+  for (const name of ['Starter','Plus','For organizations']) await expect(page.getByRole('heading',{name,exact:true})).toBeVisible();
+  await expect(page.locator('.plan-price p')).toHaveText(['$6','$20','$100–$500']);
+  await expect(page.locator('.plan-price>span')).toHaveText(['per month','per month','per month']);
+  await expect(page.locator('.plan-availability', {hasText:'Coming soon'})).toHaveCount(3);
+  await expect(page.getByText('Total monthly price depends on the number of students.')).toBeVisible();
+  await expect(page.getByText('Create and customize your own training')).toBeVisible();
   await expect(page.getByText('These are our planned subscription levels.',{exact:false})).toBeVisible();
-  await page.getByRole('link',{name:'Get launch updates'}).first().click();
-  await expect(page).toHaveURL(/\/#waitlist$/);
-  await expect(page.locator('#waitlist-title')).toBeInViewport();
+  await page.getByRole('link',{name:'Request testing access'}).first().click();
+  await expect(page).toHaveURL(/\/subscriptions#testing-access$/);
+  await expect(page.locator('#subscription-testing-title')).toBeInViewport();
+  await expect(page.locator('#testing-access')).toContainText('demo and testing phase');
+  await expect(page.locator('#testing-access input[type="email"]')).toBeVisible();
   await page.goto('/subscriptions');
   await page.getByRole('link',{name:'Explore a pilot'}).click();
   await expect(page).toHaveURL(/\/organizations#pilot$/);
   await expect(page.locator('#pilot')).toBeInViewport();
+});
+
+test('testing access collects a consented email through the existing signup flow', async ({page}) => {
+  await page.setViewportSize({width:375,height:812});
+  await page.route('**/api/waitlist', route => route.fulfill({json:{mock:true}}));
+  await page.route('**/api/session', route => route.fulfill({json:{mock:true}}));
+  await page.goto('/subscriptions');
+  const form = page.locator('#testing-access form');
+  await expect(form.locator('.chips, #payment')).toHaveCount(0);
+  await form.getByLabel('How old are you?').selectOption('18-24');
+  await form.getByRole('textbox',{name:'Your email address'}).fill('TESTER@example.com');
+  await form.getByRole('checkbox').check();
+  const submitted = page.waitForRequest(request => request.url().endsWith('/api/waitlist') && request.method() === 'POST');
+  await form.getByRole('button',{name:'Request testing access'}).click();
+  expect((await submitted).postDataJSON()).toMatchObject({age:'18-24',email:'tester@example.com',consent:true,skills:[],attribution:{landing_path:'/subscriptions',language:'en'}});
+  await expect(page).toHaveURL(/\/thanks\?preview=1/);
+  await expect(page.getByRole('heading',{name:'Your form has been tested.'})).toBeVisible();
+});
+
+test('testing access keeps the existing under-16 privacy boundary', async ({page}) => {
+  await page.route('**/api/waitlist', route => route.fulfill({json:{under16:true}}));
+  await page.goto('/subscriptions');
+  const form = page.locator('#testing-access form');
+  await form.getByRole('textbox',{name:'Your email address'}).fill('child@example.com');
+  await form.getByLabel('How old are you?').selectOption('under16');
+  await expect(form.locator('input[type="email"]')).toHaveCount(0);
+  const submitted = page.waitForRequest(request => request.url().endsWith('/api/waitlist') && request.method() === 'POST');
+  await form.getByRole('button',{name:'Request testing access'}).click();
+  expect((await submitted).postDataJSON()).toEqual({age:'under16',website:''});
+  await expect(form.getByRole('status')).toContainText('We won’t store your email address.');
 });
 
 test('mobile navigation reveals subscriptions and closes with Escape or selection', async ({page}) => {

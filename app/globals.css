@@ -108,16 +108,23 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
 .subscription-plan{padding:30px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
 .subscription-plan.plan-plus{background:var(--soft);border-color:#b9c4b5}
 .subscription-plan h2{font-size:2.15rem}
+.plan-availability{font-size:.75rem;font-weight:600;color:var(--ink);margin-bottom:12px}
 .plan-description{font-size:.9rem;color:var(--muted);margin-top:16px;min-height:3.3em}
 .plan-price{border-block:1px solid var(--line);padding:23px 0;margin:25px 0}
 .plan-price p{font-size:1.55rem;font-weight:500;letter-spacing:-.035em}
 .plan-price span{font-size:.75rem;color:var(--muted)}
+.plan-price-note{display:block;font-size:.73rem;color:var(--muted);margin-top:8px}
 .subscription-plan h3{font-family:var(--font-body),sans-serif;font-size:.8rem;font-weight:600;letter-spacing:0}
 .subscription-plan ul{list-style:none;padding:0;margin:17px 0 30px;display:flex;flex-direction:column;gap:13px;flex:1}
 .subscription-plan li{display:flex;gap:10px;font-size:.85rem;line-height:1.55;align-items:flex-start}
 .subscription-plan li svg{flex-shrink:0;margin-top:2px;color:var(--accent)}
 .subscription-plan .button{width:100%;font-size:.85rem;padding-inline:14px}
 .subscription-note{font-size:.8rem;color:var(--muted);max-width:80ch;margin:23px 0 0}
+.subscription-testing{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:70px;margin-top:48px;padding-top:38px;border-top:1px solid var(--line);scroll-margin-top:110px}
+.subscription-testing h2{font-size:clamp(1.8rem,3vw,2.4rem)}
+.subscription-testing p{margin-top:16px;color:var(--muted)}
+.subscription-testing .signup-form{min-width:0;gap:20px}
+@media(max-width:800px){.subscription-testing{grid-template-columns:1fr;gap:30px}}
 .subscription-demo{margin-top:70px;padding-top:38px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:24px}
 .subscription-demo h2{font-size:clamp(1.8rem,3vw,2.4rem)}
 .subscription-demo p{color:var(--muted);font-size:.95rem;margin-top:12px}

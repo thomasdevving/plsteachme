@@ -2,7 +2,9 @@
 
 A practical-skills learning app with nine illustrated starter lessons, automatic camera coaching, learning journeys, community requests and a reviewed teacher-contribution studio. The existing waitlist, organization forms and pricing remain in place.
 
-The latest public frontend is preserved: the rotating hero phone, clay companions, module rail, account pages and planned Starter/Plus/Teams subscriptions. The dedicated `/coach` experience remains available alongside the expanded catalog. All nine skills have seven illustrated steps, preparation lists, checkpoints, navigation and a completion screen. The built-in lessons work without credentials or external services. Automatic camera coaching is built into the lessons and uses a server-only OpenAI key. Video and an external demo link remain optional.
+The latest public frontend is preserved: the rotating hero phone, clay companions, module rail, account pages and planned Starter/Plus/organization subscriptions. The dedicated `/coach` experience remains available alongside the expanded catalog. All nine skills have seven illustrated steps, preparation lists, checkpoints, navigation and a completion screen. The built-in lessons work without credentials or external services. Automatic camera coaching is built into the lessons and uses a server-only OpenAI key. Video and an external demo link remain optional.
+
+Subscriptions are coming soon: Starter is $6/month, Plus is $20/month, and organization plans are $100–$500/month depending on the number of students, with custom organization training planned. The `/subscriptions` page includes a compact testing-access request form using the existing waitlist endpoint, age checks and consent. Real requests require configured Supabase storage; mock mode clearly reports that nothing is saved. No paid checkout is enabled.
 
 ## Run locally
 

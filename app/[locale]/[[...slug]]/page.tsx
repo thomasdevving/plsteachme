@@ -134,7 +134,7 @@ export default async function Page({ params }: { params: Params }) {
         {page === "home" ? (
           <Landing c={c} locale={locale} mock={mockMode} />
         ) : page === "subscriptions" ? (
-          <Subscriptions c={c} locale={locale} />
+          <Subscriptions c={c} locale={locale} mock={mockMode} />
         ) : page === "organizations" ? (
           <Organizations c={c} locale={locale} mock={mockMode} />
         ) : page === "demo" ? (

@@ -2,8 +2,9 @@ import { ArrowRight, Check } from "lucide-react";
 import type { Copy } from "@/lib/i18n";
 import { pathFor, type Locale } from "@/lib/config";
 import { Mascot } from "./mascot";
+import { WaitlistForm } from "./forms";
 
-export function Subscriptions({ c, locale }: { c: Copy; locale: Locale }) {
+export function Subscriptions({ c, locale, mock }: { c: Copy; locale: Locale; mock: boolean }) {
   return (
     <div className="container subscriptions-page">
       <header className="subscriptions-intro">
@@ -21,11 +22,13 @@ export function Subscriptions({ c, locale }: { c: Copy; locale: Locale }) {
             aria-labelledby={`plan-${index}`}
           >
             {index === 1 && <Mascot pose="peeking" />}
+            <p className="plan-availability">{c.subscriptions.comingSoon}</p>
             <h2 id={`plan-${index}`}>{plan.name}</h2>
             <p className="plan-description">{plan.description}</p>
             <div className="plan-price">
-              <p>Coming soon</p>
-              <span>Pricing to be announced</span>
+              <p>{plan.price}</p>
+              <span>{c.subscriptions.billing}</span>
+              <small className="plan-price-note">{plan.priceNote}</small>
             </div>
             <h3>What we’re planning</h3>
             <ul>
@@ -41,7 +44,7 @@ export function Subscriptions({ c, locale }: { c: Copy; locale: Locale }) {
               href={
                 index === 2
                   ? pathFor(locale, "organizations") + "#pilot"
-                  : pathFor(locale) + "#waitlist"
+                  : "#testing-access"
               }
             >
               {plan.action}
@@ -51,6 +54,30 @@ export function Subscriptions({ c, locale }: { c: Copy; locale: Locale }) {
         ))}
       </section>
       <p className="subscription-note">{c.subscriptions.note}</p>
+      <section
+        id="testing-access"
+        className="subscription-testing"
+        aria-labelledby="subscription-testing-title"
+      >
+        <div>
+          <h2 id="subscription-testing-title">{c.subscriptions.testing.title}</h2>
+          <p>{c.subscriptions.testing.intro}</p>
+          <p className="small">{c.subscriptions.testing.note}</p>
+        </div>
+        <WaitlistForm
+          c={{
+            form: {
+              ...c.form,
+              submit: c.subscriptions.testing.action,
+              consent: c.subscriptions.testing.consent,
+            },
+            skills: c.skills,
+          }}
+          locale={locale}
+          mock={mock}
+          compact
+        />
+      </section>
       <section
         className="subscription-demo"
         aria-labelledby="subscription-demo-title"
