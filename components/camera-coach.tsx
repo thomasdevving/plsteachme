@@ -1,6 +1,6 @@
 'use client';
 import { fetchWithTimeout } from '@/lib/network';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Camera, CameraOff, Pause, Play, RefreshCw } from 'lucide-react';
 import type { SkillId } from '@/lib/config';
 import { modules } from '@/lib/modules';
@@ -9,6 +9,8 @@ import { getCheckpoint } from '@/lib/learning-catalog';
 import type { LessonDocument } from '@/lib/platform-contract';
 import { ReportFeedback } from './report-feedback';
 import { useLearnerTrial } from './learner-trial';
+import { OnDeviceModel } from './on-device-model';
+import { builtinSteps, builtinTarget, lessonSteps, lessonTarget } from '@/lib/vision-contract';
 
 type Mode = 'off' | 'starting' | 'running' | 'paused';
 const feedbackTitles: Record<CoachFeedback['status'],string> = {
@@ -72,6 +74,8 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const publishedId=publishedLesson?.id;
   const publishedVersion=publishedLesson?.version;
   const currentStep=publishedLesson?.document.steps[step]??modules[skill].steps[step];
+  const visionTarget=publishedLesson?lessonTarget(publishedLesson.id):builtinTarget(skill);
+  const visionSteps=useMemo(()=>publishedLesson?lessonSteps(publishedLesson.document):builtinSteps(skill),[publishedLesson,skill]);
   const canVerify=publishedLesson?Boolean(currentStep && publishedLesson.document.steps[step]?.visuallyCheckable):getCheckpoint(skill,step).visuallyCheckable;
   const video = useRef<HTMLVideoElement>(null);
   const stream = useRef<MediaStream|null>(null);
@@ -236,6 +240,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     </>}
     {active && <p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>}
     <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
+    {!organizationModule && <OnDeviceModel target={visionTarget} steps={visionSteps} step={step} video={video} running={mode==='running'&&!hidden} feedback={feedback}/>}
     {active && <>
       <p className="camera-framing">{publishedLesson?'Show the tools and result for this checkpoint. Never hold the camera while using tools.':framingHints[skill]}</p>
       <p className="camera-limit">Still images are sent to OpenAI automatically while checks run. <a href="/privacy">Privacy details</a>.</p>

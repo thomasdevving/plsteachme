@@ -91,7 +91,7 @@ export async function platformRead(request:NextRequest) {
 const rates=new Map<string,{count:number;until:number}>();
 export function platformRateAllowed(id:string,kind:string,now=Date.now()) {
  for(const [key,value] of rates)if(value.until<=now)rates.delete(key);
- const key=`${id}:${kind}`;const limit=['generate','transcribe'].includes(kind)?6:kind==='lesson.coach'?120:kind==='upload'?10:60;const previous=rates.get(key);
+ const key=`${id}:${kind}`;const limit=['generate','transcribe'].includes(kind)?6:kind==='lesson.coach'||kind==='vision.shadow'?120:kind==='vision.model.train'?20:kind==='upload'?10:60;const previous=rates.get(key);
  if(!previous){if(rates.size>=10000)return false;rates.set(key,{count:1,until:now+600000});return true;}
  if(previous.count>=limit)return false;previous.count++;return true;
 }

@@ -255,6 +255,7 @@ export const en = {
     learn: "Find a practical skill, follow a learning journey, and track your checkpoint progress.",
     community: "Request the practical skills you want to learn and support ideas from other learners.",
     teach: "Apply to teach, turn a demonstration into a reviewed lesson, and share practical knowledge.",
+    vision: "Record labelled demonstration clips and train specialized on-device models for camera coaching.",
     training: "Create AI-guided training modules from your demonstrations and manuals, enroll learners and monitor their progress.",
   },
 };

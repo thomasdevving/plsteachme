@@ -28,7 +28,7 @@ The app reports unavailable services honestly until configured. Built-in illustr
 
 1. Sign in, submit a teacher profile with practical experience and relevant qualifications.
 2. An authorized reviewer approves it or requests changes with notes.
-3. The approved teacher creates a lesson, optionally linked to a community request. Hosting/contribution permission is required. Future model-improvement permission is separate and off by default.
+3. The approved teacher creates a lesson, optionally linked to a community request. Hosting/contribution permission is required. Future model-improvement permission is separate and off by default; with it, the teacher can record labelled landmark clips for that lesson in the vision lab (`docs/VISION_MODELS.md`).
 4. Record a demonstration in the studio or upload an MP4, WebM or MOV file (maximum 100 MB). Recordings are limited to five minutes. The browser preview stays local until Upload is selected. Signed upload destinations are scoped to the owner and lesson; attached files are checked against storage metadata.
 5. Supply teaching notes, or request transcription of a compatible recording under 25 MB after agreeing to send it to OpenAI. Review the text. Optionally select still frames, then generate a structured lesson proposal from the text and frames. AI output is editable and is not automatically saved or published.
 6. Define the objective, materials, prerequisites, safety limits, instructions, common mistakes, visible evidence, uncertainty behavior, manual alternatives and completion check. Review and save the draft, then explicitly approve it for independent review.

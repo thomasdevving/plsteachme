@@ -42,6 +42,7 @@ An OpenNext build verifies bundling, not live service integrations. Server-side 
 - `/learn`: searchable skills, six real-life categories, learning journeys, saved progress and published teacher lessons.
 - `/community`: request a skill and support other learners' requests.
 - `/teach`: teacher applications, demonstration recording/upload, lesson editing, AI assistance and independent review.
+- `/vision`: vision lab. Record labelled landmark clips (no images), train a specialized per-lesson model with held-out evaluation, and activate it to run on learners' devices in shadow mode next to the cloud coach. See [specialized vision models](docs/VISION_MODELS.md).
 - `/training`: organization workspaces. Admins create AI-guided modules from a camera-tracked demonstration or an uploaded manual, enroll students or employees, and monitor progress. Access is currently limited to the allowlisted account(s) in `TRAINING_ACCESS_EMAILS`. See [organization training](docs/ORGANIZATIONS.md).
 - `/privacy`: visible draft with outstanding business/provider details.
 - `/thanks`: honest mock acknowledgement or signup follow-up.
