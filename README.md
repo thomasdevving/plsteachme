@@ -19,6 +19,12 @@ For connected testing after setting up Supabase and OpenAI, follow [the setup an
 
 ### Cloudflare Workers deployment status
 
+Cloudflare Workers Builds should connect to this repository's `main` branch, use the repository root, and deploy to the existing Worker `plsteachme`. Set the deploy command to `npm run deploy:cloudflare`; leave the dashboard build command empty because `wrangler.jsonc` runs `npm run build:cloudflare` before deployment. Dependencies must include development dependencies for the build tools. Node.js 24 is required.
+
+`wrangler.jsonc` explicitly sets both the Worker name and the `WORKER_SELF_REFERENCE` service to `plsteachme`. Keep those names in sync: a service named `plsteach-me` does not refer to `plsteachme` and causes Cloudflare error 10143. Existing dashboard variables are preserved by `keep_vars`; configure build-time variables in Workers Builds and runtime variables/secrets on the Worker.
+
+To validate the production build and upload bundle locally without deploying, run `npx wrangler deploy --dry-run`. `npm run deploy:cloudflare` publishes to Cloudflare using the same build pipeline.
+
 The Next.js proxy trace explicitly includes the ESM files from `@opentelemetry/api`, a production dependency. OpenNext resolves its ESM entry point when bundling Node.js middleware, whereas Next.js normally traces its CommonJS entry point. Keep this include to avoid `Could not resolve "@opentelemetry/api"` during middleware bundling.
 
 An OpenNext build verifies bundling, not live service integrations. Server-side camera image processing still imports native `sharp`; verify these routes on the target runtime as well as the public pages before switching production hosting to Workers.
