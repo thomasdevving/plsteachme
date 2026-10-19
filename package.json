@@ -32,7 +32,8 @@
     "zod": "4.6.7",
     "@ai-sdk/openai": "^4.0.96",
     "ai": "^7.0.143",
-    "sharp": "^0.35.5"
+    "sharp": "^0.35.5",
+    "@opentelemetry/api": "1.9.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",

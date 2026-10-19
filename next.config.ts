@@ -3,6 +3,8 @@ const config: NextConfig = {
   poweredByHeader: false,
   outputFileTracingIncludes: {
     "/*": ["./skills/**/*.json", "./public/skills/**/*.svg"],
+    // OpenNext bundles proxy dependencies as ESM; Node tracing only finds CJS.
+    proxy: ["./node_modules/@opentelemetry/api/build/esm/**/*.js"],
   },
   async redirects() {
     return [

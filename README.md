@@ -17,6 +17,12 @@ Use Node.js 24. Open http://localhost:3100. For a production server, run `npm ru
 
 For connected testing after setting up Supabase and OpenAI, follow [the setup and acceptance checklist](docs/TEST_READINESS.md), then run `npm run verify:setup -- --url https://plsteachme.vercel.app`. The checker only reads service configuration and reports missing setup without printing credentials or making AI inference calls. Email login becomes available when Supabase Auth is configured; each account receives one resumable free coaching session.
 
+### Cloudflare Workers deployment status
+
+The Next.js proxy trace explicitly includes the ESM files from `@opentelemetry/api`, a production dependency. OpenNext resolves its ESM entry point when bundling Node.js middleware, whereas Next.js normally traces its CommonJS entry point. Keep this include to avoid `Could not resolve "@opentelemetry/api"` during middleware bundling.
+
+An OpenNext build verifies bundling, not live service integrations. Server-side camera image processing still imports native `sharp`; verify these routes on the target runtime as well as the public pages before switching production hosting to Workers.
+
 ## Pages and implementation
 
 - `/`: landing, phone example, module library, waitlist and FAQ.
