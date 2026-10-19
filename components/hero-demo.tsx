@@ -132,7 +132,7 @@ export function HeroDemo({
       stopGlide();
       const from = window.scrollY;
       const distance = top - from;
-      const duration = Math.min(3600, Math.max(2800, Math.abs(distance) * 3));
+      const duration = Math.min(2600, Math.max(1900, Math.abs(distance) * 2));
       const started = performance.now();
       // Sine easing keeps the middle, where the phone turns, unhurried.
       const ease = (t: number) => (1 - Math.cos(Math.PI * t)) / 2;
