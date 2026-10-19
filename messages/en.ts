@@ -239,7 +239,7 @@ export const en = {
           "Turn your manuals into modules with AI",
           "Enroll students or employees and monitor their progress",
         ],
-        action: "Open the training workspace",
+        action: "Explore a pilot",
       },
     ],
   },

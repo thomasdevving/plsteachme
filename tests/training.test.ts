@@ -10,9 +10,10 @@ vi.mock('@supabase/supabase-js',()=>({createClient:()=>({auth:{getUser:state.use
  const chain:Record<string,any>={};for(const method of ['select','eq','neq','not','is','in','order','limit','maybeSingle','single'])chain[method]=()=>chain;
  chain.then=(resolve:(value:unknown)=>unknown)=>Promise.resolve({data:state.tables[table]??null,error:null}).then(resolve);return chain;
 },storage:{from:()=>({upload:state.upload,download:state.download,createSignedUrls:async(paths:string[])=>({data:paths.map(path=>({path,signedUrl:`https://example.test/${path}`})),error:null})})}})}));
-import { POST } from '../app/api/training/route';
+import { GET, POST } from '../app/api/training/route';
 import { applyDraft, planForLearners, referenceFor, stepsFromMoments, stripReferences, trainingActionSchema, trainingDocumentSchema, type TrainingDocument, type TrainingMoment } from '../lib/training-contract';
 import { createSegmenter, summarizeHands } from '../lib/vision/demonstration-tracking';
+import { trainingAccessAllowed } from '../lib/training-server';
 
 const orgId='11111111-1111-4111-8111-111111111111',moduleId='22222222-2222-4222-8222-222222222222',userId='33333333-3333-4333-8333-333333333333',memberId='44444444-4444-4444-8444-444444444444';
 const frame=(n:number)=>`${orgId}/${moduleId}/frames/5555555${n}-5555-4555-8555-555555555555.jpg`;
@@ -69,8 +70,8 @@ describe('training contract',()=>{
 let jpeg:string;
 beforeAll(async()=>{jpeg=`data:image/jpeg;base64,${(await sharp({create:{width:40,height:40,channels:3,background:'white'}}).jpeg().toBuffer()).toString('base64')}`;});
 beforeEach(()=>{
- vi.unstubAllEnvs();vi.stubEnv('SUPABASE_URL','https://example.supabase.co');vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY','private-service-key');vi.stubEnv('OPENAI_API_KEY','test-key');vi.stubEnv('TRAINING_CREATOR_IDS','');vi.clearAllMocks();
- access.cookieUser.mockResolvedValue({id:userId,email:'Admin@School.example',is_anonymous:false});
+ vi.unstubAllEnvs();vi.stubEnv('SUPABASE_URL','https://example.supabase.co');vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY','private-service-key');vi.stubEnv('OPENAI_API_KEY','test-key');vi.stubEnv('TRAINING_ACCESS_EMAILS','admin@school.example');vi.clearAllMocks();
+ access.cookieUser.mockResolvedValue({id:userId,email:'Admin@School.example',email_confirmed_at:'2026-10-01T00:00:00Z',is_anonymous:false});
  state.rpc.mockResolvedValue({data:{ok:true},error:null});state.upload.mockResolvedValue({data:{},error:null});state.download.mockResolvedValue({data:new Blob([Buffer.from('reference')]),error:null});
  state.tables={training_modules:{id:moduleId,organization_id:orgId,audience:'all',published_version_id:'66666666-6666-4666-8666-666666666666',document,moments,source:'demonstration',source_text:'',manual_path:null},training_members:{id:memberId,role:'learner'},training_module_versions:{id:'66666666-6666-4666-8666-666666666666',version:2,document,demo_path:null},training_assignments:null};
  state.ai.mockResolvedValue({output:{status:'looks_right',confidence:'high',observation:'The flaps lie flat.',guidance:'Keep going.'}});
@@ -85,10 +86,19 @@ describe('training API boundaries',()=>{
   vi.stubEnv('SUPABASE_URL','');expect((await POST(post({action:'member.accept',token:'a'.repeat(32)}))).status).toBe(503);
   expect(state.rpc).not.toHaveBeenCalled();
  });
- it('can limit organization creation to pilot accounts',async()=>{
-  vi.stubEnv('TRAINING_CREATOR_IDS','99999999-9999-4999-8999-999999999999');
-  expect((await POST(post({action:'org.create',name:'Riverside',kind:'school',plan:'up-to-25'}))).status).toBe(403);
-  vi.stubEnv('TRAINING_CREATOR_IDS',userId);
+ it('opens the workspace only to allowlisted, verified emails',async()=>{
+  const confirmed='2026-10-01T00:00:00Z';
+  delete process.env.TRAINING_ACCESS_EMAILS;
+  expect(trainingAccessAllowed({email:'Thomastheconguyen@gmail.com',email_confirmed_at:confirmed})).toBe(true);
+  expect(trainingAccessAllowed({email:'admin@school.example',email_confirmed_at:confirmed})).toBe(false);
+  expect(trainingAccessAllowed({email:'thomastheconguyen@gmail.com',email_confirmed_at:null})).toBe(false);
+  vi.stubEnv('TRAINING_ACCESS_EMAILS','admin@school.example');
+  access.cookieUser.mockResolvedValue({id:userId,email:'someone@example.test',email_confirmed_at:confirmed,is_anonymous:false});
+  const denied=await POST(post({action:'org.create',name:'Riverside',kind:'school',plan:'up-to-25'}));
+  expect(denied.status).toBe(403);expect((await denied.json()).error).toBe('restricted');
+  expect((await GET(new NextRequest('http://localhost:3100/api/training?view=me'))).status).toBe(403);
+  expect(state.rpc).not.toHaveBeenCalled();
+  access.cookieUser.mockResolvedValue({id:userId,email:'Admin@School.example',email_confirmed_at:confirmed,is_anonymous:false});
   expect((await POST(post({action:'org.create',name:'Riverside',kind:'school',plan:'up-to-25'}))).status).toBe(200);
   expect(state.rpc.mock.calls[0][1]).toMatchObject({actor_id:userId,actor_email:'admin@school.example'});
  });

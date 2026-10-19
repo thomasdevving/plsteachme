@@ -55,7 +55,6 @@ export function MobileMenu({
         >
           {c.org}
         </a>
-        <a href="/training" aria-current={page === "training" ? "page" : undefined}>Training workspace</a>
         <a href="/login">Log in</a>
         <a href="/account">My account</a>
       </nav>

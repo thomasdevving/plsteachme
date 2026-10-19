@@ -146,6 +146,17 @@ test('invited learner joins, practices with camera coaching and reports progress
   expect(actions.some(item=>item.action==='lesson.coach')).toBe(false);
 });
 
+test('accounts without workspace access see that it is not open and cannot create anything',async({page})=>{
+  await page.route('**/api/auth/session',route=>route.fulfill({json:{configured:true,user:{id:uid,email:'someone@example.test'},trial:null}}));
+  await page.route('**/api/platform?view=config',route=>route.fulfill({json:{available:true,aiAvailable:true,supabaseUrl:'https://platform.supabase.test',publishableKey:'sb_publishable_test'}}));
+  await page.route('**/api/training**',route=>route.fulfill(new URL(route.request().url()).searchParams.get('view')==='config'?{json:{available:true,aiAvailable:true}}:{status:403,json:{error:'restricted',message:'The training workspace is not open to this account yet.'}}));
+  await page.goto('/training');
+  await expect(page.getByRole('heading',{name:'The training workspace isn’t open yet.'})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Create workspace'})).toHaveCount(0);
+  await page.goto('/');
+  await expect(page.locator('a[href="/training"]')).toHaveCount(0);
+});
+
 test('training workspace fits phones and passes accessibility checks',async({page})=>{
   await mockTraining(page);await page.setViewportSize({width:375,height:812});
   await page.goto('/training');

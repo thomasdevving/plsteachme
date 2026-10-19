@@ -43,7 +43,7 @@ export function Subscriptions({ c, locale, mock }: { c: Copy; locale: Locale; mo
               className={`button ${index === 1 ? "primary" : "secondary"}`}
               href={
                 index === 2
-                  ? pathFor(locale, "training")
+                  ? pathFor(locale, "organizations") + "#pilot"
                   : "#testing-access"
               }
             >

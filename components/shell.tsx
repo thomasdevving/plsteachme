@@ -92,7 +92,6 @@ export function Footer({
           <a href={pathFor(locale, "learn")}>Learn</a>
           <a href={pathFor(locale, "community")}>Community</a>
           <a href={pathFor(locale, "teach")}>Teach</a>
-          <a href={pathFor(locale, "training")}>Training workspace</a>
           <a href={pathFor(locale, "organizations")}>{c.nav.org}</a>
           <a href={pathFor(locale, "subscriptions")}>{c.nav.subscriptions}</a>
           <a href={pathFor(locale, "privacy")}>{c.form.privacy}</a>

@@ -14,10 +14,16 @@ type Row = Record<string,any>; // Database JSON is validated at the document bou
 const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const VIDEO_TYPES=['video/mp4','video/webm','video/quicktime'];
 
-/** Optional pilot gate: when set, only these Auth user IDs can create organizations. */
-export function organizationCreationAllowed(id:string) {
- const allowed=(process.env.TRAINING_CREATOR_IDS || '').split(',').map(value=>value.trim()).filter(Boolean);
- return !allowed.length || allowed.includes(id);
+// The workspace is closed while in testing: only these verified emails can open
+// it, create organizations or build modules. Override with TRAINING_ACCESS_EMAILS.
+const DEFAULT_ACCESS_EMAILS = 'thomastheconguyen@gmail.com';
+export function trainingAccessAllowed(user:{email?:string|null;email_confirmed_at?:string|null}) {
+ const allowed=(process.env.TRAINING_ACCESS_EMAILS ?? DEFAULT_ACCESS_EMAILS).split(',').map(value=>value.trim().toLowerCase()).filter(Boolean);
+ const email=(user.email || '').toLowerCase();
+ return Boolean(email && user.email_confirmed_at && allowed.includes(email));
+}
+function requireAccess(user:{email?:string|null;email_confirmed_at?:string|null}) {
+ if(!trainingAccessAllowed(user))throw new PlatformError(403,'restricted','The training workspace is not open to this account yet.');
 }
 export const hashInvite=(token:string)=>createHash('sha256').update(token).digest('hex');
 function orgRow(row:Row):TrainingOrganization { return {id:row.id,name:row.name,kind:row.kind,plan:row.plan,seatLimit:row.seat_limit,createdAt:row.created_at}; }
@@ -69,7 +75,7 @@ async function storedObject(client:DB,path:string) {
 export async function trainingRead(request:NextRequest) {
  const params=request.nextUrl.searchParams;const view=params.get('view') || 'me';
  if(view==='config')return {available:platformConfigured(),aiAvailable:coachingConfigured(),plans:trainingPlans};
- const client=platformDb();const user=await platformUser(request,client);
+ const client=platformDb();const user=await platformUser(request,client);requireAccess(user);
  if(view==='me') {
   const rows=checked(await client.from('training_members').select('id,role,organization_id').eq('user_id',user.id).eq('status','active').limit(50));
   const orgs=rows?.length?checked(await client.from('training_organizations').select('*').in('id',rows.map(row=>row.organization_id))):[];
@@ -82,7 +88,7 @@ export async function trainingRead(request:NextRequest) {
     invitation={organizationName:org?.name||'An organization',role:invite.role,expired:new Date(invite.invite_expires_at).getTime()<Date.now(),emailMatches:invite.email===(user.email||'').toLowerCase(),invitedEmail:invite.email};
    } else invitation={missing:true};
   }
-  return {user:{id:user.id,email:user.email},memberships,invitation,canCreate:organizationCreationAllowed(user.id)};
+  return {user:{id:user.id,email:user.email},memberships,invitation,canCreate:true};
  }
  if(view==='org') {
   const organizationId=params.get('id') || '';const member=await activeMember(client,user.id,organizationId);
@@ -203,12 +209,9 @@ async function coachModule(client:DB,userId:string,email:string,action:Extract<T
 
 const rateKind:Partial<Record<TrainingAction['action'],string>>={'module.generate':'generate','module.transcribe':'transcribe','module.coach':'lesson.coach','module.upload':'upload','progress.save':'training.progress'};
 export async function trainingWrite(request:NextRequest,action:TrainingAction) {
- const client=platformDb();const user=await platformUser(request,client);const email=(user.email||'').toLowerCase();
+ const client=platformDb();const user=await platformUser(request,client);requireAccess(user);const email=(user.email||'').toLowerCase();
  if(!platformRateAllowed(user.id,rateKind[action.action] || `training.${action.action}`))throw new PlatformError(429,'rate','Too many attempts. Please try again in ten minutes.');
  switch(action.action) {
-  case 'org.create':
-   if(!organizationCreationAllowed(user.id))throw new PlatformError(403,'pilot','Organization workspaces are in a limited pilot. Contact us to join.');
-   return trainingMutation(client,user.id,email,action);
   case 'member.invite': {
    const emails=[...new Set(action.emails.map(value=>value.trim().toLowerCase()))];
    const tokens=emails.map(value=>({email:value,token:randomBytes(24).toString('base64url')}));

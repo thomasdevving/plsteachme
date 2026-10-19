@@ -4,7 +4,7 @@ A practical-skills learning app with nine illustrated starter lessons, automatic
 
 The latest public frontend is preserved: the rotating hero phone, clay companions, module rail, account pages and planned Starter/Plus/organization subscriptions. The dedicated `/coach` experience remains available alongside the expanded catalog. All nine skills have seven illustrated steps, preparation lists, checkpoints, navigation and a completion screen. The built-in lessons work without credentials or external services. Automatic camera coaching is built into the lessons and uses a server-only OpenAI key. Video and an external demo link remain optional.
 
-Subscriptions are coming soon: Starter is $6/month, Plus is $20/month, and organization plans are $100–$500/month depending on the number of students. The organization training workspace at `/training` works now during testing: plans set learner seats, and billing is not active. The `/subscriptions` page includes a compact testing-access request form using the existing waitlist endpoint, age checks and consent. Real requests require configured Supabase storage; mock mode clearly reports that nothing is saved. No paid checkout is enabled.
+Subscriptions are coming soon: Starter is $6/month, Plus is $20/month, and organization plans are $100–$500/month depending on the number of students. The organization training workspace at `/training` is in closed testing (allowlisted accounts only): plans set learner seats, and billing is not active. The `/subscriptions` page includes a compact testing-access request form using the existing waitlist endpoint, age checks and consent. Real requests require configured Supabase storage; mock mode clearly reports that nothing is saved. No paid checkout is enabled.
 
 ## Run locally
 
@@ -42,7 +42,7 @@ An OpenNext build verifies bundling, not live service integrations. Server-side 
 - `/learn`: searchable skills, six real-life categories, learning journeys, saved progress and published teacher lessons.
 - `/community`: request a skill and support other learners' requests.
 - `/teach`: teacher applications, demonstration recording/upload, lesson editing, AI assistance and independent review.
-- `/training`: organization workspaces. Admins create AI-guided modules from a camera-tracked demonstration or an uploaded manual, enroll students or employees, and monitor progress. See [organization training](docs/ORGANIZATIONS.md).
+- `/training`: organization workspaces. Admins create AI-guided modules from a camera-tracked demonstration or an uploaded manual, enroll students or employees, and monitor progress. Access is currently limited to the allowlisted account(s) in `TRAINING_ACCESS_EMAILS`. See [organization training](docs/ORGANIZATIONS.md).
 - `/privacy`: visible draft with outstanding business/provider details.
 - `/thanks`: honest mock acknowledgement or signup follow-up.
 - `/dev/styleguide`: development only.

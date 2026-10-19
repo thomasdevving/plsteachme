@@ -19,7 +19,7 @@ Invited and active learners use a seat; admins and instructors are included. The
 
 Run `supabase/migrations/20261019120000_organization_training.sql` after the earlier migrations. It creates the `training_*` tables (RLS on, no browser access), the service-only `training_mutate` function, and the private `organization-training` Storage bucket. It uses the same `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, Supabase Auth and `OPENAI_*` settings as the teacher platform (see `PLATFORM.md`).
 
-Optional: set `TRAINING_CREATOR_IDS` to a comma-separated list of Supabase Auth user IDs to limit who can create organizations during a pilot. When it is empty, any signed-in account can create one. AI generation and coaching share the per-process rate limits of the teacher platform; set provider spend limits before opening creation widely.
+**Access is closed for now.** Only signed-in accounts with a verified email listed in `TRAINING_ACCESS_EMAILS` (comma-separated) can open `/training`, create organizations or build modules; every other account gets a "not open yet" message and the API returns 403 before any database or AI work. When the variable is unset, the allowlist is `thomastheconguyen@gmail.com`. Setting it to an empty value closes the workspace to everyone. Invited learners also need to be on the list while it is closed. The workspace is not linked from the public navigation. AI generation and coaching share the per-process rate limits of the teacher platform; set provider spend limits before opening access widely.
 
 ## Roles
 
