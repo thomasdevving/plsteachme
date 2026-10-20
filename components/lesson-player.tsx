@@ -14,6 +14,8 @@ import { CameraCoach } from './camera-coach';
 import { LessonQuestions } from './lesson-questions';
 import { LearnerTrial } from './learner-trial';
 import { builtinTrialId } from '@/lib/auth/trial-reference';
+import { PROGRESS_EVENT } from '@/lib/learning-progress';
+import { trackLearning } from '@/lib/learning-events';
 
 export function LessonPlayer({ skill, name }: { skill: SkillId; name: string }) {
   return <Player key={skill} skill={skill} name={name}/>;
@@ -38,8 +40,19 @@ function Player({ skill, name }: { skill: SkillId; name: string }) {
     const saved=readProgress().lessons[skill];
     if(saved){currentProgress.current=saved;setProgress(saved);setResumed(true);}
     setReady(true);
+    // Progress synced from the learner's account arrives after load; adopt it until they start.
+    const synced=()=>{const next=readProgress().lessons[skill];if(next&&currentProgress.current.updatedAt===0&&next.updatedAt>0){currentProgress.current=next;setProgress(next);setResumed(true);}};
+    window.addEventListener(PROGRESS_EVENT,synced);
+    return()=>window.removeEventListener(PROGRESS_EVENT,synced);
   },[skill]);
   function commit(next:LessonProgress) {
+    const previous=currentProgress.current;
+    if(next.step!==previous.step||next.completed!==previous.completed){
+      const key=`builtin:${skill}`;
+      if(previous.checkpoints.every(state=>state==='pending')&&!previous.completed)trackLearning({lessonKey:key,kind:'lesson_start'});
+      if(next.step>previous.step||next.completed&&!previous.completed){const state=next.checkpoints[previous.step];trackLearning({lessonKey:key,kind:'step',step:previous.step,result:state==='pending'?'':state});}
+      if(next.completed&&!previous.completed)trackLearning({lessonKey:key,kind:'lesson_complete'});
+    }
     currentProgress.current=next;setProgress(next);
     setStorageError(!saveLessonProgress(skill,next));
   }
@@ -66,7 +79,7 @@ function Player({ skill, name }: { skill: SkillId; name: string }) {
     setStorageError(!saveLessonProgress(skill,null));setResumed(false);setPractice(value=>value+1);focusHeading();
   }
   return <section className="lesson-player" aria-labelledby={titleId} data-skill={skill}>
-    <div className="lesson-overview"><p className="lesson-eyebrow">{catalogEntries[skill].categories[0]} · {lesson.steps.length} guided steps</p><h3 id={titleId}>{name}</h3><p>{lesson.intro}</p><details className="lesson-materials"><summary>What you’ll need</summary><ul>{lesson.materials.map(item=><li key={item}>{item}</li>)}</ul><p>{catalogEntries[skill].prerequisite}</p></details><p className="lesson-safety">{catalogEntries[skill].safety}</p><small>Illustrated walkthrough · optional automatic camera coaching</small><p className="learning-storage-note">Progress stays in this browser. Images and AI feedback are not saved with your progress.</p>{ready && <button type="button" className="learning-text-button" onClick={restart}>Reset lesson progress</button>}{storageError && <p role="status">This browser could not save progress. You can keep practicing here.</p>}{resumed && <p className="learning-resume" role="status">Your saved practice is ready to continue.</p>}</div>
+    <div className="lesson-overview"><p className="lesson-eyebrow">{catalogEntries[skill].categories[0]} · {lesson.steps.length} guided steps</p><h3 id={titleId}>{name}</h3><p>{lesson.intro}</p><details className="lesson-materials"><summary>What you’ll need</summary><ul>{lesson.materials.map(item=><li key={item}>{item}</li>)}</ul><p>{catalogEntries[skill].prerequisite}</p></details><p className="lesson-safety">{catalogEntries[skill].safety}</p><small>Illustrated walkthrough · optional automatic camera coaching</small><p className="learning-storage-note">Progress is saved in this browser, and in your account when you’re signed in. Images and AI feedback are not saved with your progress.</p>{ready && <button type="button" className="learning-text-button" onClick={restart}>Reset lesson progress</button>}{storageError && <p role="status">This browser could not save progress. You can keep practicing here.</p>}{resumed && <p className="learning-resume" role="status">Your saved practice is ready to continue.</p>}</div>
     <div className="lesson-workspace"><div className="lesson-art"><LessonArtwork skill={skill} step={step} replay={replay}/><button type="button" className="lesson-replay motion-toggle" aria-label="Replay this lesson step" onClick={()=>setReplay(value=>value+1)}><RotateCcw size={17} aria-hidden="true"/>Replay</button></div>
       <div className="lesson-progress" role="progressbar" aria-label="Lesson progress" aria-valuemin={0} aria-valuemax={lesson.steps.length} aria-valuenow={completed ? lesson.steps.length : step} aria-valuetext={completed ? 'Walkthrough complete' : `Step ${step+1} of ${lesson.steps.length}`}>{lesson.steps.map((_,i)=><span key={i} className={completed || i<step ? 'complete' : i===step ? 'current' : ''}/>)}</div>
       <div className="lesson-copy" aria-live="polite">{completed ? <><span className="lesson-step">Walkthrough complete</span><h4 ref={heading} tabIndex={-1}>One more skill to practice.</h4><p>{lesson.outcome}</p><p className="lesson-completion-note">{summary.camera} camera-confirmed visible checkpoints · {summary.self} self-checked · {summary.unresolved} unresolved.</p><p>Camera confirmation covers the visible checkpoint only. It does not certify comfort, safety or mastery.</p></> : <><span className="lesson-step">Step {step+1} of {lesson.steps.length}</span><h4 ref={heading} tabIndex={-1}>{current.title}</h4><p>{current.instruction}</p><p className="lesson-tip">{current.tip}</p><p className="lesson-check"><Check size={18} aria-hidden="true"/><span>Before moving on: {current.check}</span></p><p className={`checkpoint-state ${progress.checkpoints[step]}`} data-checkpoint-state={progress.checkpoints[step]}>{checkpointLabels[progress.checkpoints[step]]}</p><details className="checkpoint-guide"><summary>What the coach can check</summary>{checkpoint.visuallyCheckable?<><p>Visible checkpoint: {checkpoint.observableEvidence[0]}</p><p>Only this visible result can be camera-confirmed. Check comfort, safety and the written instructions for yourself.</p></>:<p>This step needs your own check. Camera coaching can offer context, but cannot confirm or automatically advance it.</p>}<p><strong>Common mistake:</strong> {checkpoint.commonMistakes[0]}</p><p>{checkpoint.manualAlternative}</p></details></>}</div>

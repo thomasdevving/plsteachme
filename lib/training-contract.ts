@@ -67,6 +67,8 @@ export const trainingActionSchema = z.discriminatedUnion('action',[
  z.object({action:z.literal('org.create'),name:z.string().trim().min(2).max(120),kind:z.enum(organizationKinds),plan:z.enum(trainingPlanIds)}).strict(),
  z.object({action:z.literal('org.plan'),organizationId:id,plan:z.enum(trainingPlanIds)}).strict(),
  z.object({action:z.literal('member.invite'),organizationId:id,role:z.enum(trainingRoles),emails:z.array(z.email().max(254)).min(1).max(100)}).strict(),
+ z.object({action:z.literal('pilot.add'),email:z.email().max(254),note:z.string().trim().max(200).default('')}).strict(),
+ z.object({action:z.literal('pilot.remove'),email:z.email().max(254)}).strict(),
  z.object({action:z.literal('member.accept'),token:z.string().regex(/^[A-Za-z0-9_-]{32}$/)}).strict(),
  z.object({action:z.literal('member.update'),organizationId:id,memberId:id,role:z.enum(trainingRoles)}).strict(),
  z.object({action:z.literal('member.remove'),organizationId:id,memberId:id}).strict(),

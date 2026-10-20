@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { recordCoachVerdict } from '@/lib/account-server';
 import { coachRequestSchema, MAX_COACH_BODY_BYTES } from '@/lib/coaching-contract';
 import { COACH_COOKIE, coachJson, coachingConfigured, sameOrigin, coachingRateAllowed, limitedJson, validCoachSession } from '@/lib/coaching-security';
 import { assessCoachStep, decodeCoachFrame } from '@/lib/coaching-ai';
@@ -24,6 +25,7 @@ export async function POST(request: NextRequest) {
   const timeout = AbortSignal.timeout(22000);
   try {
     const feedback = await assessCoachStep(parsed.data.skill,parsed.data.step,frames,AbortSignal.any([request.signal,timeout]));
+    await recordCoachVerdict(request,`builtin:${parsed.data.skill}`,parsed.data.step,feedback.status);
     return coachJson({skill:parsed.data.skill,step:parsed.data.step,feedback});
   } catch {
     // Never return or log provider errors, prompts, images or credentials.

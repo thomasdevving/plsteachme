@@ -11,7 +11,7 @@ import { People, Plan, ProgressReport } from './training-admin';
 import { TrainingPlayer } from './training-player';
 
 type Invitation={organizationName:string;role:keyof typeof trainingRoleLabels;expired:boolean;emailMatches:boolean;invitedEmail:string}|{missing:true};
-type Me={user:{id:string;email?:string};memberships:TrainingMembership[];invitation:Invitation|null;canCreate:boolean};
+type Me={user:{id:string;email?:string};memberships:TrainingMembership[];invitation:Invitation|null;canCreate:boolean;staff?:boolean};
 type Tab='training'|'modules'|'people'|'progress'|'plan';
 
 export function TrainingWorkspace(){return <PlatformProvider><Workspace/></PlatformProvider>;}
@@ -28,8 +28,29 @@ function Workspace(){
       {me.memberships.length>1&&<label className="platform-field training-switch">Organization<select className="platform-search" value={orgId} onChange={event=>setOrgId(event.target.value)}>{me.memberships.map(item=><option key={item.organization.id} value={item.organization.id}>{item.organization.name} · {trainingRoleLabels[item.role]}</option>)}</select></label>}
       {orgId?<Organization key={orgId} organizationId={orgId} aiAvailable={aiAvailable}/>:!me.invitation&&<CreateOrganization canCreate={me.canCreate} onCreated={async id=>{await load();setOrgId(id);}}/>}
       {orgId&&me.canCreate&&<details className="studio-review"><summary>Create another organization</summary><CreateOrganization canCreate onCreated={async id=>{await load();setOrgId(id);}}/></details>}
+      {me.staff&&<PilotAccess/>}
     </>}
   </div>;
+}
+
+type Pilot={email:string;note:string;created_at:string};
+type PilotRequest={name:string;organization:string;role:string;type:string;email:string;needs:string;created_at:string};
+/** Staff only: which organizations may open a workspace during the pilot. */
+function PilotAccess(){
+  const [data,setData]=useState<{pilots:Pilot[];requests:PilotRequest[];emailConfigured:boolean}|null>(null);const [email,setEmail]=useState('');const [note,setNote]=useState('');const [busy,setBusy]=useState(false);const [message,setMessage]=useState('');
+  const load=useCallback(()=>trainingFetch<{pilots:Pilot[];requests:PilotRequest[];emailConfigured:boolean}>('view=pilots').then(setData).catch(error=>setMessage(messageOf(error))),[]);
+  useEffect(()=>{void load();},[load]);
+  async function grant(address:string,reason:string){setBusy(true);setMessage('');try{const result=await trainingAction<{emailed:boolean}>({action:'pilot.add',email:address,note:reason});setMessage(result.emailed?`${address} has pilot access and was emailed.`:`${address} has pilot access. No email was sent; tell them to sign in and open /training.`);setEmail('');setNote('');await load();}catch(error){setMessage(messageOf(error));}finally{setBusy(false);}}
+  async function revoke(address:string){if(!window.confirm(`Remove pilot access for ${address}? Workspaces they already created stay open.`))return;setBusy(true);setMessage('');try{await trainingAction({action:'pilot.remove',email:address});await load();}catch(error){setMessage(messageOf(error));}finally{setBusy(false);}}
+  const granted=new Set(data?.pilots.map(item=>item.email)||[]);
+  return <section className="platform-panel training-pilots"><h2>Pilot access</h2><p>People with pilot access can create an organization workspace after signing in with that email address. {data&&(data.emailConfigured?'They get an email when you add them.':'Email is not configured (RESEND_API_KEY and EMAIL_FROM), so nobody is emailed yet.')}</p>
+    <form className="platform-form" onSubmit={event=>{event.preventDefault();if(email.trim())void grant(email.trim(),note);}}><label>Email address<input type="email" required maxLength={254} value={email} onChange={event=>setEmail(event.target.value)} placeholder="admin@school.example"/></label><label>Note <small>(optional, only for staff)</small><input maxLength={200} value={note} onChange={event=>setNote(event.target.value)} placeholder="Organization, how they found us"/></label><button className="button primary compact" disabled={busy||!email.trim()}>Grant pilot access</button></form>
+    <p className="platform-message" role="status">{message}</p>
+    {!data?<p role="status">Loading pilots…</p>:<>
+      <h3>With access ({data.pilots.length})</h3>{!data.pilots.length?<p className="platform-small">Nobody yet.</p>:<ul className="training-pilot-list">{data.pilots.map(item=><li key={item.email}><span><strong>{item.email}</strong>{item.note&&<small>{item.note}</small>}</span><button type="button" className="text-link" disabled={busy} onClick={()=>void revoke(item.email)}>Remove</button></li>)}</ul>}
+      <h3>Recent pilot requests</h3>{!data.requests.length?<p className="platform-small">No requests from the organizations page yet.</p>:<ul className="training-pilot-list">{data.requests.map(item=><li key={`${item.email}-${item.created_at}`}><span><strong>{item.organization}</strong> · {item.name}, {item.role} · {item.email}<small>{item.needs}</small></span>{granted.has(item.email.toLowerCase())?<span className="platform-small">Has access</span>:<button type="button" className="button secondary compact" disabled={busy} onClick={()=>void grant(item.email,item.organization)}>Grant access</button>}</li>)}</ul>}
+    </>}
+  </section>;
 }
 
 function InvitationPanel({invitation,token,email,onAccepted}:{invitation:Invitation;token:string;email:string;onAccepted:(id:string)=>Promise<void>}){

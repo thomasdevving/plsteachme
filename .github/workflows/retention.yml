@@ -1,0 +1,20 @@
+name: Retention cleanup
+# Removes expired feedback reports, unused teacher and organization files and
+# old measurement events, as described on the privacy page.
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+permissions: {}
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Run retention cleanup
+        env:
+          MAINTENANCE_SECRET: ${{ secrets.MAINTENANCE_SECRET }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://plsteach.me' }}
+        run: |
+          if [ -z "$MAINTENANCE_SECRET" ]; then echo "MAINTENANCE_SECRET is not set; skipping."; exit 0; fi
+          curl --fail-with-body --silent --show-error -X POST "$SITE_URL/api/maintenance/retention" -H "Authorization: Bearer $MAINTENANCE_SECRET"

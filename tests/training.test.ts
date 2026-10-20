@@ -3,11 +3,11 @@ vi.mock('@/lib/auth/server',()=>({authenticatedUser:access.cookieUser}));
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import sharp from 'sharp';
-const state=vi.hoisted(()=>({user:vi.fn(),rpc:vi.fn(),upload:vi.fn(),download:vi.fn(),ai:vi.fn(),tables:{} as Record<string,unknown>}));
+const state=vi.hoisted(()=>({user:vi.fn(),rpc:vi.fn(),upload:vi.fn(),download:vi.fn(),ai:vi.fn(),tables:{} as Record<string,unknown>,upserts:[] as {table:string;row:unknown}[]}));
 vi.mock('server-only',()=>({}));
 vi.mock('ai',()=>({generateText:state.ai,transcribe:vi.fn(),Output:{object:(value:unknown)=>value}}));
 vi.mock('@supabase/supabase-js',()=>({createClient:()=>({auth:{getUser:state.user},rpc:state.rpc,from:(table:string)=>{
- const chain:Record<string,any>={};for(const method of ['select','eq','neq','not','is','in','order','limit','maybeSingle','single'])chain[method]=()=>chain;
+ const chain:Record<string,any>={};for(const method of ['select','eq','neq','not','is','in','order','limit','maybeSingle','single','delete'])chain[method]=()=>chain;chain.upsert=(row:unknown)=>{state.upserts.push({table,row});return chain;};
  chain.then=(resolve:(value:unknown)=>unknown)=>Promise.resolve({data:state.tables[table]??null,error:null}).then(resolve);return chain;
 },storage:{from:()=>({upload:state.upload,download:state.download,createSignedUrls:async(paths:string[])=>({data:paths.map(path=>({path,signedUrl:`https://example.test/${path}`})),error:null})})}})}));
 import { GET, POST } from '../app/api/training/route';
@@ -70,7 +70,7 @@ describe('training contract',()=>{
 let jpeg:string;
 beforeAll(async()=>{jpeg=`data:image/jpeg;base64,${(await sharp({create:{width:40,height:40,channels:3,background:'white'}}).jpeg().toBuffer()).toString('base64')}`;});
 beforeEach(()=>{
- vi.unstubAllEnvs();vi.stubEnv('SUPABASE_URL','https://example.supabase.co');vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY','private-service-key');vi.stubEnv('OPENAI_API_KEY','test-key');vi.stubEnv('TRAINING_ACCESS_EMAILS','admin@school.example');vi.clearAllMocks();
+ vi.unstubAllEnvs();vi.stubEnv('SUPABASE_URL','https://example.supabase.co');vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY','private-service-key');vi.stubEnv('OPENAI_API_KEY','test-key');vi.stubEnv('TRAINING_ACCESS_EMAILS','admin@school.example');vi.clearAllMocks();state.upserts=[];
  access.cookieUser.mockResolvedValue({id:userId,email:'Admin@School.example',email_confirmed_at:'2026-10-01T00:00:00Z',is_anonymous:false});
  state.rpc.mockResolvedValue({data:{ok:true},error:null});state.upload.mockResolvedValue({data:{},error:null});state.download.mockResolvedValue({data:new Blob([Buffer.from('reference')]),error:null});
  state.tables={training_modules:{id:moduleId,organization_id:orgId,audience:'all',published_version_id:'66666666-6666-4666-8666-666666666666',document,moments,source:'demonstration',source_text:'',manual_path:null},training_members:{id:memberId,role:'learner'},training_module_versions:{id:'66666666-6666-4666-8666-666666666666',version:2,document,demo_path:null},training_assignments:null};
@@ -94,19 +94,60 @@ describe('training API boundaries',()=>{
   expect(trainingAccessAllowed({email:'thomastheconguyen@gmail.com',email_confirmed_at:null})).toBe(false);
   vi.stubEnv('TRAINING_ACCESS_EMAILS','admin@school.example');
   access.cookieUser.mockResolvedValue({id:userId,email:'someone@example.test',email_confirmed_at:confirmed,is_anonymous:false});
+  state.tables.training_members=null;
   const denied=await POST(post({action:'org.create',name:'Riverside',kind:'school',plan:'up-to-25'}));
   expect(denied.status).toBe(403);expect((await denied.json()).error).toBe('restricted');
   expect((await GET(new NextRequest('http://localhost:3100/api/training?view=me'))).status).toBe(403);
+  expect((await GET(new NextRequest('http://localhost:3100/api/training?view=pilots'))).status).toBe(403);
+  expect((await POST(post({action:'pilot.add',email:'me@example.test'}))).status).toBe(403);
   expect(state.rpc).not.toHaveBeenCalled();
   access.cookieUser.mockResolvedValue({id:userId,email:'Admin@School.example',email_confirmed_at:confirmed,is_anonymous:false});
   expect((await POST(post({action:'org.create',name:'Riverside',kind:'school',plan:'up-to-25'}))).status).toBe(200);
   expect(state.rpc.mock.calls[0][1]).toMatchObject({actor_id:userId,actor_email:'admin@school.example'});
  });
+ it('opens the workspace to pilot emails that staff granted',async()=>{
+  state.tables.training_members=null;state.tables.training_pilot_access={email:'pilot@school.example'};
+  access.cookieUser.mockResolvedValue({id:userId,email:'Pilot@School.example',email_confirmed_at:'2026-10-01T00:00:00Z',is_anonymous:false});
+  const me=await GET(new NextRequest('http://localhost:3100/api/training?view=me'));
+  expect(me.status).toBe(200);expect(await me.json()).toMatchObject({canCreate:true,staff:false,memberships:[]});
+  expect((await POST(post({action:'org.create',name:'Riverside',kind:'school',plan:'up-to-25'}))).status).toBe(200);
+  // An unverified address never counts, even when it is on the list.
+  access.cookieUser.mockResolvedValue({id:userId,email:'pilot@school.example',email_confirmed_at:null,is_anonymous:false});
+  expect((await GET(new NextRequest('http://localhost:3100/api/training?view=me'))).status).toBe(403);
+ });
+ it('lets staff grant pilot access and emails the pilot',async()=>{
+  vi.stubEnv('RESEND_API_KEY','re_test');vi.stubEnv('EMAIL_FROM','plsteach.me <hello@plsteach.me>');
+  const send=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('{}',{status:200}));
+  const response=await POST(post({action:'pilot.add',email:'New@School.example',note:'Riverside'}));
+  expect(await response.json()).toEqual({ok:true,emailed:true});
+  expect(state.upserts).toEqual([{table:'training_pilot_access',row:{email:'new@school.example',note:'Riverside',added_by:userId}}]);
+  const [url,init]=send.mock.calls[0] as [string,RequestInit];
+  expect(url).toBe('https://api.resend.com/emails/batch');expect((init.headers as Record<string,string>).Authorization).toBe('Bearer re_test');
+  const [message]=JSON.parse(String(init.body));
+  expect(message).toMatchObject({from:'plsteach.me <hello@plsteach.me>',to:['new@school.example']});expect(message.text).toContain('http://localhost:3100/training');
+  state.tables.training_pilot_access=[{email:'new@school.example',note:'Riverside',created_at:'2026-10-20T00:00:00Z'}];state.tables.org_leads=[];
+  expect(await (await GET(new NextRequest('http://localhost:3100/api/training?view=pilots'))).json()).toMatchObject({emailConfigured:true,pilots:[{email:'new@school.example'}]});
+  expect((await POST(post({action:'pilot.remove',email:'new@school.example'}))).status).toBe(200);
+  send.mockRestore();
+ });
+ it('emails invitations when email is configured',async()=>{
+  vi.stubEnv('RESEND_API_KEY','re_test');vi.stubEnv('EMAIL_FROM','hello@plsteach.me');
+  const send=vi.spyOn(globalThis,'fetch').mockResolvedValue(new Response('{}',{status:200}));
+  state.rpc.mockResolvedValue({data:{ok:true,added:2,skipped:[]},error:null});state.tables.training_organizations={name:'Riverside'};
+  const body=await (await POST(post({action:'member.invite',organizationId:orgId,role:'learner',emails:['a@example.test','b@example.test']}))).json();
+  expect(body.emailed).toBe(true);
+  const messages=JSON.parse(String((send.mock.calls[0] as [string,RequestInit])[1].body));
+  expect(messages.map((item:{to:string[]})=>item.to[0])).toEqual(['a@example.test','b@example.test']);
+  expect(messages[0].subject).toContain('Riverside');expect(messages[0].text).toContain(body.invites[0].link);expect(messages[1].text).not.toContain(body.invites[0].link);
+  send.mockResolvedValue(new Response('{}',{status:500}));
+  expect((await (await POST(post({action:'member.invite',organizationId:orgId,role:'learner',emails:['c@example.test']}))).json()).emailed).toBe(false);
+  send.mockRestore();
+ });
  it('stores only invitation hashes and returns each link once',async()=>{
   state.rpc.mockResolvedValue({data:{ok:true,added:1,skipped:['b@example.test']},error:null});
   const response=await POST(post({action:'member.invite',organizationId:orgId,role:'learner',emails:['A@example.test','b@example.test','a@example.test']}));
   const body=await response.json();
-  expect(body.invites).toHaveLength(1);expect(body.invites[0].link).toMatch(/^http:\/\/localhost:3100\/training\?invite=[A-Za-z0-9_-]{32}$/);
+  expect(body.emailed).toBe(false);expect(body.invites).toHaveLength(1);expect(body.invites[0].link).toMatch(/^http:\/\/localhost:3100\/training\?invite=[A-Za-z0-9_-]{32}$/);
   const token=body.invites[0].link.split('=')[1];const payload=JSON.stringify(state.rpc.mock.calls[0][1]);
   expect(payload).not.toContain(token);expect(state.rpc.mock.calls[0][1].payload.invites).toHaveLength(2);
  });

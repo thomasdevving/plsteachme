@@ -36,7 +36,7 @@ test('showing the tie is the first camera step, before any lesson step is checke
   await expect(coach.locator('.camera-object-overlay')).toHaveAttribute('data-tracking',/^(tracking|searching)$/);
   await expect.poll(()=>checks.length,{timeout:10000}).toBeGreaterThan(0);
   // Tracking is local: no new endpoints are called.
-  expect(requests.every(path=>['/api/auth/session','/api/coaching/session','/api/coaching/check','/api/trial','/api/vision','/api/config'].includes(path))).toBe(true);
+  expect(requests.every(path=>['/api/auth/session','/api/coaching/session','/api/coaching/check','/api/trial','/api/vision','/api/config','/api/progress','/api/insights'].includes(path))).toBe(true);
   expect((await new AxeBuilder({page}).include('.camera-coach').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
   // A learned object is reused when the camera restarts, so the step is not repeated.
   await coach.getByRole('button',{name:'Stop camera'}).click();

@@ -19,7 +19,7 @@ Invited and active learners use a seat; admins and instructors are included. The
 
 Run `supabase/migrations/20261019120000_organization_training.sql` after the earlier migrations. It creates the `training_*` tables (RLS on, no browser access), the service-only `training_mutate` function, and the private `organization-training` Storage bucket. It uses the same `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, Supabase Auth and `OPENAI_*` settings as the teacher platform (see `PLATFORM.md`).
 
-**Access is closed for now.** Only signed-in accounts with a verified email listed in `TRAINING_ACCESS_EMAILS` (comma-separated) can open `/training`, create organizations or build modules; every other account gets a "not open yet" message and the API returns 403 before any database or AI work. When the variable is unset, the allowlist is `thomastheconguyen@gmail.com`. Setting it to an empty value closes the workspace to everyone. Invited learners also need to be on the list while it is closed. The workspace is not linked from the public navigation. AI generation and coaching share the per-process rate limits of the teacher platform; set provider spend limits before opening access widely.
+**Access: pilots first.** Staff (verified emails in `TRAINING_ACCESS_EMAILS`; the owner account when unset) see a *Pilot access* panel on `/training`. There they grant an email address access, either by typing it or with *Grant access* on a recent request from the organizations-page pilot form, and remove it again. Granted addresses are stored in `training_pilot_access`. A signed-in account whose verified email is granted can create organization workspaces; when email is configured it receives a "your workspace is ready" email. Members and invitees of existing organizations always get in. Every other account sees a "not open yet" message and the API returns 403 before any database or AI work. Removing pilot access does not close workspaces already created. The workspace is not linked from the public navigation. AI generation and coaching share the per-process rate limits of the teacher platform; set provider spend limits before granting many pilots.
 
 ## Roles
 
@@ -29,7 +29,7 @@ Run `supabase/migrations/20261019120000_organization_training.sql` after the ear
 
 ## Enrollment
 
-Admins paste up to 100 email addresses at a time and choose a role. The server returns one personal link per address, once; only a SHA-256 hash of each token is stored. Links expire after 30 days. A link can only be accepted by a signed-in account whose verified email matches the invitation, so a forwarded link is useless to anyone else. No email is sent by the app: admins share the links themselves (copy or CSV). Removing a member keeps their progress records for reporting and frees the seat.
+Admins paste up to 100 email addresses at a time and choose a role. The server returns one personal link per address, once; only a SHA-256 hash of each token is stored. Links expire after 30 days. A link can only be accepted by a signed-in account whose verified email matches the invitation, so a forwarded link is useless to anyone else. When `RESEND_API_KEY` and a verified `EMAIL_FROM` sender are set, each person is emailed their own link in one batch request; the admin still sees the links once as a backup (copy or CSV) and is told whether the emails went out. Without email configured, admins share the links themselves. Removing a member keeps their progress records for reporting and frees the seat.
 
 ## Creating modules
 

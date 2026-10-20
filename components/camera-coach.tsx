@@ -11,6 +11,7 @@ import { ReportFeedback } from './report-feedback';
 import { useLearnerTrial } from './learner-trial';
 import { OnDeviceModel } from './on-device-model';
 import { ObjectTracking } from './object-tracking';
+import { learningSession } from '@/lib/learning-events';
 import { builtinObjects, objectFromMaterials } from '@/lib/vision/objects';
 import { builtinSteps, builtinTarget, lessonSteps, lessonTarget } from '@/lib/vision-contract';
 
@@ -173,7 +174,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
           if(document.hidden || !video.current)return;
           const frames=[first,capture(video.current)];
           const response=await fetch(organizationModule?'/api/training':publishedId?'/api/platform':'/api/coaching/check',{
-            method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{})},
+            method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{}),...(learningSession()?{'x-learning-session':learningSession()!}:{})},
             body:JSON.stringify(organizationModule?{action:'module.coach',moduleId:publishedId,version:publishedVersion,step,frames,consent:true,over16:true}:publishedId?{action:'lesson.coach',id:publishedId,version:publishedVersion,step,frames,consent:true,over16:true}:{skill,step,frames}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])
           });
           if(controller.signal.aborted)return;

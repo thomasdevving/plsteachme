@@ -4,6 +4,7 @@ import { NextRequest } from 'next/server';
 import { generateText, Output } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { decodeCoachFrame } from './coaching-ai';
+import { emailConfigured, sendEmails } from './email';
 import { coachingConfigured } from './coaching-security';
 import { feedbackSchema } from './coaching-contract';
 import { publicationIssues } from './platform-contract';
@@ -14,16 +15,23 @@ type Row = Record<string,any>; // Database JSON is validated at the document bou
 const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 const VIDEO_TYPES=['video/mp4','video/webm','video/quicktime'];
 
-// The workspace is closed while in testing: only these verified emails can open
-// it, create organizations or build modules. Override with TRAINING_ACCESS_EMAILS.
+type AccountUser={id:string;email?:string|null;email_confirmed_at?:string|null};
+const verifiedEmail=(user:AccountUser)=>user.email&&user.email_confirmed_at?user.email.toLowerCase():'';
+// Staff manage pilot access: verified emails in TRAINING_ACCESS_EMAILS (the owner when unset).
 const DEFAULT_ACCESS_EMAILS = 'thomastheconguyen@gmail.com';
 export function trainingAccessAllowed(user:{email?:string|null;email_confirmed_at?:string|null}) {
  const allowed=(process.env.TRAINING_ACCESS_EMAILS ?? DEFAULT_ACCESS_EMAILS).split(',').map(value=>value.trim().toLowerCase()).filter(Boolean);
  const email=(user.email || '').toLowerCase();
  return Boolean(email && user.email_confirmed_at && allowed.includes(email));
 }
-function requireAccess(user:{email?:string|null;email_confirmed_at?:string|null}) {
- if(!trainingAccessAllowed(user))throw new PlatformError(403,'restricted','The training workspace is not open to this account yet.');
+/** Pilot organizations may create a workspace: staff, or a verified email staff granted access. */
+async function pilotAllowed(client:DB,user:AccountUser) {
+ if(trainingAccessAllowed(user))return true;
+ const email=verifiedEmail(user);if(!email)return false;
+ return Boolean(checked(await client.from('training_pilot_access').select('email').eq('email',email).maybeSingle()));
+}
+function requireStaff(user:AccountUser) {
+ if(!trainingAccessAllowed(user))throw new PlatformError(403,'forbidden','Only plsteach.me staff can manage pilot access.');
 }
 export const hashInvite=(token:string)=>createHash('sha256').update(token).digest('hex');
 function orgRow(row:Row):TrainingOrganization { return {id:row.id,name:row.name,kind:row.kind,plan:row.plan,seatLimit:row.seat_limit,createdAt:row.created_at}; }
@@ -75,7 +83,12 @@ async function storedObject(client:DB,path:string) {
 export async function trainingRead(request:NextRequest) {
  const params=request.nextUrl.searchParams;const view=params.get('view') || 'me';
  if(view==='config')return {available:platformConfigured(),aiAvailable:coachingConfigured(),plans:trainingPlans};
- const client=platformDb();const user=await platformUser(request,client);requireAccess(user);
+ const client=platformDb();const user=await platformUser(request,client);
+ if(view==='pilots') {
+  requireStaff(user);
+  const [pilots,requests]=await Promise.all([client.from('training_pilot_access').select('email,note,created_at').order('created_at',{ascending:false}).limit(200),client.from('org_leads').select('name,organization,role,type,email,needs,created_at').order('created_at',{ascending:false}).limit(50)]);
+  return {pilots:checked(pilots)||[],requests:checked(requests)||[],emailConfigured:emailConfigured()};
+ }
  if(view==='me') {
   const rows=checked(await client.from('training_members').select('id,role,organization_id').eq('user_id',user.id).eq('status','active').limit(50));
   const orgs=rows?.length?checked(await client.from('training_organizations').select('*').in('id',rows.map(row=>row.organization_id))):[];
@@ -88,7 +101,10 @@ export async function trainingRead(request:NextRequest) {
     invitation={organizationName:org?.name||'An organization',role:invite.role,expired:new Date(invite.invite_expires_at).getTime()<Date.now(),emailMatches:invite.email===(user.email||'').toLowerCase(),invitedEmail:invite.email};
    } else invitation={missing:true};
   }
-  return {user:{id:user.id,email:user.email},memberships,invitation,canCreate:true};
+  const canCreate=await pilotAllowed(client,user);
+  // Members, invitees and pilot organizations use the workspace; everyone else sees it is not open yet.
+  if(!canCreate&&!memberships.length&&!invitation)throw new PlatformError(403,'restricted','The training workspace is not open to this account yet.');
+  return {user:{id:user.id,email:user.email},memberships,invitation,canCreate,staff:trainingAccessAllowed(user)};
  }
  if(view==='org') {
   const organizationId=params.get('id') || '';const member=await activeMember(client,user.id,organizationId);
@@ -209,16 +225,36 @@ async function coachModule(client:DB,userId:string,email:string,action:Extract<T
 
 const rateKind:Partial<Record<TrainingAction['action'],string>>={'module.generate':'generate','module.transcribe':'transcribe','module.coach':'lesson.coach','module.upload':'upload','progress.save':'training.progress'};
 export async function trainingWrite(request:NextRequest,action:TrainingAction) {
- const client=platformDb();const user=await platformUser(request,client);requireAccess(user);const email=(user.email||'').toLowerCase();
+ const client=platformDb();const user=await platformUser(request,client);const email=(user.email||'').toLowerCase();
  if(!platformRateAllowed(user.id,rateKind[action.action] || `training.${action.action}`))throw new PlatformError(429,'rate','Too many attempts. Please try again in ten minutes.');
  switch(action.action) {
+  case 'org.create':
+   if(!await pilotAllowed(client,user))throw new PlatformError(403,'restricted','Organization workspaces are open to pilot partners. Ask us for pilot access on the organizations page.');
+   return trainingMutation(client,user.id,email,action);
+  case 'pilot.add': {
+   requireStaff(user);
+   const pilot=action.email.trim().toLowerCase();
+   const {error}=await client.from('training_pilot_access').upsert({email:pilot,note:action.note,added_by:user.id},{onConflict:'email'});
+   if(error)throw new PlatformError(503,'storage','Pilot access could not be saved.');
+   const emailed=await sendEmails([{to:pilot,subject:'Your plsteach.me training workspace is ready',text:`You can now create your organization's training workspace on plsteach.me.\n\nSign in with this email address (${pilot}) and open:\n${request.nextUrl.origin}/training\n\nThere you can build AI-guided modules from your own demonstrations and manuals, invite your students or employees, and follow their progress.`}]);
+   return {ok:true,emailed};
+  }
+  case 'pilot.remove': {
+   requireStaff(user);
+   checked(await client.from('training_pilot_access').delete().eq('email',action.email.trim().toLowerCase()));
+   return {ok:true};
+  }
   case 'member.invite': {
    const emails=[...new Set(action.emails.map(value=>value.trim().toLowerCase()))];
    const tokens=emails.map(value=>({email:value,token:randomBytes(24).toString('base64url')}));
    const result=await trainingMutation(client,user.id,email,{action:action.action,organizationId:action.organizationId,role:action.role,invites:tokens.map(item=>({email:item.email,tokenHash:hashInvite(item.token)}))});
    const skipped=new Set<string>(result.skipped||[]);
-   // Tokens are only stored hashed; this response is the one chance to copy the links.
-   return {added:result.added,skipped:[...skipped],invites:tokens.filter(item=>!skipped.has(item.email)).map(item=>({email:item.email,link:`${request.nextUrl.origin}/training?invite=${item.token}`}))};
+   // Tokens are only stored hashed; this response and the email are the only copies of the links.
+   const invites=tokens.filter(item=>!skipped.has(item.email)).map(item=>({email:item.email,link:`${request.nextUrl.origin}/training?invite=${item.token}`}));
+   const org=checked(await client.from('training_organizations').select('name').eq('id',action.organizationId).maybeSingle());
+   const roleName={admin:'an admin',instructor:'an instructor',learner:'a learner'}[action.role];
+   const emailed=await sendEmails(invites.map(item=>({to:item.email,subject:`You're invited to ${org?.name||'an organization'} on plsteach.me`,text:`${email} invited you to join ${org?.name||'their organization'} on plsteach.me as ${roleName}.\n\nOpen this link and sign in with ${item.email}:\n${item.link}\n\nThe link is personal and expires in 30 days. If you didn't expect this, you can ignore this email.`})));
+   return {added:result.added,skipped:[...skipped],emailed,invites};
   }
   case 'member.accept': return trainingMutation(client,user.id,email,{action:action.action,tokenHash:hashInvite(action.token)});
   case 'module.create': {

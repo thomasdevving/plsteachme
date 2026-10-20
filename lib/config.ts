@@ -18,7 +18,7 @@ export const skillIds = [
 export type SkillId = (typeof skillIds)[number];
 export type Locale = "nl" | "en";
 export type Page =
-  "home" | "subscriptions" | "organizations" | "demo" | "privacy" | "thanks" | "learn" | "community" | "teach" | "training" | "vision";
+  "home" | "subscriptions" | "organizations" | "demo" | "privacy" | "thanks" | "learn" | "community" | "teach" | "training" | "vision" | "insights";
 export function pathFor(_locale: Locale, page: Page = "home") {
   return {
     home: "/",
@@ -32,6 +32,7 @@ export function pathFor(_locale: Locale, page: Page = "home") {
     teach: "/teach",
     training: "/training",
     vision: "/vision",
+    insights: "/insights",
   }[page];
 }
 export function pageFromSlug(
@@ -55,6 +56,7 @@ export function pageFromSlug(
         "teach",
         "training",
         "vision",
+        "insights",
       ] as Page[]
     ).find((page) => pathFor(locale, page) === path) || null
   );

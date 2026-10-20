@@ -94,7 +94,7 @@ export function AccountPanel() {
                   ? "/subscriptions"
                   : trial
                     ? trialResumeHref(trial.skill_id)
-                    : "/coach"
+                    : "/learn"
               }
             >
               {trial?.completed_at
@@ -116,8 +116,52 @@ export function AccountPanel() {
             <LogOut size={17} aria-hidden="true" />
             {busy ? "Signing out…" : "Sign out"}
           </button>
+          <DeleteAccount />
         </>
       )}
     </div>
+  );
+}
+
+/** Self-service deletion: account, progress, requests, teacher lessons and their videos. */
+function DeleteAccount() {
+  const [open, setOpen] = useState(false);
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  async function remove() {
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetchWithTimeout("/api/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", confirm: confirm.trim().toLowerCase() }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) throw new Error(data?.message || "Your account could not be deleted. Please try again.");
+      window.location.assign("/?account=deleted");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Your account could not be deleted. Please try again.");
+      setBusy(false);
+    }
+  }
+  return (
+    <details className="account-delete" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
+      <summary>Delete my account</summary>
+      <p>
+        This permanently deletes your account, your saved lesson progress, your free session, your skill requests and
+        support, and any teacher profile, lessons and demonstration videos. Organizations you belong to keep their own
+        training records without your name or email. This cannot be undone.
+      </p>
+      <label>
+        Type <strong>delete my account</strong> to confirm
+        <input value={confirm} onChange={(event) => setConfirm(event.target.value)} autoComplete="off" />
+      </label>
+      <button className="button secondary" type="button" disabled={busy || confirm.trim().toLowerCase() !== "delete my account"} onClick={remove}>
+        {busy ? "Deleting…" : "Permanently delete my account"}
+      </button>
+      {error && <p role="alert" className="auth-error">{error}</p>}
+    </details>
   );
 }

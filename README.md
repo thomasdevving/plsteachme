@@ -44,7 +44,9 @@ An OpenNext build verifies bundling, not live service integrations. Server-side 
 - `/teach`: teacher applications, demonstration recording/upload, lesson editing, AI assistance and independent review.
 - Camera coaching can learn the learner's own object (“Show me the razor”) from a few views and track it on the live preview, entirely on the device. See [object enrollment and tracking](docs/VISION_MODELS.md#object-enrollment-and-tracking).
 - `/vision`: vision lab. Record labelled landmark clips (no images), train a specialized per-lesson model with held-out evaluation, and activate it to run on learners' devices in shadow mode next to the cloud coach. See [specialized vision models](docs/VISION_MODELS.md).
-- `/training`: organization workspaces. Admins create AI-guided modules from a camera-tracked demonstration or an uploaded manual, enroll students or employees, and monitor progress. Access is currently limited to the allowlisted account(s) in `TRAINING_ACCESS_EMAILS`. See [organization training](docs/ORGANIZATIONS.md).
+- `/training`: organization workspaces. Admins create AI-guided modules from a camera-tracked demonstration or an uploaded manual, enroll students or employees, and monitor progress. Open to pilot organizations that staff grant access, plus their invited members; invitations are emailed when email is configured. See [organization training](docs/ORGANIZATIONS.md).
+- `/insights`: staff-only learning overview: starts, completions, per-step drop-off and camera-coach verdict rates, from anonymous per-browser IDs.
+- `/account`: signed-in learners' progress syncs across devices; learners can delete their account and its data.
 - `/privacy`: visible draft with outstanding business/provider details.
 - `/thanks`: honest mock acknowledgement or signup follow-up.
 - `/dev/styleguide`: development only.
@@ -72,12 +74,18 @@ Copy `.env.example` to `.env.local` and set only the services you use:
 | `ENABLE_CONFIRMATION_EMAIL` | Defaults to false; opt in to Resend |
 | `RESEND_API_KEY` | Server-only email secret |
 | `CONFIRMATION_EMAIL_FROM` | Verified sender with monitored replies |
+| `EMAIL_FROM` | Verified Resend sender for pilot and invitation emails (falls back to `CONFIRMATION_EMAIL_FROM`). With `RESEND_API_KEY`, invitations are emailed; without, admins copy the links |
+| `MAINTENANCE_SECRET` | Random string of at least 24 characters; the daily retention job sends it as a bearer token to `/api/maintenance/retention` |
 
 Public environment variables require a rebuild. Never expose the Supabase service key in a `NEXT_PUBLIC_` variable. No credentials or actual demo/video URLs are bundled.
 
 ## Storage
 
-Run all SQL migrations in `supabase/migrations/` in filename order. The latest adds organization training workspaces (`docs/ORGANIZATIONS.md`). The second extends vote support for laundry, cooking and bike care. The teacher-platform migration adds community requests, teacher applications, private demonstrations, immutable submitted lesson versions, review records and consented feedback reports. See [platform setup](docs/PLATFORM.md).
+Run all SQL migrations in `supabase/migrations/` in filename order. The latest (`20261021090000_accounts_progress_insights.sql`) adds account progress sync, anonymous learning events and insights, account deletion, retention cleanup and pilot access. Before it: organization training workspaces (`docs/ORGANIZATIONS.md`).
+
+**Retention.** `.github/workflows/retention.yml` runs daily and calls the cleanup endpoint. Add the repository secret `MAINTENANCE_SECRET` (same value as the server variable) and optionally the repository variable `SITE_URL` (default `https://plsteach.me`). Without the secret the job skips. It deletes: resolved feedback reports 180 days after resolution (all reports after 365 days); teacher uploads never attached after 7 days and replaced or unused demonstrations after 30 days, with their files; unattached organization files after 7 days; learning events and on-device shadow checks after 400 days.
+
+**Account deletion** removes the account's progress, trials, community requests and supports, teacher profile with its lessons, versions, reviews and demonstration files, organization memberships (anonymized so organization reports keep their counts) and organizations where they were the only member, then the sign-in account. An admin who is the only admin of an organization with other members must hand over first. The second extends vote support for laundry, cooking and bike care. The teacher-platform migration adds community requests, teacher applications, private demonstrations, immutable submitted lesson versions, review records and consented feedback reports. See [platform setup](docs/PLATFORM.md).
 
 RLS denies direct browser access, including INSERT. All writes pass server validation with a service-role client. Under-16 submissions discard email, free text, preferences and attribution; only the anonymous aggregate is incremented. Follow-ups use an opaque HttpOnly session cookie, never a query-provided signup ID. Mock mode logs no personal data and retains nothing.
 

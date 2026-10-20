@@ -131,6 +131,8 @@ async function coachPublished(client:DB,action:Extract<PlatformAction,{action:'l
  let feedback=feedbackSchema.parse(response.output);
  if(feedback.status!=='stop' && !step.visuallyCheckable)feedback={status:'not_verifiable',confidence:'low',observation:'This checkpoint needs a manual check.',guidance:step.manualAlternative.slice(0,350)||'Use the lesson checkpoint to inspect this yourself.'};
  else if(['looks_right','adjust'].includes(feedback.status) && feedback.confidence!=='high')feedback={status:'unclear',confidence:feedback.confidence,observation:'There is not enough clear visual evidence yet.',guidance:step.uncertainty.slice(0,350)||'Show the checkpoint from a clearer angle.'};
+ // Loaded lazily: the measurement module imports this one.
+ await import('./account-server').then(module=>module.recordCoachVerdict(request,`published:${action.id}:v${action.version}`,action.step,feedback.status)).catch(()=>null);
  return {id:action.id,version:action.version,step:action.step,feedback};
 }
 /** Transcribes a private MP4/WebM recording under 25 MB. The caller checks ownership of the path. */

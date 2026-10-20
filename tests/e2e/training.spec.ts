@@ -39,7 +39,7 @@ async function mockTraining(page:Page,role:'admin'|'learner'='admin',options:{in
     switch(body.action){
       case 'org.create':memberships=[{memberId:adminMember,role:'admin',organization:{...organization,name:body.name,kind:body.kind,plan:body.plan}}];return route.fulfill({json:{ok:true,organizationId:org}});
       case 'member.accept':memberships=[{memberId:learnerMember,role:'learner',organization}];return route.fulfill({json:{ok:true,organizationId:org}});
-      case 'member.invite':for(const email of body.emails)members.push({id:learnerMember,email,displayName:'',role:body.role,status:'invited',joinedAt:null,inviteExpiresAt:'2026-11-18T10:00:00Z'});return route.fulfill({json:{added:body.emails.length,skipped:[],invites:body.emails.map((email:string)=>({email,link:`http://localhost:3100/training?invite=${'a'.repeat(32)}`}))}});
+      case 'member.invite':for(const email of body.emails)members.push({id:learnerMember,email,displayName:'',role:body.role,status:'invited',joinedAt:null,inviteExpiresAt:'2026-11-18T10:00:00Z'});return route.fulfill({json:{added:body.emails.length,skipped:[],emailed:true,invites:body.emails.map((email:string)=>({email,link:`http://localhost:3100/training?invite=${'a'.repeat(32)}`}))}});
       case 'module.create':modules.unshift({id:mid,organizationId:org,source:body.source,status:'draft',document:{...drafted,title:body.title,steps:[step('First step',{visuallyCheckable:false,evidence:[]})]},sourceText:'',moments:[],demoPath:null,manualPath:null,audience:'all',version:0,publishedVersionId:null,publishedAt:null,updatedAt:'2026-10-19T10:00:00Z',assignedMemberIds:[],unpublishedChanges:false});return route.fulfill({json:{ok:true,moduleId:mid}});
       case 'module.upload':return route.fulfill({json:{bucket:'organization-training',path:`${org}/${mid}/manuals/${'8'.repeat(8)}-8888-4888-8888-888888888888.pdf`,token:'upload-token'}});
       case 'module.attach':modules[0]={...modules[0],manualPath:body.path};break;
@@ -84,8 +84,8 @@ test('admin creates an organization, turns a manual into a module with AI, publi
   await expect(page.getByText('Version 1 published.',{exact:false})).toBeVisible();
   await page.getByRole('button',{name:'People',exact:true}).click();
   await page.getByLabel('Email addresses').fill('learner@shop.example, second@shop.example');
-  await page.getByRole('button',{name:'Create invitations'}).click();
-  await expect(page.getByText('2 invitations ready.',{exact:false})).toBeVisible();
+  await page.getByRole('button',{name:'Send invitations'}).click();
+  await expect(page.getByText('2 invitations emailed.',{exact:false})).toBeVisible();
   await expect(page.locator('.training-links li')).toHaveCount(2);
   await page.getByRole('button',{name:'Progress',exact:true}).click();
   await expect(page.locator('.training-table tbody tr')).toHaveCount(2);
@@ -155,6 +155,32 @@ test('accounts without workspace access see that it is not open and cannot creat
   await expect(page.getByRole('button',{name:'Create workspace'})).toHaveCount(0);
   await page.goto('/');
   await expect(page.locator('a[href="/training"]')).toHaveCount(0);
+});
+
+test('staff grant pilot access from the workspace and from pilot requests',async({page})=>{
+  const pilots:{email:string;note:string;created_at:string}[]=[];const actions:Record<string,any>[]=[];
+  await page.route('**/api/auth/session',route=>route.fulfill({json:{configured:true,user:{id:uid,email:'staff@plsteach.example'},trial:null}}));
+  await page.route('**/api/platform?view=config',route=>route.fulfill({json:{available:true,aiAvailable:true,supabaseUrl:'https://platform.supabase.test',publishableKey:'sb_publishable_test'}}));
+  await page.route('**/api/training**',async route=>{
+    const request=route.request();const view=new URL(request.url()).searchParams.get('view');
+    if(request.method()==='GET')return route.fulfill({json:view==='config'?{available:true,aiAvailable:true}:view==='pilots'?{pilots,requests:[{name:'Sam',organization:'Hillside College',role:'Coordinator',type:'school',email:'sam@hillside.example',needs:'Lab safety training',created_at:'2026-10-18T10:00:00Z'}],emailConfigured:true}:{user:{id:uid,email:'staff@plsteach.example'},memberships:[],invitation:null,canCreate:true,staff:true}});
+    const body=request.postDataJSON();actions.push(body);
+    if(body.action==='pilot.add')pilots.unshift({email:body.email,note:body.note,created_at:'2026-10-20T10:00:00Z'});
+    if(body.action==='pilot.remove')pilots.splice(pilots.findIndex(item=>item.email===body.email),1);
+    return route.fulfill({json:{ok:true,emailed:true}});
+  });
+  await page.goto('/training');
+  const panel=page.locator('.training-pilots');
+  await expect(panel).toContainText('They get an email when you add them.');
+  await panel.getByLabel('Email address').fill('admin@riverside.example');await panel.getByRole('button',{name:'Grant pilot access'}).click();
+  await expect(panel.getByText('admin@riverside.example has pilot access and was emailed.')).toBeVisible();
+  await panel.getByRole('button',{name:'Grant access'}).click();
+  await expect(panel.getByText('Has access')).toBeVisible();
+  page.once('dialog',dialog=>dialog.accept());
+  await panel.locator('li',{hasText:'admin@riverside.example'}).getByRole('button',{name:'Remove'}).click();
+  await expect(panel.locator('li',{hasText:'admin@riverside.example'})).toHaveCount(0);
+  expect(actions).toEqual([{action:'pilot.add',email:'admin@riverside.example',note:''},{action:'pilot.add',email:'sam@hillside.example',note:'Hillside College'},{action:'pilot.remove',email:'admin@riverside.example'}]);
+  expect((await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
 });
 
 test('training workspace fits phones and passes accessibility checks',async({page})=>{
