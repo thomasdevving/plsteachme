@@ -83,6 +83,8 @@ The agent is versioned as code in `lib/voice/agent-config.ts`; `bolna/agent.grap
 4. Check that the agent uses Bolna's bundled providers (OpenAI `gpt-4.1-mini`, Deepgram `nova-3`, ElevenLabs `eleven_turbo_v2_5`, as in Bolna's own minimal example) without asking for separate Deepgram or Cartesia accounts, that Total Call Timeout equals `VOICE_MAX_CALL_SECONDS`, and that Hangup on User Silence is 90 seconds.
 5. If the account cannot use Graph Agents with web calls, create the fallback with `--mode tools` and set `BOLNA_AGENT_MODE=tools`. The coach then fetches the latest camera check when the learner asks instead of being told.
 
+**Dashboard finding (21 October 2026):** the Graph Agent editor at platform.bolna.ai offers only LLM, Expression and Unconditional transitions, and its JSON import drops `condition_type: "event"` and `event_name`, turning event edges into LLM edges with empty conditions. The agent created through the dashboard (`eb266dcf-172e-42c0-ace5-39278b3516bb`) therefore uses one `coach` node with the four tools and no event nodes; run the app with `BOLNA_AGENT_MODE=tools`. Event edges may still be accepted through `PUT /v2/agent/{agent_id}` (`npm run bolna:agent -- --update <agent_id>`), but saving the agent again in the dashboard editor could drop them. That has not been tested.
+
 The graph has three nodes. `coach` (start) answers with the tools. `camera_update` speaks a fresh `camera_result`. `step_intro` introduces the screen's new step after a `step_changed` event (sent after a spoken or manual move). Both event edges are on every node; the two event nodes return to `coach` on the learner's next turn.
 
 ## Verification status
