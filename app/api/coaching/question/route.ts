@@ -6,6 +6,7 @@ import { LessonHelpError, resolveLessonHelp } from '@/lib/lesson-help-context';
 import { requireTrial } from '@/lib/auth/trial';
 import { builtinTrialId, publishedTrialId } from '@/lib/auth/trial-reference';
 import { coachJson, coachingConfigured, sameOrigin, coachingRateAllowed, limitedJson } from '@/lib/coaching-security';
+import { logAiFailure } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest) {
     return coachJson({...context.identity,...answerSchema.parse(result.output)});
   } catch(error) {
     if(error instanceof LessonHelpError)return coachJson({error:error.code},error.status);
+    logAiFailure('coaching.question',error,timeout.aborted);
     return coachJson({error:timeout.aborted?'timeout':'provider'},timeout.aborted?504:502);
   }
 }

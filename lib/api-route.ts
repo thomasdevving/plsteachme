@@ -3,10 +3,12 @@ import { NextRequest } from 'next/server';
 import type { z } from 'zod';
 import { coachJson, limitedJson, sameOrigin } from './coaching-security';
 import { PlatformError, platformConfigured } from './platform-server';
+import { logError } from './log';
 
 /** Shared JSON route plumbing: configuration, same-origin, bounded body, validation and errors. */
 export function failure(error:unknown) {
  if(error instanceof PlatformError)return coachJson({error:error.code,message:error.message},error.status,error.status===429?{'Retry-After':'60'}:{});
+ logError('api.unhandled',{},error);
  return coachJson({error:'unavailable',message:'This action could not be completed. Please try again.'},503);
 }
 export async function handle(task:()=>Promise<unknown>) {

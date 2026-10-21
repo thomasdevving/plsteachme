@@ -4,6 +4,7 @@ import { loadSkillGraphics } from "@/lib/skills/graphics";
 import { TrialGate } from "@/components/trial-gate";
 import { getSkill } from "@/lib/skills/loader";
 import { copy } from "@/lib/copy/en";
+import { internalToolsEnabled } from "@/lib/internal-tools";
 export default async function Session({
   params,
   searchParams,
@@ -20,7 +21,7 @@ export default async function Session({
       <TrialGate
         skill={skill}
         graphics={loadSkillGraphics(skill)}
-        debug={query.debug === "1"}
+        debug={query.debug === "1" && internalToolsEnabled()}
       />
     </>
   );

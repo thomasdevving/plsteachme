@@ -9,6 +9,7 @@ import { PlatformError, checked, platformDb, platformRateAllowed, platformUser, 
 import { FEATURE_LENGTH, FEATURE_VERSION, hasHands } from './vision/features';
 import { evaluate, splitByClip, train, type Clip, type Evaluation, type VisionModel } from './vision/model';
 import { MAX_CLIPS_PER_TARGET, MIN_CLIPS_PER_LABEL, builtinSteps, lessonSteps, qualityGate, shadowAgrees, targetLabels, type ClipSummary, type TargetSteps, type VisionAction, type VisionModelSummary, type VisionTarget } from './vision-contract';
+import { clientIp } from './client-ip';
 
 type Row = Record<string,any>; // Database JSON is validated where it is used.
 type User = {id:string;email?:string|null;email_confirmed_at?:string|null};
@@ -113,7 +114,7 @@ export async function visionWrite(request:NextRequest,action:VisionAction) {
  const client=platformDb();
  if(action.action==='shadow') {
   if(!validCoachSession(request.cookies.get(COACH_COOKIE)?.value))throw new PlatformError(401,'session','Start camera coaching first.');
-  const ip=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'local';
+  const ip=clientIp(request);
   if(!platformRateAllowed(createHash('sha256').update(ip).digest('hex'),'vision.shadow'))throw new PlatformError(429,'rate','Too many checks.');
   const model=checked(await client.from('vision_models').select('id,status').eq('id',action.modelId).maybeSingle());
   if(!model||model.status!=='active')throw new PlatformError(404,'not_found','This model is not active.');

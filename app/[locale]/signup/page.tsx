@@ -12,7 +12,7 @@ export default async function Signup({
   searchParams: Promise<{ next?: string }>;
 }) {
   const query = await searchParams;
-  const { enabled, google, apple } = authConfig();
+  const { enabled, google, apple, captchaSiteKey } = authConfig();
   return (
     <AuthShell>
       <AuthForm
@@ -20,6 +20,7 @@ export default async function Signup({
         enabled={enabled}
         google={google}
         apple={apple}
+        captchaSiteKey={captchaSiteKey}
         next={safeNext(query.next)}
       />
     </AuthShell>

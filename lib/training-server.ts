@@ -8,7 +8,7 @@ import { emailConfigured, sendEmails } from './email';
 import { coachingConfigured } from './coaching-security';
 import { feedbackSchema } from './coaching-contract';
 import { publicationIssues } from './platform-contract';
-import { PlatformError, checked, platformConfigured, platformDb, platformRateAllowed, platformUser, transcribeStoredRecording, type DB } from './platform-server';
+import { PlatformError, checked, platformConfigured, platformDb, platformRateAllowed, platformUser, requireAiBudget, transcribeStoredRecording, type DB } from './platform-server';
 import { MAX_MANUAL_BYTES, MAX_TRAINING_VIDEO_BYTES, TRAINING_BUCKET, applyDraft, blankTrainingDocument, momentSchema, stripReferences, trainingDocumentSchema, trainingDraftSchema, trainingPlans, type LearnerModule, type StepResult, type TrainingAction, type TrainingMember, type TrainingModule, type TrainingMoment, type TrainingOrganization, type TrainingProgress, type TrainingRole } from './training-contract';
 
 type Row = Record<string,any>; // Database JSON is validated at the document boundary below.
@@ -177,6 +177,7 @@ Keep the supplied title and category. Do not invent regulations, certifications 
 
 async function generateModule(client:DB,module:Row,focus:string,signal:AbortSignal) {
  if(!process.env.OPENAI_API_KEY?.trim())throw new PlatformError(503,'ai_unavailable','AI module generation is not configured yet. You can build the steps yourself.');
+ await requireAiBudget('training.draft');
  const current=trainingDocumentSchema.parse(module.document);const captured=moments(module.moments);
  const content:Array<{type:'text';text:string}|{type:'image';image:Buffer;mediaType:'image/jpeg'}|{type:'file';data:Buffer;mediaType:'application/pdf';filename:string}>=[];
  content.push({type:'text',text:JSON.stringify({title:current.title,category:current.category,focus,source:module.source,notes:module.source_text,moments:captured.map((item,index)=>({index,atSeconds:Math.round(item.at*10)/10,kind:item.kind==='hold'?'hands paused after working':'marked by instructor',hands:item.hands,caption:item.caption}))})});
@@ -209,6 +210,7 @@ async function coachModule(client:DB,userId:string,email:string,action:Extract<T
  if(action.version!==version.version)throw new PlatformError(409,'version_changed','This module has been updated. Reload it before continuing.');
  const step=document.steps[action.step];if(!step)throw new PlatformError(400,'validation','Choose a valid module step.');
  const frames=await Promise.all(action.frames.map(decodeCoachFrame)).catch(()=>{throw new PlatformError(400,'validation','Provide valid camera JPEG frames.');});
+ await requireAiBudget('training.coach');
  const signal=AbortSignal.any([request.signal,AbortSignal.timeout(22000)]);
  let reference:Buffer|null=null;
  if(step.reference) {const file=(await client.storage.from(TRAINING_BUCKET).download(step.reference.frame,{},{signal})).data;if(file)reference=Buffer.from(await file.arrayBuffer());}

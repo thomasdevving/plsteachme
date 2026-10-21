@@ -13,8 +13,13 @@ export const setupTables: Record<string,string> = {
   community_requests:'id,support_count',community_supports:'user_id,request_id',
   platform_lessons:'id,submitted_version_id,published_version_id',platform_lesson_versions:'id,document',
   platform_reviews:'id,version_id',platform_uploads:'path,attached_at',coaching_reports:'id,resolved_at',
+  training_organizations:'id,plan',training_members:'id,role',training_modules:'id,status',vision_models:'id,status',
+  learner_progress:'user_id,lesson_key',learning_events:'id,kind',training_pilot_access:'email',
+  trial_claims:'email_hash',ai_usage:'day,calls',rate_limits:'key,hits',
 };
 
+// Functions from every migration, so a skipped migration is reported.
+export const setupFunctions=['claim_coaching_trial','advance_coaching_trial','platform_mutate','increment_under16','training_mutate','progress_save','learning_insights','account_delete','retention_cleanup','coaching_trial_use','ai_budget_use','rate_hit','ephemeral_cleanup'];
 function origin(value:string|undefined):string|null {
   try {
     const url=new URL(value || '');
@@ -70,7 +75,7 @@ export async function checkSetup(env:Environment, fetcher:typeof fetch=fetchWith
       const response=await readOnly(`${url}/rest/v1/`,{headers});
       if(!response.ok)return false;
       const schema=await response.json();
-      return ['claim_coaching_trial','advance_coaching_trial','platform_mutate','increment_under16'].every(name=>schema.paths?.[`/rpc/${name}`]?.post);
+      return setupFunctions.every(name=>schema.paths?.[`/rpc/${name}`]?.post);
     });
     await inspect('Private teacher storage','Create the private teacher-demonstrations bucket with MP4/WebM/MOV support and a 100 MB limit.',async()=>{
       const {data,error}=await admin.storage.getBucket('teacher-demonstrations');

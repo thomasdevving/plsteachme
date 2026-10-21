@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const body = await limitedJson(request,1024);
   if ('error' in body) return coachJson({error:body.error},body.error==='size'?413:400);
   if (!coachConsentSchema.safeParse(body.data).success) return coachJson({error:'consent'},400);
-  const denied=await requireTrial(request);if(denied)return denied;
+  const denied=await requireTrial(request,undefined,{countAi:false});if(denied)return denied;
   const response = coachJson({accepted:true});
   response.cookies.set(COACH_COOKIE,createCoachSession(),{httpOnly:true,sameSite:'strict',secure:process.env.NODE_ENV==='production',path:'/api/coaching',maxAge:SESSION_SECONDS});
   return response;

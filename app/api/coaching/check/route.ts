@@ -5,6 +5,7 @@ import { COACH_COOKIE, coachJson, coachingConfigured, sameOrigin, coachingRateAl
 import { assessCoachStep, decodeCoachFrame } from '@/lib/coaching-ai';
 import { requireTrial } from '@/lib/auth/trial';
 import { builtinTrialId } from '@/lib/auth/trial-reference';
+import { logAiFailure } from '@/lib/log';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,8 +28,9 @@ export async function POST(request: NextRequest) {
     const feedback = await assessCoachStep(parsed.data.skill,parsed.data.step,frames,AbortSignal.any([request.signal,timeout]));
     await recordCoachVerdict(request,`builtin:${parsed.data.skill}`,parsed.data.step,feedback.status);
     return coachJson({skill:parsed.data.skill,step:parsed.data.step,feedback});
-  } catch {
-    // Never return or log provider errors, prompts, images or credentials.
+  } catch(error) {
+    // Only the failure category is logged: never provider messages, prompts, images or credentials.
+    logAiFailure('coaching.check',error,timeout.aborted);
     return coachJson({error:timeout.aborted?'timeout':'provider'},timeout.aborted?504:502);
   }
 }

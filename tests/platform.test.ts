@@ -4,11 +4,11 @@ vi.mock('@/lib/auth/trial',()=>({requireTrial:access.requireTrial}));
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import sharp from 'sharp';
-const state=vi.hoisted(()=>({user:vi.fn(),rpc:vi.fn(),signed:vi.fn(),list:vi.fn(),video:vi.fn(),download:vi.fn(),transcribe:vi.fn(),ai:vi.fn(),tables:{} as Record<string,unknown>}));
+const state=vi.hoisted(()=>({calls:[] as unknown[][],user:vi.fn(),rpc:vi.fn(),signed:vi.fn(),list:vi.fn(),video:vi.fn(),download:vi.fn(),transcribe:vi.fn(),ai:vi.fn(),tables:{} as Record<string,unknown>}));
 vi.mock('server-only',()=>({}));
 vi.mock('ai',()=>({generateText:state.ai,transcribe:state.transcribe,Output:{object:(value:unknown)=>value}}));
 vi.mock('@supabase/supabase-js',()=>({createClient:()=>({auth:{getUser:state.user},rpc:state.rpc,from:(table:string)=>{
- const chain:Record<string,any>={};for(const method of ['select','eq','not','is','in','order','limit','maybeSingle','single'])chain[method]=()=>chain;
+ const chain:Record<string,any>={};for(const method of ['select','eq','not','is','in','order','limit','maybeSingle','single','update'])chain[method]=(...args:unknown[])=>{state.calls.push([table,method,...args]);return chain;};
  chain.then=(resolve:(value:unknown)=>unknown)=>Promise.resolve({data:state.tables[table]??null,error:null}).then(resolve);return chain;
 },storage:{from:()=>({createSignedUploadUrl:state.signed,list:state.list,createSignedUrl:state.video,download:state.download})}})}));
 import { GET, POST } from '../app/api/platform/route';
@@ -26,6 +26,21 @@ beforeEach(()=>{
 });
 function post(body:unknown,headers:Record<string,string>={}) {return new NextRequest('http://localhost:3100/api/platform',{method:'POST',headers:{origin:'http://localhost:3100','content-type':'application/json',authorization:'Bearer valid-session','x-forwarded-for':`test-${Math.random()}`,...headers},body:JSON.stringify(body)});}
 const upload=()=>({action:'upload',lessonId,contentType:'video/mp4',size:1000});
+describe('community moderation',()=>{
+ it('lets only reviewers hide a request, and hidden requests leave the public board',async()=>{
+  state.calls=[];
+  const requestId='55555555-5555-4555-8555-555555555555';
+  expect((await POST(post({action:'request.hide',requestId}))).status).toBe(403);
+  expect(state.calls.some(call=>call[1]==='update')).toBe(false);
+  vi.stubEnv('PLATFORM_REVIEWER_IDS',userId);
+  expect((await POST(post({action:'request.hide',requestId}))).status).toBe(200);
+  const update=state.calls.find(call=>call[0]==='community_requests'&&call[1]==='update');
+  expect(update?.[2]).toMatchObject({hidden_by:userId});
+  state.calls=[];
+  await GET(new NextRequest('http://localhost:3100/api/platform?view=public'));
+  expect(state.calls).toContainEqual(['community_requests','is','hidden_at',null]);
+ });
+});
 describe('platform API boundaries',()=>{
  it('uses the existing verified HTTP-only account for platform mutations',async()=>{access.cookieUser.mockResolvedValue({id:userId,email:'teacher@example.test',is_anonymous:false});const request=post({action:'support',requestId:lessonId,support:true});request.headers.delete('authorization');expect((await POST(request)).status).toBe(200);expect(access.cookieUser).toHaveBeenCalled();expect(state.user).not.toHaveBeenCalled();expect(state.rpc.mock.calls[0][1].actor_id).toBe(userId);});
  it('does not treat missing cookies or anonymous cookie accounts as signed in',async()=>{const make=()=>{const request=post({action:'support',requestId:lessonId,support:true});request.headers.delete('authorization');return request;};expect((await POST(make())).status).toBe(401);access.cookieUser.mockResolvedValue({id:userId,is_anonymous:true});expect((await POST(make())).status).toBe(401);expect(state.rpc).not.toHaveBeenCalled();});

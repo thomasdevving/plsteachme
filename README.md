@@ -15,7 +15,7 @@ npm run dev
 
 Use Node.js 24. Open http://localhost:3100. For a production server, run `npm run build` then `npm start`. No environment variables are needed for local preview. With storage unconfigured, forms validate but save no data and clearly say so.
 
-For connected testing after setting up Supabase and OpenAI, follow [the setup and acceptance checklist](docs/TEST_READINESS.md), then run `npm run verify:setup -- --url https://plsteachme.vercel.app`. The checker only reads service configuration and reports missing setup without printing credentials or making AI inference calls. Email login becomes available when Supabase Auth is configured; each account receives one resumable free coaching session.
+Before the public test phase, work through [the launch checklist](docs/LAUNCH.md). For connected testing after setting up Supabase and OpenAI, follow [the setup and acceptance checklist](docs/TEST_READINESS.md), then run `npm run verify:setup -- --url https://plsteach.me`. The checker only reads service configuration and reports missing setup without printing credentials or making AI inference calls. Email login becomes available when Supabase Auth is configured; each account receives one resumable free coaching session.
 
 ### Cloudflare Workers deployment status
 
@@ -75,13 +75,17 @@ Copy `.env.example` to `.env.local` and set only the services you use:
 | `RESEND_API_KEY` | Server-only email secret |
 | `CONFIRMATION_EMAIL_FROM` | Verified sender with monitored replies |
 | `EMAIL_FROM` | Verified Resend sender for pilot and invitation emails (falls back to `CONFIRMATION_EMAIL_FROM`). With `RESEND_API_KEY`, invitations are emailed; without, admins copy the links |
+| `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key for the sign-in form; also enable Turnstile CAPTCHA (with its secret) in Supabase Auth |
+| `AI_DAILY_CALL_LIMIT` | Service-wide AI calls per day before AI features pause (default 3000) |
+| `TRIAL_MAX_AI_CALLS` / `TRIAL_MAX_MINUTES` | Free session limits (defaults 150 checks, 120 minutes) |
+| `ENABLE_INTERNAL_TOOLS` | `true` shows `/coach/eval` and the `?debug=1` panel on a deployed site (staff testing only) |
 | `MAINTENANCE_SECRET` | Random string of at least 24 characters; the daily retention job sends it as a bearer token to `/api/maintenance/retention` |
 
 Public environment variables require a rebuild. Never expose the Supabase service key in a `NEXT_PUBLIC_` variable. No credentials or actual demo/video URLs are bundled.
 
 ## Storage
 
-Run all SQL migrations in `supabase/migrations/` in filename order. The latest (`20261021090000_accounts_progress_insights.sql`) adds account progress sync, anonymous learning events and insights, account deletion, retention cleanup and pilot access. Before it: organization training workspaces (`docs/ORGANIZATIONS.md`).
+Run all SQL migrations in `supabase/migrations/` in filename order. The latest (`20261022090000_public_launch_safeguards.sql`) bounds the free session, adds the daily AI budget, shared rate limits, one free session per email address and hiding of community requests. Before it, `20261021090000_accounts_progress_insights.sql` adds account progress sync, anonymous learning events and insights, account deletion, retention cleanup and pilot access. Before it: organization training workspaces (`docs/ORGANIZATIONS.md`).
 
 **Retention.** `.github/workflows/retention.yml` runs daily and calls the cleanup endpoint. Add the repository secret `MAINTENANCE_SECRET` (same value as the server variable) and optionally the repository variable `SITE_URL` (default `https://plsteach.me`). Without the secret the job skips. It deletes: resolved feedback reports 180 days after resolution (all reports after 365 days); teacher uploads never attached after 7 days and replaced or unused demonstrations after 30 days, with their files; unattached organization files after 7 days; learning events and on-device shadow checks after 400 days.
 

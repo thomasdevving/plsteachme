@@ -3,6 +3,7 @@ import { db } from "@/lib/storage";
 import { authenticatedUser } from "./server";
 import { authConfig } from "./config";
 import { sameOrigin } from "./redirect";
+import { aiBudgetAllowed, trialAiUse } from "../ai-guard";
 export type Trial = {
   id: string;
   skill_id: string;
@@ -20,9 +21,14 @@ export async function getTrial(userId: string): Promise<Trial | null> {
   if (error) throw new Error("Trial unavailable");
   return data;
 }
+/**
+ * Checks the signed-in account's free session for this lesson. Unless `countAi` is
+ * false, it also counts one AI call against the session and the daily budget.
+ */
 export async function requireTrial(
   request: Request,
   skillId?: string,
+  { countAi = true }: { countAi?: boolean } = {},
 ): Promise<Response | null> {
   const fail = (error: string, status: number) =>
     Response.json(
@@ -46,6 +52,19 @@ export async function requireTrial(
       return fail(
         "Your free session is unavailable or already completed.",
         403,
+      );
+    if (!countAi) return null;
+    const use = await trialAiUse(user.id, trial.id);
+    if (use === "exhausted" || use === "completed")
+      return fail(
+        "Your free session has ended: it covers one lesson within two hours. Thanks for trying plsteach.me!",
+        403,
+      );
+    if (use !== "ok") return fail("Could not check your session. Please try again.", 503);
+    if (!(await aiBudgetAllowed("coaching")))
+      return fail(
+        "Camera coaching is paused for today because of high demand. Your session is kept; please try again tomorrow.",
+        503,
       );
     return null;
   } catch {

@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 it('executes the migration and enforces ownership, review, publication, immutable history and browser isolation in PostgreSQL',async()=>{
  const db=new PGlite();
  try {
-  await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key); create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);`);
+  await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key, email text); create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);`);
   await db.exec(await readFile(new URL('../supabase/migrations/20261017172015_teacher_platform.sql',import.meta.url),'utf8'));
   const teacher='11111111-1111-4111-8111-111111111111',reviewer='22222222-2222-4222-8222-222222222222',other='33333333-3333-4333-8333-333333333333';
   await db.query('insert into auth.users(id) values($1),($2),($3)',[teacher,reviewer,other]);

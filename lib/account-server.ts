@@ -7,6 +7,7 @@ import { PlatformError, checked, platformDb, platformRateAllowed } from './platf
 import { VIDEO_BUCKET } from './platform-contract';
 import { TRAINING_BUCKET } from './training-contract';
 import { visionStaff } from './vision-server';
+import { clientIp } from './client-ip';
 
 export const lessonKeySchema = z.string().regex(/^(builtin:[a-z]+|published:[a-f0-9-]{36}:v[0-9]{1,6})$/);
 export const progressSaveSchema = z.object({lessonKey:lessonKeySchema,data:z.unknown(),updatedAt:z.number().int().min(0).max(8.64e15)}).strict();
@@ -40,7 +41,7 @@ export async function saveProgress(input:z.infer<typeof progressSaveSchema>) {
 
 /** Anonymous learning events: a random per-browser ID, lesson, step and result only. */
 export async function recordLearningEvents(request:NextRequest,input:z.infer<typeof learningEventSchema>) {
- const ip=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()||'local';
+ const ip=clientIp(request);
  if(!platformRateAllowed(createHash('sha256').update(ip).digest('hex'),'learning.events'))throw new PlatformError(429,'rate','Too many events.');
  const {error}=await platformDb().from('learning_events').insert(input.events.map(event=>({session_id:input.sessionId,lesson_key:event.lessonKey,kind:event.kind,step:event.step ?? null,result:event.result})));
  if(error)throw new PlatformError(503,'storage','Events could not be saved.');
@@ -97,6 +98,9 @@ export async function runRetention(request:Request) {
  if(supplied.length!==expected.length || !createHash('sha256').update(supplied).digest().equals(createHash('sha256').update(expected).digest()))throw new PlatformError(401,'unauthorized','Not authorized.');
  const {data,error}=await platformDb().rpc('retention_cleanup');
  if(error)throw new PlatformError(503,'storage','Retention cleanup failed.');
+ // Expired rate-limit windows and old AI usage counters.
+ const ephemeral=await platformDb().rpc('ephemeral_cleanup');
+ if(ephemeral.error)throw new PlatformError(503,'storage','Retention cleanup failed.');
  const result=data as {demoPaths:string[];trainingPaths:string[];reports:number;events:number;shadowChecks:number};
  await removeFiles(VIDEO_BUCKET,result.demoPaths||[]);
  await removeFiles(TRAINING_BUCKET,result.trainingPaths||[]);

@@ -9,6 +9,7 @@ export function AuthForm({
   apple,
   next = "/account",
   invalidLink = false,
+  captchaSiteKey = "",
 }: {
   signup?: boolean;
   enabled: boolean;
@@ -16,8 +17,11 @@ export function AuthForm({
   apple: boolean;
   next?: string;
   invalidLink?: boolean;
+  captchaSiteKey?: string;
 }) {
   const [email, setEmail] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const captcha = useTurnstile(captchaSiteKey);
   const [busy, setBusy] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState(
@@ -37,6 +41,14 @@ export function AuthForm({
   }, [cooldown]);
   async function submit(action: "email" | "google" | "apple") {
     if (busy || !enabled) return;
+    if (signup && !agreed) {
+      setError("Please confirm you are 16 or older and agree to the terms of use.");
+      return;
+    }
+    if (action === "email" && captchaSiteKey && !captcha.token) {
+      setError("Please complete the security check above the button.");
+      return;
+    }
     setBusy(action);
     setError("");
     try {
@@ -45,7 +57,7 @@ export function AuthForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           action === "email"
-            ? { action, email, signup, next }
+            ? { action, email, signup, next, captchaToken: captcha.token || undefined }
             : { action: "oauth", provider: action, next },
         ),
       });
@@ -67,6 +79,8 @@ export function AuthForm({
       );
     } finally {
       setBusy("");
+      // A security-check token works once; get a fresh one for a resend.
+      if (action === "email") captcha.reset();
     }
   }
   return (
@@ -117,6 +131,20 @@ export function AuthForm({
               ? "Create your account. Your first coaching session is free."
               : "Sign in and pick up where you left off."}
           </p>
+          {signup && (
+            <label className="auth-consent">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(event) => setAgreed(event.target.checked)}
+              />
+              <span>
+                I am 16 or older and agree to the{" "}
+                <a href="/terms" target="_blank">terms of use</a> and the{" "}
+                <a href="/privacy" target="_blank">privacy statement</a>.
+              </span>
+            </label>
+          )}
           <div className="auth-providers">
             <button
               className="auth-provider"
@@ -184,6 +212,7 @@ export function AuthForm({
               disabled={!enabled || !!busy}
               aria-describedby={error ? "auth-error" : undefined}
             />
+            {captchaSiteKey && <div className="auth-captcha" ref={captcha.ref} />}
             <button
               className="button primary auth-submit"
               type="submit"
@@ -227,6 +256,47 @@ export function AuthForm({
       </p>
     </div>
   );
+}
+type TurnstileApi = { render: (el: HTMLElement, options: Record<string, unknown>) => string; reset: (id: string) => void; remove: (id: string) => void };
+/** Cloudflare Turnstile security check, loaded only when a site key is configured. */
+function useTurnstile(siteKey: string) {
+  const ref = useRef<HTMLDivElement>(null);
+  const widget = useRef<string | null>(null);
+  const [token, setToken] = useState("");
+  useEffect(() => {
+    const element = ref.current;
+    if (!siteKey || !element) return;
+    let cancelled = false;
+    const win = window as unknown as { turnstile?: TurnstileApi };
+    const mount = () => {
+      if (cancelled || !win.turnstile || widget.current) return;
+      widget.current = win.turnstile.render(element, { sitekey: siteKey, appearance: "interaction-only", callback: (value: string) => setToken(value), "expired-callback": () => setToken(""), "error-callback": () => setToken("") });
+    };
+    if (win.turnstile) mount();
+    else {
+      const id = "cf-turnstile-script";
+      let script = document.getElementById(id) as HTMLScriptElement | null;
+      if (!script) {
+        script = document.createElement("script");
+        script.id = id;
+        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+        script.async = true;
+        document.head.appendChild(script);
+      }
+      script.addEventListener("load", mount);
+    }
+    return () => {
+      cancelled = true;
+      if (widget.current && win.turnstile) win.turnstile.remove(widget.current);
+      widget.current = null;
+    };
+  }, [siteKey]);
+  const reset = () => {
+    const win = window as unknown as { turnstile?: TurnstileApi };
+    setToken("");
+    if (widget.current && win.turnstile) win.turnstile.reset(widget.current);
+  };
+  return { ref, token, reset };
 }
 function GoogleMark() {
   return (

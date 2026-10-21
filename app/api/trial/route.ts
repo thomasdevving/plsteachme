@@ -59,6 +59,8 @@ export async function POST(request: Request) {
         p_user_id: user.id,
         p_skill_id: resolved.id,
         p_total_steps: resolved.total,
+        // One free session per address, also after the account is deleted (stored hashed).
+        p_email: user.email ?? null,
       });
       if (error) throw error;
       if (!data || data.completed_at || data.skill_id !== resolved.id)

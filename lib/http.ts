@@ -5,10 +5,11 @@ import { allow } from './rate-limit';
 import { hash } from './storage';
 import { isSameOrigin } from './request-origin';
 import { limitedJson } from './coaching-security';
+import { clientIp } from './client-ip';
 export async function parse<T>(request: NextRequest, schema: z.ZodType<T>): Promise<{ data: T } | { response: NextResponse }> {
   const origin = request.headers.get('origin');
   if (origin && !isSameOrigin(request)) return { response: NextResponse.json({ error: 'origin' }, { status: 403 }) };
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
+  const ip = clientIp(request);
   if (!allow(hash(ip))) return { response: NextResponse.json({ error: 'rate' }, { status: 429, headers: { 'Retry-After': '600' } }) };
   try {
     const body = await limitedJson(request, 16384);

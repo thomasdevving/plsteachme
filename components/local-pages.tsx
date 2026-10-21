@@ -73,7 +73,7 @@ export function ProgressPage({ skills }: { skills: Skill[] }) {
     </main>
   );
 }
-export function SettingsPage() {
+export function SettingsPage({ showEvaluation = false }: { showEvaluation?: boolean }) {
   const [message, setMessage] = useState("");
   return (
     <main className="page-width utility-page">
@@ -96,9 +96,11 @@ export function SettingsPage() {
         {c.delete}
       </button>
       <p role="status">{message}</p>
-      <Link className="quiet-link" href="/coach/eval">
-        {c.eval}
-      </Link>
+      {showEvaluation && (
+        <Link className="quiet-link" href="/coach/eval">
+          {c.eval}
+        </Link>
+      )}
     </main>
   );
 }

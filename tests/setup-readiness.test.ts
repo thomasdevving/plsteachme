@@ -1,5 +1,5 @@
 import { describe,expect,it,vi } from 'vitest';
-import { checkSetup,setupTables } from '../scripts/verify-setup';
+import { checkSetup,setupFunctions,setupTables } from '../scripts/verify-setup';
 import { isPublicSupabaseKey } from '../lib/public-key';
 const reviewer='11111111-1111-4111-8111-111111111111';
 const env={SUPABASE_URL:'https://project.supabase.co',SUPABASE_ANON_KEY:'sb_publishable_test-public',SUPABASE_SERVICE_ROLE_KEY:'sb_secret_test-private',OPENAI_API_KEY:'test-openai-private',NEXT_PUBLIC_SITE_URL:'https://app.example.test',PLATFORM_REVIEWER_IDS:reviewer};
@@ -10,7 +10,7 @@ function responses(input:RequestInfo|URL,init?:RequestInit):Response {
   if(url.hostname==='api.openai.com')return Response.json({id:decodeURIComponent(url.pathname.split('/').at(-1)!)});
   if(url.pathname.includes('/auth/v1/admin/users/'))return Response.json({id:reviewer,email_confirmed_at:'2026-10-17',is_anonymous:false});
   if(url.pathname.includes('/storage/v1/bucket/'))return Response.json({id:'teacher-demonstrations',name:'teacher-demonstrations',public:false,file_size_limit:100*1024*1024,allowed_mime_types:['video/mp4','video/webm','video/quicktime']});
-  if(url.pathname==='/rest/v1/')return Response.json({paths:Object.fromEntries(['claim_coaching_trial','advance_coaching_trial','platform_mutate','increment_under16'].map(name=>[`/rpc/${name}`,{post:{}}]))});
+  if(url.pathname==='/rest/v1/')return Response.json({paths:Object.fromEntries(setupFunctions.map(name=>[`/rpc/${name}`,{post:{}}]))});
   if(headers.get('apikey')===env.SUPABASE_ANON_KEY)return Response.json({message:'permission denied'},{status:403});
   return Response.json([]);
 }

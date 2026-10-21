@@ -3,11 +3,13 @@ import { coachJson, limitedJson, sameOrigin } from '@/lib/coaching-security';
 import { trainingActionSchema } from '@/lib/training-contract';
 import { PlatformError, platformConfigured } from '@/lib/platform-server';
 import { trainingRead, trainingWrite } from '@/lib/training-server';
+import { logError } from '@/lib/log';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export const maxDuration=60;
 function failure(error:unknown) {
  if(error instanceof PlatformError)return coachJson({error:error.code,message:error.message},error.status,error.status===429?{'Retry-After':'600'}:{});
+ logError('api.unhandled',{route:'training'},error);
  return coachJson({error:'unavailable',message:'This action could not be completed. Please try again.'},503);
 }
 export async function GET(request:NextRequest) {try{return coachJson(await trainingRead(request));}catch(error){return failure(error);}}

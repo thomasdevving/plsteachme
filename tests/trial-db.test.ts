@@ -6,7 +6,7 @@ it('applies every migration together and enforces durable trial ownership, monot
   const db=new PGlite();
   try {
     await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;
-      create schema auth;create table auth.users(id uuid primary key);
+      create schema auth;create table auth.users(id uuid primary key, email text);
       create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
       grant usage on schema auth to authenticated;
       create schema storage;create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);`);
@@ -15,7 +15,7 @@ it('applies every migration together and enforces durable trial ownership, monot
     const owner='11111111-1111-4111-8111-111111111111',other='22222222-2222-4222-8222-222222222222';
     await db.query('insert into auth.users(id) values($1),($2)',[owner,other]);
     await db.exec('set role service_role');
-    const claim=async(skill:string)=>(await db.query<{trial:{id:string;skill_id:string;completed_steps:number;completed_at:string|null}}>('select public.claim_coaching_trial($1,$2,7) trial',[owner,skill])).rows[0].trial;
+    const claim=async(skill:string)=>(await db.query<{trial:{id:string;skill_id:string;completed_steps:number;completed_at:string|null}}>('select public.claim_coaching_trial($1,$2,7,$3) trial',[owner,skill,'owner@example.test'])).rows[0].trial;
     const first=await claim('tie-four-in-hand');
     expect(await claim('builtin:laundry')).toEqual(first);
     expect((await db.query<{count:number}>('select count(*)::int count from public.coaching_trials')).rows[0].count).toBe(1);

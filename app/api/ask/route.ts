@@ -6,6 +6,7 @@ import { getSkill } from "@/lib/skills/loader";
 import { askInputSchema } from "@/lib/ai/schemas";
 import { askPrompt } from "@/lib/ai/prompts";
 import { coachingRateAllowed } from "@/lib/coaching-security";
+import { logAiFailure } from "@/lib/log";
 import {
   client,
   isAvailable,
@@ -68,7 +69,8 @@ export async function POST(request: Request) {
       answer: parsed.answer.split(/\s+/).slice(0, 40).join(" "),
       mock: false,
     });
-  } catch {
+  } catch (error) {
+    logAiFailure("ask", error);
     return json(
       { error: "I couldn’t answer just now. Try again or replay the step." },
       503,

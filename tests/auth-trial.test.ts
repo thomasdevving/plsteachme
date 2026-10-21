@@ -23,6 +23,8 @@ vi.mock("@/lib/auth/server", () => ({
   }),
 }));
 vi.mock("@/lib/storage", () => ({
+  mockMode: false,
+  hash: (value: string) => `h:${value}`,
   db: () => ({
     rpc: mocks.rpc,
     from: () => ({
@@ -60,7 +62,7 @@ beforeEach(() => {
   mocks.enabled = true;
   mocks.user.mockResolvedValue({ id: "verified-user" });
   mocks.maybeSingle.mockResolvedValue({ data: trial, error: null });
-  mocks.rpc.mockResolvedValue({ data: trial, error: null });
+  mocks.rpc.mockImplementation(async (name: string) => ({ data: name === "coaching_trial_use" ? "ok" : name === "ai_budget_use" || name === "rate_hit" ? true : trial, error: null }));
   mocks.otp.mockResolvedValue({ error: null });
   mocks.oauth.mockResolvedValue({
     data: { url: "https://provider.example/authorize" },
@@ -72,7 +74,7 @@ describe("one free session authorization", () => {
   it('rejects anonymous Supabase accounts',async()=>{mocks.user.mockResolvedValue({id:'guest',is_anonymous:true});expect((await requireTrial(req(),trial.skill_id))?.status).toBe(401);expect((await trialAction(req({action:'start',skillId:trial.skill_id}))).status).toBe(401);expect(mocks.rpc).not.toHaveBeenCalled();});
   it('uses the same durable trial for new lessons and preserves the previous chosen skill',async()=>{
     expect((await trialAction(req({action:'start',skillId:'builtin:laundry'}))).status).toBe(409);
-    expect(mocks.rpc).toHaveBeenCalledWith('claim_coaching_trial',{p_user_id:'verified-user',p_skill_id:'builtin:laundry',p_total_steps:7});
+    expect(mocks.rpc).toHaveBeenCalledWith('claim_coaching_trial',{p_user_id:'verified-user',p_skill_id:'builtin:laundry',p_total_steps:7,p_email:null});
     expect(builtinTrialId('tie')).toBe(trial.skill_id);
     expect((await trialAction(req({action:'start',skillId:'builtin:tie'}))).status).toBe(404);
   });
@@ -106,6 +108,26 @@ describe("one free session authorization", () => {
   });
   it("allows only the active account session", async () => {
     expect(await requireTrial(req(), trial.skill_id)).toBeNull();
+    expect(mocks.rpc).toHaveBeenCalledWith("coaching_trial_use", { p_user_id: "verified-user", p_session_id: trial.id, p_max_calls: 150, p_max_minutes: 120 });
+    expect(mocks.rpc).toHaveBeenCalledWith("ai_budget_use", { p_kind: "coaching", p_daily_limit: 3000 });
+  });
+  it("ends a free session once its AI checks or time run out, and pauses on the daily budget", async () => {
+    mocks.rpc.mockImplementation(async (name: string) => ({ data: name === "coaching_trial_use" ? "exhausted" : true, error: null }));
+    const ended = await requireTrial(req(), trial.skill_id);
+    expect(ended?.status).toBe(403);
+    expect((await ended!.json()).error).toContain("ended");
+    mocks.rpc.mockImplementation(async (name: string) => ({ data: name === "coaching_trial_use" ? "ok" : false, error: null }));
+    const paused = await requireTrial(req(), trial.skill_id);
+    expect(paused?.status).toBe(503);
+    expect((await paused!.json()).error).toContain("paused");
+    // A storage failure in the budget check fails closed.
+    mocks.rpc.mockImplementation(async (name: string) => (name === "coaching_trial_use" ? { data: "ok", error: null } : { data: null, error: { message: "down" } }));
+    expect((await requireTrial(req(), trial.skill_id))?.status).toBe(503);
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+  it("does not count AI use when only opening a coaching session", async () => {
+    expect(await requireTrial(req(), undefined, { countAi: false })).toBeNull();
+    expect(mocks.rpc).not.toHaveBeenCalled();
   });
   it("rejects cross-site mutations", async () => {
     expect(
@@ -135,13 +157,14 @@ describe("one free session authorization", () => {
       p_user_id: "verified-user",
       p_skill_id: trial.skill_id,
       p_total_steps: 7,
+      p_email: null,
     });
   });
   it("does not create another trial after completion", async () => {
     mocks.rpc.mockResolvedValue({
       data: { ...trial, completed_at: "2026-10-17" },
       error: null,
-    });
+    } as never);
     expect(
       (await trialAction(req({ action: "start", skillId: trial.skill_id })))
         .status,
@@ -191,6 +214,20 @@ describe("authentication boundaries", () => {
       req({ action: "email", email: "person@example.com", signup: true }),
     );
     expect(mocks.otp.mock.calls[0][0].options.shouldCreateUser).toBe(true);
+  });
+  it("passes the security-check token and limits sign-in emails across instances", async () => {
+    await authAction(req({ action: "email", email: "Person@Example.com", signup: true, captchaToken: "turnstile-token" }));
+    expect(mocks.otp.mock.calls[0][0]).toMatchObject({ email: "person@example.com", options: { captchaToken: "turnstile-token" } });
+    expect(mocks.rpc).toHaveBeenCalledWith("rate_hit", { p_key: "signin-email:h:person@example.com", p_max: 4, p_window_seconds: 3600 });
+    mocks.rpc.mockImplementation(async (name: string) => ({ data: name === "rate_hit" ? false : trial, error: null }));
+    expect((await authAction(req({ action: "email", email: "person@example.com", signup: true }))).status).toBe(429);
+    expect(mocks.otp).toHaveBeenCalledTimes(1);
+  });
+  it("asks for a new security check when Supabase rejects the CAPTCHA", async () => {
+    mocks.otp.mockResolvedValue({ error: { status: 400, message: "captcha protection: request disallowed (invalid-input-response)" } });
+    const response = await authAction(req({ action: "email", email: "person@example.com", signup: true }));
+    expect(response.status).toBe(400);
+    expect((await response.json()).error).toContain("security check");
   });
   it("does not reveal whether an email is registered", async () => {
     mocks.otp.mockResolvedValue({ error: { status: 400 } });

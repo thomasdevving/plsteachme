@@ -3,12 +3,16 @@ import { authClient } from "@/lib/auth/server";
 import { authConfig } from "@/lib/auth/config";
 import { safeNext, sameOrigin } from "@/lib/auth/redirect";
 import { readJSON } from "@/lib/ai/server";
+import { sharedRateAllowed } from "@/lib/ai-guard";
+import { clientIp } from "@/lib/client-ip";
+import { hash } from "@/lib/storage";
 const input = z.discriminatedUnion("action", [
   z.object({
     action: z.literal("email"),
     email: z.email().max(254),
     signup: z.boolean(),
     next: z.string().optional(),
+    captchaToken: z.string().max(4096).optional(),
   }),
   z.object({
     action: z.literal("oauth"),
@@ -47,13 +51,29 @@ export async function POST(request: Request) {
     const callback = new URL("/auth/callback", request.headers.get('origin')!);
     callback.searchParams.set("next", safeNext(data.next));
     if (data.action === "email") {
+      const email = data.email.trim().toLowerCase();
+      // Shared limits stop sign-in emails being used to flood an inbox or mass-create accounts.
+      if (
+        !(await sharedRateAllowed(`signin-ip:${hash(clientIp(request))}`, 8, 3600)) ||
+        !(await sharedRateAllowed(`signin-email:${hash(email)}`, 4, 3600))
+      )
+        return reply(
+          { error: "Too many sign-in links were requested. Please try again in an hour." },
+          429,
+        );
       const { error } = await client.auth.signInWithOtp({
-        email: data.email.trim().toLowerCase(),
+        email,
         options: {
           shouldCreateUser: data.signup,
           emailRedirectTo: callback.href,
+          captchaToken: data.captchaToken,
         },
       });
+      if (error && /captcha/i.test(error.message ?? ""))
+        return reply(
+          { error: "The security check expired. Please complete it again." },
+          400,
+        );
       if (error?.status === 429)
         return reply(
           { error: "Please wait a minute before requesting another link." },

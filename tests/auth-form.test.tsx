@@ -45,6 +45,11 @@ it("submits email registration explicitly, then focuses the confirmation", async
   fireEvent.change(screen.getByLabelText("Email address"), {
     target: { value: "person@example.com" },
   });
+  // Signing up needs the age and terms confirmation first.
+  fireEvent.submit(screen.getByLabelText("Email address").closest("form")!);
+  expect(await screen.findByRole("alert")).toBeTruthy();
+  expect(fetchMock).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("checkbox", { name: /16 or older/ }));
   fireEvent.submit(screen.getByLabelText("Email address").closest("form")!);
   await waitFor(() =>
     expect(

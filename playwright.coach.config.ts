@@ -3,7 +3,8 @@ export default defineConfig({
   testDir: "./tests/browser",
   fullyParallel: true,
   workers: 2,
-  webServer: process.env.TEST_BASE_URL ? undefined : {command:'npm run start',url:'http://localhost:3100',reuseExistingServer:true,timeout:60000},
+  // The evaluation page and debug panel are internal tools, enabled for these tests.
+  webServer: process.env.TEST_BASE_URL ? undefined : {command:'npm run start',url:'http://localhost:3100',reuseExistingServer:true,timeout:60000,env:{ENABLE_INTERNAL_TOOLS:'true'}},
   use: {
     baseURL: process.env.TEST_BASE_URL || "http://localhost:3100",
     launchOptions: {

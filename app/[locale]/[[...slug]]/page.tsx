@@ -20,6 +20,7 @@ import { TeacherStudio } from "@/components/teacher-studio";
 import { TrainingWorkspace } from "@/components/training-workspace";
 import { VisionLab } from "@/components/vision-lab";
 import { InsightsDashboard } from "@/components/insights-dashboard";
+import { TermsPage } from "@/components/terms";
 import { PublishedLessons } from "@/components/published-lesson";
 import dynamic from "next/dynamic";
 const Thanks = dynamic(() =>
@@ -45,6 +46,7 @@ export function generateStaticParams() {
         "training",
         "vision",
         "insights",
+        "terms",
       ] as const
     ).map((page) => ({
       locale,
@@ -79,6 +81,7 @@ export async function generateMetadata({
     training: "Organization training",
     vision: "Vision lab",
     insights: "Learning insights",
+    terms: "Terms of use",
   }[page];
   const image = `/api/og?lang=${locale}&page=${page}`;
   return {
@@ -160,6 +163,8 @@ export default async function Page({ params }: { params: Params }) {
           <VisionLab />
         ) : page === "insights" ? (
           <InsightsDashboard />
+        ) : page === "terms" ? (
+          <TermsPage contact={process.env.CONTACT_EMAIL} />
         ) : page === "privacy" ? (
           <PrivacyPage c={c} />
         ) : page === "thanks" ? (

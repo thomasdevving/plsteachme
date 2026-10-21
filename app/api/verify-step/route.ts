@@ -6,6 +6,7 @@ import { verificationResultSchema } from "@/lib/session/decision";
 import { verifyInputSchema } from "@/lib/ai/schemas";
 import { verifierPrompt } from "@/lib/ai/prompts";
 import { coachingRateAllowed } from "@/lib/coaching-security";
+import { logAiFailure } from "@/lib/log";
 import {
   client,
   decodeFrame,
@@ -109,7 +110,8 @@ export async function POST(request: Request) {
       model: modelName(input.model),
       mock: false,
     });
-  } catch {
+  } catch (error) {
+    logAiFailure("verify-step", error);
     return json(
       {
         error:

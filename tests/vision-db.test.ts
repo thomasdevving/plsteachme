@@ -5,7 +5,7 @@ import { readFile } from 'node:fs/promises';
 it('stores landmark clips, keeps one active model per lesson and only activates models that passed the gate',async()=>{
  const db=new PGlite();
  try {
-  await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key);`);
+  await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key, email text);`);
   await db.exec(await readFile(new URL('../supabase/migrations/20261020090000_vision_models.sql',import.meta.url),'utf8'));
   const staff='11111111-1111-4111-8111-111111111111';
   await db.query('insert into auth.users(id) values($1)',[staff]);

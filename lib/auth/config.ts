@@ -13,5 +13,7 @@ export function authConfig() {
     enabled: Boolean(url && key),
     google: process.env.AUTH_GOOGLE_ENABLED === "true",
     apple: process.env.AUTH_APPLE_ENABLED === "true",
+    // Cloudflare Turnstile site key; enable CAPTCHA with the same provider in Supabase Auth.
+    captchaSiteKey: process.env.TURNSTILE_SITE_KEY?.trim() || process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim() || "",
   };
 }

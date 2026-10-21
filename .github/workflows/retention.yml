@@ -16,5 +16,6 @@ jobs:
           MAINTENANCE_SECRET: ${{ secrets.MAINTENANCE_SECRET }}
           SITE_URL: ${{ vars.SITE_URL || 'https://plsteach.me' }}
         run: |
-          if [ -z "$MAINTENANCE_SECRET" ]; then echo "MAINTENANCE_SECRET is not set; skipping."; exit 0; fi
+          # Fail visibly: the privacy page promises this cleanup, so a missing secret must not pass silently.
+          if [ -z "$MAINTENANCE_SECRET" ]; then echo "::error::Add the MAINTENANCE_SECRET repository secret (same value as the site's MAINTENANCE_SECRET)."; exit 1; fi
           curl --fail-with-body --silent --show-error -X POST "$SITE_URL/api/maintenance/retention" -H "Authorization: Bearer $MAINTENANCE_SECRET"

@@ -21,6 +21,7 @@ export const platformActionSchema = z.discriminatedUnion('action',[
  z.object({action:z.literal('lesson.coach'),id:z.uuid(),version:z.number().int().min(1),step:z.number().int().min(0).max(19),frames:z.array(z.string().max(270000).regex(/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/)).min(1).max(2),consent:z.literal(true),over16:z.literal(true)}).strict(),
  z.object({action:z.literal('request'),title:z.string().trim().min(3).max(100),description:z.string().trim().min(10).max(1000),category:z.enum(platformCategories)}).strict(),
  z.object({action:z.literal('support'),requestId:z.uuid(),support:z.boolean()}).strict(),
+ z.object({action:z.literal('request.hide'),requestId:z.uuid()}).strict(),
  z.object({action:z.literal('apply'),displayName:z.string().trim().min(2).max(80),expertise:z.string().trim().min(10).max(1000),experience:z.string().trim().min(20).max(3000),qualifications:z.string().trim().max(1500),over16:z.literal(true)}).strict(),
  z.object({action:z.literal('create'),document:lessonDocumentSchema,requestId:z.uuid().optional(),contributionLicense:z.literal(true),trainingOptIn:z.boolean().default(false)}).strict(),
  z.object({action:z.literal('save'),lessonId:z.uuid(),document:lessonDocumentSchema,transcript:z.string().trim().max(20000),contributionLicense:z.literal(true),trainingOptIn:z.boolean().default(false)}).strict(),
