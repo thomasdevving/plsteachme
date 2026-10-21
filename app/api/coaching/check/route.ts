@@ -6,6 +6,7 @@ import { assessCoachStep, decodeCoachFrame } from '@/lib/coaching-ai';
 import { requireTrial } from '@/lib/auth/trial';
 import { builtinTrialId } from '@/lib/auth/trial-reference';
 import { logAiFailure } from '@/lib/log';
+import { recordVoiceObservation } from '@/lib/voice/observe';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -27,6 +28,8 @@ export async function POST(request: NextRequest) {
   try {
     const feedback = await assessCoachStep(parsed.data.skill,parsed.data.step,frames,AbortSignal.any([request.signal,timeout]));
     await recordCoachVerdict(request,`builtin:${parsed.data.skill}`,parsed.data.step,feedback.status);
+    // Only this server-produced result can reach the voice coach.
+    await recordVoiceObservation(request,parsed.data.skill,parsed.data.step,feedback);
     return coachJson({skill:parsed.data.skill,step:parsed.data.step,feedback});
   } catch(error) {
     // Only the failure category is logged: never provider messages, prompts, images or credentials.

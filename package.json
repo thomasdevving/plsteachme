@@ -17,9 +17,11 @@
     "validate:skills": "node --import tsx scripts/validate-skills.ts",
     "test:browser": "playwright test --config=playwright.coach.config.ts",
     "test:camera-fixture": "node tests/preview-server.mjs",
-    "test:camera-flow": "node tests/capture-live.mjs"
+    "test:camera-flow": "node tests/capture-live.mjs",
+    "bolna:agent": "node --import tsx scripts/bolna-agent.ts"
   },
   "dependencies": {
+    "@bolna/web-call": "3.0.1",
     "@fontsource/dm-sans": "5.3.0",
     "@fontsource/lora": "5.3.0",
     "@mediapipe/tasks-vision": "^1.1.0",

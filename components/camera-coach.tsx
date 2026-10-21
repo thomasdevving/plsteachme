@@ -14,6 +14,7 @@ import { ObjectTracking } from './object-tracking';
 import { learningSession } from '@/lib/learning-events';
 import { builtinObjects, objectFromMaterials } from '@/lib/vision/objects';
 import { builtinSteps, builtinTarget, lessonSteps, lessonTarget } from '@/lib/vision-contract';
+import { useVoiceSession, voiceHeaders } from './voice-coach';
 
 type Mode = 'off' | 'starting' | 'running' | 'paused';
 const feedbackTitles: Record<CoachFeedback['status'],string> = {
@@ -49,15 +50,24 @@ const cameraError = (error: unknown) => {
   return 'The camera could not start. You can try again or keep using the illustrated lesson.';
 };
 
-export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedLesson, organizationModule=false }: {
+export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedLesson, organizationModule=false, holdChecks=false, checkRequest=0, onChecksActive }: {
   skill: SkillId; step: number;
   onFeedback?:(step:number,feedback:CoachFeedback)=>void;
   onAutoAdvance?:(step:number)=>void;
+  /** Voice coaching is paused: automatic checks wait, whatever this panel's own state. */
+  holdChecks?:boolean;
+  /** Increments when the voice coach asks for a fresh check now. */
+  checkRequest?:number;
+  /** Whether automatic checks can currently run for this step. */
+  onChecksActive?:(active:boolean)=>void;
   publishedLesson?:{id:string;version:number;document:LessonDocument};
   /** The published lesson is a private organization module; membership replaces the free trial. */
   organizationModule?:boolean;
 }) {
   const trialId=useLearnerTrial();
+  // Read at request time, so starting or stopping voice does not restart the checks.
+  const voiceSession=useVoiceSession();
+  const voice=useRef(voiceSession);voice.current=voiceSession;
   const [availability,setAvailability] = useState<'loading'|'ready'|'unavailable'|'error'>('loading');
   const [mode,setMode] = useState<Mode>('off');
   const [consent,setConsent] = useState(false);
@@ -151,8 +161,10 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     }
   }
 
+  const checksActive=mode==='running' && !hidden && objectReady && !holdChecks;
+  useEffect(()=>{onChecksActive?.(checksActive);},[checksActive,onChecksActive]);
   useEffect(()=>{
-    if(mode!=='running' || hidden || !objectReady)return;
+    if(mode!=='running' || hidden || !objectReady || holdChecks)return;
     const controller=new AbortController();
     request.current=controller;
     let failures=0;
@@ -174,7 +186,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
           if(document.hidden || !video.current)return;
           const frames=[first,capture(video.current)];
           const response=await fetch(organizationModule?'/api/training':publishedId?'/api/platform':'/api/coaching/check',{
-            method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{}),...(learningSession()?{'x-learning-session':learningSession()!}:{})},
+            method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{}),...(learningSession()?{'x-learning-session':learningSession()!}:{}),...(organizationModule||publishedId?{}:voiceHeaders(voice.current))},
             body:JSON.stringify(organizationModule?{action:'module.coach',moduleId:publishedId,version:publishedVersion,step,frames,consent:true,over16:true}:publishedId?{action:'lesson.coach',id:publishedId,version:publishedVersion,step,frames,consent:true,over16:true}:{skill,step,frames}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])
           });
           if(controller.signal.aborted)return;
@@ -210,7 +222,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     }
     void run();
     return ()=>{controller.abort();};
-  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify,trialId,organizationModule,objectReady]);
+  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify,trialId,organizationModule,objectReady,holdChecks,checkRequest]);
 
   useEffect(()=>{
     const result=feedback?.step===step?feedback.value:null;
@@ -247,11 +259,12 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       <button type="button" className="button secondary compact" disabled={availability!=='ready'||!consent||!over16||hidden} onClick={()=>{setObjectReady(false);void startCamera();}}><Camera size={17} aria-hidden="true"/>Start camera coaching</button>
     </>}
     {active && (objectReady?<p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>:<p className="camera-current-step"><strong>Before step {step+1}: show me the {objectName}</strong><br/>The coach learns what your {objectName} looks like, then follows it while you practice.</p>)}
-    <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
+    <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'||holdChecks&&mode==='running'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
     <ObjectTracking objectName={objectName} video={video} overlay={objectOverlay} active={mode==='running'||mode==='paused'} mirrored={facing==='user'} onReady={()=>setObjectReady(true)}/>
     {!organizationModule && <OnDeviceModel target={visionTarget} steps={visionSteps} step={step} video={video} running={mode==='running'&&!hidden} feedback={feedback}/>}
     {active && <>
       <p className="camera-framing">{publishedLesson?'Show the tools and result for this checkpoint. Never hold the camera while using tools.':framingHints[skill]}</p>
+      {holdChecks && mode==='running' && <p className="camera-limit" role="status">Automatic checks are paused with voice coaching.</p>}
       <p className="camera-limit">Still images are sent to OpenAI automatically while checks run. <a href="/privacy">Privacy details</a>.</p>
       <div className="camera-controls">
         {mode==='running' && <button type="button" className="button secondary compact" onClick={()=>{request.current?.abort();setMode('paused');setChecking(false);setStatus('Automatic checks paused.');}}><Pause size={16} aria-hidden="true"/>Pause coaching</button>}

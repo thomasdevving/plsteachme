@@ -1,12 +1,12 @@
 'use client';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import { modules } from '@/lib/modules';
 import { skillIds, type SkillId } from '@/lib/config';
 import type { Copy } from '@/lib/i18n';
 import type { CoachFeedback } from '@/lib/coaching-contract';
 import { catalogEntries, getCheckpoint, relatedSkills } from '@/lib/learning-catalog';
-import { cameraCanConfirm, checkpointLabels, emptyLessonProgress, progressSummary, readProgress, recordCheckpoint, saveLessonProgress, type LessonProgress } from '@/lib/learning-progress';
+import { advanceLessonProgress, cameraCanConfirm, checkpointLabels, emptyLessonProgress, progressSummary, readProgress, recordCheckpoint, saveLessonProgress, type LessonProgress } from '@/lib/learning-progress';
 import { en } from '@/messages/en';
 import { SkillIcon } from './illustrations';
 import { LessonArtwork } from './lesson-artwork';
@@ -16,12 +16,14 @@ import { LearnerTrial } from './learner-trial';
 import { builtinTrialId } from '@/lib/auth/trial-reference';
 import { PROGRESS_EVENT } from '@/lib/learning-progress';
 import { trackLearning } from '@/lib/learning-events';
+import { VoiceCoach, VoiceSessionProvider, type VoiceActionResult } from './voice-coach';
 
-export function LessonPlayer({ skill, name }: { skill: SkillId; name: string }) {
-  return <Player key={skill} skill={skill} name={name}/>;
+/** `voice` offers Bolna voice coaching; only routes whose Permissions-Policy allows the microphone set it. */
+export function LessonPlayer({ skill, name, voice=false }: { skill: SkillId; name: string; voice?: boolean }) {
+  return <Player key={skill} skill={skill} name={name} voice={voice}/>;
 }
 
-function Player({ skill, name }: { skill: SkillId; name: string }) {
+function Player({ skill, name, voice }: { skill: SkillId; name: string; voice: boolean }) {
   const lesson = modules[skill];
   const [progress,setProgress]=useState<LessonProgress>(()=>emptyLessonProgress(skill));
   const currentProgress=useRef(progress);
@@ -30,6 +32,11 @@ function Player({ skill, name }: { skill: SkillId; name: string }) {
   const [resumed,setResumed]=useState(false);
   const [replay, setReplay] = useState(0);
   const [practice,setPractice]=useState(0);
+  const [voiceKeys,setVoiceKeys]=useState<{id:string;token:string}|null>(null);
+  const [voicePaused,setVoicePaused]=useState(false);
+  const [checkRequest,setCheckRequest]=useState(0);
+  const checksActive=useRef(false);
+  const onChecksActive=useCallback((active:boolean)=>{checksActive.current=active;},[]);
   const heading = useRef<HTMLHeadingElement>(null);
   const titleId = useId();
   const {step,completed}=progress;
@@ -61,10 +68,9 @@ function Player({ skill, name }: { skill: SkillId; name: string }) {
     commit({...currentProgress.current,completed:false,step:next,updatedAt:Date.now()});focusHeading();
   }
   function advance(selfCheck:boolean) {
-    let next=currentProgress.current;
-    if(selfCheck && next.checkpoints[next.step]!=='camera_confirmed')next=recordCheckpoint(next,next.step,'self_checked');
-    if(!selfCheck && next.checkpoints[next.step]!=='camera_confirmed')return;
-    commit({...next,completed:next.step===lesson.steps.length-1,step:Math.min(next.step+1,lesson.steps.length-1),updatedAt:Date.now()});focusHeading();
+    const next=advanceLessonProgress(currentProgress.current,lesson.steps.length,selfCheck);
+    if(!next)return false;
+    commit(next);focusHeading();return true;
   }
   function skip() {
     const next=recordCheckpoint(currentProgress.current,step,'unresolved');
@@ -73,6 +79,16 @@ function Player({ skill, name }: { skill: SkillId; name: string }) {
   function feedbackReceived(resultStep:number,feedback:CoachFeedback) {
     if(currentProgress.current.step!==resultStep || currentProgress.current.completed)return;
     commit(recordCheckpoint(currentProgress.current,resultStep,cameraCanConfirm(skill,resultStep,feedback)?'camera_confirmed':'unresolved'));
+  }
+  // Spoken actions go through the same rules as the buttons. "next" can record a
+  // self-check, never a camera confirmation; the camera result alone decides that.
+  function voiceAction(action:'next'|'back'|'replay'|'check'):VoiceActionResult {
+    const current=currentProgress.current;
+    if(action==='next')return {applied:!current.completed&&advance(true),step:currentProgress.current.step};
+    if(action==='back'){if(current.step===0||current.completed)return {applied:false,step:current.step};move(current.step-1);return {applied:true,step:current.step-1};}
+    if(action==='replay'){setReplay(value=>value+1);return {applied:true,step:current.step};}
+    if(!checksActive.current||!getCheckpoint(skill,current.step).visuallyCheckable)return {applied:false,step:current.step};
+    setCheckRequest(value=>value+1);return {applied:true,step:current.step};
   }
   function restart() {
     const fresh=emptyLessonProgress(skill);currentProgress.current=fresh;setProgress(fresh);
@@ -86,7 +102,7 @@ function Player({ skill, name }: { skill: SkillId; name: string }) {
       {completed && <div className="completion-checkpoints"><h5>Your checkpoint record</h5><p>Self-checked and unresolved steps were not conclusively verified by the camera. Revisit any step to practice again.</p><ol>{lesson.steps.map((item,index)=><li key={item.title}><button type="button" onClick={()=>move(index)}>{index+1}. {item.title}</button><span className={`checkpoint-state ${progress.checkpoints[index]}`}>{checkpointLabels[progress.checkpoints[index]]}</span></li>)}</ol><h5>Keep learning</h5><div className="related-lessons">{relatedSkills(skill).map(item=><a key={item} href={`/learn?skill=${item}`}>{en.skills.names[item]}<ArrowRight size={15} aria-hidden="true"/></a>)}</div></div>}
       <div className="lesson-controls"><button type="button" className="button secondary compact" disabled={!ready || step===0 && !completed} onClick={()=>move(completed ? lesson.steps.length-1 : step-1)} aria-label="Previous lesson step"><ArrowLeft size={17} aria-hidden="true"/>Back</button>{completed ? <button type="button" className="button primary compact" onClick={restart}><RotateCcw size={17} aria-hidden="true"/>Practice again</button> : <button type="button" className="button primary compact" disabled={!ready} onClick={()=>advance(true)}>{step===lesson.steps.length-1 ? 'Finish walkthrough' : 'Next lesson step'}<ArrowRight size={17} aria-hidden="true"/></button>}</div>
       {!completed && <><p className="manual-check-note">Next records your own check unless the visible checkpoint is already camera-confirmed.</p><button type="button" className="learning-text-button unresolved-skip" disabled={!ready} onClick={skip}>Continue with this step unresolved</button></>}
-      {ready && <LearnerTrial key={practice} skillId={builtinTrialId(skill)} onResume={savedStep=>{const next=Math.min(savedStep,lesson.steps.length-1);if(practice===0&&next>currentProgress.current.step&&!currentProgress.current.completed)commit({...currentProgress.current,step:next,updatedAt:Date.now()});}} completedSteps={completed?lesson.steps.length:step} totalSteps={lesson.steps.length}>{!completed&&<><CameraCoach skill={skill} step={step} onFeedback={feedbackReceived} onAutoAdvance={resultStep=>{if(currentProgress.current.step===resultStep)advance(false);}}/><LessonQuestions skill={skill} step={step}/></>}</LearnerTrial>}
+      {ready && <LearnerTrial key={practice} skillId={builtinTrialId(skill)} onResume={savedStep=>{const next=Math.min(savedStep,lesson.steps.length-1);if(practice===0&&next>currentProgress.current.step&&!currentProgress.current.completed)commit({...currentProgress.current,step:next,updatedAt:Date.now()});}} completedSteps={completed?lesson.steps.length:step} totalSteps={lesson.steps.length}><VoiceSessionProvider value={voiceKeys}>{voice&&<VoiceCoach skill={skill} step={step} completed={completed} onAction={voiceAction} onSessionChange={setVoiceKeys} onPausedChange={setVoicePaused}/>}{!completed&&<><CameraCoach skill={skill} step={step} onFeedback={feedbackReceived} holdChecks={voicePaused} checkRequest={checkRequest} onChecksActive={onChecksActive} onAutoAdvance={voiceKeys?undefined:resultStep=>{if(currentProgress.current.step===resultStep)advance(false);}}/><LessonQuestions skill={skill} step={step}/></>}</VoiceSessionProvider></LearnerTrial>}
     </div>
   </section>;
 }

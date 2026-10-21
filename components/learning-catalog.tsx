@@ -130,7 +130,7 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
       {filtered.length === 0 ? <div className="catalog-empty"><Search size={32} aria-hidden="true" /><h3>There’s more to learn.</h3><p>No matching lesson yet. Try a different search or tell us what you want to learn.</p><a className="button secondary compact" href="/community">Request a skill<ArrowRight size={17} aria-hidden="true" /></a></div> : null}
     </section>
 
-    <div id={playerId} ref={player} tabIndex={-1} className="catalog-player">{selected ? <LessonPlayer skill={selected} name={names[selected]} /> : null}</div>
+    <div id={playerId} ref={player} tabIndex={-1} className="catalog-player">{selected ? <LessonPlayer skill={selected} name={names[selected]} voice /> : null}</div>
 
     <section className="learning-journeys" aria-labelledby="journeys-title">
       <header className="catalog-section-heading"><div><p className="catalog-kicker">Learning journeys</p><h2 id="journeys-title">A few skills that fit together.</h2></div><p>Choose a group of related skills.</p></header>

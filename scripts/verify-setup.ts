@@ -19,7 +19,7 @@ export const setupTables: Record<string,string> = {
 };
 
 // Functions from every migration, so a skipped migration is reported.
-export const setupFunctions=['claim_coaching_trial','advance_coaching_trial','platform_mutate','increment_under16','training_mutate','progress_save','learning_insights','account_delete','retention_cleanup','coaching_trial_use','ai_budget_use','rate_hit','ephemeral_cleanup'];
+export const setupFunctions=['claim_coaching_trial','advance_coaching_trial','platform_mutate','increment_under16','training_mutate','progress_save','learning_insights','account_delete','retention_cleanup','coaching_trial_use','ai_budget_use','rate_hit','ephemeral_cleanup','voice_session_start','voice_session_bind','voice_session_release','voice_session_end','voice_tool_session','voice_command_enqueue','voice_poll','voice_command_ack','voice_session_state','voice_observe','voice_webhook_seen','voice_webhook_forget','voice_session_reconcile','voice_cleanup'];
 function origin(value:string|undefined):string|null {
   try {
     const url=new URL(value || '');

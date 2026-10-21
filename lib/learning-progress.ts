@@ -53,3 +53,14 @@ export function progressSummary(progress:LessonProgress) {
     unresolved:progress.checkpoints.filter(state=>state==='pending'||state==='unresolved').length
   };
 }
+/**
+ * The one lesson rule for moving on, shared by the Next button, camera auto-advance and
+ * spoken "next". A self-check records 'self_checked' unless the camera already confirmed
+ * the visible checkpoint; without a self-check only a camera confirmation can advance.
+ */
+export function advanceLessonProgress(progress:LessonProgress,stepCount:number,selfCheck:boolean):LessonProgress|null {
+  let next=progress;
+  if(selfCheck && next.checkpoints[next.step]!=='camera_confirmed')next=recordCheckpoint(next,next.step,'self_checked');
+  if(!selfCheck && next.checkpoints[next.step]!=='camera_confirmed')return null;
+  return {...next,completed:next.step===stepCount-1,step:Math.min(next.step+1,stepCount-1),updatedAt:Date.now()};
+}

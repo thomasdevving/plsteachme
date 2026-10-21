@@ -5,9 +5,11 @@ import { MessageCircle, Volume2 } from 'lucide-react';
 import type { SkillId } from '@/lib/config';
 import { answerSchema, type PublishedHelpReference } from '@/lib/lesson-help';
 import { useLearnerTrial } from './learner-trial';
+import { useVoiceSession } from './voice-coach';
 
 export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step:number;publishedLesson?:PublishedHelpReference}) {
   const trialId=useLearnerTrial();
+  const voiceActive=Boolean(useVoiceSession());
   const [question,setQuestion]=useState('');
   const [consent,setConsent]=useState(false);
   const [available,setAvailable]=useState(false);
@@ -55,6 +57,6 @@ export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step
       <label className="help-consent"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/>I am 16 or older and agree to send this question to OpenAI. Avoid personal details. <a href="/privacy">Privacy details</a>.</label>
       <button type="submit" className="button secondary compact" disabled={busy||!consent}>{busy?'Asking…':'Ask the coach'}</button>
     </form>}
-    <div role="status" aria-live="polite" aria-busy={busy}>{message&&<p>{message}</p>}{answer&&<><p>{answer.answer}</p><p className="lesson-tip">{answer.reminder}</p><button type="button" className="button secondary compact" onClick={()=>{if(!window.speechSynthesis){setMessage('Read aloud is not supported in this browser.');return;}window.speechSynthesis.cancel();const speech=new SpeechSynthesisUtterance(`${answer.answer} ${answer.reminder}`);speech.lang='en';window.speechSynthesis.speak(speech);}}><Volume2 size={16} aria-hidden="true"/>Read answer aloud</button><button type="button" className="text-link" onClick={()=>window.speechSynthesis?.cancel()}>Stop reading</button></>}</div>
+    <div role="status" aria-live="polite" aria-busy={busy}>{message&&<p>{message}</p>}{answer&&<><p>{answer.answer}</p><p className="lesson-tip">{answer.reminder}</p>{voiceActive?<p className="small muted">Read aloud is off while voice coaching is on. Ask the voice coach instead.</p>:<><button type="button" className="button secondary compact" onClick={()=>{if(!window.speechSynthesis){setMessage('Read aloud is not supported in this browser.');return;}window.speechSynthesis.cancel();const speech=new SpeechSynthesisUtterance(`${answer.answer} ${answer.reminder}`);speech.lang='en';window.speechSynthesis.speak(speech);}}><Volume2 size={16} aria-hidden="true"/>Read answer aloud</button><button type="button" className="text-link" onClick={()=>window.speechSynthesis?.cancel()}>Stop reading</button></>}</>}</div>
   </section>;
 }

@@ -101,6 +101,9 @@ export async function runRetention(request:Request) {
  // Expired rate-limit windows and old AI usage counters.
  const ephemeral=await platformDb().rpc('ephemeral_cleanup');
  if(ephemeral.error)throw new PlatformError(503,'storage','Retention cleanup failed.');
+ // Expired voice sessions, old voice commands and webhook delivery keys.
+ const voice=await platformDb().rpc('voice_cleanup');
+ if(voice.error)throw new PlatformError(503,'storage','Retention cleanup failed.');
  const result=data as {demoPaths:string[];trainingPaths:string[];reports:number;events:number;shadowChecks:number};
  await removeFiles(VIDEO_BUCKET,result.demoPaths||[]);
  await removeFiles(TRAINING_BUCKET,result.trainingPaths||[]);

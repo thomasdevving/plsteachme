@@ -80,7 +80,8 @@ const config: NextConfig = {
           },
         ],
       },
-      ...["/teach", "/en/teach", "/nl/teach", "/training", "/en/training", "/nl/training"].map((source) => ({
+      // Voice coaching runs in the /learn lesson player; other lesson routes keep the microphone off.
+      ...["/teach", "/en/teach", "/nl/teach", "/training", "/en/training", "/nl/training", "/learn", "/en/learn", "/nl/learn"].map((source) => ({
         source,
         headers: [{ key: "Permissions-Policy", value: "camera=(self), microphone=(self), geolocation=()" }],
       })),

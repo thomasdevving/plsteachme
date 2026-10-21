@@ -36,12 +36,12 @@ export function validCoachSession(value: string | undefined, now = Date.now()) {
 const buckets = new Map<string,{count:number;until:number}>();
 // Fast per-process limit. The durable limits are in the database: a capped free
 // session per account and a daily AI budget (lib/ai-guard.ts).
-export function coachingRateAllowed(request: NextRequest, kind: 'session' | 'check' | 'question' | 'report', now = Date.now()) {
+export function coachingRateAllowed(request: NextRequest, kind: 'session' | 'check' | 'question' | 'report' | 'voice', now = Date.now()) {
   for (const [key,bucket] of buckets) if (bucket.until <= now) buckets.delete(key);
   const ip = clientIp(request);
   const key = `${kind}:${createHash('sha256').update(ip).digest('hex')}`;
   const bucket = buckets.get(key);
-  const limit = {session:30,check:120,question:30,report:10}[kind];
+  const limit = {session:30,check:120,question:30,report:10,voice:20}[kind];
   if (!bucket) { if (buckets.size >= 10000) buckets.delete(buckets.keys().next().value!); buckets.set(key,{count:1,until:now+600000}); return true; }
   if (bucket.count >= limit) return false;
   bucket.count++; return true;
