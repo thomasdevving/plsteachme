@@ -76,7 +76,7 @@ describe('account deletion',()=>{
   const response=await account.POST(request('/api/account',{action:'delete',confirm:'delete my account'}));
   expect(await response.json()).toEqual({deleted:true});
   expect(state.rpc).toHaveBeenCalledWith('account_delete',{p_user:userId,p_email:'learner@example.test'});
-  expect(state.remove.mock.calls).toEqual([['teacher-demonstrations',['a/demo.mp4']],['organization-training',['b/c/manuals/d.pdf']]]);
+  expect(state.remove.mock.calls).toEqual([['teacher-demonstrations',['a/demo.mp4']],['organization-training',['b/c/manuals/d.pdf']],['profile-avatars',[`${userId}/avatar.jpg`]]]);
   expect(access.signOut).toHaveBeenCalled();expect(state.deleteUser).toHaveBeenCalledWith(userId);
  });
  it('explains when an organization would lose its only admin',async()=>{

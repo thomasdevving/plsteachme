@@ -1,13 +1,14 @@
 import { beforeEach, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 vi.mock('server-only',()=>({}));
-const auth=vi.hoisted(()=>({exchangeCodeForSession:vi.fn(),verifyOtp:vi.fn(),signInWithOtp:vi.fn()}));
+const auth=vi.hoisted(()=>({exchangeCodeForSession:vi.fn(),verifyOtp:vi.fn(),signInWithOtp:vi.fn(),signUp:vi.fn()}));
 vi.mock('@/lib/auth/server',()=>({authClient:async()=>({auth})}));
+vi.mock('@/lib/storage',()=>({hash:(value:string)=>value,db:()=>({rpc:async()=>({data:true,error:null}),from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:null,error:null})})})})})}));
 import { isSameOrigin,requestOrigin } from '../lib/request-origin';
 import { GET as callback } from '../app/auth/callback/route';
 import { GET as confirm } from '../app/auth/confirm/route';
 import { POST as action } from '../app/api/auth/action/route';
-beforeEach(()=>{vi.resetAllMocks();auth.exchangeCodeForSession.mockResolvedValue({error:null});auth.verifyOtp.mockResolvedValue({error:null});auth.signInWithOtp.mockResolvedValue({error:null});});
+beforeEach(()=>{vi.resetAllMocks();auth.exchangeCodeForSession.mockResolvedValue({error:null});auth.verifyOtp.mockResolvedValue({error:null});auth.signInWithOtp.mockResolvedValue({error:null});auth.signUp.mockResolvedValue({data:{session:null},error:null});});
 
 it('uses the browser-facing host when Next binds an internal address',()=>{
  const request=new Request('http://0.0.0.0:3100/api/trial',{headers:{host:'localhost:3100',origin:'http://localhost:3100','sec-fetch-site':'same-origin'}});
@@ -39,9 +40,9 @@ it('keeps expired links and email confirmation on the public host',async()=>{
  expect(confirmed.headers.get('location')).toBe('http://localhost:3100/account');
 });
 it('sends sign-up links back to the validated browser origin with the chosen lesson',async()=>{
- const response=await action(new Request('http://0.0.0.0:3100/api/auth/action',{method:'POST',headers:{host:'localhost:3100',origin:'http://localhost:3100','content-type':'application/json'},body:JSON.stringify({action:'email',email:'tester@example.test',signup:true,next:'/learn?skill=laundry'})}));
+ const response=await action(new Request('http://0.0.0.0:3100/api/auth/action',{method:'POST',headers:{host:'localhost:3100',origin:'http://localhost:3100','content-type':'application/json'},body:JSON.stringify({action:'signup',email:'tester@example.test',username:'tester',firstName:'Test',lastName:'Learner',password:'a long test password',acceptedTerms:true,next:'/learn?skill=laundry'})}));
  expect(response.status).toBe(200);
- const options=auth.signInWithOtp.mock.calls[0][0].options;
- expect(options.shouldCreateUser).toBe(true);
+ const options=auth.signUp.mock.calls[0][0].options;
+ expect(options.data.username).toBe('tester');
  const url=new URL(options.emailRedirectTo);expect(url.origin).toBe('http://localhost:3100');expect(url.searchParams.get('next')).toBe('/learn?skill=laundry');
 });

@@ -1,7 +1,8 @@
 "use client";
-import { fetchWithTimeout } from '@/lib/network';
+import { fetchWithTimeout } from "@/lib/network";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Mail, LoaderCircle } from "lucide-react";
+
 export function AuthForm({
   signup = false,
   enabled,
@@ -19,17 +20,25 @@ export function AuthForm({
   invalidLink?: boolean;
   captchaSiteKey?: string;
 }) {
-  const [email, setEmail] = useState("");
-  const [agreed, setAgreed] = useState(false);
-  const captcha = useTurnstile(captchaSiteKey);
-  const [busy, setBusy] = useState("");
-  const [sent, setSent] = useState(false);
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
+  const [email, setEmail] = useState(""),
+    [identifier, setIdentifier] = useState(""),
+    [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState(""),
+    [lastName, setLastName] = useState(""),
+    [password, setPassword] = useState(""),
+    [confirmPassword, setConfirmPassword] = useState("");
+  const [agreed, setAgreed] = useState(false),
+    [busy, setBusy] = useState(""),
+    [sent, setSent] = useState(false),
+    [cooldown, setCooldown] = useState(0);
   const [error, setError] = useState(
     invalidLink
-      ? "This sign-in link has expired or was opened in another browser. Request a new link below."
+      ? "This link has expired. Log in with your password or request a new password reset link."
       : "",
   );
-  const [cooldown, setCooldown] = useState(0);
+  const captcha = useTurnstile(enabled ? captchaSiteKey : "");
   const sentHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (sent) sentHeading.current?.focus();
@@ -39,38 +48,73 @@ export function AuthForm({
     const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
     return () => clearTimeout(timer);
   }, [cooldown]);
-  async function submit(action: "email" | "google" | "apple") {
-    if (busy || !enabled) return;
-    if (signup && !agreed) {
-      setError("Please confirm you are 16 or older and agree to the terms of use.");
+  async function submit(action: "credentials" | "resend" | "google" | "apple") {
+    if (busy || !enabled || !ready) return;
+    if (signup && action !== "resend" && !agreed) {
+      setError(
+        "Please confirm you are 16 or older and agree to the terms of use.",
+      );
       return;
     }
-    if (action === "email" && captchaSiteKey && !captcha.token) {
+    if (signup && action === "credentials" && password !== confirmPassword) {
+      setError("The passwords do not match.");
+      return;
+    }
+    const credentials = action === "credentials" || action === "resend";
+    if (credentials && captchaSiteKey && !captcha.token) {
       setError("Please complete the security check above the button.");
       return;
     }
     setBusy(action);
     setError("");
     try {
+      const payload =
+        action === "resend"
+          ? {
+              action: "resend",
+              email,
+              captchaToken: captcha.token || undefined,
+            }
+          : credentials
+            ? signup
+              ? {
+                  action: "signup",
+                  email,
+                  username,
+                  firstName,
+                  lastName,
+                  password,
+                  acceptedTerms: agreed,
+                  next,
+                  captchaToken: captcha.token || undefined,
+                }
+              : {
+                  action: "login",
+                  identifier,
+                  password,
+                  next,
+                  captchaToken: captcha.token || undefined,
+                }
+            : { action: "oauth", provider: action, next };
       const response = await fetchWithTimeout("/api/auth/action", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(
-          action === "email"
-            ? { action, email, signup, next, captchaToken: captcha.token || undefined }
-            : { action: "oauth", provider: action, next },
-        ),
+        body: JSON.stringify(payload),
       });
-      // An error page from the host is not JSON; show a readable message instead of a parser error.
       const result = await response.json().catch(() => null);
       if (!response.ok || !result)
-        throw new Error(result?.error || "Sign-in is temporarily unavailable. Please try again in a moment.");
+        throw new Error(
+          result?.error ||
+            "Sign-in is temporarily unavailable. Please try again in a moment.",
+        );
       if (result.url) {
         window.location.assign(result.url);
         return;
       }
       setSent(true);
       setCooldown(60);
+      setPassword("");
+      setConfirmPassword("");
     } catch (reason) {
       setError(
         reason instanceof Error
@@ -79,8 +123,7 @@ export function AuthForm({
       );
     } finally {
       setBusy("");
-      // A security-check token works once; get a fresh one for a resend.
-      if (action === "email") captcha.reset();
+      if (credentials) captcha.reset();
     }
   }
   return (
@@ -92,36 +135,14 @@ export function AuthForm({
             Check your inbox.
           </h1>
           <p className="auth-intro">
-            {signup
-              ? "Your sign-up link is on its way to "
-              : "If you have an account, your sign-in link is on its way to "}
-            <strong>{email}</strong>.
+            Check <strong>{email}</strong> for an account confirmation email.
+            Confirm your email once, then log in with your password.
           </p>
           <p className="auth-hint">
-            Open the link in this browser to continue. Check your spam folder if
-            it hasn’t arrived.
+            Check your spam folder too. If you already have an account,{" "}
+            <a href="/login">log in</a> or{" "}
+            <a href="/forgot-password">reset your password</a>.
           </p>
-          <button
-            className="button primary auth-submit"
-            disabled={!!busy || cooldown > 0}
-            onClick={() => submit("email")}
-          >
-            {busy
-              ? "Sending…"
-              : cooldown
-                ? `Resend in ${cooldown}s`
-                : "Resend email"}
-            <ArrowRight size={18} aria-hidden="true" />
-          </button>
-          <button
-            className="auth-text-button"
-            onClick={() => {
-              setSent(false);
-              setError("");
-            }}
-          >
-            Use a different email
-          </button>
         </>
       ) : (
         <>
@@ -129,108 +150,218 @@ export function AuthForm({
           <p className="auth-intro">
             {signup
               ? "Create your account. Your first coaching session is free."
-              : "Sign in and pick up where you left off."}
+              : "Sign in with your email or username and password."}
           </p>
-          {signup && (
-            <label className="auth-consent">
-              <input
-                type="checkbox"
-                checked={agreed}
-                onChange={(event) => setAgreed(event.target.checked)}
-              />
-              <span>
-                I am 16 or older and agree to the{" "}
-                <a href="/terms" target="_blank">terms of use</a> and the{" "}
-                <a href="/privacy" target="_blank">privacy statement</a>.
-              </span>
-            </label>
+          {(google || apple) && (
+            <>
+              <div className="auth-providers">
+                <button
+                  type="button"
+                  className="auth-provider"
+                  disabled={!enabled || !ready || !google || !!busy}
+                  onClick={() => submit("google")}
+                >
+                  <GoogleMark />
+                  <span>
+                    {busy === "google" ? "Connecting…" : "Continue with Google"}
+                  </span>
+                  {busy === "google" && (
+                    <LoaderCircle
+                      size={18}
+                      className="auth-spinner"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+                <button
+                  type="button"
+                  className="auth-provider"
+                  disabled={!enabled || !ready || !apple || !!busy}
+                  onClick={() => submit("apple")}
+                >
+                  <AppleMark />
+                  <span>
+                    {busy === "apple" ? "Connecting…" : "Continue with Apple"}
+                  </span>
+                  {busy === "apple" && (
+                    <LoaderCircle
+                      size={18}
+                      className="auth-spinner"
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              </div>
+              <div className="auth-divider">
+                <span>or use your account details</span>
+              </div>
+            </>
           )}
-          <div className="auth-providers">
-            <button
-              className="auth-provider"
-              disabled={!enabled || !google || !!busy}
-              onClick={() => submit("google")}
-            >
-              <GoogleMark />
-              <span>
-                {busy === "google" ? "Connecting…" : "Continue with Google"}
-              </span>
-              {busy === "google" && (
-                <LoaderCircle
-                  size={18}
-                  className="auth-spinner"
-                  aria-hidden="true"
-                />
-              )}
-            </button>
-            <button
-              className="auth-provider"
-              disabled={!enabled || !apple || !!busy}
-              onClick={() => submit("apple")}
-            >
-              <AppleMark />
-              <span>
-                {busy === "apple" ? "Connecting…" : "Continue with Apple"}
-              </span>
-              {busy === "apple" && (
-                <LoaderCircle
-                  size={18}
-                  className="auth-spinner"
-                  aria-hidden="true"
-                />
-              )}
-            </button>
-          </div>
-          {enabled && (!google || !apple) && (
-            <p className="auth-hint">
-              {!google && !apple
-                ? "Google and Apple sign-in are coming soon."
-                : `${!google ? "Google" : "Apple"} sign-in is coming soon.`}{" "}
-              You can continue with email.
-            </p>
-          )}
-          <div className="auth-divider">
-            <span>or use your email</span>
-          </div>
-          <form
-            onSubmit={(event) => {
-              event.preventDefault();
-              void submit("email");
-            }}
-          >
-            <label htmlFor="auth-email">Email address</label>
-            <input
-              id="auth-email"
-              type="email"
-              autoComplete="email"
-              inputMode="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              maxLength={254}
-              disabled={!enabled || !!busy}
-              aria-describedby={error ? "auth-error" : undefined}
-            />
-            {captchaSiteKey && <div className="auth-captcha" ref={captcha.ref} />}
-            <button
-              className="button primary auth-submit"
-              type="submit"
-              disabled={!enabled || !!busy}
-            >
-              {busy === "email"
-                ? "Sending your link…"
-                : signup
-                  ? "Create account with email"
-                  : "Email me a sign-in link"}
-              <ArrowRight size={18} aria-hidden="true" />
-            </button>
-          </form>
-          <p className="auth-hint">
-            A secure link in your inbox. No password to remember.
-          </p>
         </>
       )}
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit(sent ? "resend" : "credentials");
+        }}
+      >
+        {!sent && (
+          <>
+            {signup ? (
+              <>
+                <div className="profile-name-fields">
+                  <label htmlFor="auth-first-name">
+                    First name
+                    <input
+                      id="auth-first-name"
+                      autoComplete="given-name"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      maxLength={80}
+                      required
+                      disabled={!enabled || !ready || !!busy}
+                    />
+                  </label>
+                  <label htmlFor="auth-last-name">
+                    Last name
+                    <input
+                      id="auth-last-name"
+                      autoComplete="family-name"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      maxLength={80}
+                      required
+                      disabled={!enabled || !ready || !!busy}
+                    />
+                  </label>
+                </div>
+                <label htmlFor="auth-username">Username</label>
+                <input
+                  id="auth-username"
+                  autoComplete="username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  minLength={3}
+                  maxLength={24}
+                  pattern="[A-Za-z0-9_]{3,24}"
+                  aria-describedby="username-hint"
+                  required
+                  disabled={!enabled || !ready || !!busy}
+                />
+                <p id="username-hint" className="auth-hint">
+                  3–24 letters, numbers or underscores. You can use this to log
+                  in.
+                </p>
+                <label htmlFor="auth-email">Email address</label>
+                <input
+                  id="auth-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  maxLength={254}
+                  required
+                  disabled={!enabled || !ready || !!busy}
+                />
+              </>
+            ) : (
+              <>
+                <label htmlFor="auth-identifier">Email or username</label>
+                <input
+                  id="auth-identifier"
+                  autoComplete="username"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  maxLength={254}
+                  required
+                  disabled={!enabled || !ready || !!busy}
+                />
+              </>
+            )}
+            <label htmlFor="auth-password">Password</label>
+            <input
+              id="auth-password"
+              type="password"
+              autoComplete={signup ? "new-password" : "current-password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={signup ? 12 : 1}
+              maxLength={128}
+              required
+              disabled={!enabled || !ready || !!busy}
+              aria-describedby={signup ? "password-hint" : undefined}
+            />
+            {signup ? (
+              <>
+                <p id="password-hint" className="auth-hint">
+                  Use at least 12 characters. A few unrelated words work well.
+                </p>
+                <label htmlFor="auth-confirm-password">Confirm password</label>
+                <input
+                  id="auth-confirm-password"
+                  type="password"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  minLength={12}
+                  maxLength={128}
+                  required
+                  disabled={!enabled || !ready || !!busy}
+                />
+                <label className="auth-consent">
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    required
+                    disabled={!enabled || !ready || !!busy}
+                  />
+                  <span>
+                    I am 16 or older and agree to the{" "}
+                    <a href="/terms" target="_blank" rel="noopener noreferrer">
+                      terms of use
+                    </a>{" "}
+                    and the{" "}
+                    <a
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      privacy statement
+                    </a>
+                    .
+                  </span>
+                </label>
+              </>
+            ) : (
+              <p className="auth-hint">
+                <a href="/forgot-password">Forgot your password?</a>
+              </p>
+            )}
+          </>
+        )}
+        {captchaSiteKey && <div className="auth-captcha" ref={captcha.ref} />}
+        <button
+          className="button primary auth-submit"
+          type="submit"
+          disabled={!enabled || !ready || !!busy || (sent && cooldown > 0)}
+        >
+          {busy
+            ? sent
+              ? "Sending…"
+              : signup
+                ? "Creating your account…"
+                : "Signing in…"
+            : sent
+              ? cooldown
+                ? `Resend in ${cooldown}s`
+                : "Resend confirmation email"
+              : signup
+                ? "Create account"
+                : "Log in"}
+          <ArrowRight size={18} aria-hidden="true" />
+        </button>
+      </form>
       {error && (
         <p id="auth-error" className="auth-error" role="alert">
           {error}
@@ -238,8 +369,21 @@ export function AuthForm({
       )}
       {!enabled && (
         <p className="auth-unavailable" role="status">
-          Sign-in is temporarily unavailable. <a href="/learn">Explore the lessons</a>{" "}
-          and try again later. Your free session has not been used.
+          Sign-in is temporarily unavailable.{" "}
+          <a href="/learn">Explore the lessons</a> and try again later. Your
+          free session has not been used.
+        </p>
+      )}
+      {!signup && (
+        <p className="auth-hint">
+          Previously used an email sign-in link?{" "}
+          <a href="/forgot-password">Set your password</a> using the same email
+          address. Your account and progress stay with you.
+        </p>
+      )}
+      {signup && !sent && (
+        <p className="auth-hint">
+          You can add your profile photo after confirming your email.
         </p>
       )}
       <p className="auth-switch">
@@ -257,9 +401,13 @@ export function AuthForm({
     </div>
   );
 }
-type TurnstileApi = { render: (el: HTMLElement, options: Record<string, unknown>) => string; reset: (id: string) => void; remove: (id: string) => void };
+type TurnstileApi = {
+  render: (el: HTMLElement, options: Record<string, unknown>) => string;
+  reset: (id: string) => void;
+  remove: (id: string) => void;
+};
 /** Cloudflare Turnstile security check, loaded only when a site key is configured. */
-function useTurnstile(siteKey: string) {
+export function useTurnstile(siteKey: string) {
   const ref = useRef<HTMLDivElement>(null);
   const widget = useRef<string | null>(null);
   const [token, setToken] = useState("");
@@ -270,7 +418,13 @@ function useTurnstile(siteKey: string) {
     const win = window as unknown as { turnstile?: TurnstileApi };
     const mount = () => {
       if (cancelled || !win.turnstile || widget.current) return;
-      widget.current = win.turnstile.render(element, { sitekey: siteKey, appearance: "interaction-only", callback: (value: string) => setToken(value), "expired-callback": () => setToken(""), "error-callback": () => setToken("") });
+      widget.current = win.turnstile.render(element, {
+        sitekey: siteKey,
+        appearance: "interaction-only",
+        callback: (value: string) => setToken(value),
+        "expired-callback": () => setToken(""),
+        "error-callback": () => setToken(""),
+      });
     };
     if (win.turnstile) mount();
     else {
@@ -279,7 +433,8 @@ function useTurnstile(siteKey: string) {
       if (!script) {
         script = document.createElement("script");
         script.id = id;
-        script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+        script.src =
+          "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
         script.async = true;
         document.head.appendChild(script);
       }

@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { BRAND, SITE_URL } from '@/lib/config';
 import '../globals.css';
+import '../account.css';
 import '../learning.css';
 import '../platform.css';
 import '../scope.css';

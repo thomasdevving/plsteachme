@@ -8,6 +8,7 @@ import { VIDEO_BUCKET } from './platform-contract';
 import { TRAINING_BUCKET } from './training-contract';
 import { visionStaff } from './vision-server';
 import { clientIp } from './client-ip';
+import { AVATAR_BUCKET } from './auth/profile';
 
 export const lessonKeySchema = z.string().regex(/^(builtin:[a-z]+|published:[a-f0-9-]{36}:v[0-9]{1,6})$/);
 export const progressSaveSchema = z.object({lessonKey:lessonKeySchema,data:z.unknown(),updatedAt:z.number().int().min(0).max(8.64e15)}).strict();
@@ -82,6 +83,7 @@ export async function deleteAccount() {
  const result=data as {demoPaths:string[];trainingPaths:string[]};
  await removeFiles(VIDEO_BUCKET,result.demoPaths||[]);
  await removeFiles(TRAINING_BUCKET,result.trainingPaths||[]);
+ await removeFiles(AVATAR_BUCKET,[`${user.id}/avatar.jpg`]);
  const auth=await authClient();
  await auth?.auth.signOut().catch(()=>null);
  const removed=await client.auth.admin.deleteUser(user.id);

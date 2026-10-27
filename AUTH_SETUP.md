@@ -1,63 +1,75 @@
-# Activate accounts and the one-session trial
+# Password accounts and private profiles
 
-The code is ready, but sign-in is deliberately unavailable until a real Supabase project is configured. There are no mock accounts or browser-only trial credits. Existing marketing previews remain public. Full coaching sessions and AI endpoints require an authenticated account with an active trial.
+The app uses Supabase Auth for credentials and HTTP-only, secure session cookies. Login accepts an email address or a case-insensitive username plus a password. Passwords are never stored in account profiles or application logs.
 
-## 1. Supabase and database
+## Apply the database migration before deploying
 
-Use the project's Supabase project (or create one if it does not yet exist). Apply all four files in `supabase/migrations/` in filename order through your normal migration workflow or Supabase SQL editor. The accounts migration adds one row per auth account, RLS, and two server-only transactional functions; the subsequent platform migration adds the teacher/community workflow and private storage bucket. Follow `docs/TEST_READINESS.md` for the full setup check and acceptance run.
+Apply every migration in `supabase/migrations/` in filename order to the intended Supabase project. For an existing installation, apply the new `20261027090000_account_profiles.sql` migration before deploying this version.
 
-In Vercel → agr18 → plsteachme → Settings → Environment Variables, configure Production:
+The new migration adds:
+
+- `account_profiles`, with one private row per Auth user and a unique, lowercase username.
+- A trigger that reserves a new username in the same transaction as account creation. A collision rolls the signup back.
+- Backfilled profiles for existing accounts, without changing their user IDs, progress or trial entitlements.
+- The server-only `account_login_email` function. Anonymous and ordinary authenticated clients cannot use it to discover email addresses.
+- The private `profile-avatars` storage bucket, restricted to JPEG files of at most 256 KiB. The application proxies the signed-in user's own photo; it does not expose public storage URLs.
+
+Authenticated database clients can read their own profile only. Profile updates and photo operations run on the server with a verified account ID. The application never accepts an owner ID from the browser.
+
+## Hosting configuration
+
+Set these on the production Worker or Node.js host:
 
 - `SUPABASE_URL`: project URL.
-- `SUPABASE_ANON_KEY`: publishable/anon key, used for authentication.
-- `SUPABASE_SERVICE_ROLE_KEY`: secret server key, used only for the trial ledger and existing storage.
-- `NEXT_PUBLIC_SITE_URL`: `https://plsteachme.vercel.app` (or your verified custom domain).
+- `SUPABASE_ANON_KEY`: publishable/anon key for Supabase Auth.
+- `SUPABASE_SERVICE_ROLE_KEY`: server-only key for profile operations, private photo storage, username lookup, shared authentication limits and the existing platform. It also signs short-lived password-recovery cookies.
+- `NEXT_PUBLIC_SITE_URL`: `https://plsteach.me`.
 
-Set the same keys locally in `.env.local` for local testing. Never commit keys or paste them into chat. Redeploy after configuration. The server also accepts `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` when already supplied by a Supabase integration.
+The server also accepts the existing `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` variables. Never put the service key in a public variable or commit credentials.
 
-## 2. Email links
+The shared `rate_hit` function from `20261022090000_public_launch_safeguards.sql` is required. Credential attempts fail closed when the shared limiter is unavailable.
 
-Enable the Email provider, allow new registrations, and configure production SMTP delivery in Supabase. Set the Site URL to `https://plsteachme.vercel.app`. Allow these redirect URLs:
+## Email provider and password recovery
 
-- `https://plsteachme.vercel.app/auth/callback`
-- `https://plsteachme.vercel.app/auth/confirm`
-- Local development equivalents, only if needed.
+Enable the Email provider, new registrations and email confirmation in Supabase. Configure production SMTP delivery. Set the Supabase Site URL to `https://plsteach.me`.
 
-The default magic-link template uses the PKCE callback and should be opened in the browser that requested it. For cross-browser email links, use the Supabase template's token hash with `https://plsteachme.vercel.app/auth/confirm?token_hash={{ .TokenHash }}`. That handler accepts only the email verification type and always returns to `/account`.
+Allow redirects to the application's callback, including its query string. A narrowly scoped pattern is `https://plsteach.me/auth/callback**`; safe return destinations are also validated by the app. Configure localhost equivalents only for development.
 
-Sign-up explicitly creates an account. Login does not create unknown accounts, and its generic confirmation avoids exposing registered email addresses. Email verification happens before a user can claim a trial.
+The normal confirmation and reset email templates may use Supabase's `{{ .ConfirmationURL }}`. With the default PKCE flow, open the email in the same browser that requested it.
 
-## 3. Google and Apple
+For direct token-hash links that work across browsers, configure these templates:
 
-Configure both OAuth providers in Supabase using your own developer applications. The provider callback is the callback shown in the Supabase dashboard (`https://<project-ref>.supabase.co/auth/v1/callback`), not the app's callback above.
+- Confirm signup: `https://plsteach.me/auth/confirm?token_hash={{ .TokenHash }}&type=email`
+- Reset password: `https://plsteach.me/auth/confirm?token_hash={{ .TokenHash }}&type=recovery`
 
-- Google: register the OAuth web application, authorized redirect URI, consent screen, and production audience. Then set `AUTH_GOOGLE_ENABLED=true` in Vercel.
-- Apple: configure Sign in with Apple with your Apple developer Team, Service ID, key and client secret. Authorize your site and Supabase callback, register outbound email domains for private relay, and maintain the client secret's expiry. Then set `AUTH_APPLE_ENABLED=true` in Vercel.
+A signup email confirms ownership once. Normal login uses the password, not an email code or magic link. Signup confirmation can be resent from the confirmation screen, subject to CAPTCHA and rate limits.
 
-Until each provider is configured, its button remains visibly unavailable and email is offered when available. Never set a provider flag merely to enable the button without its real OAuth setup.
+Password recovery exchanges a valid provider token/code before issuing an HTTP-only recovery proof. It is signed, bound to the user, and expires after ten minutes. The password endpoint requires both the authenticated user and this proof. On success it clears the proof and requests sign-out of other sessions.
 
-Official setup: [Supabase SSR](https://supabase.com/docs/guides/auth/server-side/creating-a-client), [Google](https://supabase.com/docs/guides/auth/social-login/auth-google), [Apple](https://supabase.com/docs/guides/auth/social-login/auth-apple), [email links](https://supabase.com/docs/guides/auth/auth-email-passwordless).
+Existing email-link users should choose **Set your password** or **Forgot your password?**, using the same email address. They keep their existing account and progress; they should not create another account.
 
-## Trial behavior
+## Registration and profiles
 
-A new account has one full coaching session. The credit is claimed only by clicking “Start my free session” for an available skill. Concurrent starts return the same session. That session can be resumed on the account; sign-out, another browser, or clearing local storage never issues a new credit. Completion closes it permanently. Prices remain “Coming soon”; there is no checkout or automatic charge.
+Registration requires a first name, last name, email, username, password and age/terms agreement. Names support Unicode. Usernames use 3–24 ASCII letters, numbers or underscores and are stored lowercase. New passwords use 12–128 characters; whitespace is preserved.
 
-Account identity is verified server-side with Supabase `getUser()`. The AI endpoints check account ownership, session ID, skill and completion. Database functions accept user IDs only from the server, are executable only by `service_role`, and the account key is unique. Ordinary authenticated users have read-only access to their own ledger row. Local drafts contain progress only; the database controls entitlement. Like any rule per account, it does not claim to prevent a person creating multiple separate accounts.
+After confirming the email and logging in, `/account` lets users edit their names and username, upload or remove a photo, manage their free session, sign out and delete their account.
 
-## Launch checks requiring the connected project
+Photos are optional. The browser accepts JPG, PNG or WebP up to 5 MB, crops to a 256-pixel square and exports JPEG without metadata. The server independently bounds bytes and dimensions, strips metadata and stores the file privately. Replacing a photo overwrites the previous object. Account deletion removes the photo before removing the Auth user; profile rows cascade with that user.
 
-1. Sign up and sign in using an actual email link, Google and Apple; verify cancellation, expired links, signing out and session refresh.
-2. Start a session on two tabs; verify one ledger row and one session ID.
-3. Resume on another browser signed into the same account.
-4. Finish, sign out/in, and attempt another skill or direct AI request; access must stay closed.
-5. Confirm the Supabase provider and SMTP settings, redirect URLs, and secret expiry reminders.
+## CAPTCHA and optional social providers
 
-The repository's unit tests and isolated PostgreSQL checks cover the logic and permissions. They do not replace these live-provider checks.
+Keep Turnstile configured in both Supabase Auth and the app using the existing `TURNSTILE_SITE_KEY` / `NEXT_PUBLIC_TURNSTILE_SITE_KEY` configuration. CAPTCHA tokens are forwarded for password login, signup, email confirmation resend and password recovery and refreshed after each submission.
 
-## Validation recorded for this implementation
+Google and Apple remain optional. Their buttons are shown only when at least one provider is enabled; each provider must be configured in Supabase before its existing `AUTH_GOOGLE_ENABLED` / `AUTH_APPLE_ENABLED` flag is enabled. Social users can complete their profile on `/account`.
 
-- Production Next.js build and fresh TypeScript check passed.
-- 136 unit tests passed, including sign-up intent, generic email confirmation, safe return destinations, sign-in form errors/focus, authenticated trial ownership, used-session rejection and fail-closed storage/configuration behavior.
-- Applied the migration to an isolated PostgreSQL instance with representative `anon`, `authenticated`, `service_role` and `auth.users`/`auth.uid()` setup. Twelve concurrent claims produced one row and one session ID. RLS hid other users, anonymous reads and client mutations/RPC execution were denied, another account could not advance a session, and completion survived reclaims and stale progress writes. Temporary database was stopped after validation.
-- Independent source review confirmed the UI extension and its shared mascot pause control. Mechanical design scan found no primary findings; type-ramp advisories reflect existing documentation drift and the inherited font sizes.
-- Browser visual inspection was blocked by administrator-policy verification. Live OAuth/email and actual production Supabase configuration are not yet verified.
+## Verify before publishing
+
+1. Apply the migration, then run `npm run verify:setup -- --url https://plsteach.me`. It checks schema and private buckets without creating accounts or sending email.
+2. Test signup and confirmation with a real email address and CAPTCHA.
+3. Log in by both email and username, including different letter case, and test incorrect passwords.
+4. Reset an existing email-link account's password; verify its account ID, trial and saved progress are unchanged.
+5. Test expired/reset links, resending confirmation, sign-out and session refresh.
+6. Save names, test a username collision, upload/remove a photo and check another account cannot fetch it.
+7. Delete a disposable account and verify its profile and photo are removed along with existing account data.
+
+Local unit, PostgreSQL and browser tests verify the implementation. Actual provider delivery, CAPTCHA and production configuration still require the connected project's acceptance checks.

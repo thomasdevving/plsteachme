@@ -202,42 +202,9 @@ describe("authentication boundaries", () => {
     );
   });
   it.each(['/learn?skill=shaving','/community','/teach?request=123'])('preserves shared account return destination %s',value=>{expect(safeNext(value)).toBe(value);});
-  it("email sign-in cannot silently create an account", async () => {
-    const response = await authAction(
-      req({ action: "email", email: "person@example.com", signup: false }),
-    );
-    expect(response.status).toBe(200);
-    expect(mocks.otp.mock.calls[0][0].options.shouldCreateUser).toBe(false);
-  });
-  it("email sign-up explicitly enables registration", async () => {
-    await authAction(
-      req({ action: "email", email: "person@example.com", signup: true }),
-    );
-    expect(mocks.otp.mock.calls[0][0].options.shouldCreateUser).toBe(true);
-  });
-  it("passes the security-check token and limits sign-in emails across instances", async () => {
-    await authAction(req({ action: "email", email: "Person@Example.com", signup: true, captchaToken: "turnstile-token" }));
-    expect(mocks.otp.mock.calls[0][0]).toMatchObject({ email: "person@example.com", options: { captchaToken: "turnstile-token" } });
-    expect(mocks.rpc).toHaveBeenCalledWith("rate_hit", { p_key: "signin-email:h:person@example.com", p_max: 4, p_window_seconds: 3600 });
-    mocks.rpc.mockImplementation(async (name: string) => ({ data: name === "rate_hit" ? false : trial, error: null }));
-    expect((await authAction(req({ action: "email", email: "person@example.com", signup: true }))).status).toBe(429);
-    expect(mocks.otp).toHaveBeenCalledTimes(1);
-  });
-  it("asks for a new security check when Supabase rejects the CAPTCHA", async () => {
-    mocks.otp.mockResolvedValue({ error: { status: 400, message: "captcha protection: request disallowed (invalid-input-response)" } });
-    const response = await authAction(req({ action: "email", email: "person@example.com", signup: true }));
-    expect(response.status).toBe(400);
-    expect((await response.json()).error).toContain("security check");
-  });
-  it("does not reveal whether an email is registered", async () => {
-    mocks.otp.mockResolvedValue({ error: { status: 400 } });
-    expect(
-      await (
-        await authAction(
-          req({ action: "email", email: "unknown@example.com", signup: false }),
-        )
-      ).json(),
-    ).toEqual({ ok: true });
+  it("removes the passwordless login action", async () => {
+    expect((await authAction(req({action:'email',email:'person@example.com',signup:false}))).status).toBe(400);
+    expect(mocks.otp).not.toHaveBeenCalled();
   });
   it("sanitizes the OAuth redirect", async () => {
     await authAction(

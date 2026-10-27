@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { refreshAuth } from "@/lib/auth/proxy";
 export async function proxy(request: NextRequest) {
   const authPath =
-    /^\/(?:(?:en|nl)\/)?(?:login|signup|account|learn|community|teach|training|vision|insights|demo)(?:\/|$)/.test(
+    /^\/(?:(?:en|nl)\/)?(?:login|signup|forgot-password|reset-password|account|learn|community|teach|training|vision|insights|demo)(?:\/|$)/.test(
       request.nextUrl.pathname,
     ) || request.nextUrl.pathname.startsWith("/coach/session/");
   const sessionResponse = authPath ? await refreshAuth(request) : null;

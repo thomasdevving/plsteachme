@@ -4,7 +4,7 @@ The learner, camera, community and teacher flows are implemented. Use this check
 
 ## Configure once
 
-1. Apply **all four** files in `supabase/migrations/` in filename order to the intended Supabase project. The final migration creates the private `teacher-demonstrations` bucket.
+1. Apply **all** files in `supabase/migrations/` in filename order to the intended Supabase project, including `20261027090000_account_profiles.sql` before publishing password accounts. The migrations create the private teacher, organization and profile-photo buckets.
 2. Set the server variables in `.env.example`: Supabase URL, public/anon key, service-role key, OpenAI key and the actual site origin. `SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_URL` are supported consistently. A service-role or secret key must never be put in a public variable. Browser uploads only use signed destinations.
 3. Enable Supabase Email authentication and registrations, configure production email delivery, and allow the site's `/auth/callback` and `/auth/confirm` URLs. Use `https://plsteachme.vercel.app` for this deployment. Google/Apple are optional; leave their flags false until configured.
 4. Create a separate reviewer account, confirm its email, and put its Auth user UUID in `PLATFORM_REVIEWER_IDS`. A teacher cannot approve their own application or publish their own lesson. Use a fresh learner account for the one-session trial.

@@ -45,6 +45,9 @@ it("submits email registration explicitly, then focuses the confirmation", async
   fireEvent.change(screen.getByLabelText("Email address"), {
     target: { value: "person@example.com" },
   });
+  for (const [label,value] of [['First name','Ada'],['Last name','Lovelace'],['Username','ada_l'],['Password','a long secret passphrase'],['Confirm password','a long secret passphrase']]) {
+    fireEvent.change(screen.getByLabelText(label),{target:{value}});
+  }
   // Signing up needs the age and terms confirmation first.
   fireEvent.submit(screen.getByLabelText("Email address").closest("form")!);
   expect(await screen.findByRole("alert")).toBeTruthy();
@@ -57,8 +60,9 @@ it("submits email registration explicitly, then focuses the confirmation", async
     ).toBeTruthy(),
   );
   expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
-    action: "email",
-    signup: true,
+    action: "signup",
+    username: 'ada_l', firstName: 'Ada', lastName: 'Lovelace', acceptedTerms: true,
+    password: 'a long secret passphrase',
     email: "person@example.com",
   });
   await waitFor(() => expect(document.activeElement).toBe(
@@ -72,20 +76,20 @@ it("submits email registration explicitly, then focuses the confirmation", async
 it("announces connection errors without discarding the email", async () => {
   fetchMock.mockRejectedValue(new Error("Connection lost. Please try again."));
   render(<AuthForm enabled google apple />);
-  fireEvent.change(screen.getByLabelText("Email address"), {
+  fireEvent.change(screen.getByLabelText("Email or username"), {
     target: { value: "person@example.com" },
   });
-  fireEvent.submit(screen.getByLabelText("Email address").closest("form")!);
+  fireEvent.submit(screen.getByLabelText("Email or username").closest("form")!);
   await waitFor(() =>
     expect(screen.getByRole("alert").textContent).toContain("Connection lost"),
   );
   expect(
-    (screen.getByLabelText("Email address") as HTMLInputElement).value,
+    (screen.getByLabelText("Email or username") as HTMLInputElement).value,
   ).toBe("person@example.com");
   expect(
     (
       screen.getByRole("button", {
-        name: "Email me a sign-in link",
+        name: "Log in",
       }) as HTMLButtonElement
     ).disabled,
   ).toBe(false);

@@ -2,18 +2,47 @@ import { z } from "zod";
 import { authClient } from "@/lib/auth/server";
 import { authConfig } from "@/lib/auth/config";
 import { safeNext, sameOrigin } from "@/lib/auth/redirect";
-import { readJSON } from "@/lib/ai/server";
-import { sharedRateAllowed } from "@/lib/ai-guard";
+import { usernameSchema, nameSchema, passwordSchema } from "@/lib/auth/profile";
+import {
+  passwordResetAllowed,
+  clearPasswordReset,
+} from "@/lib/auth/password-recovery";
+import { limitedJson } from "@/lib/coaching-security";
 import { clientIp } from "@/lib/client-ip";
-import { hash } from "@/lib/storage";
+import { db, hash } from "@/lib/storage";
+import { requestOrigin } from "@/lib/request-origin";
+
+const captcha = z.string().max(4096).optional();
 const input = z.discriminatedUnion("action", [
   z.object({
-    action: z.literal("email"),
-    email: z.email().max(254),
-    signup: z.boolean(),
+    action: z.literal("login"),
+    identifier: z.string().trim().min(1).max(254),
+    password: z.string().min(1).max(128),
+    captchaToken: captcha,
     next: z.string().optional(),
-    captchaToken: z.string().max(4096).optional(),
   }),
+  z.object({
+    action: z.literal("signup"),
+    email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
+    username: usernameSchema,
+    firstName: nameSchema,
+    lastName: nameSchema,
+    password: passwordSchema,
+    acceptedTerms: z.literal(true),
+    captchaToken: captcha,
+    next: z.string().optional(),
+  }),
+  z.object({
+    action: z.literal("recover"),
+    email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
+    captchaToken: captcha,
+  }),
+  z.object({
+    action: z.literal("resend"),
+    email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
+    captchaToken: captcha,
+  }),
+  z.object({ action: z.literal("password"), password: passwordSchema }),
   z.object({
     action: z.literal("oauth"),
     provider: z.enum(["google", "apple"]),
@@ -26,88 +55,271 @@ const reply = (body: unknown, status = 200) =>
     status,
     headers: { "Cache-Control": "private, no-store" },
   });
+const incorrect = () =>
+  reply(
+    {
+      error: "The email, username or password is incorrect. Please try again.",
+    },
+    401,
+  );
+async function rate(request: Request, action: string, identity: string) {
+  // Credential limits fail closed. Rate keys contain hashes, never raw email addresses.
+  for (const [key, max] of [
+    [
+      `auth-${action}-ip:${hash(clientIp(request))}`,
+      action === "login" ? 30 : 8,
+    ],
+    [`auth-${action}-id:${hash(identity)}`, action === "login" ? 12 : 4],
+  ] as const) {
+    const { data, error } = await db().rpc("rate_hit", {
+      p_key: key,
+      p_max: max,
+      p_window_seconds: 900,
+    });
+    if (error) throw new Error("Authentication limits unavailable");
+    if (data !== true) return false;
+  }
+  return true;
+}
 export async function POST(request: Request) {
   if (!sameOrigin(request))
     return reply({ error: "Please submit this form from plsteach.me." }, 403);
-  let data;
-  try {
-    data = input.parse(await readJSON(request, 4000));
-  } catch {
-    return reply({ error: "Please enter a valid email address." }, 400);
-  }
+  const body = await limitedJson(request, 8000);
+  if ("error" in body)
+    return reply(
+      { error: "The request is invalid or too large." },
+      body.error === "size" ? 413 : 400,
+    );
+  const parsed = input.safeParse(body.data);
+  if (!parsed.success)
+    return reply(
+      {
+        error:
+          parsed.error.issues[0]?.message ||
+          "Please check your account details.",
+      },
+      400,
+    );
+  const data = parsed.data;
   try {
     const client = await authClient();
     if (!client)
       return reply(
-        { error: "Sign-in is not available yet. Please try again later." },
+        {
+          error: "Sign-in is temporarily unavailable. Please try again later.",
+        },
         503,
       );
     if (data.action === "signout") {
       const { error } = await client.auth.signOut();
+      await clearPasswordReset();
       return error
         ? reply({ error: "Could not sign out. Please try again." }, 503)
         : reply({ ok: true });
     }
-    const callback = new URL("/auth/callback", request.headers.get('origin')!);
-    callback.searchParams.set("next", safeNext(data.next));
-    if (data.action === "email") {
-      const email = data.email.trim().toLowerCase();
-      // Shared limits stop sign-in emails being used to flood an inbox or mass-create accounts.
+    if (data.action === "password") {
+      const { data: account, error } = await client.auth.getUser();
       if (
-        !(await sharedRateAllowed(`signin-ip:${hash(clientIp(request))}`, 8, 3600)) ||
-        !(await sharedRateAllowed(`signin-email:${hash(email)}`, 4, 3600))
+        error ||
+        !account.user ||
+        account.user.is_anonymous ||
+        !(await passwordResetAllowed(account.user.id))
       )
         return reply(
-          { error: "Too many sign-in links were requested. Please try again in an hour." },
+          {
+            error:
+              "Request a fresh password reset email and open its link to set your password.",
+          },
+          401,
+        );
+      if (!(await rate(request, "password", account.user.id)))
+        return reply(
+          { error: "Too many attempts. Please try again in 15 minutes." },
           429,
         );
-      const { error } = await client.auth.signInWithOtp({
+      const changed = await client.auth.updateUser({ password: data.password });
+      if (changed.error)
+        return reply(
+          {
+            error:
+              "Your password could not be updated. Choose a different password or request a fresh reset link.",
+          },
+          400,
+        );
+      await clearPasswordReset();
+      await client.auth.signOut({ scope: "others" });
+      return reply({ url: "/account" });
+    }
+    const callback = new URL("/auth/callback", requestOrigin(request));
+    callback.searchParams.set(
+      "next",
+      safeNext(
+        "next" in data
+          ? data.next
+          : data.action === "recover"
+            ? "/reset-password"
+            : "/account",
+      ),
+    );
+    if (data.action === "oauth") {
+      if (!authConfig()[data.provider])
+        return reply(
+          {
+            error:
+              "This sign-in option is not available yet. Please use your email and password.",
+          },
+          503,
+        );
+      const { data: result, error } = await client.auth.signInWithOAuth({
+        provider: data.provider,
+        options: { redirectTo: callback.href, skipBrowserRedirect: true },
+      });
+      return error || !result.url
+        ? reply({ error: "Could not connect. Please try again." }, 503)
+        : reply({ url: result.url });
+    }
+    const identity = (data.action === "login" ? data.identifier : data.email)
+      .trim()
+      .toLowerCase();
+    if (!(await rate(request, data.action, identity)))
+      return reply(
+        { error: "Too many attempts. Please try again in 15 minutes." },
+        429,
+      );
+    if (data.action === "login") {
+      let email = identity;
+      if (!identity.includes("@")) {
+        const username = usernameSchema.safeParse(identity);
+        if (!username.success) return incorrect();
+        const resolved = await db().rpc("account_login_email", {
+          p_username: username.data,
+        });
+        if (resolved.error) throw new Error("Username lookup unavailable");
+        // Ask the provider even for an unknown handle; never return the resolved email to the caller.
+        email = resolved.data || `${hash(identity)}@account.invalid`;
+      }
+      const result = await client.auth.signInWithPassword({
         email,
+        password: data.password,
+        options: { captchaToken: data.captchaToken },
+      });
+      if (result.error) return providerFailure(result.error) || incorrect();
+      return reply({ url: safeNext(data.next) });
+    }
+    if (data.action === "recover") {
+      const { error } = await client.auth.resetPasswordForEmail(data.email, {
+        redirectTo: callback.href,
+        captchaToken: data.captchaToken,
+      });
+      if (error) {
+        const failure = providerFailure(error);
+        if (failure) return failure;
+        if (
+          error.status !== 400 &&
+          error.status !== 404 &&
+          error.status !== 422
+        )
+          return reply(
+            {
+              error:
+                "We could not send a reset email. Please try again shortly.",
+            },
+            503,
+          );
+      }
+      return reply({ ok: true });
+    }
+    if (data.action === "resend") {
+      const { error } = await client.auth.resend({
+        type: "signup",
+        email: data.email,
         options: {
-          shouldCreateUser: data.signup,
           emailRedirectTo: callback.href,
           captchaToken: data.captchaToken,
         },
       });
-      if (error && /captcha/i.test(error.message ?? ""))
-        return reply(
-          { error: "The security check expired. Please complete it again." },
-          400,
-        );
-      if (error?.status === 429)
-        return reply(
-          { error: "Please wait a minute before requesting another link." },
-          429,
-        );
-      // Do not disclose whether an address is already registered.
-      if (error && error.status !== 400 && error.status !== 422)
-        return reply(
-          { error: "We could not send the link. Please try again shortly." },
-          503,
-        );
+      if (error) {
+        const failure = providerFailure(error);
+        if (failure) return failure;
+        if (error.status !== 400 && error.status !== 422)
+          return reply(
+            {
+              error:
+                "We could not send the confirmation email. Please try again shortly.",
+            },
+            503,
+          );
+      }
       return reply({ ok: true });
     }
-    if (!authConfig()[data.provider])
+    const claimed = await db()
+      .from("account_profiles")
+      .select("user_id")
+      .eq("username", data.username)
+      .maybeSingle();
+    if (claimed.error) throw new Error("Profiles unavailable");
+    if (claimed.data)
       return reply(
-        {
-          error: "This sign-in option is not available yet. Please use email.",
+        { error: "That username is already taken. Please choose another." },
+        409,
+      );
+    const { data: result, error } = await client.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        emailRedirectTo: callback.href,
+        captchaToken: data.captchaToken,
+        data: {
+          username: data.username,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          age_confirmed: true,
+          terms_version: "2026-10-27",
         },
-        503,
-      );
-    const { data: result, error } = await client.auth.signInWithOAuth({
-      provider: data.provider,
-      options: { redirectTo: callback.href, skipBrowserRedirect: true },
+      },
     });
-    if (error || !result.url)
-      return reply(
-        { error: "Could not connect. Please try again or use email." },
-        503,
+    if (error) {
+      if (["user_already_exists", "email_exists"].includes(error.code || ""))
+        return reply({ ok: true });
+      return (
+        providerFailure(error) ||
+        reply(
+          {
+            error:
+              "Your account could not be created. Please try another username or use password reset if you already have an account.",
+          },
+          400,
+        )
       );
-    return reply({ url: result.url });
+    }
+    return result.session
+      ? reply({ url: safeNext(data.next) })
+      : reply({ ok: true });
   } catch {
     return reply(
       { error: "Sign-in is temporarily unavailable. Please try again." },
       503,
     );
   }
+}
+function providerFailure(error: { message?: string; status?: number }) {
+  if (/captcha/i.test(error.message || ""))
+    return reply(
+      { error: "The security check expired. Please complete it again." },
+      400,
+    );
+  if (error.status === 429)
+    return reply(
+      { error: "Too many attempts. Please wait before trying again." },
+      429,
+    );
+  if (error.status && error.status >= 500)
+    return reply(
+      {
+        error:
+          "The account service is temporarily unavailable. Please try again shortly.",
+      },
+      503,
+    );
+  return null;
 }

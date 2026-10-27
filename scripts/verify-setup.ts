@@ -16,10 +16,11 @@ export const setupTables: Record<string,string> = {
   training_organizations:'id,plan',training_members:'id,role',training_modules:'id,status',vision_models:'id,status',
   learner_progress:'user_id,lesson_key',learning_events:'id,kind',training_pilot_access:'email',
   trial_claims:'email_hash',ai_usage:'day,calls',rate_limits:'key,hits',
+  account_profiles:'user_id,username,first_name,last_name,has_avatar',
 };
 
 // Functions from every migration, so a skipped migration is reported.
-export const setupFunctions=['claim_coaching_trial','advance_coaching_trial','platform_mutate','increment_under16','training_mutate','progress_save','learning_insights','account_delete','retention_cleanup','coaching_trial_use','ai_budget_use','rate_hit','ephemeral_cleanup'];
+export const setupFunctions=['claim_coaching_trial','advance_coaching_trial','platform_mutate','increment_under16','training_mutate','progress_save','learning_insights','account_delete','retention_cleanup','coaching_trial_use','ai_budget_use','rate_hit','ephemeral_cleanup','account_login_email'];
 function origin(value:string|undefined):string|null {
   try {
     const url=new URL(value || '');
@@ -80,6 +81,10 @@ export async function checkSetup(env:Environment, fetcher:typeof fetch=fetchWith
     await inspect('Private teacher storage','Create the private teacher-demonstrations bucket with MP4/WebM/MOV support and a 100 MB limit.',async()=>{
       const {data,error}=await admin.storage.getBucket('teacher-demonstrations');
       return !error && Boolean(data) && data!.public===false && (data!.file_size_limit==null || data!.file_size_limit>=100*1024*1024) && (!data!.allowed_mime_types || ['video/mp4','video/webm','video/quicktime'].every(type=>data!.allowed_mime_types!.includes(type)));
+    });
+    await inspect('Private profile storage','Apply the account profiles migration to create the private profile-avatars bucket (JPEG, 256 KiB).',async()=>{
+      const {data,error}=await admin.storage.getBucket('profile-avatars');
+      return !error && Boolean(data) && data!.public===false && data!.file_size_limit===262144 && data!.allowed_mime_types?.length===1 && data!.allowed_mime_types[0]==='image/jpeg';
     });
     if(reviewerIdsValid)await inspect('Reviewer accounts','Each configured reviewer must exist and have a confirmed, non-anonymous account.',async()=>{
       for(const id of reviewers) {

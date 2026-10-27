@@ -9,6 +9,7 @@ function responses(input:RequestInfo|URL,init?:RequestInit):Response {
   if(url.hostname==='app.example.test')return Response.json({configured:true,available:true,aiAvailable:true,mock:false});
   if(url.hostname==='api.openai.com')return Response.json({id:decodeURIComponent(url.pathname.split('/').at(-1)!)});
   if(url.pathname.includes('/auth/v1/admin/users/'))return Response.json({id:reviewer,email_confirmed_at:'2026-10-17',is_anonymous:false});
+  if(url.pathname.endsWith('/storage/v1/bucket/profile-avatars'))return Response.json({id:'profile-avatars',public:false,file_size_limit:262144,allowed_mime_types:['image/jpeg']});
   if(url.pathname.includes('/storage/v1/bucket/'))return Response.json({id:'teacher-demonstrations',name:'teacher-demonstrations',public:false,file_size_limit:100*1024*1024,allowed_mime_types:['video/mp4','video/webm','video/quicktime']});
   if(url.pathname==='/rest/v1/')return Response.json({paths:Object.fromEntries(setupFunctions.map(name=>[`/rpc/${name}`,{post:{}}]))});
   if(headers.get('apikey')===env.SUPABASE_ANON_KEY)return Response.json({message:'permission denied'},{status:403});

@@ -8,6 +8,8 @@ Subscriptions are coming soon: Starter is $6/month, Plus is $20/month, and organ
 
 ## Run locally
 
+Accounts support email/username and password login, private first/last names, and optional private profile photos. Existing email-link users set a password through `/forgot-password` using the same address. Apply `supabase/migrations/20261027090000_account_profiles.sql` before deploying this version; see [AUTH_SETUP.md](AUTH_SETUP.md) for migration, email confirmation and recovery settings.
+
 ```sh
 npm ci
 npm run dev
