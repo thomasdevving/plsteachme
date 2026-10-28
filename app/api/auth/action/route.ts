@@ -11,6 +11,7 @@ import { limitedJson } from "@/lib/coaching-security";
 import { clientIp } from "@/lib/client-ip";
 import { db, hash } from "@/lib/storage";
 import { requestOrigin } from "@/lib/request-origin";
+import { logError } from "@/lib/log";
 
 const captcha = z.string().max(4096).optional();
 const input = z.discriminatedUnion("action", [
@@ -76,7 +77,7 @@ async function rate(request: Request, action: string, identity: string) {
       p_max: max,
       p_window_seconds: 900,
     });
-    if (error) throw new Error("Authentication limits unavailable");
+    if (error) throw error;
     if (data !== true) return false;
   }
   return true;
@@ -101,6 +102,7 @@ export async function POST(request: Request) {
       400,
     );
   const data = parsed.data;
+  let stage = "auth_client";
   try {
     const client = await authClient();
     if (!client)
@@ -111,6 +113,7 @@ export async function POST(request: Request) {
         503,
       );
     if (data.action === "signout") {
+      stage = "signout";
       const { error } = await client.auth.signOut();
       await clearPasswordReset();
       return error
@@ -118,6 +121,7 @@ export async function POST(request: Request) {
         : reply({ ok: true });
     }
     if (data.action === "password") {
+      stage = "recovery_verification";
       const { data: account, error } = await client.auth.getUser();
       if (
         error ||
@@ -132,11 +136,13 @@ export async function POST(request: Request) {
           },
           401,
         );
+      stage = "rate_limit";
       if (!(await rate(request, "password", account.user.id)))
         return reply(
           { error: "Too many attempts. Please try again in 15 minutes." },
           429,
         );
+      stage = "password_update";
       const changed = await client.auth.updateUser({ password: data.password });
       if (changed.error)
         return reply(
@@ -150,6 +156,7 @@ export async function POST(request: Request) {
       await client.auth.signOut({ scope: "others" });
       return reply({ url: "/account" });
     }
+    stage = "callback_origin";
     const callback = new URL("/auth/callback", requestOrigin(request));
     callback.searchParams.set(
       "next",
@@ -162,6 +169,7 @@ export async function POST(request: Request) {
       ),
     );
     if (data.action === "oauth") {
+      stage = "oauth";
       if (!authConfig()[data.provider])
         return reply(
           {
@@ -181,6 +189,7 @@ export async function POST(request: Request) {
     const identity = (data.action === "login" ? data.identifier : data.email)
       .trim()
       .toLowerCase();
+    stage = "rate_limit";
     if (!(await rate(request, data.action, identity)))
       return reply(
         { error: "Too many attempts. Please try again in 15 minutes." },
@@ -191,13 +200,15 @@ export async function POST(request: Request) {
       if (!identity.includes("@")) {
         const username = usernameSchema.safeParse(identity);
         if (!username.success) return incorrect();
+        stage = "username_lookup";
         const resolved = await db().rpc("account_login_email", {
           p_username: username.data,
         });
-        if (resolved.error) throw new Error("Username lookup unavailable");
+        if (resolved.error) throw resolved.error;
         // Ask the provider even for an unknown handle; never return the resolved email to the caller.
         email = resolved.data || `${hash(identity)}@account.invalid`;
       }
+      stage = "password_login";
       const result = await client.auth.signInWithPassword({
         email,
         password: data.password,
@@ -207,6 +218,7 @@ export async function POST(request: Request) {
       return reply({ url: safeNext(data.next) });
     }
     if (data.action === "recover") {
+      stage = "recovery_email";
       const { error } = await client.auth.resetPasswordForEmail(data.email, {
         redirectTo: callback.href,
         captchaToken: data.captchaToken,
@@ -230,6 +242,7 @@ export async function POST(request: Request) {
       return reply({ ok: true });
     }
     if (data.action === "resend") {
+      stage = "confirmation_email";
       const { error } = await client.auth.resend({
         type: "signup",
         email: data.email,
@@ -252,17 +265,19 @@ export async function POST(request: Request) {
       }
       return reply({ ok: true });
     }
+    stage = "profile_lookup";
     const claimed = await db()
       .from("account_profiles")
       .select("user_id")
       .eq("username", data.username)
       .maybeSingle();
-    if (claimed.error) throw new Error("Profiles unavailable");
+    if (claimed.error) throw claimed.error;
     if (claimed.data)
       return reply(
         { error: "That username is already taken. Please choose another." },
         409,
       );
+    stage = "signup";
     const { data: result, error } = await client.auth.signUp({
       email: data.email,
       password: data.password,
@@ -295,7 +310,14 @@ export async function POST(request: Request) {
     return result.session
       ? reply({ url: safeNext(data.next) })
       : reply({ ok: true });
-  } catch {
+  } catch (error) {
+    // Log the failing step and standard database code only. Provider messages
+    // can contain credentials or personal data and must never reach logs.
+    const rawCode = error && typeof error === "object" && "code" in error
+      ? error.code : undefined;
+    const code = typeof rawCode === "string" && /^(?:[0-9A-Z]{5}|PGRST\d{3})$/.test(rawCode)
+      ? rawCode : undefined;
+    logError("auth.failed", { action: data.action, stage, code });
     return reply(
       { error: "Sign-in is temporarily unavailable. Please try again." },
       503,

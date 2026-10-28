@@ -444,6 +444,11 @@ details[open]>p{animation:answer-open 250ms cubic-bezier(.16,1,.3,1)}
   text-decoration-thickness: 2px;
 }
 .auth-captcha{margin:12px 0 0;min-height:0}
+.auth-privacy a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
 .org-form select {
   -webkit-appearance: none;
   appearance: none;

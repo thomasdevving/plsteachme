@@ -197,6 +197,31 @@ describe("password accounts", () => {
     expect((await POST(request(signup))).status).toBe(409);
     expect(state.signup).not.toHaveBeenCalled();
   });
+  it.each([
+    ["rate_limit", "PGRST202", "rate_hit"],
+    ["username_lookup", "42501", "account_login_email"],
+    ["profile_lookup", "42P01", "profile"],
+  ])("logs safe diagnostics for %s without account details", async (stage, code, dependency) => {
+    const message = "private-provider-message-with-credentials";
+    const error = { code, message, details: "private-provider-details" };
+    if (dependency === "profile") state.claimed.mockResolvedValue({ data: null, error });
+    else state.rpc.mockImplementation(async (name: string) => ({ data: name === dependency ? null : true, error: name === dependency ? error : null }));
+    const log = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const response = await POST(request(dependency === "profile" ? signup : {
+        action: "login", identifier: "private_username", password: "private-password-canary",
+      }));
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({ error: "Sign-in is temporarily unavailable. Please try again." });
+      expect(log).toHaveBeenCalledTimes(1);
+      const output = log.mock.calls[0][0] as string;
+      expect(JSON.parse(output)).toMatchObject({ event: "auth.failed", stage, code });
+      for (const secret of [message, error.details, "private_username", "private-password-canary", signup.email, signup.password])
+        expect(output).not.toContain(secret);
+      expect(state.login).not.toHaveBeenCalled();
+      expect(state.signup).not.toHaveBeenCalled();
+    } finally { log.mockRestore(); }
+  });
   it("fails closed when the shared credential limiter is unavailable or exhausted", async () => {
     state.rpc.mockResolvedValue({ data: null, error: { message: "offline" } });
     expect(
