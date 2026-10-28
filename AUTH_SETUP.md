@@ -44,6 +44,8 @@ For direct token-hash links that work across browsers, configure these templates
 
 A signup email confirms ownership once. Normal login uses the password, not an email code or magic link. Signup confirmation can be resent from the confirmation screen, subject to CAPTCHA and rate limits.
 
+The branded signup confirmation is in [supabase/templates/confirm-signup.html](supabase/templates/confirm-signup.html). Apply it in Supabase Auth's **Confirm signup** email template with the subject **Confirm your email · plsteach.me**; see [activation instructions](supabase/templates/README.md). A Cloudflare deployment alone does not install this template. Its button and fallback use the existing `{{ .ConfirmationURL }}`.
+
 Password recovery exchanges a valid provider token/code before issuing an HTTP-only recovery proof. It is signed, bound to the user, and expires after ten minutes. The password endpoint requires both the authenticated user and this proof. On success it clears the proof and requests sign-out of other sessions.
 
 Existing email-link users should choose **Set your password** or **Forgot your password?**, using the same email address. They keep their existing account and progress; they should not create another account.
