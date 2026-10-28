@@ -20,7 +20,7 @@ export default async function Login({
         google={google}
         apple={apple}
         captchaSiteKey={captchaSiteKey}
-        next={safeNext(query.next)}
+        next={safeNext(query.next || '/learn')}
         invalidLink={Boolean(query.error)}
       />
     </AuthShell>

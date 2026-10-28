@@ -7,6 +7,7 @@ test.beforeEach(async({page})=>installActiveTrial(page));
 const positive={status:'looks_right',confidence:'high',observation:'The wide end is longer and both ends are flat.',guidance:'Keep the crossing in view.'};
 const uncertain={status:'unclear',confidence:'low',observation:'The object is out of view.',guidance:'Move the result into the frame.'};
 async function startCamera(page:Page) {
+  await page.getByRole('button',{name:'Coach',exact:true}).click();
   const coach=page.locator('.camera-coach');
   await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();
   await coach.getByRole('checkbox',{name:'I agree to automatic image checks'}).check();
@@ -34,10 +35,10 @@ test('catalog searches six real-life categories, opens a journey and handles emp
   await expect(page.locator('.catalog-card')).toHaveCount(0);
   await expect(page.getByRole('link',{name:'Request a skill',exact:true})).toHaveAttribute('href','/community');
   await page.getByRole('searchbox',{name:'Search skills'}).clear();
-  await page.locator('.learning-journeys article').filter({hasText:'Ready for your first interview'}).getByRole('button',{name:'Iron a shirt',exact:true}).click();
+  await page.locator('.learning-journeys article').filter({hasText:'Ready for your first interview'}).getByRole('link',{name:'Iron a shirt',exact:true}).click();
   await expect(page.locator('.lesson-player')).toHaveAttribute('data-skill','ironing');
-  await expect(page.locator('.catalog-player')).toBeFocused();
-  await expect(page).toHaveURL(/skill=ironing/);
+  await expect(page.locator('.site-header')).toHaveCount(0);
+  await expect(page).toHaveURL(/\/learn\/ironing$/);
 });
 
 test('manual progress resumes on reload and can be reset independently',async({page})=>{
@@ -47,10 +48,14 @@ test('manual progress resumes on reload and can be reset independently',async({p
   expect((await record(page)).checkpoints.slice(0,3)).toEqual(['self_checked','self_checked','pending']);
   await page.reload();
   await expect(page.locator('.lesson-step')).toHaveText('Step 3 of 7');
+  await page.getByRole('link',{name:'All lessons',exact:true}).click();
   await expect(page.locator('.continue-learning')).toContainText('Resume Tie a tie');
+  await page.getByRole('link',{name:'Resume Tie a tie',exact:true}).click();
+  await page.getByRole('button',{name:'Prepare',exact:true}).click();
   await page.getByRole('button',{name:'Reset lesson progress'}).click();
   await expect(page.locator('.lesson-step')).toHaveText('Step 1 of 7');
   expect(await record(page)).toBeUndefined();
+  await page.getByRole('link',{name:'All lessons',exact:true}).click();
   await expect(page.locator('.continue-learning')).toHaveCount(0);
 });
 
@@ -60,10 +65,12 @@ test('completion names unverified checkpoints and recommends available related l
   for(let index=1;index<6;index++)await page.getByRole('button',{name:'Next lesson step',exact:true}).click();
   await page.getByRole('button',{name:'Finish walkthrough'}).click();
   await expect(page.locator('.lesson-completion-note')).toHaveText('0 camera-confirmed visible checkpoints · 6 self-checked · 1 unresolved.');
+  await page.getByRole('button',{name:'Progress',exact:true}).click();
   await expect(page.locator('.completion-checkpoints li')).toHaveCount(7);
   await expect(page.locator('.completion-checkpoints li').first()).toContainText('Unresolved');
-  await expect(page.locator('.related-lessons a').first()).toHaveAttribute('href',/\/learn\?skill=/);
+  await expect(page.locator('.related-lessons a').first()).toHaveAttribute('href',/\/learn\//);
   await page.reload();await expect(page.locator('.lesson-step')).toHaveText('Walkthrough complete');
+  await page.getByRole('button',{name:'Progress',exact:true}).click();
   await page.locator('.completion-checkpoints li').first().getByRole('button').click();
   await expect(page.locator('.lesson-step')).toHaveText('Step 1 of 7');
   await expect(page.locator('[data-checkpoint-state]')).toHaveText('Unresolved');

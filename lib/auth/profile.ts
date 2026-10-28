@@ -35,4 +35,5 @@ export type AccountProfile = {
   updatedAt: string;
 };
 export const AVATAR_BUCKET = "profile-avatars";
+export const PROFILE_UPDATED_EVENT = "plsteach.profile.updated";
 export const MAX_AVATAR_BYTES = 262_144;

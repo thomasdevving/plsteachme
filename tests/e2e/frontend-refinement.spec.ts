@@ -25,7 +25,7 @@ test('learning rail supports arrows, keyboard, category resets and narrow screen
       await expect.poll(() => rail.evaluate(el => el.scrollWidth - el.clientWidth - el.scrollLeft)).toBeLessThan(remaining - 10);
     }
     await expect(next).toBeDisabled();
-    await expect(page.getByRole('button', {name:'Explore lesson: Care for your bike'})).toBeInViewport();
+    await expect(page.getByRole('link', {name:'Explore lesson: Care for your bike'})).toBeInViewport();
     await page.getByRole('button', {name:'Personal care'}).click();
     await expect(page.locator('.skill-card')).toHaveCount(2);
     await expect(previous).toBeDisabled();

@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   BRAND,
   SITE_URL,
   pathFor,
   pageFromSlug,
   type Locale,
+  skillIds,
+  type SkillId,
 } from "@/lib/config";
 import { getCopy } from "@/lib/i18n";
 import { mockMode } from "@/lib/storage";
@@ -22,6 +24,8 @@ import { VisionLab } from "@/components/vision-lab";
 import { InsightsDashboard } from "@/components/insights-dashboard";
 import { TermsPage } from "@/components/terms";
 import { PublishedLessons } from "@/components/published-lesson";
+import { LearningShell } from '@/components/learning-shell';
+import { builtinLessonHref, publishedLessonHref } from '@/lib/lesson-navigation';
 import dynamic from "next/dynamic";
 const Thanks = dynamic(() =>
   import("@/components/thanks").then((m) => m.Thanks),
@@ -106,13 +110,20 @@ export async function generateMetadata({
     },
   };
 }
-export default async function Page({ params }: { params: Params }) {
+export default async function Page({ params, searchParams }: { params: Params; searchParams: Promise<{skill?:string;lesson?:string}> }) {
   const { locale: raw, slug } = await params;
   if (raw !== "nl" && raw !== "en") notFound();
   const locale: Locale = raw;
   const page = pageFromSlug(locale, slug);
   const c = getCopy(locale);
   if (!page) notFound();
+  if(page==='learn'){
+    const query=await searchParams;
+    if(query.lesson && /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(query.lesson))redirect(publishedLessonHref(query.lesson));
+    if(query.skill && skillIds.includes(query.skill as SkillId))redirect(builtinLessonHref(query.skill as SkillId));
+    return <LearningShell><div className="container learning-page"><LearningCatalog names={c.skills.names}/><PublishedLessons/></div></LearningShell>;
+  }
+  if(page==='training')return <LearningShell><TrainingWorkspace/></LearningShell>;
   const schema = [
     {
       "@context": "https://schema.org",
@@ -151,14 +162,10 @@ export default async function Page({ params }: { params: Params }) {
           <Organizations c={c} locale={locale} mock={mockMode} />
         ) : page === "demo" ? (
           <DemoPage c={c} locale={locale} />
-        ) : page === "learn" ? (
-          <div className="container learning-page"><LearningCatalog names={c.skills.names}/><PublishedLessons/></div>
         ) : page === "community" ? (
           <CommunityBoard />
         ) : page === "teach" ? (
           <TeacherStudio />
-        ) : page === "training" ? (
-          <TrainingWorkspace />
         ) : page === "vision" ? (
           <VisionLab />
         ) : page === "insights" ? (

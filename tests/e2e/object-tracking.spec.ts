@@ -10,7 +10,7 @@ async function startCoach(page:Page){
   page.on('request',request=>{if(request.url().includes('/api/'))requests.push(new URL(request.url()).pathname);});
   await page.route('**/api/coaching/session',route=>route.fulfill({json:route.request().method()==='GET'?{available:true}:{accepted:true}}));
   await page.route('**/api/coaching/check',route=>{const body=route.request().postDataJSON();checks.push(Date.now());return route.fulfill({json:{skill:body.skill,step:body.step,feedback:unclear}});});
-  await page.goto('/demo');
+  await page.goto('/learn/tie');await page.getByRole('button',{name:'Coach',exact:true}).click();
   const coach=page.locator('.camera-coach');
   await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();
   await coach.getByRole('checkbox',{name:'I agree to automatic image checks'}).check();
@@ -36,7 +36,7 @@ test('showing the tie is the first camera step, before any lesson step is checke
   await expect(coach.locator('.camera-object-overlay')).toHaveAttribute('data-tracking',/^(tracking|searching)$/);
   await expect.poll(()=>checks.length,{timeout:10000}).toBeGreaterThan(0);
   // Tracking is local: no new endpoints are called.
-  expect(requests.every(path=>['/api/auth/session','/api/coaching/session','/api/coaching/check','/api/trial','/api/vision','/api/config','/api/progress','/api/insights'].includes(path))).toBe(true);
+  expect(requests.every(path=>['/api/auth/session','/api/coaching/session','/api/coaching/check','/api/trial','/api/vision','/api/config','/api/progress','/api/insights','/api/profile'].includes(path))).toBe(true);
   expect((await new AxeBuilder({page}).include('.camera-coach').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
   // A learned object is reused when the camera restarts, so the step is not repeated.
   await coach.getByRole('button',{name:'Stop camera'}).click();

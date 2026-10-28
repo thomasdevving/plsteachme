@@ -1,4 +1,4 @@
-import { AuthShell } from "@/components/auth-shell";
+import { LearningShell } from "@/components/learning-shell";
 import { AccountPanel } from "@/components/account-panel";
 export const metadata = {
   title: "Your account",
@@ -6,8 +6,8 @@ export const metadata = {
 };
 export default function Account() {
   return (
-    <AuthShell>
+    <LearningShell page="account">
       <AccountPanel />
-    </AuthShell>
+    </LearningShell>
   );
 }

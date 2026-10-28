@@ -37,7 +37,7 @@ it('keeps expired links and email confirmation on the public host',async()=>{
  const failed=await callback(new NextRequest('http://0.0.0.0:3100/auth/callback?code=fixture',{headers}));
  expect(failed.headers.get('location')).toBe('http://localhost:3100/login?error=link');
  const confirmed=await confirm(new NextRequest('http://0.0.0.0:3100/auth/confirm?token_hash=fixture',{headers}));
- expect(confirmed.headers.get('location')).toBe('http://localhost:3100/account');
+ expect(confirmed.headers.get('location')).toBe('http://localhost:3100/learn');
 });
 it('sends sign-up links back to the validated browser origin with the chosen lesson',async()=>{
  const response=await action(new Request('http://0.0.0.0:3100/api/auth/action',{method:'POST',headers:{host:'localhost:3100',origin:'http://localhost:3100','content-type':'application/json'},body:JSON.stringify({action:'signup',email:'tester@example.test',username:'tester',firstName:'Test',lastName:'Learner',password:'a long test password',acceptedTerms:true,next:'/learn?skill=laundry'})}));

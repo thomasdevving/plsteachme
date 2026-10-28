@@ -55,13 +55,15 @@ test('new learning pages share the existing account entitlement while written le
   await page.route('**/api/auth/session',route=>route.fulfill({json:account}));
   await page.route('**/api/coaching/session',route=>route.fulfill({json:{available:true}}));
   await page.goto('/learn?skill=tie');
+  await page.getByRole('button',{name:'Coach',exact:true}).click();
   const gate=page.getByRole('complementary',{name:'Coaching session'});
-  await expect(gate.getByRole('link',{name:'Create an account',exact:true})).toHaveAttribute('href','/signup?next=%2Flearn%3Fskill%3Dtie');
+  await expect(gate.getByRole('link',{name:'Create an account',exact:true})).toHaveAttribute('href','/signup?next=%2Flearn%2Ftie');
   await expect(page.locator('.camera-coach,.lesson-questions')).toHaveCount(0);
   await page.getByRole('button',{name:'Next lesson step',exact:true}).click();
   await expect(page.locator('.lesson-step')).toHaveText('Step 2 of 7');
   account={configured:true,user:trialUser,trial:{...trialFixture('tie-four-in-hand'),completed_steps:7,completed_at:'2026-10-17T12:30:00Z'}};
   await page.reload();
+  await page.getByRole('button',{name:'Coach',exact:true}).click();
   await expect(gate).toContainText('You’ve used your free session.');
   await expect(gate.getByRole('link',{name:'Explore plans'})).toHaveAttribute('href','/subscriptions');
   await expect(page.locator('.camera-coach,.lesson-questions')).toHaveCount(0);

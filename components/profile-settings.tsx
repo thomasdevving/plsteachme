@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { fetchWithTimeout } from "@/lib/network";
 import { prepareProfilePhoto } from "@/lib/profile-photo";
-import type { AccountProfile } from "@/lib/auth/profile";
+import { PROFILE_UPDATED_EVENT, type AccountProfile } from "@/lib/auth/profile";
 
 export function ProfileSettings() {
   const [profile, setProfile] = useState<AccountProfile | null>(null),
@@ -51,6 +51,7 @@ export function ProfileSettings() {
       if (!response.ok || !result)
         throw new Error(result?.error || "Your profile could not be updated.");
       setProfile(result.profile);
+      window.dispatchEvent(new Event(PROFILE_UPDATED_EVENT));
       if (kind === "save" && result.profile) {
         setUsername(result.profile.username);
         setFirstName(result.profile.firstName);

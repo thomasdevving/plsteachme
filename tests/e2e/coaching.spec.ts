@@ -17,7 +17,7 @@ async function setup(page: Page) {
     };
   });
   await page.route('**/api/coaching/session',route=>route.fulfill({json:route.request().method()==='GET'?{available:true,provider:'OpenAI'}:{accepted:true}}));
-  await page.goto('/demo');
+  await page.goto('/learn/tie');await page.getByRole('button',{name:'Coach',exact:true}).click();
 }
 async function start(page: Page) {
   const coach=page.locator('.camera-coach');
@@ -32,7 +32,7 @@ const stopped=(page:Page)=>page.evaluate(()=>(window as typeof window & {coachTr
 test('missing provider configuration disables camera coaching honestly',async({page,request})=>{
   const response=await request.get('/api/coaching/session');expect(response.status()).toBe(200);
   expect(await response.json()).toMatchObject({available:false});expect(response.headers()['cache-control']).toContain('no-store');
-  await page.goto('/demo');
+  await page.goto('/learn/tie');await page.getByRole('button',{name:'Coach',exact:true}).click();
   await expect(page.locator('.camera-coach')).toContainText('isn’t connected yet');
   await expect(page.getByRole('button',{name:'Start camera coaching'})).toBeDisabled();
   await page.getByRole('button',{name:'Next lesson step',exact:true}).click();
@@ -101,8 +101,9 @@ test('pause prevents uploads, resume restarts checks, and hiding the page stops 
 test('switching modules and completing a lesson release camera hardware',async({page})=>{
   await page.route('**/api/coaching/check',route=>{const body=route.request().postDataJSON();return route.fulfill({json:{skill:body.skill,step:body.step,feedback:positive}});});
   await setup(page);await start(page);
-  await page.getByRole('group',{name:'Choose a lesson'}).getByRole('button',{name:'Shave',exact:true}).click();
+  await page.getByRole('button',{name:'Step',exact:true}).click();
   expect(await stopped(page)).toBe(true);
+  await page.goto('/learn/shaving');await page.getByRole('button',{name:'Coach',exact:true}).click();
   await start(page);
   for(let i=0;i<6;i++)await page.getByRole('button',{name:'Next lesson step',exact:true}).click();
   await page.getByRole('button',{name:'Finish walkthrough'}).click();

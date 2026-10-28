@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, ArrowRight, ArrowLeft, X } from "lucide-react";
-import { skillIds, pathFor, type Locale, type SkillId } from "@/lib/config";
+import { ArrowUpRight, ArrowRight, ArrowLeft } from "lucide-react";
+import { skillIds, type Locale } from "@/lib/config";
 import { categories, modules, type Category } from "@/lib/modules";
 import type { Copy } from "@/lib/i18n";
 import { track } from "@/lib/analytics";
 import { SkillIcon } from "./illustrations";
-import { LessonPlayer } from "./lesson-player";
+import Link from "next/link";
+import { builtinLessonHref } from "@/lib/lesson-navigation";
 export function Skills({
   c,
   locale,
@@ -15,7 +16,6 @@ export function Skills({
   locale: Locale;
 }) {
   const [category, setCategory] = useState<Category>("All skills");
-  const [selected, setSelected] = useState<SkillId | null>(null);
   const rail = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({
     previous: false,
@@ -68,25 +68,10 @@ export function Skills({
         : "smooth",
     });
   }
-  const preview = useRef<HTMLDivElement>(null);
-  const opener = useRef<HTMLButtonElement | null>(null);
   const visible = skillIds.filter(
     (skill) =>
       category === "All skills" || modules[skill].category === category,
   );
-  function explore(skill: SkillId, button: HTMLButtonElement) {
-    opener.current = button;
-    setSelected(skill);
-    requestAnimationFrame(() => {
-      preview.current?.focus({ preventScroll: true });
-      preview.current?.scrollIntoView({
-        block: "center",
-        behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "instant"
-          : "smooth",
-      });
-    });
-  }
   return (
     <>
       <div className="module-toolbar">
@@ -102,7 +87,6 @@ export function Skills({
               aria-pressed={category === item}
               onClick={() => {
                 setCategory(item);
-                setSelected(null);
               }}
             >
               {item}
@@ -173,21 +157,16 @@ export function Skills({
             <div className="skill-info">
               <h3>{c.skills.names[skill]}</h3>
               <p>{c.skills.descriptions[skill]}</p>
-              <button
-                type="button"
+              <Link
                 className="module-explore text-link"
                 aria-label={`Explore lesson: ${c.skills.names[skill]}`}
-                aria-expanded={selected === skill}
-                aria-controls={
-                  selected === skill ? "module-preview" : undefined
-                }
-                onClick={(event) => explore(skill, event.currentTarget)}
+                href={builtinLessonHref(skill)}
               >
                 Explore lesson
                 <ArrowRight size={16} aria-hidden="true" />
-              </button>
+              </Link>
               <a
-                href={`${pathFor(locale, "learn")}?skill=${skill}`}
+                href={builtinLessonHref(skill)}
                 className="text-link module-demo"
                 onClick={() => track("cta_demo_click")}
               >
@@ -198,29 +177,7 @@ export function Skills({
           </article>
         ))}
       </div>
-      {selected && (
-        <div
-          id="module-preview"
-          className="module-preview module-lesson"
-          ref={preview}
-          tabIndex={-1}
-          role="region"
-          aria-label={`${c.skills.names[selected]} lesson`}
-        >
-          <LessonPlayer skill={selected} name={c.skills.names[selected]} />
-          <button
-            type="button"
-            className="preview-close"
-            aria-label="Close module lesson"
-            onClick={() => {
-              setSelected(null);
-              opener.current?.focus({ preventScroll: true });
-            }}
-          >
-            <X size={20} aria-hidden="true" />
-          </button>
-        </div>
-      )}
+
     </>
   );
 }

@@ -10,6 +10,7 @@ import '../scope.css';
 import '../creative.css';
 import '../catalog-polish.css';
 import '../motion.css';
+import '../lesson-screen.css';
 import { SiteMotion } from '@/components/site-motion';
 const displayFont = localFont({ src:'../../public/fonts/lora.woff2', variable:'--font-lora', display:'optional', adjustFontFallback:'Times New Roman', preload:true });
 const bodyFont = localFont({ src:[{path:'../../public/fonts/dm-sans.woff2',weight:'400'},{path:'../../public/fonts/dm-sans-semibold.woff2',weight:'500 700'}], variable:'--font-body', display:'optional', preload:false });

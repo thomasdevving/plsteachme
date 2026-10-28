@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test('back to the top returns to the top of every page',async({page})=>{
-  for(const path of ['/','/learn','/subscriptions']){
+test('back to the top returns to the top of marketing pages',async({page})=>{
+  for(const path of ['/','/subscriptions']){
     await page.goto(path);
     await page.evaluate(()=>window.scrollTo({top:document.body.scrollHeight,behavior:'instant'}));
     await expect.poll(()=>page.evaluate(()=>window.scrollY)).toBeGreaterThan(300);

@@ -68,15 +68,16 @@ test('homepage keeps one learning section and catalog journeys open their matchi
   ];
   await expect(page.locator('.learning-journeys article')).toHaveCount(mappings.length);
   for (const mapping of mappings) {
+    await page.goto('/learn');
     const journey = page.locator('.learning-journeys article').filter({ has: page.getByRole('heading', { name: mapping.title, exact: true }) });
     expect(await journey.locator('[data-skill]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-skill')))).toEqual(mapping.skills);
-    await expect(journey.getByRole('button')).toHaveCount(mapping.skills.length);
-    await journey.getByRole('button').last().focus();
+    await expect(journey.getByRole('link')).toHaveCount(mapping.skills.length);
+    await journey.getByRole('link').last().focus();
     await page.keyboard.press('Enter');
     const skill = mapping.skills.at(-1)!;
-    await expect(page).toHaveURL(new RegExp(`/learn\\?skill=${skill}$`));
+    await expect(page).toHaveURL(new RegExp(`/learn/${skill}$`));
     await expect(page.locator('.lesson-player')).toHaveAttribute('data-skill', skill);
-    await expect(page.locator('.catalog-player')).toBeFocused();
+    await expect(page.locator('.catalog-grid')).toHaveCount(0);
   }
 });
 
@@ -124,12 +125,13 @@ test('catalog keeps real cards, searchable content and keyboard lesson activatio
   await page.keyboard.type('couscous');
   await expect(page.locator('.catalog-card')).toHaveCount(1);
   await expect(page.locator('.catalog-card-art')).toHaveAttribute('data-skill', 'cooking');
-  const open = page.locator('.catalog-card').getByRole('button').first();
+  const open = page.locator('.catalog-card').getByRole('link').first();
   await open.focus();
   await page.keyboard.press('Enter');
-  await expect(page).toHaveURL(/skill=cooking/);
+  await expect(page).toHaveURL(/\/learn\/cooking$/);
   await expect(page.locator('.lesson-player')).toHaveAttribute('data-skill', 'cooking');
-  await expect(page.locator('.catalog-player')).toBeFocused();
+  await expect(page.locator('.catalog-grid')).toHaveCount(0);
+  await page.getByRole('link',{name:'All lessons',exact:true}).click();
   await search.fill('');
   const filters = page.getByRole('group', { name: 'Filter by real-life category' });
   const personal = filters.getByRole('button', { name: 'Personal Care', exact: true });

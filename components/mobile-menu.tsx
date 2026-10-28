@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { Menu, X } from "lucide-react";
 import type { Copy } from "@/lib/i18n";
 import type { Page } from "@/lib/config";
+import { AccountNavLink } from './account-nav-link';
 
 export function MobileMenu({
   c,
@@ -55,8 +56,7 @@ export function MobileMenu({
         >
           {c.org}
         </a>
-        <a href="/login">Log in</a>
-        <a href="/account">My account</a>
+        <AccountNavLink/>
       </nav>
     </details>
   );

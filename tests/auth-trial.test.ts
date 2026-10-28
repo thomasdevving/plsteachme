@@ -79,7 +79,7 @@ describe("one free session authorization", () => {
     expect((await trialAction(req({action:'start',skillId:'builtin:tie'}))).status).toBe(404);
   });
   it('requires an active matching account session even for the consent endpoint',async()=>{expect(await requireTrial(req())).toBeNull();mocks.maybeSingle.mockResolvedValue({data:{...trial,completed_at:'2026-10-17'},error:null});expect((await requireTrial(req()))?.status).toBe(403);});
-  it('resumes new lessons without creating a separate account entitlement',()=>{expect(trialResumeHref('builtin:laundry')).toBe('/learn?skill=laundry');const id='11111111-1111-4111-8111-111111111111';expect(trialResumeHref(publishedTrialId(id,2))).toBe(`/learn?lesson=${id}`);expect(trialResumeHref(trial.skill_id)).toBe('/coach/session/tie-four-in-hand');});
+  it('resumes new lessons without creating a separate account entitlement',()=>{expect(trialResumeHref('builtin:laundry')).toBe('/learn/laundry');const id='11111111-1111-4111-8111-111111111111';expect(trialResumeHref(publishedTrialId(id,2))).toBe(`/learn/lessons/${id}`);expect(trialResumeHref(trial.skill_id)).toBe('/learn/tie');});
   it("rejects anonymous access before calling storage", async () => {
     mocks.user.mockResolvedValue(null);
     expect((await requireTrial(req(), trial.skill_id))?.status).toBe(401);
@@ -201,7 +201,7 @@ describe("authentication boundaries", () => {
       "/coach/session/tie-four-in-hand?mode=watch",
     );
   });
-  it.each(['/learn?skill=shaving','/community','/teach?request=123'])('preserves shared account return destination %s',value=>{expect(safeNext(value)).toBe(value);});
+  it.each(['/learn?skill=shaving','/learn/tie','/training/modules/11111111-1111-4111-8111-111111111111','/community','/teach?request=123'])('preserves shared account return destination %s',value=>{expect(safeNext(value)).toBe(value);});
   it("removes the passwordless login action", async () => {
     expect((await authAction(req({action:'email',email:'person@example.com',signup:false}))).status).toBe(400);
     expect(mocks.otp).not.toHaveBeenCalled();

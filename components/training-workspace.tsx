@@ -8,7 +8,8 @@ import { organizationKindLabels, organizationKinds, planForLearners, resultSumma
 import { PlatformAccount, PlatformProvider, usePlatformAccount } from './platform-account';
 import { ModuleBuilder } from './training-builder';
 import { People, Plan, ProgressReport } from './training-admin';
-import { TrainingPlayer } from './training-player';
+import { useRouter } from 'next/navigation';
+import { trainingLessonHref } from '@/lib/lesson-navigation';
 
 type Invitation={organizationName:string;role:keyof typeof trainingRoleLabels;expired:boolean;emailMatches:boolean;invitedEmail:string}|{missing:true};
 type Me={user:{id:string;email?:string};memberships:TrainingMembership[];invitation:Invitation|null;canCreate:boolean;staff?:boolean};
@@ -71,16 +72,17 @@ function CreateOrganization({canCreate,onCreated}:{canCreate:boolean;onCreated:(
 }
 
 function Organization({organizationId,aiAvailable}:{organizationId:string;aiAvailable:boolean}){
-  const [view,setView]=useState<TrainingOrgView|null>(null);const [chosenTab,setTab]=useState<Tab|null>(null);const [message,setMessage]=useState('');const [playing,setPlaying]=useState('');
+  const router=useRouter();
+  const [view,setView]=useState<TrainingOrgView|null>(null);const [chosenTab,setTab]=useState<Tab|null>(null);const [message,setMessage]=useState('');
   const refresh=useCallback(async()=>{setView(await trainingFetch<TrainingOrgView>(`view=org&id=${organizationId}`));},[organizationId]);
   useEffect(()=>{refresh().catch(error=>setMessage(messageOf(error)));},[refresh]);
   if(!view)return <p role="status">{message||'Loading organization…'}</p>;
   const manager=view.role!=='learner';const tab=manager?chosenTab??'modules':'training';
   const tabs:[Tab,string][]=manager?[['modules','Modules'],['people','People'],['progress','Progress'],...(view.role==='admin'?[['plan','Plan'] as [Tab,string]]:[]),['training','Preview as learner']]:[];
   return <div className="studio-stack"><div className="platform-card-head"><div><h2 className="platform-section-title" style={{marginBottom:4}}>{view.organization.name}</h2><span className="platform-badge">{organizationKindLabels[view.organization.kind]} · {trainingRoleLabels[view.role]}</span></div></div>
-    {manager&&<div className="studio-tabs" role="group" aria-label="Organization workspace">{tabs.map(([id,label])=><button key={id} type="button" aria-pressed={tab===id} onClick={()=>{setTab(id);setPlaying('');}}>{label}</button>)}</div>}
+    {manager&&<div className="studio-tabs" role="group" aria-label="Organization workspace">{tabs.map(([id,label])=><button key={id} type="button" aria-pressed={tab===id} onClick={()=>{setTab(id);}}>{label}</button>)}</div>}
     <p className="platform-message platform-error" role="status">{message}</p>
-    {tab==='modules'&&manager?<ModuleBuilder view={view} refresh={refresh} aiAvailable={aiAvailable}/>:tab==='people'&&manager?<People view={view} refresh={refresh}/>:tab==='progress'&&manager?<ProgressReport view={view}/>:tab==='plan'&&view.role==='admin'?<Plan view={view} refresh={refresh}/>:playing?<TrainingPlayer moduleId={playing} onBack={()=>{setPlaying('');refresh().catch(error=>setMessage(messageOf(error)));}}/>:<Assigned view={view} onOpen={setPlaying}/>}
+    {tab==='modules'&&manager?<ModuleBuilder view={view} refresh={refresh} aiAvailable={aiAvailable}/>:tab==='people'&&manager?<People view={view} refresh={refresh}/>:tab==='progress'&&manager?<ProgressReport view={view}/>:tab==='plan'&&view.role==='admin'?<Plan view={view} refresh={refresh}/>:<Assigned view={view} onOpen={id=>router.push(trainingLessonHref(id))}/>}
   </div>;
 }
 

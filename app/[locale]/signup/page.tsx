@@ -21,7 +21,7 @@ export default async function Signup({
         google={google}
         apple={apple}
         captchaSiteKey={captchaSiteKey}
-        next={safeNext(query.next)}
+        next={safeNext(query.next || '/learn')}
       />
     </AuthShell>
   );

@@ -378,7 +378,7 @@ describe("password recovery and existing accounts", () => {
           ),
         )
       ).headers.get("location"),
-    ).toBe("https://plsteach.me/account");
+    ).toBe("https://plsteach.me/learn");
     expect(state.cookieSet).not.toHaveBeenCalled();
   });
 });

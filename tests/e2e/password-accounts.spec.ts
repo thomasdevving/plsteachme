@@ -68,7 +68,9 @@ test("registers with identity fields, checks password confirmation, and keeps em
 }) => {
   const attempts: Record<string, unknown>[] = [];
   await page.route("**/api/auth/action", async (route) => {
-    attempts.push(route.request().postDataJSON());
+    const body=route.request().postDataJSON();
+    if(body.action==='signup')expect(body.next).toBe('/learn');
+    attempts.push(body);
     await route.fulfill({ json: { ok: true } });
   });
   await page.goto("/signup");
@@ -122,6 +124,7 @@ test("logs in by username and edits a private profile and photo on desktop and m
     const body = route.request().postDataJSON();
     expect(body.action).toBe("login");
     expect(body.identifier).toBe("ADA_L");
+    expect(body.next).toBe('/learn');
     await route.fulfill(
       body.password === "wrong password"
         ? {
@@ -158,6 +161,7 @@ test("logs in by username and edits a private profile and photo on desktop and m
   await expect(page.getByLabel("Username", { exact: true })).toHaveValue(
     "ada_code",
   );
+  await expect(page.locator('.learning-app-header').getByRole('link',{name:'ada_code',exact:true})).toBeVisible();
   await page
     .getByLabel("Choose a profile photo", { exact: true })
     .setInputFiles({
@@ -177,8 +181,9 @@ test("logs in by username and edits a private profile and photo on desktop and m
     await page.setViewportSize({ width, height: 1000 });
     if (width < 750) {
       const form = await page.locator(".auth-form-area").boundingBox();
-      const aside = await page.locator(".auth-welcome").boundingBox();
-      expect(aside!.y).toBeGreaterThanOrEqual(form!.y + form!.height);
+      const header = await page.locator(".learning-app-header").boundingBox();
+      expect(form!.y).toBeGreaterThanOrEqual(header!.y + header!.height);
+      await expect(page.locator('.auth-welcome,.site-header,.site-footer')).toHaveCount(0);
     }
     expect(
       await page.evaluate(

@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       });
       if (!error) {
         if (recovery && data.user) await allowPasswordReset(data.user.id);
-        return redirect(new URL(recovery ? '/reset-password' : '/account', requestOrigin(request)));
+        return redirect(new URL(recovery ? '/reset-password' : '/learn', requestOrigin(request)));
       }
     }
   } catch {

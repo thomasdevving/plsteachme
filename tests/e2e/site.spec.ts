@@ -32,11 +32,11 @@ test('module filters and previews work with keyboard and reduced motion', async 
  await expect(page.locator('.skill-card')).toHaveCount(9);
  await page.getByRole('button',{name:'Personal care'}).click(); await expect(page.locator('.skill-card')).toHaveCount(2);
  await page.getByRole('button',{name:'All skills'}).click();
- await page.getByRole('button',{name:'Explore lesson: Do your laundry',exact:true}).click();
- await expect(page.locator('#module-preview')).toBeFocused(); await expect(page.locator('.lesson-copy')).toContainText('Read the care labels');
+ await page.getByRole('link',{name:'Explore lesson: Do your laundry',exact:true}).click();
+ await expect(page).toHaveURL(/\/learn\/laundry$/); await expect(page.locator('.lesson-copy')).toContainText('Read the care labels');
 
  await page.getByRole('button',{name:'Next lesson step',exact:true}).click(); await expect(page.locator('.lesson-copy')).toContainText('measure the detergent');
- await page.getByRole('button',{name:'Close module lesson'}).click(); await expect(page.getByRole('button',{name:'Explore lesson: Do your laundry',exact:true})).toBeFocused();
+ await page.goBack(); await expect(page.getByRole('link',{name:'Explore lesson: Do your laundry',exact:true})).toBeVisible();
  const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa']).analyze(); expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]); const labels=await new AxeBuilder({page}).withRules(['label-content-name-mismatch']).analyze(); expect(labels.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);
 });
 
@@ -60,7 +60,7 @@ test('the homepage explains the live test phase, without a waitlist or interest 
  await expect(phase.getByRole('link',{name:'Create an account'})).toHaveAttribute('href','/signup?next=%2Flearn');
  await expect(page.getByRole('button',{name:'I want to learn this'})).toHaveCount(0);
  await expect(page.locator('#skills .status-pill')).toHaveCount(0);
- await expect(page.locator('#skills .skill-card').first().getByRole('link',{name:'Start lesson'})).toHaveAttribute('href','/learn?skill=tie');
+ await expect(page.locator('#skills .skill-card').first().getByRole('link',{name:'Start lesson'})).toHaveAttribute('href','/learn/tie');
  const header=page.locator('.site-header');
  await expect(header.getByRole('link',{name:'Learn',exact:true})).toHaveAttribute('href','/learn');
  await expect(header.getByRole('link',{name:'Start free'})).toHaveCount(0);

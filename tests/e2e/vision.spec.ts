@@ -72,7 +72,7 @@ test('the active model runs on the learner’s device and is scored against the 
     const body=route.request().postDataJSON();
     await route.fulfill({json:{skill:body.skill,step:body.step,feedback:{status:'looks_right',confidence:'high',observation:'Both ends visible.',guidance:'Continue.'}}});
   });
-  await page.goto('/demo');
+  await page.goto('/learn/tie');await page.getByRole('button',{name:'Coach',exact:true}).click();
   const coach=page.locator('.camera-coach');
   await coach.getByRole('checkbox',{name:'Automatically advance camera-confirmed checkpoints'}).uncheck();
   await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();

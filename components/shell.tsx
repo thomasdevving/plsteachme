@@ -4,6 +4,7 @@ import type { Copy } from "@/lib/i18n";
 import { MobileMenu } from "./mobile-menu";
 import { BrandMark } from "./brand";
 import { Mascot } from "./mascot";
+import { AccountNavLink } from './account-nav-link';
 export function Header({
   c,
   locale,
@@ -50,7 +51,7 @@ export function Header({
             <a className="button secondary compact nav-teacher" href="/teach">
               Become a teacher
             </a>
-            <a className="button primary compact" href="/login">Log in</a>
+            <AccountNavLink className="button primary compact nav-account"/>
             <MobileMenu c={c.nav} home={home} page={page} />
           </div>
         </div>

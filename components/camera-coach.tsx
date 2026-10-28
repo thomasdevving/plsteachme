@@ -50,13 +50,15 @@ const cameraError = (error: unknown) => {
   return 'The camera could not start. You can try again or keep using the illustrated lesson.';
 };
 
-export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedLesson, organizationModule=false }: {
+export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedLesson, organizationModule=false, suspended=false, compact=false }: {
   skill: SkillId; step: number;
   onFeedback?:(step:number,feedback:CoachFeedback)=>void;
   onAutoAdvance?:(step:number)=>void;
   publishedLesson?:{id:string;version:number;document:LessonDocument};
   /** The published lesson is a private organization module; membership replaces the free trial. */
   organizationModule?:boolean;
+  suspended?:boolean;
+  compact?:boolean;
 }) {
   const trialId=useLearnerTrial();
   const [availability,setAvailability] = useState<'loading'|'ready'|'unavailable'|'error'>('loading');
@@ -102,6 +104,11 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     if (video.current) video.current.srcObject=null;
   },[]);
 
+  // A hidden tool must never keep capturing or advancing a lesson.
+  useEffect(()=>{
+    if(suspended){releaseCamera();setMode('off');setChecking(false);setCountdown(null);setStatus('');}
+  },[suspended,releaseCamera]);
+
   useEffect(()=>{
     const controller=new AbortController();
     fetchWithTimeout('/api/coaching/session',{cache:'no-store',signal:controller.signal})
@@ -123,6 +130,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   },[releaseCamera]);
 
   async function startCamera(nextFacing = facing) {
+    if(suspended)return;
     releaseCamera();
     const current = generation.current;
     setMessage(''); setFeedback(null); setChecking(false); setMode('starting'); setStatus('Starting camera…');
@@ -241,8 +249,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       {availability==='unavailable' && <p className="camera-notice">Camera coaching isn’t connected yet. You can still follow every illustrated lesson.</p>}
       {availability==='error' && <p className="camera-notice">Coaching availability could not be checked. Reload this page to try again.</p>}
       {availability==='ready' && <div className="camera-consent">
-        <p>{CAMERA_COACHING_DATA_NOTICE}</p>
-        <p>{OPENAI_API_DATA_NOTICE} Learn more in <a href={OPENAI_API_DATA_POLICY_URL} target="_blank" rel="noopener noreferrer">OpenAI’s API data policy</a> or <a href="/privacy">read our privacy details</a>.</p>
+        {compact?<><p>Automatic checks send still images through our server to OpenAI. We do not save these images. AI feedback can be wrong.</p><details><summary>How your camera data is handled</summary><p>{CAMERA_COACHING_DATA_NOTICE}</p><p>{OPENAI_API_DATA_NOTICE} <a href={OPENAI_API_DATA_POLICY_URL} target="_blank" rel="noopener noreferrer">OpenAI’s API data policy</a> · <a href="/privacy">Our privacy details</a></p></details></>:<><p>{CAMERA_COACHING_DATA_NOTICE}</p><p>{OPENAI_API_DATA_NOTICE} Learn more in <a href={OPENAI_API_DATA_POLICY_URL} target="_blank" rel="noopener noreferrer">OpenAI’s API data policy</a> or <a href="/privacy">read our privacy details</a>.</p></>}
         <label htmlFor={ageId}><input id={ageId} type="checkbox" checked={over16} onChange={event=>setOver16(event.target.checked)}/>I am 16 or older.</label>
         <label htmlFor={consentId}><input id={consentId} type="checkbox" checked={consent} onChange={event=>setConsent(event.target.checked)}/>I agree to automatic image checks while camera coaching is active.</label>
       </div>}

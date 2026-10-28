@@ -90,9 +90,9 @@
 .learning-catalog .catalog-journey-card h3{max-width:19ch;font:400 1.8rem/1.2 var(--font-lora),Georgia,serif;letter-spacing:-.025em}
 .learning-catalog .catalog-journey-card>p{font-size:.82rem;margin-top:12px;max-width:42ch}
 .learning-catalog .catalog-journey-card ol{margin:24px 0 20px}
-.learning-catalog .catalog-journey-card li button{gap:11px;padding:13px 0;font-size:.79rem;min-height:50px}
-.learning-catalog .catalog-journey-card li button>span{margin-left:0}
-.learning-catalog .catalog-journey-card li button:hover .catalog-journey-skill{color:var(--accent)}
+.learning-catalog .catalog-journey-card li .catalog-journey-skill-link{gap:11px;padding:13px 0;font-size:.79rem;min-height:50px}
+.learning-catalog .catalog-journey-card li .catalog-journey-skill-link>span{margin-left:0}
+.learning-catalog .catalog-journey-card li .catalog-journey-skill-link:hover .catalog-journey-skill{color:var(--accent)}
 .learning-catalog .catalog-journey-step{display:grid;place-items:center;flex-shrink:0;width:25px;height:25px;border-radius:50%;border:1px solid var(--line);color:var(--muted);font-size:.59rem;font-variant-numeric:tabular-nums}
 .learning-catalog .catalog-journey-card li .catalog-journey-skill{flex:1;font-size:.79rem;color:var(--ink);text-align:left}
 .learning-catalog .catalog-journey-card li .catalog-journey-complete{font-size:.6rem;max-width:10ch;line-height:1.4;text-align:right}

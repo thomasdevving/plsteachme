@@ -132,11 +132,12 @@ test('invited learner joins, practices with camera coaching and reports progress
   await page.getByRole('button',{name:'Start module'}).click();
   const player=page.locator('.published-lesson');
   await expect(player.getByRole('img',{name:'Your instructor’s result for step 1'})).toBeVisible();
+  await page.getByRole('button',{name:'Coach',exact:true}).click();
   const coach=player.locator('.camera-coach');
   await coach.getByLabel('I am 16 or older.',{exact:true}).check();
   await coach.getByLabel('I agree to automatic image checks',{exact:false}).check();
   await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Skip this step'}).click();
-  await expect(player.getByText('Step 2 of 2')).toBeVisible({timeout:15000});
+  await expect(player.getByText('Step 2 of 2')).toHaveText('Step 2 of 2',{timeout:15000});
   await coach.getByRole('button',{name:'Stop camera'}).click();
   await player.getByRole('button',{name:'Finish with my own check'}).click();
   await expect(player).toContainText('1 checkpoints confirmed by camera, 1 checked by you');

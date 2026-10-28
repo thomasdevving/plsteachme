@@ -1,5 +1,14 @@
 # Verification — landing website replacement
 
+## Learning app and branded confirmation — 28 October 2026
+
+- `/learn`, `/account` and `/training` now use learning navigation rather than the marketing header/footer. The signed-in account's username appears in the header and refreshes after a profile edit. Default signup/login returns to learning; explicit safe destinations are preserved.
+- Built-in lessons, reviewed teacher lessons and organization modules have dedicated pages. Legacy query links redirect, while progress keys, reviewed versions and free-session identifiers are preserved. Camera tools stop capturing and cancel automatic advancement when their view is left.
+- **359 unit/API/database tests across 42 files pass**, and TypeScript passes. All **96 main browser scenarios have passing production coverage** across the main run and targeted reruns after adapting navigation assertions. The four password/profile scenarios use an isolated production preview with dummy configuration and intercepted account APIs; they do not send real email or mutate Supabase.
+- A separate geometry check passed for all 63 built-in lesson steps at 1440×900, 390×844, 375×667, 320×568 and 844×390: the main step and navigation fit without page or instruction-panel scrolling. Long optional tool content and enlarged text remain scrollable inside their view rather than being cut off. Browser checks also cover keyboard navigation, accessibility, resume/reset/completion, questions, reports, organization progress, real local object tracking and on-device models with simulated media.
+- The full Next.js/OpenNext build and `npm run deploy:cloudflare -- --dry-run` pass. This validates the deployment bundle without publishing a Worker or validating live provider delivery/model accuracy.
+- `supabase/templates/confirm-signup.html` contains the branded, responsive account-confirmation email with the existing hands logo and unchanged confirmation-link placeholders. Its layout was previewed at 1440px, 390px and 320px. **It must still be pasted into Supabase Auth's Confirm signup template**; pushing this repository does not change the hosted template. Actual mail-client rendering and SMTP delivery remain production checks.
+
 ## Current connected-test readiness — 17 October 2026
 
 This latest entry supersedes historical readiness statements below. The app is prepared for a private connected test after Supabase/Auth/Storage and OpenAI setup. Real external email, storage and model quality still require that connected acceptance run; no paid inference or remote schema mutation was performed in this pass.

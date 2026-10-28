@@ -35,6 +35,8 @@ An OpenNext build verifies bundling, not live service integrations. Server-side 
 
 ## Pages and implementation
 
+The learning app is separate from the marketing site: `/learn` and `/account` use a focused header with the learner's account name. Lessons open on dedicated pages with viewport-sized steps and persistent navigation; the catalog no longer scrolls down to an inline player. See [learning navigation and lesson views](docs/LEARNING_UX.md).
+
 - `/`: landing, phone example, module library, waitlist and FAQ.
 - `/subscriptions`: existing coming-soon plans and pricing.
 - `/login`, `/signup`, `/account`: shared account and one free coaching session.
