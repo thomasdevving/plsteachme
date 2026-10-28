@@ -18,7 +18,8 @@ test('header links to teaching and login while the coach retains camera access a
  expect(new URL(legacy.url()).searchParams.get('debug')).toBe('1');
  const manifest = await request.get('/manifest.webmanifest');
  expect(manifest.status()).toBe(200);
- expect(await manifest.json()).toMatchObject({start_url:'/coach', icons:[{src:'/brand/hands-filled.png'}]});
+ // One manifest for the whole site: the installed app opens the learning environment.
+ expect(await manifest.json()).toMatchObject({id:'/learn',start_url:'/learn',scope:'/',icons:[{src:'/icons/icon-192.png'},{src:'/icons/icon-512.png'},{src:'/icons/maskable-512.png',purpose:'maskable'}]});
  const asset = await request.get('/skills/tie/drape.svg');
  expect(asset.headers()['content-type']).toContain('image/svg');
 });

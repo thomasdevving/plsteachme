@@ -9,7 +9,9 @@ import { CHECK_INTERVAL_MS, feedbackSchema, framingHints, type CoachFeedback } f
 import { getCheckpoint } from '@/lib/learning-catalog';
 import type { LessonDocument } from '@/lib/platform-contract';
 import { ReportFeedback } from './report-feedback';
-import { useLearnerTrial } from './learner-trial';
+import { OFFLINE_COACHING_MESSAGE, useLearnerTrial } from './learner-trial';
+import { onlineNow, reportNetworkFailure, useConnectivity } from '@/lib/offline/connectivity';
+import { setCameraActive } from '@/lib/pwa/activity';
 import { OnDeviceModel } from './on-device-model';
 import { ObjectTracking } from './object-tracking';
 import { learningSession } from '@/lib/learning-events';
@@ -62,6 +64,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
 }) {
   const trialId=useLearnerTrial();
   const [availability,setAvailability] = useState<'loading'|'ready'|'unavailable'|'error'>('loading');
+  const {online}=useConnectivity();
   const [mode,setMode] = useState<Mode>('off');
   const [consent,setConsent] = useState(false);
   const [over16,setOver16] = useState(false);
@@ -109,14 +112,31 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     if(suspended){releaseCamera();setMode('off');setChecking(false);setCountdown(null);setStatus('');}
   },[suspended,releaseCamera]);
 
+  // Offline, the camera stops and no frames are captured, kept or sent later.
   useEffect(()=>{
+    if(online)return;
+    if(modeRef.current!=='off')setMessage(OFFLINE_COACHING_MESSAGE);
+    releaseCamera();setMode('off');setChecking(false);setCountdown(null);setStatus('');setFeedback(null);
+  },[online,releaseCamera]);
+  const modeRef=useRef(mode);
+  useEffect(()=>{modeRef.current=mode;setCameraActive(mode!=='off');},[mode]);
+  useEffect(()=>()=>setCameraActive(false),[]);
+
+  // Availability is checked again whenever the connection returns.
+  useEffect(()=>{
+    if(!online||!onlineNow())return;
     const controller=new AbortController();
+    setAvailability('loading');
     fetchWithTimeout('/api/coaching/session',{cache:'no-store',signal:controller.signal})
       .then(async response=>{
         if (!response.ok) throw new Error('availability');
         const data=await response.json();
         if (!controller.signal.aborted) setAvailability(data.available===true?'ready':'unavailable');
       }).catch(()=>{if(!controller.signal.aborted)setAvailability('error');});
+    return ()=>controller.abort();
+  },[online]);
+
+  useEffect(()=>{
     const visibility=()=>{
       const isHidden=document.hidden;
       setHidden(isHidden);
@@ -126,11 +146,11 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     const leave=()=>{releaseCamera();setMode('off');setChecking(false);setStatus('');};
     document.addEventListener('visibilitychange',visibility);
     window.addEventListener('pagehide',leave);
-    return ()=>{controller.abort();releaseCamera();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',leave);};
+    return ()=>{releaseCamera();document.removeEventListener('visibilitychange',visibility);window.removeEventListener('pagehide',leave);};
   },[releaseCamera]);
 
   async function startCamera(nextFacing = facing) {
-    if(suspended)return;
+    if(suspended||!online||!onlineNow())return;
     releaseCamera();
     const current = generation.current;
     setMessage(''); setFeedback(null); setChecking(false); setMode('starting'); setStatus('Starting camera…');
@@ -207,8 +227,10 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
             setStatus(result.status==='looks_right'?'Visible checkpoint confirmed.':'Use your own checkpoint before moving on.');return;
           }
           setStatus('The coach will look again automatically.');
-        } catch {
+        } catch(error) {
           if(controller.signal.aborted)return;
+          // A connection failure is confirmed before deciding the app is offline.
+          if(error instanceof TypeError)reportNetworkFailure();
           failures++;
           if(failures>=3){setMode('paused');setStatus('Automatic checks paused.');setMessage('The coach could not respond. Checks are paused; resume when you’re ready.');return;}
           delay=CHECK_INTERVAL_MS*2**failures;
@@ -245,15 +267,16 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     <p className="camera-intro">Get feedback automatically as you practice. Clear visual checkpoints can move you forward after a short countdown.</p>
     {onAutoAdvance && <label className="camera-auto-advance"><input type="checkbox" checked={autoAdvance} onChange={event=>setAutoAdvance(event.target.checked)}/>Automatically advance camera-confirmed checkpoints</label>}
     {!active && <>
-      {availability==='loading' && <p role="status">Checking coaching availability…</p>}
-      {availability==='unavailable' && <p className="camera-notice">Camera coaching isn’t connected yet. You can still follow every illustrated lesson.</p>}
-      {availability==='error' && <p className="camera-notice">Coaching availability could not be checked. Reload this page to try again.</p>}
-      {availability==='ready' && <div className="camera-consent">
+      {!online && <p className="camera-notice" role="status">{OFFLINE_COACHING_MESSAGE}</p>}
+      {online && availability==='loading' && <p role="status">Checking coaching availability…</p>}
+      {online && availability==='unavailable' && <p className="camera-notice">Camera coaching isn’t connected yet. You can still follow every illustrated lesson.</p>}
+      {online && availability==='error' && <p className="camera-notice">Coaching availability could not be checked. Reload this page to try again.</p>}
+      {online && availability==='ready' && <div className="camera-consent">
         {compact?<><p>Automatic checks send still images through our server to OpenAI. We do not save these images. AI feedback can be wrong.</p><details><summary>How your camera data is handled</summary><p>{CAMERA_COACHING_DATA_NOTICE}</p><p>{OPENAI_API_DATA_NOTICE} <a href={OPENAI_API_DATA_POLICY_URL} target="_blank" rel="noopener noreferrer">OpenAI’s API data policy</a> · <a href="/privacy">Our privacy details</a></p></details></>:<><p>{CAMERA_COACHING_DATA_NOTICE}</p><p>{OPENAI_API_DATA_NOTICE} Learn more in <a href={OPENAI_API_DATA_POLICY_URL} target="_blank" rel="noopener noreferrer">OpenAI’s API data policy</a> or <a href="/privacy">read our privacy details</a>.</p></>}
         <label htmlFor={ageId}><input id={ageId} type="checkbox" checked={over16} onChange={event=>setOver16(event.target.checked)}/>I am 16 or older.</label>
         <label htmlFor={consentId}><input id={consentId} type="checkbox" checked={consent} onChange={event=>setConsent(event.target.checked)}/>I agree to automatic image checks while camera coaching is active.</label>
       </div>}
-      <button type="button" className="button secondary compact" disabled={availability!=='ready'||!consent||!over16||hidden} onClick={()=>{setObjectReady(false);void startCamera();}}><Camera size={17} aria-hidden="true"/>Start camera coaching</button>
+      <button type="button" className="button secondary compact" disabled={!online||availability!=='ready'||!consent||!over16||hidden} onClick={()=>{setObjectReady(false);void startCamera();}}><Camera size={17} aria-hidden="true"/>Start camera coaching</button>
     </>}
     {active && (objectReady?<p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>:<p className="camera-current-step"><strong>Before step {step+1}: show me the {objectName}</strong><br/>The coach learns what your {objectName} looks like, then follows it while you practice.</p>)}
     <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>

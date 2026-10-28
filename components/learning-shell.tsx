@@ -1,16 +1,18 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { BookOpen } from "lucide-react";
+import { BookOpen, HardDriveDownload } from "lucide-react";
 import { BrandMark } from "./brand";
 import { Utilities } from "./utilities";
 import { AccountNavLink } from "./account-nav-link";
+import { InstallAppButton } from "./install-app";
+import { AppStatus } from "./app-status";
 
 export function LearningShell({
   children,
   page = "learn",
 }: {
   children: ReactNode;
-  page?: "learn" | "account";
+  page?: "learn" | "account" | "offline";
 }) {
   return (
     <div className="learning-app">
@@ -34,6 +36,15 @@ export function LearningShell({
               <BookOpen size={18} aria-hidden="true" />
               My learning
             </Link>
+            <a
+              href="/learn/offline"
+              className="learning-offline-link"
+              aria-current={page === "offline" ? "page" : undefined}
+            >
+              <HardDriveDownload size={18} aria-hidden="true" />
+              <span>Offline lessons</span>
+            </a>
+            <InstallAppButton />
             <AccountNavLink
               learning
               className={
@@ -43,6 +54,7 @@ export function LearningShell({
           </nav>
         </div>
       </header>
+      <AppStatus />
       <main
         id="main"
         className={

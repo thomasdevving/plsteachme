@@ -1,4 +1,5 @@
 import { createStore, get, set, del, clear, entries, update } from "idb-keyval";
+import { removeAllPackages } from "../offline/packages";
 import type { SessionContext, StepRecord } from "../session/machine";
 import type { AvailableSkill } from "../skills/schema";
 import type { VerificationResponse } from "../ai/schemas";
@@ -95,6 +96,8 @@ export async function labelEval(
 export async function deleteMyData() {
   let failed=false;
   try { await clear(store()); } catch { failed=true; }
+  // Downloaded lessons are public files, but they show which lessons were used here.
+  try { await removeAllPackages(); } catch { failed=true; }
   for (const area of ['sessionStorage','localStorage'] as const) {
     try {
       const storage=window[area];

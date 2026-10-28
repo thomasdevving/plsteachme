@@ -44,6 +44,7 @@ The learning app is separate from the marketing site: `/learn` and `/account` us
 - `/organizations`: pilot interest form.
 - `/demo`: all nine interactive lessons with optional automatic camera coaching, plus an optional demo video and external demo link.
 - `/learn`: searchable skills, six real-life categories, learning journeys, saved progress and published teacher lessons.
+- `/learn/offline`: downloaded lessons for offline practice and install help. plsteach.me installs as a desktop app (PWA) that opens in `/learn`; the nine built-in lessons can be downloaded and practiced without a connection, while accounts and AI coaching stay online. See [installable app and offline lessons](docs/PWA.md).
 - `/community`: request a skill and support other learners' requests.
 - `/teach`: teacher applications, demonstration recording/upload, lesson editing, AI assistance and independent review.
 - Camera coaching can learn the learner's own object (“Show me the razor”) from a few views and track it on the live preview, entirely on the device. See [object enrollment and tracking](docs/VISION_MODELS.md#object-enrollment-and-tracking).
@@ -104,6 +105,7 @@ npm test
 npm run typecheck
 npm run build
 npm run test:e2e
+npm run test:pwa
 ```
 
 Browser checks use Chromium on port 3100 and should run against `npm start` for production-only checks. They cover canonical redirects, attribution, age boundaries, mocked forms, server authorization, module/phone controls, mobile overflow, WCAG checks, dark OS preference and reduced motion.

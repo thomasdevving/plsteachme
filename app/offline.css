@@ -1,0 +1,116 @@
+/* Installable app and offline lessons. Uses the existing paper, ink and accent tokens only. */
+.learning-app-header nav { align-items: center; }
+.learning-offline-link span { white-space: nowrap; }
+
+.install-app { position: relative; }
+.install-app-button {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 6px 12px;
+  border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--ink);
+  font-size: .8rem; white-space: nowrap;
+}
+.install-app-button:hover { background: var(--soft); }
+.install-app-help {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; width: min(320px, calc(100vw - 32px));
+  padding: 18px 40px 12px 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  box-shadow: 0 10px 30px #26392f1a; font-size: .85rem; line-height: 1.55;
+}
+.install-app-help:focus { outline: none; }
+.install-app-help:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.install-app-help > div { display: flex; gap: 18px; margin-top: 6px; }
+.install-app-close {
+  position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 36px; height: 36px;
+  border: 0; border-radius: 6px; background: transparent; color: var(--ink);
+}
+.install-app-close:hover { background: var(--soft); }
+
+/* Calm status lines: offline and app updates. */
+.app-status { border-bottom: 1px solid var(--line); background: var(--soft); }
+.app-status > p {
+  width: min(1180px, calc(100% - 80px)); margin: 0 auto; max-width: none; padding: 9px 0;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: .82rem; line-height: 1.45;
+}
+.app-status > p + p { border-top: 1px solid var(--line); }
+.app-status svg { flex-shrink: 0; color: var(--accent); }
+.app-status > p > span { flex: 1 1 260px; }
+.app-status .learning-text-button { min-height: 36px; padding: 6px 0; font-size: .78rem; }
+.lesson-screen .app-status[data-lesson] { grid-column: 1/-1; border: 0; border-radius: 7px; margin-top: 2px; }
+.lesson-screen .app-status[data-lesson] > p { width: auto; padding: 6px 12px; font-size: .74rem; }
+
+/* Download states. */
+.offline-badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 1px solid var(--line);
+  border-radius: 40px; background: var(--surface); color: var(--ink); font-size: .72rem; line-height: 1.35; white-space: nowrap;
+}
+.offline-badge svg { flex-shrink: 0; }
+.offline-badge[data-offline-status="offline"] svg { color: var(--ink); }
+.offline-badge[data-offline-status="failed"], .offline-badge[data-offline-status="update"] { border-color: var(--accent); }
+.offline-badge[data-offline-status="failed"] svg, .offline-badge[data-offline-status="update"] svg,
+.offline-badge[data-offline-status="downloading"] svg { color: var(--accent); }
+.offline-badge[data-offline-status="needs-network"] { color: var(--muted); white-space: normal; }
+.lesson-screen-count { display: inline-flex; align-items: center; gap: 10px; }
+.lesson-screen-count .offline-badge { font-size: .68rem; padding: 3px 8px; }
+
+.offline-control { margin: 22px 0; padding: 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.lesson-overview .offline-control h3 { margin: 0; font-size: 1rem; }
+.offline-control-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 14px; margin-bottom: 8px; }
+.offline-control > p { font-size: .85rem; margin: 8px 0 0; }
+.offline-meta { color: var(--muted); font-size: .78rem !important; }
+.offline-error { color: var(--accent); font-weight: 600; }
+.offline-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin-top: 12px; }
+.offline-actions .learning-text-button { display: inline-flex; align-items: center; gap: 6px; }
+.offline-progress { height: 6px; margin-top: 10px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.offline-progress > span { display: block; height: 100%; background: var(--accent); border-radius: 4px; transition: width .25s ease; }
+@media (prefers-reduced-motion: reduce) { .offline-progress > span { transition: none; } }
+
+.catalog-offline { margin-top: 10px; min-height: 30px; display: flex; align-items: center; }
+.offline-card-action {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 4px 0; border: 0; background: none;
+  color: var(--ink); font-size: .76rem; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 5px;
+}
+.offline-card-action:hover { text-decoration-color: currentColor; }
+.offline-card-action svg { flex-shrink: 0; color: var(--accent); }
+
+/* The offline library page. */
+.offline-library { padding-block: 30px 80px; }
+.offline-masthead { padding: 28px 0 32px; border-top: 1px solid var(--line); }
+.offline-masthead h1 { font-size: clamp(2.3rem, 4vw, 3.6rem); }
+.offline-masthead h1 em { font-weight: 400; color: var(--accent); }
+.offline-masthead h1 + p { margin-top: 18px; color: var(--muted); max-width: 60ch; font-size: .94rem; }
+.offline-arrival {
+  display: flex; gap: 10px; align-items: flex-start; max-width: none; margin: 0 0 24px; padding: 14px 16px;
+  border-left: 3px solid var(--accent); background: var(--surface); font-size: .9rem;
+}
+.offline-arrival svg { flex-shrink: 0; margin-top: 3px; color: var(--accent); }
+.offline-section { margin-top: 44px; }
+.offline-section > h2 { font-size: clamp(1.7rem, 2.4vw, 2.2rem); margin-bottom: 14px; }
+.offline-section > p { color: var(--muted); font-size: .9rem; }
+.offline-empty { color: var(--muted); }
+.offline-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.offline-row {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 16px;
+  padding: 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+.offline-row-art { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 10px; background: var(--soft); color: var(--accent); }
+.offline-row-copy h3 { font-size: 1.05rem; }
+.offline-row-copy > p { margin-top: 4px; font-size: .8rem; color: var(--muted); }
+.offline-row .offline-control { margin: 10px 0 0; padding: 0; border: 0; background: none; }
+.offline-row .offline-control-head { margin-bottom: 0; }
+.offline-row > .button { align-self: center; }
+.install-panel { padding: 24px; border-radius: 12px; background: var(--soft); }
+.install-panel > h2 { font-size: 1.5rem; }
+.install-panel > p { color: var(--ink); max-width: 62ch; }
+.install-panel .button { margin-top: 14px; }
+.coaching-offline strong { display: block; }
+
+@media (max-width: 750px) {
+  .learning-offline-link span, .install-app-button span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+  .install-app-button { padding: 6px 9px; }
+  .app-status > p { width: calc(100% - 40px); }
+  .offline-row { grid-template-columns: auto minmax(0, 1fr); padding: 15px; }
+  .offline-row > .button { grid-column: 1/-1; justify-self: start; }
+  .offline-row-art { width: 44px; height: 44px; }
+  .lesson-screen-count .offline-badge { display: none; }
+}
+.offline-kicker { margin: 0 0 14px; color: var(--accent); font-size: .7rem; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
+.offline-section .catalog-section-heading { margin-bottom: 18px; }
+.offline-section .catalog-section-heading h2 { font-size: clamp(1.7rem, 2.4vw, 2.2rem); }

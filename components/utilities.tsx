@@ -7,19 +7,24 @@ import { track } from "@/lib/analytics";
 import { type Locale } from "@/lib/config";
 import { startProgressSync } from "@/lib/progress-sync";
 import { fetchWithTimeout } from "@/lib/network";
+import { onlineNow, useConnectivity } from "@/lib/offline/connectivity";
 export function Utilities({ locale }: { locale: Locale }) {
   useEffect(() => {
     attribution(locale);
   }, [locale]);
-  // Signed-in learners keep lesson progress across devices.
+  // Signed-in learners keep lesson progress across devices. Progress made offline
+  // stays in this browser; when the connection returns, the sync starts again and
+  // merges per lesson, so the newer copy wins in both directions.
+  const { online } = useConnectivity();
   useEffect(() => {
+    if (!online || !onlineNow()) return;
     let stop: (() => void) | undefined, active = true;
     fetchWithTimeout("/api/auth/session", { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : null))
       .then((session) => { if (active && session?.user) stop = startProgressSync(); })
       .catch(() => {});
     return () => { active = false; stop?.(); };
-  }, []);
+  }, [online]);
   const provider = process.env.NEXT_PUBLIC_ANALYTICS_PROVIDER;
   const domain = process.env.NEXT_PUBLIC_ANALYTICS_DOMAIN;
   if (provider === "plausible" && domain)

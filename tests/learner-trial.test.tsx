@@ -7,6 +7,7 @@ const trial={id:'11111111-1111-4111-8111-111111111111',skill_id:'builtin:laundry
 let account:unknown,available:boolean;const fetcher=vi.fn();
 function Protected(){return <span>Active AI: {useLearnerTrial()}</span>;}
 beforeEach(()=>{vi.stubGlobal('React',React);vi.stubGlobal('fetch',fetcher);available=true;account={configured:true,user:{id:'account-id',email:'learner@example.test'},trial:null};fetcher.mockReset();fetcher.mockImplementation(async(url:string,options?:RequestInit)=>{
+ if(url==='/api/version')return Response.json({version:'test'});
  if(url==='/api/auth/session')return Response.json(account);
  if(url==='/api/coaching/session')return Response.json({available});
  const body=JSON.parse(String(options?.body));return Response.json({trial:body.action==='start'?trial:{...trial,completed_steps:body.completedSteps,completed_at:body.completedSteps===7?'2026-10-17':null}});

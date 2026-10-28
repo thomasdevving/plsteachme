@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
   // Coach has its own root layout; model/SVG assets must bypass locale routing.
   if (
     /^\/(auth|coach|skills|mediapipe)(\/|$)/.test(url.pathname) ||
-    /^\/(sw\.js|manifest\.webmanifest|icon-\d+\.png)$/.test(url.pathname)
+    /^\/(sw\.js|manifest\.webmanifest|icons\/[\w-]+\.png)$/.test(url.pathname)
   )
     return sessionResponse || NextResponse.next();
   const original = url.pathname;
@@ -46,6 +46,6 @@ export async function proxy(request: NextRequest) {
 }
 export const config = {
   matcher: [
-    "/((?!api|_next|fonts/|brand/|mascots/|tie.svg|icon.svg|robots.txt|sitemap.xml).*)",
+    "/((?!api|_next|fonts/|brand/|icons/|mascots/|tie.svg|icon.svg|sw.js|robots.txt|sitemap.xml).*)",
   ],
 };
