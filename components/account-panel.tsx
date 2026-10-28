@@ -1,4 +1,5 @@
 "use client";
+import { removeAllPackages } from "@/lib/offline/packages";
 import { fetchWithTimeout } from '@/lib/network';
 import { useCallback, useEffect, useState } from "react";
 import { ArrowRight, LogOut } from "lucide-react";
@@ -142,6 +143,8 @@ function DeleteAccount() {
       });
       const data = await response.json().catch(() => null);
       if (!response.ok) throw new Error(data?.message || "Your account could not be deleted. Please try again.");
+      // Lessons downloaded for offline use on this device go with the account.
+      await removeAllPackages().catch(() => {});
       window.location.assign("/?account=deleted");
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Your account could not be deleted. Please try again.");
@@ -154,7 +157,7 @@ function DeleteAccount() {
       <p>
         This permanently deletes your account, your profile and photo, your saved lesson progress, your free session, your skill requests and
         support, and any teacher profile, lessons and demonstration videos. Organizations you belong to keep their own
-        training records without your name or email. This cannot be undone.
+        training records without your name or email. Lessons downloaded for offline use on this device are removed too. This cannot be undone.
       </p>
       <label>
         Type <strong>delete my account</strong> to confirm

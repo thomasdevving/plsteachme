@@ -1,3 +1,4 @@
+import { AppDownload } from "./app-download";
 import Image from "next/image";
 import { BRAND, pathFor, type Locale, type Page } from "@/lib/config";
 import type { Copy } from "@/lib/i18n";
@@ -73,6 +74,7 @@ export function Footer({
   return (
     <footer className="site-footer">
       <div className="container">
+        <AppDownload />
         <div className="footer-top">
           <div className="footer-companions" aria-hidden="true">
             <Mascot pose="sitting" color="orange" />

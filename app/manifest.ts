@@ -1,21 +1,21 @@
 import type { MetadataRoute } from "next";
+import { APP_BACKGROUND, APP_ID, APP_NAME, APP_SCOPE, APP_SHORT_NAME, APP_START_URL, APP_THEME, appIcons } from "@/lib/pwa/config";
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "plsteach.me",
-    short_name: "plsteach.me",
-    description: "A little help. A skill for life.",
-    start_url: "/coach",
+    id: APP_ID,
+    name: APP_NAME,
+    short_name: APP_SHORT_NAME,
+    description: "Practical skills with illustrated lessons and online camera coaching. Download lessons to practice offline.",
+    start_url: APP_START_URL,
+    scope: APP_SCOPE,
     display: "standalone",
-    background_color: "#faf7f2",
-    theme_color: "#22372c",
-    scope: "/coach/",
-    icons: [
-      {
-        src: "/brand/hands-filled.png",
-        sizes: "1254x1254",
-        type: "image/png",
-        purpose: "any",
-      },
-    ],
+    display_override: ["standalone", "minimal-ui"],
+    orientation: "any",
+    lang: "en",
+    dir: "ltr",
+    categories: ["education", "lifestyle"],
+    background_color: APP_BACKGROUND,
+    theme_color: APP_THEME,
+    icons: appIcons.map((icon) => ({ ...icon })),
   };
 }

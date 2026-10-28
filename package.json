@@ -16,6 +16,8 @@
     "prepare:vision": "node scripts/prepare-vision.mjs",
     "validate:skills": "node --import tsx scripts/validate-skills.ts",
     "test:browser": "playwright test --config=playwright.coach.config.ts",
+    "test:pwa": "playwright test --config=playwright.pwa.config.ts",
+    "generate:icons": "node scripts/generate-icons.mjs",
     "test:camera-fixture": "node tests/preview-server.mjs",
     "test:camera-flow": "node tests/capture-live.mjs"
   },

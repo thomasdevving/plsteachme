@@ -1,4 +1,16 @@
 import type { NextConfig } from "next";
+import { execSync } from "node:child_process";
+// One version per build, shared by the pages, /api/version and offline lesson
+// packages. Stored in process.env so build workers that reload this file agree.
+function appVersion() {
+  if (process.env.NEXT_PUBLIC_APP_VERSION) return process.env.NEXT_PUBLIC_APP_VERSION;
+  let commit = process.env.WORKERS_CI_COMMIT_SHA || process.env.GITHUB_SHA || "";
+  if (!commit) try { commit = execSync("git rev-parse HEAD", { stdio: ["ignore", "pipe", "ignore"] }).toString().trim(); } catch { /* No git checkout. */ }
+  const version = `${commit.slice(0, 8) || "local"}-${Date.now().toString(36)}`;
+  process.env.NEXT_PUBLIC_APP_VERSION = version;
+  return version;
+}
+const APP_VERSION = process.env.NODE_ENV === "development" ? "dev" : appVersion();
 // Content security policy for production. Scripts stay same-origin (plus the optional
 // analytics host and Cloudflare Turnstile); the site cannot be framed by other sites.
 // Connections and media may use any HTTPS host: the Supabase project URL is runtime
@@ -28,6 +40,7 @@ const securityHeaders = process.env.NODE_ENV === "production" ? [
 ] : [];
 const config: NextConfig = {
   poweredByHeader: false,
+  env: { NEXT_PUBLIC_APP_VERSION: APP_VERSION },
   outputFileTracingIncludes: {
     "/*": ["./skills/**/*.json", "./public/skills/**/*.svg"],
     // OpenNext bundles proxy dependencies as ESM; Node tracing only finds CJS.
@@ -69,6 +82,14 @@ const config: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(self), microphone=(), geolocation=()",
           },
+        ],
+      },
+      {
+        // The service worker must always be revalidated so fixes reach installed apps.
+        source: "/sw.js",
+        headers: [
+          { key: "Cache-Control", value: "no-cache, no-store, must-revalidate" },
+          { key: "Content-Type", value: "application/javascript; charset=utf-8" },
         ],
       },
       {

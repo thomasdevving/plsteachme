@@ -13,8 +13,7 @@ import { copy } from "@/lib/copy/en";
 export const metadata: Metadata = {
   title: { default: copy.brand, template: `%s · ${copy.brand}` },
   description: copy.home.intro,
-  icons: { icon: "/brand/hands-filled.png", apple: "/brand/hands-filled.png" },
-  manifest: "/manifest.webmanifest",
+  icons: { icon: "/brand/hands-filled.png", apple: "/icons/apple-touch-icon.png" },
   robots: { index: false, follow: false },
 };
 export default function RootLayout({

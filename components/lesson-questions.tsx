@@ -5,6 +5,7 @@ import { MessageCircle, Volume2 } from 'lucide-react';
 import type { SkillId } from '@/lib/config';
 import { answerSchema, type PublishedHelpReference } from '@/lib/lesson-help';
 import { useLearnerTrial } from './learner-trial';
+import { onlineNow, useConnectivity } from '@/lib/offline/connectivity';
 
 export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step:number;publishedLesson?:PublishedHelpReference}) {
   const trialId=useLearnerTrial();
@@ -18,19 +19,21 @@ export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step
   const id=useId();
   const publishedId=publishedLesson?.id;
   const publishedVersion=publishedLesson?.version;
+  const {online}=useConnectivity();
   useEffect(()=>{
+    if(!online||!onlineNow()){request.current?.abort();setBusy(false);return;}
     const controller=new AbortController();
     fetchWithTimeout('/api/coaching/session',{signal:controller.signal,cache:'no-store'})
       .then(response=>response.json()).then(data=>{if(!controller.signal.aborted)setAvailable(data.available===true);}).catch(()=>{});
     return ()=>controller.abort();
-  },[]);
+  },[online]);
   useEffect(()=>{
     request.current?.abort();setAnswer(null);setMessage('');setBusy(false);setQuestion('');
     return ()=>{request.current?.abort();window.speechSynthesis?.cancel();};
   },[skill,step,publishedId,publishedVersion]);
   async function ask(event:React.FormEvent) {
     event.preventDefault();
-    if(busy||!consent||!available)return;
+    if(busy||!consent||!available||!online)return;
     const controller=new AbortController();request.current=controller;
     setBusy(true);setMessage('');setAnswer(null);
     try {
@@ -49,7 +52,7 @@ export function LessonQuestions({skill,step,publishedLesson}:{skill:SkillId;step
   return <section className="lesson-questions" aria-labelledby={`${id}-heading`}>
     <h4 id={`${id}-heading`}><MessageCircle size={19} aria-hidden="true"/>Ask about this step</h4>
     <p>Ask for a simpler explanation or help understanding the checkpoint. Questions do not change your progress.</p>
-    {!available ? <p className="small muted">AI questions will be available when the coach is connected. The written instructions and tips are ready to use.</p> : <form onSubmit={ask}>
+    {!online ? <p className="small muted" role="status">Questions need an internet connection. The written instructions and tips work offline.</p> : !available ? <p className="small muted">AI questions will be available when the coach is connected. The written instructions and tips are ready to use.</p> : <form onSubmit={ask}>
       <label htmlFor={`${id}-question`}>Your question</label>
       <textarea id={`${id}-question`} value={question} onChange={e=>setQuestion(e.target.value)} minLength={3} maxLength={600} required rows={3} placeholder="Which end should I hold?"/>
       <label className="help-consent"><input type="checkbox" checked={consent} onChange={e=>setConsent(e.target.checked)}/>I am 16 or older and agree to send this question to OpenAI. Avoid personal details. <a href="/privacy">Privacy details</a>.</label>

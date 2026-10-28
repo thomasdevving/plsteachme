@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { BrandMark } from "./brand";
 import { AccountNavLink } from "./account-nav-link";
+import { AppStatus } from "./app-status";
 
 type View = "practice" | "coach" | "prepare" | "record";
 type WorkspaceProps = {
@@ -31,6 +32,10 @@ type WorkspaceProps = {
   controls: ReactNode;
   note?: ReactNode;
   coaching?: (visible: boolean) => ReactNode;
+  /** Whether this lesson is downloaded for offline use (shown when offline). */
+  downloaded?: boolean;
+  /** A compact offline state shown next to the step count. */
+  badge?: ReactNode;
 };
 
 /** A dedicated lesson screen: navigation stays visible while optional tools have their own view. */
@@ -51,6 +56,8 @@ export function LessonWorkspace({
   controls,
   note,
   coaching,
+  downloaded = false,
+  badge,
 }: WorkspaceProps) {
   const [view, setView] = useState<View>("practice");
   const id = useId();
@@ -92,6 +99,7 @@ export function LessonWorkspace({
           <h1>{title}</h1>
         </div>
         <span className="lesson-screen-count">
+          {badge}
           {completed ? "Complete" : `${step + 1} / ${steps}`}
         </span>
         <div
@@ -114,6 +122,7 @@ export function LessonWorkspace({
             />
           ))}
         </div>
+        <AppStatus lesson downloaded={downloaded} />
       </div>
       <nav className="lesson-view-switcher" aria-label="Lesson views">
         {views.map(({ id: panel, label, icon: Icon }) => (

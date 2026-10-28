@@ -10,6 +10,7 @@ import { PROGRESS_EVENT, PROGRESS_KEY, progressSummary, readProgress, type Learn
 import { SkillIcon } from './illustrations';
 import Link from 'next/link';
 import { builtinLessonHref } from '@/lib/lesson-navigation';
+import { OfflineCardAction } from './offline-lesson';
 
 function CheckpointTrack({ saved }: { saved: LessonProgress }) {
   return <span className="catalog-checkpoints" aria-hidden="true">
@@ -92,6 +93,7 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
             <small>Illustrated walkthrough</small>
             {saved && summary ? <div className="catalog-progress-note"><CheckpointTrack saved={saved} /><p className="catalog-saved">{saved.completed ? 'Walkthrough complete' : 'Practice started'} · {summary.camera} camera-confirmed · {summary.self} self-checked · {summary.unresolved} unresolved</p></div> : null}
             <Link className="button secondary compact" href={builtinLessonHref(skill)}>{saved?.completed ? 'Review' : saved ? 'Resume' : 'Start'} {names[skill]}<ArrowRight size={18} aria-hidden="true" /></Link>
+            <div className="catalog-offline"><OfflineCardAction skill={skill} name={names[skill]} /></div>
           </div>
         </article>;
       })}</div>
