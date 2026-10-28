@@ -105,3 +105,36 @@ test.describe('a browser without installation', () => {
     await expect(page.getByRole('link', { name: /download/i })).toHaveCount(0);
   });
 });
+
+test.describe('the get-the-app band at the bottom of the website', () => {
+  test('installs through the browser prompt, never offers a fake installer, and stays off the learning pages', async ({ page }) => {
+    await page.addInitScript(() => { (window as unknown as { __prompts: number }).__prompts = 0; });
+    await page.goto('/');
+    const band = page.getByRole('region', { name: 'Learn on your laptop, even offline.' });
+    await expect(band).toBeVisible();
+    // Without an install offer it points to the lessons and explains where installing works.
+    await expect(band.getByRole('link', { name: 'Start learning' })).toHaveAttribute('href', '/learn');
+    await expect(band.getByText(/Install it from Chrome or Edge/)).toBeVisible();
+    await page.evaluate(() => {
+      const event = new Event('beforeinstallprompt', { cancelable: true });
+      Object.assign(event, { prompt: async () => { (window as unknown as { __prompts: number }).__prompts++; }, userChoice: Promise.resolve({ outcome: 'accepted' }) });
+      window.dispatchEvent(event);
+    });
+    await band.getByRole('button', { name: 'Install the app' }).click();
+    await expect.poll(() => page.evaluate(() => (window as unknown as { __prompts: number }).__prompts)).toBe(1);
+    await expect(band.getByText('plsteach.me is installed. Open it from your apps.')).toBeVisible();
+    await expect(band.getByRole('link', { name: 'Download lessons' })).toHaveAttribute('href', '/learn/offline');
+    await expect(page.locator('a[href$=".exe"], a[href$=".dmg"], a[href$=".msi"], a[download]')).toHaveCount(0);
+    await page.goto('/learn');
+    await expect(page.locator('.app-download')).toHaveCount(0);
+  });
+
+  test.describe('in Safari on a Mac', () => {
+    test.use({ userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15' });
+    test('explains Add to Dock', async ({ page }) => {
+      await page.goto('/');
+      await page.getByRole('button', { name: 'Add to Dock' }).click();
+      await expect(page.getByText('In Safari, choose File › Add to Dock.', { exact: false })).toBeVisible();
+    });
+  });
+});

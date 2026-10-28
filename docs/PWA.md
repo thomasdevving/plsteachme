@@ -12,7 +12,7 @@ plsteach.me can be installed on a laptop as a Progressive Web App. It is the sam
 | --- | --- |
 | Manifest, icons, version | `app/manifest.ts`, `lib/pwa/config.ts`, `public/icons/*` (from `scripts/generate-icons.mjs`), `app/api/version/route.ts`, `next.config.ts` |
 | Service worker and registration | `public/sw.js`, `components/pwa.tsx` (one registration for `/`; the old `/coach/` one is removed) |
-| Install action | `lib/pwa/install.ts`, `components/install-app.tsx` |
+| Install action | `lib/pwa/install.ts`, `components/install-app.tsx`, `components/app-download.tsx` (website footer band) |
 | Offline packages | `lib/offline/packages.ts` (storage), `lib/offline/store.ts` (UI state), `components/offline-lesson.tsx` |
 | Offline library (offline shell) | `app/[locale]/learn/offline/page.tsx`, `components/offline-library.tsx` |
 | Connectivity and notices | `lib/offline/connectivity.ts`, `components/app-status.tsx`, `lib/network.ts` |
@@ -38,6 +38,12 @@ plsteach.me can be installed on a laptop as a Progressive Web App. It is the sam
 - No download button for an installer file exists, because there is none.
 
 ![Safari Add to Dock instructions](pwa/11-safari-add-to-dock.png)
+
+### On the website
+
+The bottom of every public page (just above the footer wordmark) has a *Get the app* band: **Learn on your laptop, even offline.** Its main button does what the visitor's browser can really do: **Install the app** opens the Chrome/Edge install prompt, **Add to Dock** shows the Safari steps, **Open your lessons** appears in the installed app, and other browsers get **Start learning** with a note on where installing works. **Download lessons** links to `/learn/offline`. The window on the right is an illustration built from the site's own styles. The band never appears in the learning environment, and there is no installer file to download.
+
+![Get the app band at the bottom of the website](pwa/14-website-get-the-app.png)
 
 ## Offline lessons
 
@@ -151,7 +157,7 @@ Commands, against a production build (offline behavior is not tested with `next 
 npm test                 # unit tests, including service worker routing, packages, connectivity, manifest and icons
 npm run typecheck
 npm run build && npm start
-npm run test:pwa         # 22 real-service-worker browser tests (Chromium)
+npm run test:pwa         # 25 real-service-worker browser tests (Chromium)
 npm run test:e2e         # existing production browser tests
 npm run test:browser     # existing coach tests; needs ENABLE_INTERNAL_TOOLS=true on the server
 npm run build:cloudflare # OpenNext build; `npx wrangler dev` then `TEST_BASE_URL=http://localhost:8787 npm run test:pwa`
@@ -172,10 +178,11 @@ If the pinned Playwright cannot find its browser, set `TEST_BROWSER_PATH` to an 
 - no AI, trial or camera requests while practicing offline; no camera-confirmed checkpoints; nothing queued in storage;
 - going offline stops an active camera's tracks, and reconnecting does not restart it or ask for the camera again;
 - `/auth/confirm` and `/auth/callback` links bypass the service worker and reach the existing routes;
-- the marketing site works with the worker installed and caches nothing;
+- the marketing site works with the worker installed and caches nothing; the *Get the app* band uses the real install prompt or Safari instructions, links to no installer file, and does not appear on learning pages;
+- the band, the offline library (online and offline), the download controls and the offline lesson notice pass axe WCAG 2 A/AA checks;
 - offline progress syncs after reconnecting, and a newer account copy is not overwritten by an older local one.
 
-The same 22 tests passed against the Cloudflare worker running locally in `wrangler dev` (workerd).
+The same suite (22 tests at the time; the website band tests were added later) passed against the Cloudflare worker running locally in `wrangler dev` (workerd).
 
 **Existing checks, still passing:** unit and API tests (sign-in and registration, password recovery, profiles, progress sync, organization authorization, data deletion), production e2e tests (login, signup, the username top right, profile editing, camera permission and stopping tracks, training access, the marketing site) and the coach browser tests.
 
