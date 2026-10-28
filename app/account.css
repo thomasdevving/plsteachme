@@ -1,3 +1,17 @@
+.auth-form-area > form {
+  margin-top: 24px;
+}
+.auth-form-area form > input + label,
+.auth-form-area form > .auth-hint + label,
+.auth-form-area form > .profile-name-fields + label {
+  margin-top: 20px;
+}
+.auth-form-area form > .auth-hint {
+  margin-top: 10px;
+}
+.auth-form-area .auth-switch a {
+  margin-left: 0;
+}
 .profile-name-fields {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
