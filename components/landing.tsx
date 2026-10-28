@@ -146,7 +146,7 @@ export function Landing({
                   {item.q}
                   <span aria-hidden="true">+</span>
                 </summary>
-                <p>{item.a}</p>
+                <p>{item.a}{'policyLink' in item && item.policyLink && <>{' '}Learn more in <a href={item.policyLink} target="_blank" rel="noopener noreferrer">OpenAI’s API data policy</a>.</>}</p>
               </details>
             ))}
           </div>

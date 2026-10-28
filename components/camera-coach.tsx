@@ -1,5 +1,5 @@
 'use client';
-import { OPENAI_API_DATA_NOTICE } from "@/lib/openai-privacy";
+import { CAMERA_COACHING_DATA_NOTICE, OPENAI_API_DATA_NOTICE, OPENAI_API_DATA_POLICY_URL } from "@/lib/openai-privacy";
 import { fetchWithTimeout } from '@/lib/network';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Camera, CameraOff, Pause, Play, RefreshCw } from 'lucide-react';
@@ -241,7 +241,8 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       {availability==='unavailable' && <p className="camera-notice">Camera coaching isn’t connected yet. You can still follow every illustrated lesson.</p>}
       {availability==='error' && <p className="camera-notice">Coaching availability could not be checked. Reload this page to try again.</p>}
       {availability==='ready' && <div className="camera-consent">
-        <p>While coaching is active, pairs of still images go to OpenAI automatically, usually several seconds apart. Live video stays on your device. Images pass through our server, but we do not save these coaching images. {OPENAI_API_DATA_NOTICE} <a href="/privacy">Read the privacy details</a>.</p>
+        <p>{CAMERA_COACHING_DATA_NOTICE}</p>
+        <p>{OPENAI_API_DATA_NOTICE} Learn more in <a href={OPENAI_API_DATA_POLICY_URL} target="_blank" rel="noopener noreferrer">OpenAI’s API data policy</a> or <a href="/privacy">read our privacy details</a>.</p>
         <label htmlFor={ageId}><input id={ageId} type="checkbox" checked={over16} onChange={event=>setOver16(event.target.checked)}/>I am 16 or older.</label>
         <label htmlFor={consentId}><input id={consentId} type="checkbox" checked={consent} onChange={event=>setConsent(event.target.checked)}/>I agree to automatic image checks while camera coaching is active.</label>
       </div>}

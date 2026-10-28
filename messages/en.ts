@@ -1,6 +1,6 @@
 import { missingCopy } from "./not-found";
 import { BRAND } from "@/lib/config";
-import { OPENAI_API_DATA_NOTICE, OPENAI_API_DATA_DETAILS } from "@/lib/openai-privacy";
+import { CAMERA_COACHING_DATA_NOTICE, OPENAI_API_DATA_NOTICE, OPENAI_API_DATA_DETAILS, OPENAI_API_DATA_POLICY_URL } from "@/lib/openai-privacy";
 export const en = {
   nav: {
     how: "How it works",
@@ -164,7 +164,7 @@ export const en = {
     saved: "Saved.",
     optional: "optional",
   },
-  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `plsteach.me is in a live test phase. Every illustrated lesson is free to follow, and with a free account you can currently complete one module with camera coaching. Subscriptions will be available later: Starter ($6/month), Plus ($20/month) and organization plans ($100–$500/month, depending on student count).` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: `Live video stays on your device. During camera coaching, still images are automatically sent through our server to OpenAI. We do not save these coaching images. ${OPENAI_API_DATA_NOTICE} See the privacy details.` }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
+  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `plsteach.me is in a live test phase. Every illustrated lesson is free to follow, and with a free account you can currently complete one module with camera coaching. Subscriptions will be available later: Starter ($6/month), Plus ($20/month) and organization plans ($100–$500/month, depending on student count).` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: `${CAMERA_COACHING_DATA_NOTICE} ${OPENAI_API_DATA_NOTICE}`, policyLink: OPENAI_API_DATA_POLICY_URL }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
   thanks: {
     title: "You’re on the list.",
     intro:
