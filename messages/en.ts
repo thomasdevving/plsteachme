@@ -93,7 +93,7 @@ export const en = {
     early: "The organization workspace opens to pilot partners first.",
     teaser: "Helping others find their feet?",
     teaserBody: "Bring guided practice to your group.",
-    cta: "Help shape a pilot",
+    cta: "Teach a group",
     useCases: [
       {
         title: "Schools and vocational education",
