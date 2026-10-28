@@ -1,4 +1,5 @@
 'use client';
+import { OPENAI_API_DATA_NOTICE } from "@/lib/openai-privacy";
 import { fetchWithTimeout } from '@/lib/network';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Camera, CameraOff, Pause, Play, RefreshCw } from 'lucide-react';
@@ -240,7 +241,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       {availability==='unavailable' && <p className="camera-notice">Camera coaching isn’t connected yet. You can still follow every illustrated lesson.</p>}
       {availability==='error' && <p className="camera-notice">Coaching availability could not be checked. Reload this page to try again.</p>}
       {availability==='ready' && <div className="camera-consent">
-        <p>While coaching is active, pairs of still images go to OpenAI automatically, usually several seconds apart. Live video stays on your device. This app does not save images; OpenAI’s retention rules apply. <a href="/privacy">Read the privacy details</a>.</p>
+        <p>While coaching is active, pairs of still images go to OpenAI automatically, usually several seconds apart. Live video stays on your device. Images pass through our server, but we do not save these coaching images. {OPENAI_API_DATA_NOTICE} <a href="/privacy">Read the privacy details</a>.</p>
         <label htmlFor={ageId}><input id={ageId} type="checkbox" checked={over16} onChange={event=>setOver16(event.target.checked)}/>I am 16 or older.</label>
         <label htmlFor={consentId}><input id={consentId} type="checkbox" checked={consent} onChange={event=>setConsent(event.target.checked)}/>I agree to automatic image checks while camera coaching is active.</label>
       </div>}

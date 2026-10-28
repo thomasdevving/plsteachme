@@ -1,3 +1,4 @@
+import { OPENAI_API_DATA_NOTICE } from "../openai-privacy";
 export const copy = {
   brand: "plsteach.me",
   motion: {
@@ -224,7 +225,7 @@ export const liveCopy = {
   live: "Camera coaching",
   privacyTitle: "Your camera. Your choice.",
   privacy:
-    "Your live video is processed on this device for framing, light and movement. In live AI mode, when you finish a step, up to three cropped still frames go to our server and then to OpenAI to check the step. This app does not save those images on the server. OpenAI processes them under its API data policies. You can stop at any time.",
+    `Your live video is processed on this device for framing, light and movement. In live AI mode, when you finish a step, up to three cropped still frames go to our server and then to OpenAI to check the step. We do not save these coaching images on the server. ${OPENAI_API_DATA_NOTICE} You can stop at any time. Read the privacy statement for details.`,
   privacyVoice:
     "Voice commands are optional. Your browser may send microphone audio to its speech recognition provider. You can use every feature with buttons instead.",
   age: "If you’re under 16, practice with a parent or guardian.",
