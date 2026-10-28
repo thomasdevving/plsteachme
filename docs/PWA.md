@@ -62,6 +62,7 @@ A lesson package holds what independent practice needs: the lesson page (instruc
 - **Remove download** deletes the package only. **Reset lesson progress** in Prepare is a separate action, and removing a download never touches progress.
 - **Not enough storage:** before starting, the browser's storage estimate is checked; a full disk during the download is also caught. Both show a clear message and keep nothing.
 - **Interrupted connection:** the partial package is deleted at once and the learner can retry. A package abandoned by a closed window is cleaned up on the next start.
+- **Cancel:** the action cancels the entire lesson download, including preparation of the offline library. Concurrent lessons share library preparation; cancelling one does not cancel another. Removing downloads waits for pending writes to stop before clearing storage.
 - **Damaged package** (a file was evicted): it is never served. The lesson shows *Download failed* with a repair message, and **Try again** replaces it.
 - Account deletion and *Delete my data* also remove all offline packages. The install preference is a `plsteach.*` key, so it is cleared with the rest.
 
@@ -93,6 +94,10 @@ When the connection returns, coaching availability and the account are checked a
 ## Progress and accounts
 
 Progress keeps its storage key (`plsteach.learning.v1`), lesson ids and checkpoint states (camera-confirmed, self-checked and unresolved stay separate). Offline progress is saved locally on every step, as before. The account sync now stops while offline and starts again when the connection returns. It then merges per lesson by change time, so the newer copy wins both in the browser and on the server (`progress_save` already refuses older copies). An open lesson page now adopts a newer synced copy instead of writing its older state over it later.
+
+Failed progress reads and writes are retried with bounded exponential backoff (5–60 seconds), and immediately on reconnect, window focus or **Retry sync**. Writes are serialized and acknowledged only after an HTTP success, so a failed upload remains pending. Retrying never changes the original edit timestamp. A visible notice explains that account synchronization failed. Leaving the page or going offline cancels pending requests and retry timers. The account navigation rechecks the session and profile after reconnecting so the username returns without a reload.
+
+On short screens, lesson pages use a compact offline notice while retaining the full explanation for screen readers. At 320 × 568, the artwork sits above full-width instructions so the checkpoint and navigation remain visible. The layout regression covers all 63 built-in steps at 320 × 568, 375 × 667 and 844 × 390, without hiding or truncating instructions.
 
 Authentication stays online-only. `/api/*` and `/auth/*` are never intercepted by the service worker, account pages are never cached, and no token is stored. Confirmation and recovery links opened in the installed app go straight to the existing server routes. Offline, sign-in and account pages show the offline library with *Your account, sign-in and password links need an internet connection.*
 
@@ -157,7 +162,7 @@ Commands, against a production build (offline behavior is not tested with `next 
 npm test                 # unit tests, including service worker routing, packages, connectivity, manifest and icons
 npm run typecheck
 npm run build && npm start
-npm run test:pwa         # 25 real-service-worker browser tests (Chromium)
+npm run test:pwa         # 31 real-service-worker browser tests (Chromium)
 npm run test:e2e         # existing production browser tests
 npm run test:browser     # existing coach tests; needs ENABLE_INTERNAL_TOOLS=true on the server
 npm run build:cloudflare # OpenNext build; `npx wrangler dev` then `TEST_BASE_URL=http://localhost:8787 npm run test:pwa`
@@ -181,6 +186,8 @@ If the pinned Playwright cannot find its browser, set `TEST_BROWSER_PATH` to an 
 - the marketing site works with the worker installed and caches nothing; the *Get the app* band uses the real install prompt or Safari instructions, links to no installer file, and does not appear on learning pages;
 - the band, the offline library (online and offline), the download controls and the offline lesson notice pass axe WCAG 2 A/AA checks;
 - offline progress syncs after reconnecting, and a newer account copy is not overwritten by an older local one.
+- failed progress reads/writes recover through the visible retry action, account names return after an offline start, cancelling the first download also cancels preparation, and concurrent lesson downloads remain independent;
+- every illustrated step fits the three short-screen viewports above while offline.
 
 The same suite (22 tests at the time; the website band tests were added later) passed against the Cloudflare worker running locally in `wrangler dev` (workerd).
 

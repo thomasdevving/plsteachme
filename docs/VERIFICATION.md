@@ -1,5 +1,14 @@
 # Verification — landing website replacement
 
+## Installed learning app recovery fixes — 29 October 2026
+
+- Progress synchronization now checks HTTP success before acknowledging uploads, retries failed reads and writes with 5–60 second backoff, and offers a visible **Retry sync** action. Requests are serialized; newer local edits remain pending, retrying preserves edit timestamps, and leaving/offline cleanup aborts requests and timers. Remote progress is merged before uploads after a failed initial read.
+- Cancelling a lesson download also covers preparation of its offline library. Concurrent lessons await the same library operation, cancelling one leaves the other running, and removing downloads waits for pending writes to stop. The account navigation reloads session/profile after reconnection.
+- Short lessons show a compact offline notice with the full explanation retained for screen readers. At 320×568, full-width instructions sit below the artwork. Every one of the 63 built-in steps passes geometry checks at 320×568, 375×667 and 844×390 (189 checks), without truncating instructions or hiding checkpoints. Long optional tool content and enlarged text remain scrollable for accessibility.
+- **407 unit/API/database tests across 49 files pass.** The production build (including TypeScript), all **31 PWA browser scenarios** and **20 existing learning/camera/frontend browser regressions** pass. New regressions cover HTTP 503 recovery, initial download cancellation/retry, independent concurrent downloads, account-name recovery and the small-screen geometry above.
+- The final OpenNext build and `npm run deploy:cloudflare -- --dry-run` pass. No direct Cloudflare publish or live service mutation was performed during verification. Installed users should reload after deployment and update existing lesson downloads to receive the fixes offline.
+- The website installation copy now explicitly states that AI coaching requires internet and that offline practice uses illustrated lessons. No database schema or auth configuration changes are required. Browser account/AI responses remain controlled fixtures; real OS installation and live provider delivery are separate checks.
+
 ## Learning app and branded confirmation — 28 October 2026
 
 - `/learn`, `/account` and `/training` now use learning navigation rather than the marketing header/footer. The signed-in account's username appears in the header and refreshes after a profile edit. Default signup/login returns to learning; explicit safe destinations are preserved.

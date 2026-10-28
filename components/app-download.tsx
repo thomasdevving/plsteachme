@@ -17,7 +17,7 @@ export function AppDownload() {
     <div className="app-download-copy">
       <p className="app-download-kicker"><img src="/icons/icon-192.png" width={44} height={44} alt="" />The plsteach.me app</p>
       <h2 id="app-download-title">Learn on your laptop, <em>even offline.</em></h2>
-      <p>Install plsteach.me to open your lessons in their own window. Download lessons once and practice the illustrated steps without internet. Your account, progress and camera coaching stay the same.</p>
+      <p>Install plsteach.me to open your lessons in their own window. AI coaching requires internet. Download illustrated lessons to practice independently offline; your progress syncs to your account when you’re back online.</p>
       <div className="app-download-actions">
         {mode === 'installed' ? <a className="button primary" href="/learn">Open your lessons<ArrowRight size={18} aria-hidden="true" /></a>
           : mode === 'prompt' ? <button type="button" className="button primary" onClick={async () => { const done = await promptInstall(); setMessage(done ? 'plsteach.me is installed. Open it from your apps.' : 'No problem. Everything keeps working here in the browser.'); }}><AppWindow size={18} aria-hidden="true" />Install the app</button>

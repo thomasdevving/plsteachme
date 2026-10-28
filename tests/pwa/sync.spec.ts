@@ -35,3 +35,39 @@ test('a newer copy from the account is not overwritten by an older local copy', 
   // Checkpoint kinds stay distinct.
   expect(local.checkpoints.slice(0, 5)).toEqual(Array(5).fill('self_checked'));
 });
+
+for (const failure of ['GET', 'POST']) test(`progress sync recovers visibly from an HTTP 503 on ${failure}`, async ({ context, page }) => {
+  await mockSignedIn(context);
+  let failing = true;
+  const saved: unknown[] = [];
+  await context.route('**/api/progress', route => {
+    const method = route.request().method();
+    if (failing && method === failure) return route.fulfill({ status: 503, json: { error: 'Temporary error' } });
+    if (method === 'POST') saved.push(route.request().postDataJSON());
+    return route.fulfill({ json: { progress: method === 'POST' ? null : [] } });
+  });
+  await page.goto('/learn/tie');
+  await page.getByRole('button', { name: 'Next lesson step', exact: true }).click();
+  await expect(page.getByText('Your progress is saved on this device. Account sync failed; we’ll retry automatically.')).toBeVisible();
+  expect(saved).toEqual([]);
+  failing = false;
+  await page.getByRole('button', { name: 'Retry sync', exact: true }).click();
+  await expect.poll(() => saved).toContainEqual(expect.objectContaining({ lessonKey: 'builtin:tie', data: expect.objectContaining({ step: 1 }) }));
+  await expect(page.getByRole('button', { name: 'Retry sync', exact: true })).toHaveCount(0);
+});
+
+test('the account name returns after starting a downloaded lesson offline', async ({ context, page }) => {
+  let offline = false;
+  await context.route('**/api/auth/session', route => offline ? route.abort('internetdisconnected') : route.fulfill({ json: { configured: true, user: { id: '11111111-1111-4111-8111-111111111111' }, trial: null } }));
+  await context.route('**/api/profile', route => offline ? route.abort('internetdisconnected') : route.fulfill({ json: { profile: { username: 'ada_l' } } }));
+  await context.route('**/api/progress', route => offline ? route.abort('internetdisconnected') : route.fulfill({ json: { progress: [] } }));
+  await downloadFromLesson(page, 'tie');
+  await expect(page.getByRole('link', { name: 'ada_l', exact: true })).toBeVisible();
+  offline = true;
+  await goOffline(context);
+  await page.reload();
+  await expect(page.locator('.lesson-account-link')).toHaveText('Account');
+  offline = false;
+  await goOnline(context);
+  await expect(page.getByRole('link', { name: 'ada_l', exact: true })).toBeVisible();
+});

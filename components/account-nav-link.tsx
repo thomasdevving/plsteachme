@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { UserRound } from "lucide-react";
 import { fetchWithTimeout } from "@/lib/network";
 import { PROFILE_UPDATED_EVENT, type AccountProfile } from "@/lib/auth/profile";
+import { onlineNow, useConnectivity } from "@/lib/offline/connectivity";
 
 export function AccountNavLink({
   className = "",
@@ -15,7 +16,9 @@ export function AccountNavLink({
 }) {
   const [signedIn, setSignedIn] = useState<boolean | null>(null);
   const [name, setName] = useState("My account");
+  const { online } = useConnectivity();
   useEffect(() => {
+    if (!online || !onlineNow()) return;
     const abort = new AbortController();
     let version = 0;
     async function load() {
@@ -59,7 +62,7 @@ export function AccountNavLink({
       abort.abort();
       window.removeEventListener(PROFILE_UPDATED_EVENT, refresh);
     };
-  }, []);
+  }, [online]);
   const label = signedIn === false ? "Log in" : signedIn ? name : "Account";
   return (
     <Link
