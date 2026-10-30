@@ -1,10 +1,12 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Upload } from "lucide-react";
 import { fetchWithTimeout } from "@/lib/network";
 import { prepareProfilePhoto } from "@/lib/profile-photo";
 import { PROFILE_UPDATED_EVENT, type AccountProfile } from "@/lib/auth/profile";
 
 export function ProfileSettings() {
+  const photoInput = useRef<HTMLInputElement>(null);
   const [profile, setProfile] = useState<AccountProfile | null>(null),
     [loading, setLoading] = useState(true);
   const [username, setUsername] = useState(""),
@@ -100,12 +102,23 @@ export function ProfileSettings() {
               </span>
             )}
             <div>
-              <label className="profile-upload" htmlFor="profile-photo">
-                {busy === "photo" ? "Uploading…" : "Choose a profile photo"}
-              </label>
+              <p className="profile-photo-title">Profile picture</p>
+              <button
+                type="button"
+                className="button primary compact profile-upload"
+                disabled={!!busy}
+                onClick={() => photoInput.current?.click()}
+              >
+                <Upload size={18} aria-hidden="true" />
+                {busy === "photo" ? "Uploading…" : profile?.hasAvatar ? "Change profile picture" : "Upload profile picture"}
+              </button>
               <input
+                ref={photoInput}
                 id="profile-photo"
                 type="file"
+                aria-label="Choose a profile photo"
+                aria-describedby="profile-photo-hint"
+                hidden
                 accept="image/jpeg,image/png,image/webp"
                 disabled={!!busy}
                 onChange={(event) => {
@@ -121,7 +134,7 @@ export function ProfileSettings() {
                   );
                 }}
               />
-              <p className="auth-hint">
+              <p id="profile-photo-hint" className="auth-hint">
                 JPG, PNG or WebP, up to 5 MB. Cropped to a square.
               </p>
               {profile?.hasAvatar && (

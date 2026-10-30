@@ -9,6 +9,8 @@ test.skip(
   "Requires the configured, isolated account preview server.",
 );
 async function accountFixtures(page: Page) {
+  await page.route('**/api/auth/mfa', route => route.fulfill({json:{required:false,factors:[]}}));
+  await page.route('**/api/progress', route => route.fulfill({json:{progress:route.request().method()==='POST'?null:[]}}));
   let profile = {
     username: "ada_l",
     firstName: "Ada",
@@ -162,15 +164,15 @@ test("logs in by username and edits a private profile and photo on desktop and m
     "ada_code",
   );
   await expect(page.locator('.learning-app-header').getByRole('link',{name:'ada_code',exact:true})).toBeVisible();
-  await page
-    .getByLabel("Choose a profile photo", { exact: true })
-    .setInputFiles({
-      name: "photo.jpg",
-      mimeType: "image/jpeg",
-      buffer: await readFile(
-        new URL("../fixtures/exif-frame.jpg", import.meta.url),
-      ),
-    });
+  const uploadButton=page.getByRole('button',{name:'Upload profile picture',exact:true});
+  await expect(uploadButton).toBeVisible();
+  await uploadButton.focus();
+  const chooser=page.waitForEvent('filechooser');
+  await page.keyboard.press('Enter');
+  await (await chooser).setFiles({
+    name:'photo.jpg',mimeType:'image/jpeg',
+    buffer:await readFile(new URL('../fixtures/exif-frame.jpg',import.meta.url)),
+  });
   await expect(
     page.getByRole("img", { name: "Your profile photo" }),
   ).toBeVisible();

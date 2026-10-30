@@ -55,20 +55,10 @@
   font-weight: 600;
   color: var(--ink);
 }
-.profile-photo-row input[type="file"] {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  font-size: 0.8rem;
-  padding: 8px 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-}
-.profile-upload {
-  font-weight: 600;
-  font-size: 0.85rem;
-}
+.profile-photo-row input[type="file"] { display: none; }
+.profile-photo-row .profile-photo-title { margin: 0 0 8px; font-size: .85rem; font-weight: 600; color: var(--ink); }
+.profile-photo-row .profile-upload { margin-top: 0; max-width: 100%; gap: 8px; font-size: .82rem; }
+.profile-photo-row .profile-upload + input + .auth-hint { margin-top: 10px; }
 .profile-photo-row .auth-text-button {
   margin-top: 0;
   padding: 2px 0;
