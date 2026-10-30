@@ -20,7 +20,7 @@ export function LearningShell({
         Skip to content
       </a>
       <header className="learning-app-header">
-        <div className="container">
+        <div className="container nav-inner">
           <Link
             href="/learn"
             className="wordmark"
