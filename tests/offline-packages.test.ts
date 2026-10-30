@@ -58,7 +58,7 @@ describe('reading pages', () => {
 describe('downloading a lesson package', () => {
   it('includes the public download mascot in the offline library',async()=>{
     const result=await downloadPackage('shell');
-    expect(result.info.files).toContain('/mascots/download-companion.webp');
+    expect(result.info.files).toContain('/mascots/offline-practice.webp');
   });
   it('stores every file, fetches the page without cookies and writes the marker last', async () => {
     const order: string[] = [];

@@ -28,7 +28,7 @@ const NAVIGATION_TIMEOUT_MS = 8000;
 /** Never intercepted, online or offline. */
 const PASSTHROUGH = /^\/(?:api|auth)(?:\/|$)/;
 /** Public files that may be answered from a complete package. */
-const PUBLIC_ASSET = /^\/(?:_next\/static\/|icons\/|brand\/|fonts\/|mascots\/download-companion\.webp$|manifest\.webmanifest$)/;
+const PUBLIC_ASSET = /^\/(?:_next\/static\/|icons\/|brand\/|fonts\/|mascots\/(?:download-companion|offline-practice)\.webp$|manifest\.webmanifest$)/;
 
 self.addEventListener('install', () => {
   // This worker keeps no state of its own, so a new version can take over at once.

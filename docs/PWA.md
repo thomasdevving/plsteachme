@@ -110,7 +110,7 @@ Authentication stays online-only. `/api/*` and `/auth/*` are never intercepted b
 | `/api/*`, `/auth/*`, non-GET, other origins | Not intercepted |
 | React Server Component requests (`RSC` header or `_rsc`) | Not intercepted, never cached |
 | Page navigations | Network first (with navigation preload). If the network fails, hangs for 8 s or answers 5xx: a complete package for that exact page, otherwise a redirect to the offline library (`/learn/offline?from=…`), otherwise the browser's normal error |
-| `/_next/static/*`, `/icons/*`, `/brand/*`, `/fonts/*`, `/manifest.webmanifest`, `/mascots/download-companion.webp`, `/_next/image` of the logo | From a complete package if it has the file, otherwise the network |
+| `/_next/static/*`, `/icons/*`, `/brand/*`, `/fonts/*`, `/manifest.webmanifest`, `/mascots/download-companion.webp`, `/mascots/offline-practice.webp`, `/_next/image` of the logo | From a complete package if it has the file, otherwise the network |
 | Anything else (profile photos, signed storage and video URLs, `/mediapipe`, `/vision`) | Not intercepted |
 
 **Packages** live in CacheStorage, one cache per lesson: `plsteach-offline:lesson:<skill>:<version>:<started>`, plus `plsteach-offline:shell:…` for the offline library.
@@ -202,3 +202,5 @@ The same suite (22 tests at the time; the website band tests were added later) p
 - Browsers may evict CacheStorage under storage pressure. The app asks for persistent storage, which installed apps usually get, and reports a damaged package if files disappear.
 - Published teacher lessons, organization training, videos, manuals and on-device vision models remain online-only, as scoped.
 - An installed app whose start URL changed (the old `/coach` manifest) is not migrated automatically. It stays a separate app.
+
+The offline library uses its own reading/booklet mascot (`offline-practice.webp`), included in the public shell package. The landing page keeps the laptop companion and desktop app illustration. Both exact public mascot paths are allowed by the worker so earlier downloaded versions still work; private image paths remain excluded.

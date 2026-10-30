@@ -8,7 +8,7 @@ const ALLOWED = [
   /^\/_next\/image\?url=%2F(?:brand|icons)%2F/,
   /^\/(?:icons|brand)\/[\w-]+\.png$/,
   /^\/manifest\.webmanifest$/,
-  /^\/mascots\/download-companion\.webp$/,
+  /^\/mascots\/(?:download-companion|offline-practice)\.webp$/,
   /^\/__plsteach-offline\/package\.json$/,
 ];
 

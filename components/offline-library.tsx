@@ -56,7 +56,7 @@ export function OfflineLibrary() {
     <header className="offline-masthead">
       <div className="offline-title-row">
         <div><h1>Practice without <em>internet.</em></h1></div>
-        <DownloadMascot />
+        <DownloadMascot variant="offline" />
       </div>
       <p>Keep illustrated lessons on this device and practice without internet. Your progress stays saved here.</p>
     <p className="offline-connection-note">Camera coaching, questions and account sync require internet.</p>

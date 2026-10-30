@@ -17,6 +17,17 @@ test('catalog tabs work with the keyboard and recommendations reflect previous l
   await expect(page.locator('.catalog-card')).toHaveCount(2);
   await page.keyboard.press('End');await expect(page.locator('.catalog-card')).toHaveCount(1);
   await page.keyboard.press('Home');await expect(page.locator('.catalog-card')).toHaveCount(9);
+  await tabs.getByRole('tab',{name:'Personal Care',exact:true}).click();
+  await page.getByRole('searchbox',{name:'Search skills'}).fill('no-match');
+  await expect(page.locator('.catalog-card')).toHaveCount(0);
+  await page.getByRole('link',{name:'All Skills',exact:true}).click();
+  await expect(page).toHaveURL(/\/learn#all-skills$/);
+  await expect(page.getByRole('searchbox',{name:'Search skills'})).toHaveValue('');
+  await expect(tabs.getByRole('tab',{name:'All skills',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(page.locator('.catalog-card')).toHaveCount(9);
+  await expect.poll(()=>page.locator('#all-skills').evaluate(element=>element.getBoundingClientRect().top)).toBeLessThan(150);
+  expect(await page.evaluate(()=>window.scrollY)).toBeGreaterThan(0);
+
   for(const width of [320,390,1280]) {await page.setViewportSize({width,height:900});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);}
   const result=await new AxeBuilder({page}).include('.learning-catalog').withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(result.violations).toEqual([]);
 });

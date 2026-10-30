@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState } from 'react';
-import { ArrowRight, Check, Search, X } from 'lucide-react';
+import { ArrowDown, ArrowRight, Check, Search, X } from 'lucide-react';
 import { skillIds } from '@/lib/config';
 import type { Copy } from '@/lib/i18n';
 import { modules } from '@/lib/modules';
@@ -52,7 +52,6 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
   return <div className="learning-catalog">
       <header className="catalog-masthead">
         <div><h1 id="catalog-title">Find your next<br /><em>useful skill.</em></h1></div>
-        <div className="catalog-edition"><span aria-hidden="true">{String(skillIds.length).padStart(2, '0')}</span><p><span className="sr-only">{skillIds.length} </span>practical skills</p></div>
       </header>
     {inProgress.length > 0 ? <section className="continue-learning" aria-label="Continue learning">
       <header className="catalog-section-heading">
@@ -70,12 +69,12 @@ export function LearningCatalog({ names }: { names: Copy['skills']['names'] }) {
     </section> : null}
 
     <section className="catalog-recommendations" aria-labelledby="recommendations-title">
-      <header className="catalog-section-heading"><div><h2 id="recommendations-title">{Object.keys(progress.lessons).length ? 'Recommended for you' : 'A good place to start'}</h2></div><p>{Object.keys(progress.lessons).length ? 'Related to the skills you’ve practiced.' : 'Small, useful skills to try first.'}</p></header>
+      <header className="catalog-section-heading"><div><h2 id="recommendations-title">{Object.keys(progress.lessons).length ? 'Recommended for you' : 'A good place to start'}</h2></div><a className="catalog-all-skills" href="#all-skills" onClick={() => { setCategory('All skills'); setQuery(''); }}>All Skills<ArrowDown size={16} aria-hidden="true" /></a></header>
       <div className="catalog-recommendation-grid">{recommendations.map(skill => <Link prefetch={false} key={skill} href={builtinLessonHref(skill)} className="catalog-recommendation"><span data-skill={skill}><SkillIcon skill={skill} size={32} /></span><span><strong>{names[skill]}</strong><small>{modules[skill].steps.length} steps · {catalogEntries[skill].categories[0]}</small></span><ArrowRight size={17} aria-hidden="true" /></Link>)}
       {!recommendations.length && <p>You’ve explored every skill. Review a favorite below or request a new skill.</p>}</div>
     </section>
 
-    <section className="learning-discovery" aria-labelledby="catalog-title">
+    <section id="all-skills" className="learning-discovery" aria-label="All skills" tabIndex={-1}>
 
 
       <div className="catalog-discovery-tools">

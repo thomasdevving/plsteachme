@@ -1,0 +1,12 @@
+Generated for plsteach.me on 30 October 2026 using the image generation tool.
+Identity reference: public/mascots/download-companion.webp, based on the existing
+orange rounded-diamond-headed clay mascot with off-white eyes/smile and dark green pupils.
+New offline-library pose: sitting comfortably and reading a small open cream
+lesson booklet with a forest-green cover, next to two neatly stacked saved
+lesson booklets. The top closed booklet has a simple green checkmark.
+Preserve the oversized asymmetric head, gentle tilt, tiny body and soft short
+limbs. Matte smooth shading, warm terracotta orange (#bb4827), forest green
+(#22372c), cream (#faf7f2), transparent background, full character visible.
+No laptop, phone, Wi-Fi, clouds, typography, branding, scenery or textures.
+Original generation retained at /workspace/generated_images/exec-e474d404-b346-40ed-8afb-fdc706e29a91.png.
+Production asset resized to 720px WebP without cropping or changing the palette.
