@@ -31,8 +31,17 @@ export function AppDownload() {
       <p className="app-download-platforms">{mode === 'unsupported' ? 'Install it from Chrome or Edge on Windows and Mac, or Safari on a Mac. No app store needed.' : 'Free · Windows and macOS · Chrome, Edge or Safari · no app store needed'}</p>
     </div>
     <div className="app-download-visual" aria-hidden="true">
+      <div className="app-download-window">
+        <div className="app-download-titlebar"><span /><span /><span /><img src="/icons/icon-192.png" width={18} height={18} alt="" />plsteach.me</div>
+        <div className="app-download-screen">
+          <p className="app-download-eyebrow">Step 3 of 7</p>
+          <p className="app-download-step">Wrap the wide end behind.</p>
+          <div className="app-download-rail"><span className="done" /><span className="done" /><span className="current" /><span /><span /><span /><span /></div>
+          <p className="app-download-badge"><CircleCheck size={14} />Available offline</p>
+          <div className="app-download-buttons"><span>Back</span><span>Next step</span></div>
+        </div>
+      </div>
       <DownloadMascot />
-      <p className="app-download-badge"><CircleCheck size={14} />Your lessons, ready to go.</p>
     </div>
   </section>;
 }

@@ -6,6 +6,8 @@ test('the download companion renders on the website and download library at narr
     await page.setViewportSize({width,height:900});
     await page.goto('/');
     const mascot=page.locator('.app-download .download-mascot');
+    await expect(page.locator('.app-download-window')).toBeVisible();
+    await expect(page.locator('.app-download-step')).toHaveText('Wrap the wide end behind.');
     await mascot.scrollIntoViewIfNeeded();
     await expect(mascot).toBeVisible();
     await expect.poll(()=>mascot.evaluate((img:HTMLImageElement)=>img.complete&&img.naturalWidth>0)).toBe(true);

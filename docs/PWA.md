@@ -41,7 +41,7 @@ plsteach.me can be installed on a laptop as a Progressive Web App. It is the sam
 
 ### On the website
 
-The bottom of every public page (just above the footer wordmark) has a *Get the app* band: **Learn on your laptop, even offline.** Its main button does what the visitor's browser can really do: **Install the app** opens the Chrome/Edge install prompt, **Add to Dock** shows the Safari steps, **Open your lessons** appears in the installed app, and other browsers get **Start learning** with a note on where installing works. **Download lessons** links to `/learn/offline`. The orange laptop-carrying companion on the right matches the site's existing mascots and also appears on the offline download library. Its public WebP is included in the offline shell package. The band never appears in the learning environment, and there is no installer file to download.
+The bottom of every public page (just above the footer wordmark) has a *Get the app* band: **Learn on your laptop, even offline.** Its main button does what the visitor's browser can really do: **Install the app** opens the Chrome/Edge install prompt, **Add to Dock** shows the Safari steps, **Open your lessons** appears in the installed app, and other browsers get **Start learning** with a note on where installing works. **Download lessons** links to `/learn/offline`. A desktop app-window illustration shows a lesson, progress and navigation, with the orange laptop-carrying companion placed beside it. The mascot also appears on the offline download library, and its public WebP is included in the offline shell package. The band never appears in the learning environment, and there is no installer file to download.
 
 ![Get the app band at the bottom of the website](pwa/14-website-get-the-app.png)
 
