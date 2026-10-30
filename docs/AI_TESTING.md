@@ -54,7 +54,7 @@ Save the settings, then **redeploy**. The existing `WORKER_SELF_REFERENCE` servi
 
 ## 2. Supabase: database, password accounts and email
 
-Use a Supabase project you control. For an existing project, apply only missing migrations; do not erase existing users or progress. For a new project, run every SQL file under `supabase/migrations/` in filename order. There are eleven migrations, ending in `20261030171000_mfa_account_access.sql`. The October 30 migrations add private lesson feedback and enforce opted-in MFA on direct account reads.
+Use a Supabase project you control. For an existing project, apply only missing migrations; do not erase existing users or progress. For a new project, run every SQL file under `supabase/migrations/` in filename order. There are twelve migrations, ending in `20261030203000_restore_progress_sync.sql`. The October 30 migrations add private lesson feedback and enforce opted-in MFA on direct account reads.
 
 In **SQL Editor**, run [the read-only readiness query](../supabase/checks/ai-learning-readiness.sql). Every row should report `ready = true`. This checks the learner tables, required functions and private profile-photo bucket without creating users, consuming AI budget or altering data. If a row fails, apply the migration that creates it. In particular, missing `rate_hit` prevents registration/login; `coaching_trial_use` and `ai_budget_use` are required for AI calls.
 
@@ -153,3 +153,5 @@ On Cloudflare, filter Workers Logs by `progress.storage_failed`. The record cont
 - JWT/authentication errors: check that the server-only `SUPABASE_SERVICE_ROLE_KEY` belongs to the same project as `SUPABASE_URL` and is not a publishable/anon key. Redeploy after correcting runtime secrets. Never paste the key into chat or logs.
 
 If SQL checks pass but PostgREST reports stale schema metadata, an operator can run `NOTIFY pgrst, 'reload schema';` in that project. Retest `/api/progress` while signed in and then **Retry sync**. Keep the browser's local data until cloud synchronization succeeds.
+
+If all seven progress checks are false, the selected project has neither the progress table nor its save function. Run [the targeted progress repair](../supabase/migrations/20261030203000_restore_progress_sync.sql) in the project matching the Worker's `SUPABASE_URL`, then rerun the diagnostic. The repair creates the missing table, recreates the monotonic save function, restores server-only grants/RLS, and reloads the PostgREST schema cache. It preserves existing users and progress and is safe to rerun against the expected schema. It does not rerun unrelated migrations or provision other missing features. With all seven checks true, reload the learning page and choose **Retry sync**; the existing browser copy can then upload normally. No website redeployment is required for this SQL repair.
