@@ -1,0 +1,8 @@
+Generated for plsteach.me on 30 October 2026 using the image generation tool.
+Identity reference: the top-left orange figure in expressive-atlas.png.
+New pose: the same rounded-diamond-headed orange clay companion, hugging a
+closed cream laptop with a forest-green edge and giving a welcoming gesture.
+Keep the existing off-white eyes/smile, green pupils, short soft limbs and
+oversized asymmetric head. Transparent background; no text, branding, visual
+patterns, extra facial features, clothes, stage or scenery. Soft matte shading.
+Production WebP is resized to 720px without cropping or changing the palette.

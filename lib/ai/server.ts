@@ -1,4 +1,5 @@
 import "server-only";
+import { visionModel } from './models';
 import { createOpenAI } from "@ai-sdk/openai";
 import { limitedJson } from "../coaching-security";
 import { normalizeFrame } from "../vision/frames";
@@ -9,7 +10,7 @@ export const isAvailable = () =>
   isMock() || Boolean(process.env.OPENAI_API_KEY?.trim());
 // Keep saved client model choices readable while using the configured provider.
 export function modelName(_choice?: "sonnet" | "haiku") {
-  return process.env.OPENAI_VISION_MODEL?.trim() || "gpt-6-luna";
+  return visionModel();
 }
 export const client = () =>
   createOpenAI({ apiKey: process.env.OPENAI_API_KEY?.trim() });

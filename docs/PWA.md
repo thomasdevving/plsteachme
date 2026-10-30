@@ -41,7 +41,7 @@ plsteach.me can be installed on a laptop as a Progressive Web App. It is the sam
 
 ### On the website
 
-The bottom of every public page (just above the footer wordmark) has a *Get the app* band: **Learn on your laptop, even offline.** Its main button does what the visitor's browser can really do: **Install the app** opens the Chrome/Edge install prompt, **Add to Dock** shows the Safari steps, **Open your lessons** appears in the installed app, and other browsers get **Start learning** with a note on where installing works. **Download lessons** links to `/learn/offline`. The window on the right is an illustration built from the site's own styles. The band never appears in the learning environment, and there is no installer file to download.
+The bottom of every public page (just above the footer wordmark) has a *Get the app* band: **Learn on your laptop, even offline.** Its main button does what the visitor's browser can really do: **Install the app** opens the Chrome/Edge install prompt, **Add to Dock** shows the Safari steps, **Open your lessons** appears in the installed app, and other browsers get **Start learning** with a note on where installing works. **Download lessons** links to `/learn/offline`. The orange laptop-carrying companion on the right matches the site's existing mascots and also appears on the offline download library. Its public WebP is included in the offline shell package. The band never appears in the learning environment, and there is no installer file to download.
 
 ![Get the app band at the bottom of the website](pwa/14-website-get-the-app.png)
 
@@ -110,7 +110,7 @@ Authentication stays online-only. `/api/*` and `/auth/*` are never intercepted b
 | `/api/*`, `/auth/*`, non-GET, other origins | Not intercepted |
 | React Server Component requests (`RSC` header or `_rsc`) | Not intercepted, never cached |
 | Page navigations | Network first (with navigation preload). If the network fails, hangs for 8 s or answers 5xx: a complete package for that exact page, otherwise a redirect to the offline library (`/learn/offline?from=…`), otherwise the browser's normal error |
-| `/_next/static/*`, `/icons/*`, `/brand/*`, `/fonts/*`, `/manifest.webmanifest`, `/_next/image` of the logo | From a complete package if it has the file, otherwise the network |
+| `/_next/static/*`, `/icons/*`, `/brand/*`, `/fonts/*`, `/manifest.webmanifest`, `/mascots/download-companion.webp`, `/_next/image` of the logo | From a complete package if it has the file, otherwise the network |
 | Anything else (profile photos, signed storage and video URLs, `/mediapipe`, `/vision`) | Not intercepted |
 
 **Packages** live in CacheStorage, one cache per lesson: `plsteach-offline:lesson:<skill>:<version>:<started>`, plus `plsteach-offline:shell:…` for the offline library.
@@ -162,7 +162,7 @@ Commands, against a production build (offline behavior is not tested with `next 
 npm test                 # unit tests, including service worker routing, packages, connectivity, manifest and icons
 npm run typecheck
 npm run build && npm start
-npm run test:pwa         # 31 real-service-worker browser tests (Chromium)
+npm run test:pwa         # 33 real-service-worker browser tests (Chromium)
 npm run test:e2e         # existing production browser tests
 npm run test:browser     # existing coach tests; needs ENABLE_INTERNAL_TOOLS=true on the server
 npm run build:cloudflare # OpenNext build; `npx wrangler dev` then `TEST_BASE_URL=http://localhost:8787 npm run test:pwa`

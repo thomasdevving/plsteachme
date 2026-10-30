@@ -13,6 +13,8 @@
     "test:e2e": "playwright test",
     "verify:rls": "node scripts/verify-rls.mjs",
     "verify:setup": "node --import tsx scripts/verify-setup.ts",
+    "verify:learning": "node --import tsx scripts/verify-setup.ts --learner --deployment-only --url https://plsteach.me",
+    "verify:ai": "node --import tsx scripts/verify-ai.ts",
     "prepare:vision": "node scripts/prepare-vision.mjs",
     "validate:skills": "node --import tsx scripts/validate-skills.ts",
     "test:browser": "playwright test --config=playwright.coach.config.ts",

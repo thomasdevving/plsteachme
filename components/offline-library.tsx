@@ -11,6 +11,7 @@ import { formatBytes, removeAllLessons, useOfflineLessons } from '@/lib/offline/
 import { SkillIcon } from './illustrations';
 import { OfflineBadge, OfflineLessonControl } from './offline-lesson';
 import { InstallAppPanel } from './install-app';
+import { DownloadMascot } from './download-mascot';
 
 const names = en.skills.names;
 
@@ -53,8 +54,10 @@ export function OfflineLibrary() {
   // Lessons open with a full page load so the service worker can serve the downloaded copy.
   return <div className="container offline-library">
     <header className="offline-masthead">
-      <p className="offline-kicker">Offline lessons</p>
-      <h1>Practice without <em>internet.</em></h1>
+      <div className="offline-title-row">
+        <div><p className="offline-kicker">Offline lessons</p><h1>Practice without <em>internet.</em></h1></div>
+        <DownloadMascot />
+      </div>
       <p>Download built-in lessons to this device. The illustrated steps, materials, safety notes and checkpoints then work offline, and your progress is saved here. Camera coaching, questions and your account need a connection.</p>
     </header>
     {notice && <p className="offline-arrival" role="status"><WifiOff size={17} aria-hidden="true" />{notice}</p>}

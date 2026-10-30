@@ -1,5 +1,5 @@
 import { describe,expect,it,vi } from 'vitest';
-import { checkSetup,setupFunctions,setupTables } from '../scripts/verify-setup';
+import { checkSetup,setupFunctions,setupTables,learningTables,setupArgs } from '../scripts/verify-setup';
 import { isPublicSupabaseKey } from '../lib/public-key';
 const reviewer='11111111-1111-4111-8111-111111111111';
 const env={SUPABASE_URL:'https://project.supabase.co',SUPABASE_ANON_KEY:'sb_publishable_test-public',SUPABASE_SERVICE_ROLE_KEY:'sb_secret_test-private',OPENAI_API_KEY:'test-openai-private',NEXT_PUBLIC_SITE_URL:'https://app.example.test',PLATFORM_REVIEWER_IDS:reviewer};
@@ -16,6 +16,25 @@ function responses(input:RequestInfo|URL,init?:RequestInit):Response {
   return Response.json([]);
 }
 describe('read-only setup verification',()=>{
+  it('can inspect only the deployed learner app without local credentials',async()=>{
+    const fetcher=vi.fn(async()=>Response.json({available:true,configured:true,ok:true,ai:true,database:true}));
+    const checks=await checkSetup({},fetcher,'https://app.example.test',{learner:true,deploymentOnly:true});
+    expect(checks.every(check=>check.ok)).toBe(true);
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    for(const [url,init] of fetcher.mock.calls as unknown as [string,RequestInit][]) {
+      expect(url).toMatch(/^https:\/\/app.example.test\/api\//);
+      expect(new Headers(init.headers).has('authorization')).toBe(false);
+    }
+    expect(()=>setupArgs(['--deployment-only'])).toThrow();
+    expect(setupArgs(['--learner','--deployment-only','--url','https://app.example.test'])).toMatchObject({options:{learner:true,deploymentOnly:true},url:'https://app.example.test'});
+  });
+  it('does not require teacher accounts or transcription to test built-in AI lessons',async()=>{
+    const fetcher=vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>responses(input,init));
+    const checks=await checkSetup({...env,PLATFORM_REVIEWER_IDS:''},fetcher,undefined,{learner:true});
+    expect(checks.filter(check=>!check.ok)).toEqual([]);
+    expect(checks.filter(check=>check.name.startsWith('Database:'))).toHaveLength(learningTables.length);
+    expect(checks.map(check=>check.name)).not.toEqual(expect.arrayContaining(['Independent reviewers','Private teacher storage','Transcription model']));
+  });
   it('reports missing configuration without making network calls',async()=>{
     const fetcher=vi.fn();const checks=await checkSetup({},fetcher);
     expect(checks.every(check=>!check.ok)).toBe(true);expect(fetcher).not.toHaveBeenCalled();

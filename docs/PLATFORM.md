@@ -16,7 +16,7 @@ Configure:
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public publishable key for email sign-in; a legacy anon key is also supported |
 | `PLATFORM_REVIEWER_IDS` | Comma-separated Supabase Auth user UUIDs authorized to review |
 | `OPENAI_API_KEY` | Server-only key for coaching and lesson drafting |
-| `OPENAI_VISION_MODEL` | Image-capable Responses model; default `gpt-6-luna` |
+| `OPENAI_VISION_MODEL` | Image-capable Responses model; default `gpt-5-mini` |
 | `OPENAI_TRANSCRIPTION_MODEL` | Audio transcription model; default `gpt-4o-transcribe` |
 | `NEXT_PUBLIC_SITE_URL` | Canonical deployment origin |
 

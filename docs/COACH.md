@@ -28,7 +28,7 @@ npm start
 | Variable | Default / behavior |
 | --- | --- |
 | `OPENAI_API_KEY` | Server-only key. Missing key makes AI coaching unavailable. |
-| `OPENAI_VISION_MODEL` | `gpt-6-luna`; use an image-capable Responses model enabled for your account. |
+| `OPENAI_VISION_MODEL` | `gpt-5-mini`; use an image-capable Responses model enabled for your account. |
 | `MOCK_VERIFIER` | `false`; an explicit local/test-only simulation, ignored in production. |
 
 Both coaching interfaces use the OpenAI Responses integration and structured output. Requests disable response storage. Availability depends on the configured API account. Provider failures offer retry or an explicitly unverified continuation.

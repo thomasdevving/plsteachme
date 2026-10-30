@@ -11,6 +11,19 @@ async function database() {
 }
 const value=async<T,>(db:PGlite,sql:string,params:unknown[]=[])=>(await db.query<{v:T}>(sql,params)).rows[0].v;
 
+it('the copyable learning-readiness SQL validates every migration and identifies a missing rate limiter',async()=>{
+ const db=await database();
+ try {
+  const sql=await readFile(new URL('../supabase/checks/ai-learning-readiness.sql',import.meta.url),'utf8');
+  const checks=(await db.query<{check_name:string;ready:boolean}>(sql)).rows;
+  expect(checks).toHaveLength(16);
+  expect(checks.every(check=>check.ready)).toBe(true);
+  await db.exec('drop function public.rate_hit(text,integer,integer)');
+  const missing=(await db.query<{check_name:string;ready:boolean}>(sql)).rows.filter(check=>!check.ready);
+  expect(missing).toEqual([{check_name:'function: public.rate_hit',ready:false}]);
+ } finally {await db.close();}
+},30_000);
+
 it('ends a free session after its AI checks or time and keeps one free session per email address',async()=>{
  const db=await database();
  try {

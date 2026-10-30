@@ -213,7 +213,7 @@ export async function downloadPackage(key: PackageKey, { signal, onProgress, exp
     };
     await store(page, { response, body });
     const files = new Set([page]);
-    const queue = [...pageAssets(html, base), ...packageExtras];
+    const queue = [...pageAssets(html, base), ...packageExtras, ...(key === 'shell' ? ['/mascots/download-companion.webp'] : [])];
     let bytes = body.byteLength, done = 1;
     onProgress?.(done, queue.length + 1);
     // A few files at a time; stylesheets add the fonts they reference.

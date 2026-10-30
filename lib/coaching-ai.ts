@@ -1,4 +1,5 @@
 import 'server-only';
+import { visionModel } from './ai/models';
 import { generateText, Output } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import type { SkillId } from './config';
@@ -28,7 +29,7 @@ export async function assessCoachStep(skill: SkillId, step: number, frames: Buff
   const current = lesson.steps[step];
   const provider = createOpenAI({apiKey:process.env.OPENAI_API_KEY?.trim()});
   const result = await generateText({
-    model: provider.responses(process.env.OPENAI_VISION_MODEL?.trim() || 'gpt-6-luna'),
+    model: provider.responses(visionModel()),
     system: SYSTEM,
     output: Output.object({schema:feedbackSchema}),
     messages: [{role:'user',content:[

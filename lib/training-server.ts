@@ -1,4 +1,5 @@
 import 'server-only';
+import { visionModel } from './ai/models';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 import { NextRequest } from 'next/server';
 import { generateText, Output } from 'ai';
@@ -194,7 +195,7 @@ async function generateModule(client:DB,module:Row,focus:string,signal:AbortSign
  }
  if(module.source_text.trim().length<40 && !captured.length && !module.manual_path)throw new PlatformError(400,'no_source','Record a demonstration, attach a manual, or add at least a few sentences of notes first.');
  const provider=createOpenAI({apiKey:process.env.OPENAI_API_KEY?.trim()});
- const response=await generateText({model:provider.responses(process.env.OPENAI_VISION_MODEL?.trim() || 'gpt-6-luna'),output:Output.object({schema:trainingDraftSchema}),system:DRAFT_SYSTEM,messages:[{role:'user',content}],providerOptions:{openai:{store:false,reasoningEffort:'low',reasoningSummary:null}},maxOutputTokens:9000,maxRetries:0,abortSignal:signal});
+ const response=await generateText({model:provider.responses(visionModel()),output:Output.object({schema:trainingDraftSchema}),system:DRAFT_SYSTEM,messages:[{role:'user',content}],providerOptions:{openai:{store:false,reasoningEffort:'low',reasoningSummary:null}},maxOutputTokens:9000,maxRetries:0,abortSignal:signal});
  const draft=trainingDraftSchema.parse(response.output);
  draft.document={...draft.document,title:current.title,category:current.category};
  return {document:trainingDocumentSchema.parse(applyDraft(draft,captured)),verify:draft.verify};
@@ -216,7 +217,7 @@ async function coachModule(client:DB,userId:string,email:string,action:Extract<T
  if(step.reference) {const file=(await client.storage.from(TRAINING_BUCKET).download(step.reference.frame,{},{signal})).data;if(file)reference=Buffer.from(await file.arrayBuffer());}
  const {reference:stepReference,...stepContent}=step;void stepReference;
  const provider=createOpenAI({apiKey:process.env.OPENAI_API_KEY?.trim()});
- const response=await generateText({model:provider.responses(process.env.OPENAI_VISION_MODEL?.trim() || 'gpt-6-luna'),output:Output.object({schema:feedbackSchema}),system:COACH_SYSTEM,messages:[{role:'user',content:[{type:'text',text:JSON.stringify({objective:document.objective,safety:document.safety,step:stepContent})},...(reference?[{type:'text' as const,text:'REFERENCE (instructor demonstration):'},{type:'image' as const,image:reference,mediaType:'image/jpeg'}]:[]),{type:'text',text:'Learner frames:'},...frames.map(image=>({type:'image' as const,image,mediaType:'image/jpeg'}))]}],providerOptions:{openai:{store:false,reasoningEffort:'low',reasoningSummary:null}},maxOutputTokens:1200,maxRetries:0,abortSignal:signal});
+ const response=await generateText({model:provider.responses(visionModel()),output:Output.object({schema:feedbackSchema}),system:COACH_SYSTEM,messages:[{role:'user',content:[{type:'text',text:JSON.stringify({objective:document.objective,safety:document.safety,step:stepContent})},...(reference?[{type:'text' as const,text:'REFERENCE (instructor demonstration):'},{type:'image' as const,image:reference,mediaType:'image/jpeg'}]:[]),{type:'text',text:'Learner frames:'},...frames.map(image=>({type:'image' as const,image,mediaType:'image/jpeg'}))]}],providerOptions:{openai:{store:false,reasoningEffort:'low',reasoningSummary:null}},maxOutputTokens:1200,maxRetries:0,abortSignal:signal});
  let feedback=feedbackSchema.parse(response.output);
  if(feedback.status!=='stop' && !step.visuallyCheckable)feedback={status:'not_verifiable',confidence:'low',observation:'This checkpoint needs a manual check.',guidance:step.manualAlternative.slice(0,350)||'Use the module checkpoint to inspect this yourself.'};
  else if(['looks_right','adjust'].includes(feedback.status) && feedback.confidence!=='high')feedback={status:'unclear',confidence:feedback.confidence,observation:'There is not enough clear visual evidence yet.',guidance:step.uncertainty.slice(0,350)||'Show the checkpoint from a clearer angle.'};

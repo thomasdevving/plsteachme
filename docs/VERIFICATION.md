@@ -1,5 +1,14 @@
 # Verification — landing website replacement
 
+## Download companion and AI testing setup — 30 October 2026
+
+- Generated a new orange laptop-carrying pose from the existing mascot reference. The transparent 720px WebP is about 37 KB and appears in the public installation section and `/learn/offline`. The offline shell includes that exact public asset; service-worker/cache allowances remain restricted, and private images/API traffic are not cached. Visual checks cover desktop, 390px and 320px; the two new browser tests also verify a fresh offline image load.
+- Centralized image/transcription model selection. The default image-capable Responses model is `gpt-5-mini`, with explicit `OPENAI_VISION_MODEL` overrides preserved. Project model access and billing must still be verified with the configured credentials.
+- Added learner-only setup checks and `npm run verify:learning` for credential-free deployment checks. Added `npm run verify:ai -- --confirm-api-call` for one bounded, explicitly requested image/structured-output probe using the public logo, with response storage disabled and no automatic retries. A network-stub test exercises the actual OpenAI provider adapter and verifies request format, one-call behavior and redacted errors; no real inference was performed here.
+- Added [the exact Cloudflare/Supabase/OpenAI settings and first-session guide](AI_TESTING.md), plus a read-only SQL readiness query. The query passes after all nine migrations and detects an intentionally removed `rate_hit` function in isolated PostgreSQL. Corrected older Vercel and email-link-login instructions for the current deployment/password flow.
+- **415 unit/API/database tests across 50 files pass**, TypeScript and the Next.js production build pass. All **33 PWA browser scenarios have passing production coverage** (31 existing cases plus two new mascot cases), including accessibility, privacy, offline practice, recovery and all 189 short-screen step checks.
+- The final OpenNext/Cloudflare deploy dry-run passes; no direct deployment, database mutation, real email or paid AI request was performed. This workspace has no project API credentials and outbound access to the live site is blocked, so the live readiness check could not be completed. Production activation still requires the owner's dashboard settings, real signup/email and camera-session acceptance test.
+
 ## Installed learning app recovery fixes — 29 October 2026
 
 - Progress synchronization now checks HTTP success before acknowledging uploads, retries failed reads and writes with 5–60 second backoff, and offers a visible **Retry sync** action. Requests are serialized; newer local edits remain pending, retrying preserves edit timestamps, and leaving/offline cleanup aborts requests and timers. Remote progress is merged before uploads after a failed initial read.
