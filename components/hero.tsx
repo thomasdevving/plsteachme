@@ -21,7 +21,7 @@ export function Hero({ c }: { c: Pick<Copy, "hero"> }) {
             <p className="hero-emphasis">{c.hero.support}</p>
           </div>
           <div className="hero-actions">
-            <a className="button primary" href="/learn">Find your first skill<ArrowUpRight size={18} aria-hidden="true"/></a>
+            <a className="button primary" href="/learn">Start learning<ArrowUpRight size={18} aria-hidden="true"/></a>
             <div className="mascot-button">
               <Mascot pose="waving" />
               <Cta href="#demo" kind="demo" secondary>
