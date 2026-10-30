@@ -2,12 +2,12 @@ const access=vi.hoisted(()=>({cookieUser:vi.fn(),signOut:vi.fn()}));
 vi.mock('@/lib/auth/server',()=>({authenticatedUser:access.cookieUser,authClient:async()=>({auth:{signOut:access.signOut}})}));
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-const state=vi.hoisted(()=>({rpc:vi.fn(),insert:vi.fn(),remove:vi.fn(),deleteUser:vi.fn(),rows:[] as unknown[]}));
+const state=vi.hoisted(()=>({rpc:vi.fn(),insert:vi.fn(),remove:vi.fn(),deleteUser:vi.fn(),readError:null as unknown,rows:[] as unknown[]}));
 vi.mock('server-only',()=>({}));
 vi.mock('@supabase/supabase-js',()=>({createClient:()=>({auth:{admin:{deleteUser:state.deleteUser}},rpc:state.rpc,from:()=>{
  const chain:Record<string,any>={};for(const method of ['select','eq','limit'])chain[method]=()=>chain;
  chain.insert=(rows:unknown)=>{state.insert(rows);return Promise.resolve({error:null});};
- chain.then=(resolve:(value:unknown)=>unknown)=>Promise.resolve({data:state.rows,error:null}).then(resolve);return chain;
+ chain.then=(resolve:(value:unknown)=>unknown)=>Promise.resolve({data:state.rows,error:state.readError}).then(resolve);return chain;
 },storage:{from:(bucket:string)=>({remove:(paths:string[])=>state.remove(bucket,paths)})}})}));
 import * as progress from '../app/api/progress/route';
 import * as insights from '../app/api/insights/route';
@@ -23,10 +23,35 @@ function request(path:string,body?:unknown,headers:Record<string,string>={}) {
 beforeEach(()=>{
  vi.unstubAllEnvs();vi.stubEnv('SUPABASE_URL','https://example.supabase.co');vi.stubEnv('SUPABASE_SERVICE_ROLE_KEY','private-service-key');vi.stubEnv('VISION_LAB_EMAILS','staff@example.test');vi.clearAllMocks();
  access.cookieUser.mockResolvedValue(learner);access.signOut.mockResolvedValue({});
- state.rows=[];state.rpc.mockResolvedValue({data:null,error:null});state.remove.mockResolvedValue({error:null});state.deleteUser.mockResolvedValue({error:null});
+ state.readError=null;state.rows=[];state.rpc.mockResolvedValue({data:null,error:null});state.remove.mockResolvedValue({error:null});state.deleteUser.mockResolvedValue({error:null});
 });
 
 describe('account progress',()=>{
+ it.each(['42P01','42703','42501','PGRST205'])('logs database error %s without exposing private provider details',async(code)=>{
+  const log=vi.spyOn(console,'error').mockImplementation(()=>{});
+  try {
+   state.readError={code,message:'private learner details',details:'private token',hint:'private request'};
+   const response=await progress.GET();
+   expect(response.status).toBe(503);
+   expect(await response.json()).toEqual({error:'storage',message:'Account progress could not load. Please try again.'});
+   const record=JSON.parse(String(log.mock.calls[0][0]));
+   expect(record).toMatchObject({event:'progress.storage_failed',operation:'read',code});
+   expect(JSON.stringify(log.mock.calls)).not.toContain('private');
+  } finally {log.mockRestore();}
+ });
+ it('logs failed writes and rejects malformed diagnostic codes without logging their content',async()=>{
+  const log=vi.spyOn(console,'error').mockImplementation(()=>{});
+  try {
+   state.rpc.mockResolvedValue({data:null,error:{code:'PGRST202',message:'private learner details'}});
+   expect((await progress.POST(request('/api/progress',{lessonKey:lesson,data:{step:1},updatedAt:5}))).status).toBe(503);
+   expect(JSON.parse(String(log.mock.calls[0][0]))).toMatchObject({event:'progress.storage_failed',operation:'write',code:'PGRST202'});
+   state.readError={code:'private\nvalue',message:'private'};
+   await progress.GET();
+   expect(JSON.parse(String(log.mock.calls[1][0]))).toMatchObject({operation:'read',code:'unknown'});
+   expect(JSON.stringify(log.mock.calls)).not.toContain('private');
+  } finally {log.mockRestore();}
+ });
+
  it('lists and saves progress for the signed-in account only',async()=>{
   state.rows=[{lesson_key:'builtin:shoelaces',data:{step:2},client_updated_at:'1700000000000'}];
   expect(await (await progress.GET()).json()).toEqual({progress:[{lessonKey:'builtin:shoelaces',data:{step:2},updatedAt:1700000000000}]});

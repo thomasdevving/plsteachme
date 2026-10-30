@@ -137,3 +137,19 @@ For a full teacher-created learning test afterwards, also configure an independe
 | Download works, AI does not work offline | Expected: only illustrated lessons work offline. Reconnect and explicitly restart coaching. |
 
 Only call the setup complete after signup/email, the real deployed AI lesson, resume and stop/reconnect behavior all pass. Automated fixtures alone cannot establish live readiness.
+
+## Persistent account progress sync errors
+
+A GET `/api/progress` response with `error: storage` means the authenticated read of `learner_progress` failed. It does not by itself prove a missing migration, and the `progress_save` function is only used by POST requests.
+
+Run [the read-only progress diagnostic](../supabase/checks/progress-sync-readiness.sql) in the Supabase project configured by the Worker's `SUPABASE_URL`. It checks the table, exact columns, service-role SELECT/INSERT/UPDATE grants and exact save-function signature/EXECUTE grant without reading learner rows. All seven checks must be true. If not, repair the specific failed prerequisite; do not blindly rerun an already-applied migration. The original definitions are in `20261021090000_accounts_progress_insights.sql`.
+
+On Cloudflare, filter Workers Logs by `progress.storage_failed`. The record contains only the operation (`read` or `write`) and a standard database code, with no account ID, tokens, progress content or raw provider messages:
+
+- `42P01`: missing relation; `42703`: missing column.
+- `42501`: database permissions denied.
+- `PGRST205`: PostgREST cannot find the table in its schema cache; distinguish an absent table from a stale schema cache using the SQL diagnostic.
+- `PGRST202`: save function absent or not discoverable with the expected arguments.
+- JWT/authentication errors: check that the server-only `SUPABASE_SERVICE_ROLE_KEY` belongs to the same project as `SUPABASE_URL` and is not a publishable/anon key. Redeploy after correcting runtime secrets. Never paste the key into chat or logs.
+
+If SQL checks pass but PostgREST reports stale schema metadata, an operator can run `NOTIFY pgrst, 'reload schema';` in that project. Retest `/api/progress` while signed in and then **Retry sync**. Keep the browser's local data until cloud synchronization succeeds.

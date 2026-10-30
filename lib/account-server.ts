@@ -8,6 +8,7 @@ import { VIDEO_BUCKET } from './platform-contract';
 import { TRAINING_BUCKET } from './training-contract';
 import { visionStaff } from './vision-server';
 import { clientIp } from './client-ip';
+import { logError } from './log';
 import { AVATAR_BUCKET } from './auth/profile';
 
 export const lessonKeySchema = z.string().regex(/^(builtin:[a-z]+|published:[a-f0-9-]{36}:v[0-9]{1,6})$/);
@@ -24,10 +25,21 @@ async function signedIn() {
  return user;
 }
 
+/** Record only the standard database code: provider messages can contain private data. */
+function checkProgressStorage(error: unknown, operation: 'read' | 'write') {
+ if(!error)return;
+ const raw = typeof error === 'object' && 'code' in error ? error.code : undefined;
+ const code = typeof raw === 'string' && /^(?:[A-Z0-9]{5}|PGRST\d{3})$/.test(raw) ? raw : 'unknown';
+ logError('progress.storage_failed',{operation,code});
+ throw new PlatformError(503,'storage',operation==='read'?'Account progress could not load. Please try again.':'Progress could not be saved.');
+}
+
 /** Every lesson's saved progress for this account. */
 export async function listProgress() {
  const user=await signedIn();
- const rows=checked(await platformDb().from('learner_progress').select('lesson_key,data,client_updated_at').eq('user_id',user.id).limit(500))||[];
+ const {data,error}=await platformDb().from('learner_progress').select('lesson_key,data,client_updated_at').eq('user_id',user.id).limit(500);
+ checkProgressStorage(error,'read');
+ const rows=data||[];
  return {progress:rows.map(row=>({lessonKey:row.lesson_key,data:row.data,updatedAt:Number(row.client_updated_at)}))};
 }
 /** Saves one lesson's progress; an older copy never overwrites a newer one. */
@@ -36,7 +48,7 @@ export async function saveProgress(input:z.infer<typeof progressSaveSchema>) {
  if(!platformRateAllowed(user.id,'progress.save'))throw new PlatformError(429,'rate','Too many saves. Please try again shortly.');
  if(JSON.stringify(input.data ?? null).length>16000)throw new PlatformError(413,'size','This progress record is too large.');
  const {data,error}=await platformDb().rpc('progress_save',{p_user:user.id,p_key:input.lessonKey,p_data:input.data,p_updated:input.updatedAt});
- if(error)throw new PlatformError(503,'storage','Progress could not be saved.');
+ checkProgressStorage(error,'write');
  return {progress:data};
 }
 

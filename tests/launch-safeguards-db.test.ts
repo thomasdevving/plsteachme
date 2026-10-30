@@ -11,6 +11,22 @@ async function database() {
 }
 const value=async<T,>(db:PGlite,sql:string,params:unknown[]=[])=>(await db.query<{v:T}>(sql,params)).rows[0].v;
 
+it('the progress sync diagnostic checks read/write prerequisites without reading any learner rows',async()=>{
+ const db=await database();
+ try {
+  const sql=await readFile(new URL('../supabase/checks/progress-sync-readiness.sql',import.meta.url),'utf8');
+  const check=async()=> (await db.query<{check_name:string;ready:boolean}>(sql)).rows;
+  expect((await check()).every(row=>row.ready)).toBe(true);
+  expect(await check()).toHaveLength(7);
+  await db.exec('revoke select on public.learner_progress from service_role');
+  expect((await check()).filter(row=>!row.ready)).toEqual([{check_name:'service_role can read progress',ready:false}]);
+  await db.exec('grant select on public.learner_progress to service_role;alter table public.learner_progress rename column client_updated_at to wrong_column');
+  expect((await check()).filter(row=>!row.ready)).toEqual([{check_name:'required progress columns exist',ready:false}]);
+  await db.exec('drop function public.progress_save(uuid,text,jsonb,bigint);drop table public.learner_progress');
+  expect((await check()).every(row=>!row.ready)).toBe(true);
+ } finally {await db.close();}
+},30_000);
+
 it('the copyable learning-readiness SQL validates every migration and identifies a missing rate limiter',async()=>{
  const db=await database();
  try {
