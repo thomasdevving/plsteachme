@@ -2,10 +2,11 @@
 -- Run in the intended Supabase project's SQL Editor. Every row should be true.
 with required_tables(name) as (
   values ('coaching_trials'),('account_profiles'),('learner_progress'),
-    ('learning_events'),('coaching_reports'),('trial_claims'),('ai_usage'),('rate_limits')
+    ('lesson_feedback'),('learning_events'),('coaching_reports'),('trial_claims'),('ai_usage'),('rate_limits')
 ), required_functions(name) as (
   values ('claim_coaching_trial'),('advance_coaching_trial'),('progress_save'),
-    ('coaching_trial_use'),('ai_budget_use'),('rate_hit'),('account_login_email')
+    ('coaching_trial_use'),('ai_budget_use'),('rate_hit'),('account_login_email'),
+    ('lesson_feedback_save'),('lesson_feedback_summary'),('account_mfa_satisfied')
 )
 select 'table: public.' || name as check_name,
   to_regclass('public.' || name) is not null as ready

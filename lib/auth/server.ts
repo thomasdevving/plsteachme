@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { authConfig } from "./config";
+import { needsMfa } from "./mfa";
 import { serviceFetch } from "../network";
 export async function authClient() {
   const { url, key, enabled } = authConfig();
@@ -32,5 +33,6 @@ export async function authenticatedUser() {
   const client = await authClient();
   if (!client) return null;
   const { data, error } = await client.auth.getUser();
-  return error ? null : data.user;
+  if (error || !data.user) return null;
+  return await needsMfa(client, data.user) ? null : data.user;
 }

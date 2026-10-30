@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { needsMfa } from "@/lib/auth/mfa";
 import { authClient } from "@/lib/auth/server";
 import { authConfig } from "@/lib/auth/config";
 import { safeNext, sameOrigin } from "@/lib/auth/redirect";
@@ -136,6 +137,7 @@ export async function POST(request: Request) {
           },
           401,
         );
+      if (await needsMfa(client, account.user)) return reply({ error: "Verify your authenticator before changing your password." }, 403);
       stage = "rate_limit";
       if (!(await rate(request, "password", account.user.id)))
         return reply(
@@ -215,6 +217,7 @@ export async function POST(request: Request) {
         options: { captchaToken: data.captchaToken },
       });
       if (result.error) return providerFailure(result.error) || incorrect();
+      if (result.data.user && await needsMfa(client, result.data.user)) return reply({ url: `/login/mfa?next=${encodeURIComponent(safeNext(data.next))}` });
       return reply({ url: safeNext(data.next) });
     }
     if (data.action === "recover") {

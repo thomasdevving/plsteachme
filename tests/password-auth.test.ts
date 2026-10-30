@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 vi.mock("server-only", () => ({}));
 const state = vi.hoisted(() => ({
+  assurance: vi.fn(),
   login: vi.fn(),
   signup: vi.fn(),
   recover: vi.fn(),
@@ -31,6 +32,7 @@ vi.mock("@/lib/auth/config", () => ({
 vi.mock("@/lib/auth/server", () => ({
   authClient: async () => ({
     auth: {
+      mfa: { getAuthenticatorAssuranceLevel: state.assurance },
       signInWithPassword: state.login,
       signUp: state.signup,
       resetPasswordForEmail: state.recover,
@@ -85,6 +87,7 @@ beforeEach(() => {
     error: null,
   }));
   state.claimed.mockResolvedValue({ data: null, error: null });
+  state.assurance.mockResolvedValue({data:{currentLevel:"aal1",nextLevel:"aal2"},error:null});
   state.login.mockResolvedValue({
     data: { user: { id }, session: {} },
     error: null,
@@ -102,6 +105,14 @@ beforeEach(() => {
   state.verify.mockResolvedValue({ data: { user: { id } }, error: null });
 });
 describe("password accounts", () => {
+  it("sends password-only sessions with a verified factor to MFA before entering the app", async () => {
+    state.login.mockResolvedValue({data:{user:{id,factors:[{status:'verified'}]},session:{}},error:null});
+    const response = await POST(request({action:'login',identifier:'ada@example.com',password:'private password',next:'/learn'}));
+    expect(await response.json()).toEqual({url:'/login/mfa?next=%2Flearn'});
+    state.assurance.mockResolvedValue({data:{currentLevel:'aal2'},error:null});
+    expect(await (await POST(request({action:'login',identifier:'ada@example.com',password:'private password',next:'/learn'}))).json()).toEqual({url:'/learn'});
+  });
+
   it("normalizes the email but preserves the exact password and sanitizes the destination", async () => {
     const response = await POST(
       request({

@@ -133,11 +133,11 @@ test('catalog keeps real cards, searchable content and keyboard lesson activatio
   await expect(page.locator('.catalog-grid')).toHaveCount(0);
   await page.getByRole('link',{name:'All lessons',exact:true}).click();
   await search.fill('');
-  const filters = page.getByRole('group', { name: 'Filter by real-life category' });
-  const personal = filters.getByRole('button', { name: 'Personal Care', exact: true });
+  const filters = page.getByRole('tablist', { name: 'Skill categories' });
+  const personal = filters.getByRole('tab', { name: 'Personal Care', exact: true });
   await personal.focus();
   await page.keyboard.press('Space');
-  await expect(personal).toHaveAttribute('aria-pressed', 'true');
+  await expect(personal).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.catalog-card')).toHaveCount(2);
   await expectNoOverflow(page);
 });

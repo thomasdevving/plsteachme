@@ -133,3 +133,5 @@ The app saves no learner camera frames in files, databases, analytics or applica
 The beta limiter is per server process: 30 session starts and 120 checks per network identifier per ten minutes, with a bounded in-memory map. Before scaling across instances, use a shared rate limiter and configure provider/project spend limits. A trusted reverse proxy must supply the network identifier. No public or unlimited-cost inference endpoint should be deployed without those operating controls.
 
 Implementation references: [OpenAI image inputs](https://developers.openai.com/api/docs/guides/images-vision), [model catalog](https://developers.openai.com/api/docs/models), and installed AI SDK 7/OpenAI provider 4 bundled documentation. Live model quality and real mobile-device camera behavior need validation after credentials are configured.
+
+For the redesigned learning catalog, private dated lesson feedback, and authenticator MFA rollout, see [the activation guide](docs/LEARNING_MFA_FEEDBACK.md). The two October 30 SQL migrations and Supabase TOTP setting are required.

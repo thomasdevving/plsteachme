@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ArrowRight, LogOut } from "lucide-react";
 import type { Trial } from "@/lib/auth/trial";
 import { trialResumeHref } from '@/lib/auth/trial-reference';
+import { MfaSettings } from './mfa';
 import { ProfileSettings } from './profile-settings';
 export function AccountPanel() {
   const [account, setAccount] = useState<{
@@ -75,6 +76,7 @@ export function AccountPanel() {
         <>
           <p className="auth-intro account-email">{account.user.email}</p>
           <ProfileSettings />
+          <MfaSettings />
           <section className="account-trial">
             <h2>
               {trial?.completed_at
@@ -155,7 +157,7 @@ function DeleteAccount() {
     <details className="account-delete" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
       <summary>Delete my account</summary>
       <p>
-        This permanently deletes your account, your profile and photo, your saved lesson progress, your free session, your skill requests and
+        This permanently deletes your account, your profile and photo, your saved lesson progress, lesson ratings and comments, your free session, your skill requests and
         support, and any teacher profile, lessons and demonstration videos. Organizations you belong to keep their own
         training records without your name or email. Lessons downloaded for offline use on this device are removed too. This cannot be undone.
       </p>

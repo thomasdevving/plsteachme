@@ -188,3 +188,17 @@
   .app-download-screen { padding: 22px 18px; }
   .app-download-visual .download-mascot { width: 140px; right: -10px; bottom: -4px; }
 }
+
+/* Keep secondary downloads quieter than the lesson action. */
+.catalog-offline .offline-card-action{min-height:32px;font-size:.7rem;gap:5px}
+.catalog-offline .offline-card-action svg{width:13px;height:13px}
+.offline-library .offline-masthead>p{max-width:62ch;line-height:1.75;margin-top:20px}
+.offline-library .offline-masthead>.offline-connection-note{font-size:.8rem;margin-top:10px}
+.offline-library .catalog-section-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 28px}
+.offline-library .catalog-section-heading p{max-width:42ch;line-height:1.65;font-size:.82rem;color:var(--muted);margin:4px 0 0}
+.offline-row-copy{min-width:0}
+.offline-row-copy h3{line-height:1.45}
+.offline-row-copy p{line-height:1.65}
+.offline-library .offline-actions .button{min-height:34px;padding:6px 10px;font-size:.75rem}
+.offline-library .offline-control>p{max-width:62ch;line-height:1.65}
+@media(max-width:700px){.offline-library .catalog-section-heading{flex-direction:column;align-items:flex-start}.offline-library .catalog-section-heading p{max-width:none}}

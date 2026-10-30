@@ -55,10 +55,11 @@ export function OfflineLibrary() {
   return <div className="container offline-library">
     <header className="offline-masthead">
       <div className="offline-title-row">
-        <div><p className="offline-kicker">Offline lessons</p><h1>Practice without <em>internet.</em></h1></div>
+        <div><h1>Practice without <em>internet.</em></h1></div>
         <DownloadMascot />
       </div>
-      <p>Download built-in lessons to this device. The illustrated steps, materials, safety notes and checkpoints then work offline, and your progress is saved here. Camera coaching, questions and your account need a connection.</p>
+      <p>Keep illustrated lessons on this device and practice without internet. Your progress stays saved here.</p>
+    <p className="offline-connection-note">Camera coaching, questions and account sync require internet.</p>
     </header>
     {notice && <p className="offline-arrival" role="status"><WifiOff size={17} aria-hidden="true" />{notice}</p>}
     {connection.online && from && <p className="offline-meta"><a className="text-link" href="/learn">Back to all lessons<ArrowRight size={16} aria-hidden="true" /></a></p>}
@@ -73,7 +74,7 @@ export function OfflineLibrary() {
           <div className="offline-row-copy">
             <h3>{names[skill]}</h3>
             <p><LessonProgressNote skill={skill} progress={progress} /></p>
-            <OfflineLessonControl skill={skill} name={names[skill]} heading={false} />
+            <OfflineLessonControl skill={skill} name={names[skill]} heading={false} compact />
           </div>
           <a className="button primary compact" href={builtinLessonHref(skill)}>{progress.lessons[skill] && !progress.lessons[skill]?.completed ? 'Resume' : 'Open'}<span className="sr-only"> {names[skill]}</span><ArrowRight size={17} aria-hidden="true" /></a>
         </li>)}</ul>}
@@ -85,7 +86,7 @@ export function OfflineLibrary() {
         <span className="offline-row-art" data-skill={skill}><SkillIcon skill={skill} size={34} /></span>
         <div className="offline-row-copy">
           <h3>{names[skill]}</h3>
-          {connection.online ? <OfflineLessonControl skill={skill} name={names[skill]} heading={false} /> : <p><OfflineBadge skill={skill} /> <span className="offline-meta">Not downloaded</span></p>}
+          {connection.online ? <OfflineLessonControl skill={skill} name={names[skill]} heading={false} compact /> : <p><OfflineBadge skill={skill} /> <span className="offline-meta">Not downloaded</span></p>}
         </div>
         {connection.online && <a className="button secondary compact" href={builtinLessonHref(skill)}>Open<span className="sr-only"> {names[skill]}</span><ArrowRight size={17} aria-hidden="true" /></a>}
       </li>)}</ul>

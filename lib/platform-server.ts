@@ -6,6 +6,7 @@ import { NextRequest } from 'next/server';
 import { generateText, Output, transcribe } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 import { decodeCoachFrame } from './coaching-ai';
+import { needsMfa } from './auth/mfa';
 import { authenticatedUser } from './auth/server';
 import { authConfig } from './auth/config';
 import { serviceFetch } from './network';
@@ -36,6 +37,7 @@ export async function platformUser(request:NextRequest, client:DB) {
  if (!match || match[1].length>10000) throw new PlatformError(401,'sign_in','Sign in to continue.');
  const {data,error}=await client.auth.getUser(match[1]);
  if (error || !data.user || data.user.is_anonymous) throw new PlatformError(401,'sign_in','Your session has expired. Sign in again.');
+ if(await needsMfa(client,data.user,match[1]))throw new PlatformError(403,'mfa_required','Verify your authenticator to continue.');
  return data.user;
 }
 export function teacherRow(row:Row):TeacherProfile { return {userId:row.user_id,displayName:row.display_name,expertise:row.expertise,experience:row.experience,qualifications:row.qualifications,status:row.status,reviewNotes:row.review_notes,createdAt:row.created_at,updatedAt:row.updated_at}; }

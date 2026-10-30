@@ -28,6 +28,7 @@ export const setupTables: Record<string, string> = {
   training_modules: "id,status",
   vision_models: "id,status",
   learner_progress: "user_id,lesson_key",
+  lesson_feedback: "user_id,lesson_key,version,rating,created_at,updated_at",
   learning_events: "id,kind",
   training_pilot_access: "email",
   trial_claims: "email_hash",
@@ -52,11 +53,15 @@ export const setupFunctions = [
   "rate_hit",
   "ephemeral_cleanup",
   "account_login_email",
+  "lesson_feedback_save",
+  "lesson_feedback_summary",
+  "account_mfa_satisfied",
 ];
 export const learningTables = [
   "coaching_trials",
   "account_profiles",
   "learner_progress",
+  "lesson_feedback",
   "learning_events",
   "coaching_reports",
   "trial_claims",
@@ -71,6 +76,9 @@ export const learningFunctions = [
   "ai_budget_use",
   "rate_hit",
   "account_login_email",
+  "lesson_feedback_save",
+  "lesson_feedback_summary",
+  "account_mfa_satisfied",
 ];
 type SetupOptions = { learner?: boolean; deploymentOnly?: boolean };
 function origin(value: string | undefined): string | null {

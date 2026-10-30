@@ -9,12 +9,14 @@ import {
   ListChecks,
   ShieldCheck,
   MessageCircle,
+  Star,
 } from "lucide-react";
 import { BrandMark } from "./brand";
 import { AccountNavLink } from "./account-nav-link";
+import { LessonFeedbackPanel } from "./lesson-feedback";
 import { AppStatus } from "./app-status";
 
-type View = "practice" | "coach" | "prepare" | "record";
+type View = "practice" | "coach" | "prepare" | "record" | "feedback";
 type WorkspaceProps = {
   title: string;
   subtitle: string;
@@ -36,6 +38,7 @@ type WorkspaceProps = {
   downloaded?: boolean;
   /** A compact offline state shown next to the step count. */
   badge?: ReactNode;
+  feedback?: { lessonKey: string; version: number };
 };
 
 /** A dedicated lesson screen: navigation stays visible while optional tools have their own view. */
@@ -58,6 +61,7 @@ export function LessonWorkspace({
   coaching,
   downloaded = false,
   badge,
+  feedback,
 }: WorkspaceProps) {
   const [view, setView] = useState<View>("practice");
   const id = useId();
@@ -73,6 +77,7 @@ export function LessonWorkspace({
     ...(record
       ? [{ id: "record" as const, label: "Progress", icon: ListChecks }]
       : []),
+    ...(feedback ? [{ id: "feedback" as const, label: "Feedback", icon: Star }] : []),
   ];
   return (
     <article className={`lesson-screen ${className}`} data-skill={skill}>
@@ -182,6 +187,7 @@ export function LessonWorkspace({
             {record}
           </div>
         )}
+        {feedback && view === "feedback" && <div id={`${id}-feedback`} className="lesson-tool-view"><LessonFeedbackPanel lessonKey={feedback.lessonKey} version={feedback.version} /></div>}
       </main>
       <footer className="lesson-screen-footer">
         <div className="lesson-controls">{controls}</div>

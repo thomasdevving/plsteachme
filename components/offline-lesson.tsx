@@ -34,7 +34,7 @@ export function OfflineBadge({ skill, hideOnline = false }: { skill: SkillId; hi
 }
 
 /** Full control for one built-in lesson: download, progress, update, retry and remove. */
-export function OfflineLessonControl({ skill, name, heading = true }: { skill: SkillId; name: string; heading?: boolean }) {
+export function OfflineLessonControl({ skill, name, heading = true, compact = false }: { skill: SkillId; name: string; heading?: boolean; compact?: boolean }) {
   const { offline, connection, status, item, progress } = useLessonOffline(skill);
   const id = useId();
   if (!offline.ready) return null;
@@ -48,7 +48,7 @@ export function OfflineLessonControl({ skill, name, heading = true }: { skill: S
       {heading ? <h3 id={`${id}-title`}>Offline use</h3> : <span id={`${id}-title`} className="sr-only">Offline use for {name}</span>}
       <OfflineBadge skill={skill} />
     </div>
-    {status === 'online' && <p>Keep the illustrated steps, materials, safety notes and checkpoints on this device to practice without internet. Camera coaching and questions still need a connection.</p>}
+    {status === 'online' && !compact && <p>Keep the illustrated steps, materials, safety notes and checkpoints on this device to practice without internet. Camera coaching and questions still need a connection.</p>}
     {status === 'downloading' && <>
       <div className="offline-progress" role="progressbar" aria-label={`Downloading ${name}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent(progress)}><span style={{ width: `${percent(progress)}%` }} /></div>
       <p className="offline-meta">Saving files… {percent(progress)}%. Keep this page open until it finishes.</p>

@@ -6,6 +6,7 @@ export async function proxy(request: NextRequest) {
       request.nextUrl.pathname,
     ) || request.nextUrl.pathname.startsWith("/coach/session/");
   const sessionResponse = authPath ? await refreshAuth(request) : null;
+  if (sessionResponse?.headers.has("location")) return sessionResponse;
   const url = request.nextUrl.clone();
   // Coach has its own root layout; model/SVG assets must bypass locale routing.
   if (

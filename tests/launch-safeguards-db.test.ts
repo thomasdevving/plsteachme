@@ -4,7 +4,7 @@ import { readFile, readdir } from 'node:fs/promises';
 
 async function database() {
  const db=new PGlite();
- await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key, email text); create function auth.uid() returns uuid language sql as 'select null::uuid'; create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);`);
+ await db.exec(`create role anon; create role authenticated; create role service_role bypassrls; create schema auth;create table auth.mfa_factors(user_id uuid,status text); create table auth.users(id uuid primary key, email text); create function auth.uid() returns uuid language sql as 'select null::uuid'; create schema storage; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);`);
  const folder=new URL('../supabase/migrations/',import.meta.url);
  for(const file of (await readdir(folder)).sort())await db.exec(await readFile(new URL(file,folder),'utf8'));
  return db;
@@ -16,7 +16,7 @@ it('the copyable learning-readiness SQL validates every migration and identifies
  try {
   const sql=await readFile(new URL('../supabase/checks/ai-learning-readiness.sql',import.meta.url),'utf8');
   const checks=(await db.query<{check_name:string;ready:boolean}>(sql)).rows;
-  expect(checks).toHaveLength(16);
+  expect(checks).toHaveLength(20);
   expect(checks.every(check=>check.ready)).toBe(true);
   await db.exec('drop function public.rate_hit(text,integer,integer)');
   const missing=(await db.query<{check_name:string;ready:boolean}>(sql)).rows.filter(check=>!check.ready);

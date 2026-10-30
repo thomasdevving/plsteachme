@@ -146,3 +146,14 @@
     margin-right: 5px;
   }
 }
+
+.account-mfa{margin-top:28px;padding-block:24px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.account-mfa h2{font-size:1.4rem;margin-bottom:12px}
+.account-mfa p{font-size:.9rem;line-height:1.7;margin:10px 0 18px}
+.mfa-enrollment img{display:block;max-width:100%;height:auto;margin-block:20px;background:#fff}
+.mfa-enrollment details{margin-block:16px;font-size:.85rem}
+.mfa-enrollment summary{cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.mfa-secret{display:block;overflow-wrap:anywhere;padding:14px 0;user-select:all}
+.mfa-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:16px}
+.mfa-code-field{display:flex;flex-direction:column;gap:8px;font-size:.9rem}
+.mfa-code-field input{letter-spacing:.18em;max-width:240px}

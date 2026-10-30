@@ -1,0 +1,56 @@
+import { expect, it } from 'vitest';
+import { PGlite } from '@electric-sql/pglite';
+import { readFile } from 'node:fs/promises';
+
+it('keeps feedback private, versioned and dated, and enforces opted-in MFA for direct account reads', async () => {
+  const db = new PGlite();
+  const a = '11111111-1111-4111-8111-111111111111', b = '22222222-2222-4222-8222-222222222222';
+  try {
+    await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;
+      create table auth.users(id uuid primary key);create table auth.mfa_factors(user_id uuid,status text);
+      create function auth.uid() returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;
+      grant usage on schema auth to authenticated;
+      create table public.account_profiles(user_id uuid primary key references auth.users(id) on delete cascade);
+      create table public.coaching_trials(user_id uuid primary key references auth.users(id) on delete cascade);
+      alter table public.account_profiles enable row level security;alter table public.coaching_trials enable row level security;
+      grant select on public.account_profiles,public.coaching_trials to authenticated;
+      create policy own_profile on public.account_profiles for select to authenticated using(user_id=auth.uid());
+      create policy own_trial on public.coaching_trials for select to authenticated using(user_id=auth.uid());`);
+    for (const file of ['20261030170000_lesson_feedback.sql','20261030171000_mfa_account_access.sql']) await db.exec(await readFile(new URL(`../supabase/migrations/${file}`, import.meta.url),'utf8'));
+    await db.query('insert into auth.users values($1),($2)',[a,b]);
+    await db.query('insert into public.account_profiles values($1),($2)',[a,b]);
+    await db.query('insert into public.coaching_trials values($1),($2)',[a,b]);
+    await db.exec('set role service_role');
+    const save = (user:string, version:number, rating:number, comment:string) => db.query('select public.lesson_feedback_save($1,$2,$3,$4,$5)',[user,'builtin:tie',version,rating,comment]);
+    await save(a,1,4,' Clear steps '); await save(b,1,2,'More detail please'); await save(a,2,5,'Improved');
+    await db.exec('reset role');
+    await db.query("update public.lesson_feedback set created_at='2026-01-01',updated_at='2026-01-01' where user_id=$1 and version=1",[a]);
+    await db.exec('set role service_role');
+    await save(a,1,5,'An updated comment');
+    const rows = (await db.query<{version:number;comment:string;created_at:Date;updated_at:Date}>('select version,comment,created_at,updated_at from public.lesson_feedback where user_id=$1 order by version',[a])).rows;
+    expect(rows).toHaveLength(2); expect(rows[0].created_at.toISOString()).toBe('2026-01-01T00:00:00.000Z');
+    expect(rows[0].updated_at.getTime()).toBeGreaterThan(rows[0].created_at.getTime());
+    expect(rows[1].comment).toBe('Improved');
+    expect((await db.query<{v:unknown}>("select public.lesson_feedback_summary('builtin:tie',1) v")).rows[0].v).toEqual({count:2,average:3.5});
+    expect((await db.query<{v:unknown}>("select public.lesson_feedback_summary('builtin:tie',2) v")).rows[0].v).toEqual({count:1,average:5});
+    await expect(save(a,3,6,'bad')).rejects.toThrow(/check/);
+    await expect(save(a,3,4,'x'.repeat(2001))).rejects.toThrow(/check/);
+    await db.exec('reset role;set role anon');
+    await expect(db.query('select * from public.lesson_feedback')).rejects.toThrow(/permission/);
+    await expect(db.query("select public.lesson_feedback_summary('builtin:tie',1)")).rejects.toThrow(/permission/);
+    await db.exec(`reset role;select set_config('request.jwt.claim.sub','${a}',false);set role authenticated`);
+    await expect(db.query('select * from public.lesson_feedback')).rejects.toThrow(/permission/);
+    expect((await db.query('select * from public.account_profiles')).rows).toHaveLength(1);
+    await db.exec('reset role');
+    await db.query("insert into auth.mfa_factors values($1,'verified')",[a]);
+    await db.exec(`select set_config('request.jwt.claims','{"aal":"aal1"}',false);set role authenticated`);
+    expect((await db.query('select * from public.account_profiles')).rows).toHaveLength(0);
+    expect((await db.query('select * from public.coaching_trials')).rows).toHaveLength(0);
+    await db.exec(`select set_config('request.jwt.claims','{"aal":"aal2"}',false)`);
+    expect((await db.query('select * from public.account_profiles')).rows).toEqual([{user_id:a}]);
+    expect((await db.query('select * from public.coaching_trials')).rows).toEqual([{user_id:a}]);
+    await db.exec('reset role');
+    await db.query('delete from auth.users where id=$1',[a]);
+    expect((await db.query('select user_id from public.lesson_feedback')).rows).toEqual([{user_id:b}]);
+  } finally { await db.close(); }
+});

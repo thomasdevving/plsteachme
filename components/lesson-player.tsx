@@ -86,6 +86,7 @@ function Player({ skill, name }: { skill: SkillId; name: string }) {
     setStorageError(!saveLessonProgress(skill,null));setResumed(false);setPractice(value=>value+1);focusHeading();
   }
   return <LessonWorkspace
+    feedback={{lessonKey:`builtin:${skill}`,version:progress.contentVersion}}
     title={name} subtitle={`${catalogEntries[skill].categories[0]} · Illustrated walkthrough`} downloaded={downloaded} badge={<OfflineBadge skill={skill} hideOnline/>}
     step={step} steps={lesson.steps.length} completed={completed} skill={skill} className="lesson-player"
     artwork={<><LessonArtwork skill={skill} step={step} replay={replay}/><button type="button" className="lesson-replay motion-toggle" aria-label="Replay this lesson step" onClick={()=>setReplay(value=>value+1)}><RotateCcw size={17} aria-hidden="true"/>Replay</button></>}

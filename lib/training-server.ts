@@ -60,7 +60,7 @@ async function moduleAccess(client:DB,userId:string,moduleId:string,roles:Traini
  return {module,member};
 }
 /** The published version a member may practice: learners only see modules assigned to them. */
-async function practiceVersion(client:DB,userId:string,moduleId:string) {
+export async function practiceVersion(client:DB,userId:string,moduleId:string) {
  const {module,member}=await moduleAccess(client,userId,moduleId,['admin','instructor','learner']);
  if(!module.published_version_id)throw new PlatformError(404,'not_found','This module is not published.');
  if(member.role==='learner' && module.audience==='selected') {

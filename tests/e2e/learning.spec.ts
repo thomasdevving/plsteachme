@@ -23,11 +23,11 @@ async function record(page:Page,skill='tie') {return page.evaluate(({key,skill})
 test('catalog searches six real-life categories, opens a journey and handles empty results',async({page})=>{
   await page.goto('/learn');
   await expect(page.locator('.catalog-card')).toHaveCount(9);
-  const filters=page.getByRole('group',{name:'Filter by real-life category'});
-  await expect(filters.getByRole('button')).toHaveCount(7);
-  await filters.getByRole('button',{name:'Personal Care',exact:true}).click();
+  const filters=page.getByRole('tablist',{name:'Skill categories'});
+  await expect(filters.getByRole('tab')).toHaveCount(7);
+  await filters.getByRole('tab',{name:'Personal Care',exact:true}).click();
   await expect(page.locator('.catalog-card')).toHaveCount(2);
-  await filters.getByRole('button',{name:'All skills',exact:true}).click();
+  await filters.getByRole('tab',{name:'All skills',exact:true}).click();
   await page.getByRole('searchbox',{name:'Search skills'}).fill('couscous');
   await expect(page.locator('.catalog-card')).toHaveCount(1);
   await expect(page.locator('.catalog-card')).toContainText('Cook a simple meal');

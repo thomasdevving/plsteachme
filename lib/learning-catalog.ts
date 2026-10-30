@@ -68,3 +68,15 @@ export function relatedSkills(skill:SkillId):SkillId[] {
   const sameCategory=skillIds.filter(item=>item!==skill && catalogEntries[item].categories.some(category=>catalogEntries[skill].categories.includes(category)));
   return [...new Set([...(journey?.skills.filter(item=>item!==skill)??[]),...sameCategory])].slice(0,3);
 }
+
+/** Deterministic suggestions from local/account-merged history; no extra tracking or AI calls. */
+export function recommendedSkills(progress: import('./learning-progress').LearningProgress): SkillId[] {
+  const history = skillIds.filter(skill => progress.lessons[skill]?.updatedAt);
+  if (!history.length) return ['tie', 'laundry', 'button'];
+  return skillIds.filter(skill => !progress.lessons[skill]).map(skill => ({
+    skill,
+    score: history.reduce((score, previous) => score +
+      (learningJourneys.some(journey => journey.skills.includes(previous) && journey.skills.includes(skill)) ? 3 : 0) +
+      (catalogEntries[previous].categories.some(category => catalogEntries[skill].categories.includes(category)) ? 1 : 0), 0),
+  })).sort((a, b) => b.score - a.score).slice(0, 3).map(item => item.skill);
+}

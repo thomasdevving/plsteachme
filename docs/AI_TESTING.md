@@ -54,7 +54,7 @@ Save the settings, then **redeploy**. The existing `WORKER_SELF_REFERENCE` servi
 
 ## 2. Supabase: database, password accounts and email
 
-Use a Supabase project you control. For an existing project, apply only missing migrations; do not erase existing users or progress. For a new project, run every SQL file under `supabase/migrations/` in filename order. There are nine migrations, ending in `20261027090000_account_profiles.sql`.
+Use a Supabase project you control. For an existing project, apply only missing migrations; do not erase existing users or progress. For a new project, run every SQL file under `supabase/migrations/` in filename order. There are eleven migrations, ending in `20261030171000_mfa_account_access.sql`. The October 30 migrations add private lesson feedback and enforce opted-in MFA on direct account reads.
 
 In **SQL Editor**, run [the read-only readiness query](../supabase/checks/ai-learning-readiness.sql). Every row should report `ready = true`. This checks the learner tables, required functions and private profile-photo bucket without creating users, consuming AI budget or altering data. If a row fails, apply the migration that creates it. In particular, missing `rate_hit` prevents registration/login; `coaching_trial_use` and `ai_budget_use` are required for AI calls.
 
