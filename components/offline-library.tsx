@@ -6,6 +6,7 @@ import { modules } from '@/lib/modules';
 import { en } from '@/messages/en';
 import { builtinLessonHref } from '@/lib/lesson-navigation';
 import { PROGRESS_EVENT, progressSummary, readProgress, type LearningProgress } from '@/lib/learning-progress';
+import { usePhoneDevice } from '@/lib/offline/phone';
 import { useConnectivity } from '@/lib/offline/connectivity';
 import { formatBytes, removeAllLessons, useOfflineLessons } from '@/lib/offline/store';
 import { SkillIcon } from './illustrations';
@@ -34,6 +35,7 @@ function LessonProgressNote({ skill, progress }: { skill: SkillId; progress: Lea
 }
 
 export function OfflineLibrary() {
+  const phone = usePhoneDevice();
   const offline = useOfflineLessons();
   const connection = useConnectivity();
   const [from, setFrom] = useState<string | null>(null);
@@ -51,15 +53,30 @@ export function OfflineLibrary() {
   const others = skillIds.filter((skill) => !offline.packages[skill]);
   const total = Object.values(offline.packages).reduce((sum, item) => sum + (item?.info.bytes ?? 0), 0);
   const notice = arrivalNotice(from, connection.online);
+  if (phone) return <div className="container offline-library offline-phone-page">
+    <header className="offline-masthead">
+      <div className="offline-title-row">
+        <div>
+          <h1>Offline lessons for phones.<br /><em>Coming soon.</em></h1>
+          <p className="offline-intro">Offline lessons on phones aren’t ready yet. You can keep learning online.</p>
+          <p className="offline-connection-note">For offline practice, use plsteach.me on a laptop or desktop.</p>
+        </div>
+        <DownloadMascot variant="offline" />
+      </div>
+    </header>
+    <a className="button primary compact" href="/learn">Explore skills online<ArrowRight size={17} aria-hidden="true" /></a>
+  </div>;
   // Lessons open with a full page load so the service worker can serve the downloaded copy.
   return <div className="container offline-library">
     <header className="offline-masthead">
       <div className="offline-title-row">
-        <div><h1>Practice without <em>internet.</em></h1></div>
+        <div>
+          <h1>Practice without <em>internet.</em></h1>
+          <p className="offline-intro">Keep illustrated lessons on this device and practice without internet. Your progress stays saved here.</p>
+          <p className="offline-connection-note">Camera coaching, questions and account sync require internet.</p>
+        </div>
         <DownloadMascot variant="offline" />
       </div>
-      <p>Keep illustrated lessons on this device and practice without internet. Your progress stays saved here.</p>
-    <p className="offline-connection-note">Camera coaching, questions and account sync require internet.</p>
     </header>
     {notice && <p className="offline-arrival" role="status"><WifiOff size={17} aria-hidden="true" />{notice}</p>}
     {connection.online && from && <p className="offline-meta"><a className="text-link" href="/learn">Back to all lessons<ArrowRight size={16} aria-hidden="true" /></a></p>}

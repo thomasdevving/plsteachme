@@ -204,3 +204,5 @@ The same suite (22 tests at the time; the website band tests were added later) p
 - An installed app whose start URL changed (the old `/coach` manifest) is not migrated automatically. It stays a separate app.
 
 The offline library uses its own reading/booklet mascot (`offline-practice.webp`), included in the public shell package. The landing page keeps the laptop companion and desktop app illustration. Both exact public mascot paths are allowed by the worker so earlier downloaded versions still work; private image paths remain excluded.
+
+Phone downloads are coming soon: `/learn/offline` explains this on iPhone/Android phones and directs learners to online skills or a laptop/desktop. New phone download actions link to that explanation; existing downloaded packages are not deleted. Detection uses device identity rather than viewport width, so resizing a desktop window does not disable its offline library. The public shell remains static and device selection happens after hydration.

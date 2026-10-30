@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { devices, expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import { cacheContents, mockSignedIn } from './helpers';
 
@@ -108,4 +108,25 @@ test('authenticator setup requires a code and login then asks for the second fac
   await page.getByRole('button',{name:'Verify and continue',exact:true}).click();
   await expect(page).toHaveURL(/\/learn$/);
   expect(attempts.filter(item=>item.action==='verify')).toHaveLength(3);
+});
+
+for (const device of ['iPhone 13', 'Pixel 7']) test(`${device} sees phone offline lessons as coming soon, including in landscape`, async ({browser}) => {
+  const context = await browser.newContext({...devices[device], serviceWorkers:'allow'});
+  try {
+    const page = await context.newPage();
+    await page.goto(`${test.info().project.use.baseURL}/learn`);
+    await page.getByRole('link',{name:'Offline lessons',exact:true}).click();
+    await expect(page.getByRole('heading',{name:/Offline lessons for phones/})).toContainText('Coming soon.');
+    await expect(page.getByText('Offline lessons on phones aren’t ready yet. You can keep learning online.')).toBeVisible();
+    await expect(page.getByRole('button',{name:'Download for offline',exact:true})).toHaveCount(0);
+    await page.setViewportSize({width:844,height:390});
+    await expect(page.getByRole('heading',{name:/Offline lessons for phones/})).toBeVisible();
+    await page.getByRole('link',{name:'Explore skills online',exact:true}).click();
+    await expect(page.locator('.catalog-card')).toHaveCount(9);
+    await expect(page.getByRole('link',{name:'Phone downloads coming soon',exact:true}).first()).toBeVisible();
+    await page.goto(`${test.info().project.use.baseURL}/learn/tie`);
+    await page.getByRole('button',{name:'Prepare',exact:true}).click();
+    await expect(page.getByText('Offline lessons for phones are coming soon. You can keep learning online.')).toBeVisible();
+    await expect(page.getByRole('button',{name:'Download for offline',exact:true})).toHaveCount(0);
+  } finally { await context.close(); }
 });

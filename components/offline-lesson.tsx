@@ -2,6 +2,7 @@
 import { useId } from 'react';
 import { CircleCheck, CloudDownload, RefreshCw, Trash2, TriangleAlert, WifiOff } from 'lucide-react';
 import type { SkillId } from '@/lib/config';
+import { usePhoneDevice } from '@/lib/offline/phone';
 import { useConnectivity } from '@/lib/offline/connectivity';
 import {
   cancelDownload, currentVersion, downloadLesson, formatBytes, lessonStatus, removeLesson, statusLabels, useOfflineLessons,
@@ -37,6 +38,12 @@ export function OfflineBadge({ skill, hideOnline = false }: { skill: SkillId; hi
 export function OfflineLessonControl({ skill, name, heading = true, compact = false }: { skill: SkillId; name: string; heading?: boolean; compact?: boolean }) {
   const { offline, connection, status, item, progress } = useLessonOffline(skill);
   const id = useId();
+  const phone = usePhoneDevice();
+  if (phone && !item && status !== 'downloading') return <section className="offline-control">
+    {heading && <h3>Offline use</h3>}
+    <p>Offline lessons for phones are coming soon. You can keep learning online.</p>
+    <a href="/learn/offline" className="text-link">About phone downloads</a>
+  </section>;
   if (!offline.ready) return null;
   if (!offline.supported) return <section className="offline-control" aria-labelledby={`${id}-title`}>
     {heading && <h3 id={`${id}-title`}>Offline use</h3>}
@@ -71,6 +78,8 @@ export function OfflineLessonControl({ skill, name, heading = true, compact = fa
 /** One line on a catalog card: the state, and the next useful action. */
 export function OfflineCardAction({ skill, name }: { skill: SkillId; name: string }) {
   const { offline, connection, status, progress } = useLessonOffline(skill);
+  const phone = usePhoneDevice();
+  if (phone && status !== 'offline' && status !== 'downloading') return <a className="offline-card-action" href="/learn/offline">Phone downloads coming soon</a>;
   if (!offline.ready || !offline.supported) return null;
   if (status === 'offline' || status === 'downloading') return <OfflineBadge skill={skill} />;
   if (!connection.online) return status === 'online' ? <span className="offline-badge" data-offline-status="needs-network"><WifiOff size={15} aria-hidden="true" />Needs an internet connection</span> : <OfflineBadge skill={skill} />;
