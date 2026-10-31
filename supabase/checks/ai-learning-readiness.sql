@@ -3,18 +3,24 @@
 with required_tables(name) as (
   values ('coaching_trials'),('account_profiles'),('learner_progress'),
     ('lesson_feedback'),('learning_events'),('coaching_reports'),('trial_claims'),('ai_usage'),('rate_limits')
-), required_functions(name) as (
-  values ('claim_coaching_trial'),('advance_coaching_trial'),('progress_save'),
-    ('coaching_trial_use'),('ai_budget_use'),('rate_hit'),('account_login_email'),
-    ('lesson_feedback_save'),('lesson_feedback_summary'),('account_mfa_satisfied')
+), required_functions(name,signature) as (
+  values ('claim_coaching_trial','public.claim_coaching_trial(uuid,text,integer,text)'),
+    ('advance_coaching_trial','public.advance_coaching_trial(uuid,uuid,integer)'),
+    ('progress_save','public.progress_save(uuid,text,jsonb,bigint)'),
+    ('coaching_trial_use','public.coaching_trial_use(uuid,uuid,integer,integer)'),
+    ('ai_budget_use','public.ai_budget_use(text,integer)'),
+    ('rate_hit','public.rate_hit(text,integer,integer)'),
+    ('account_login_email','public.account_login_email(text)'),
+    ('lesson_feedback_save','public.lesson_feedback_save(uuid,text,integer,integer,text)'),
+    ('lesson_feedback_summary','public.lesson_feedback_summary(text,integer)'),
+    ('account_mfa_satisfied','public.account_mfa_satisfied()')
 )
 select 'table: public.' || name as check_name,
   to_regclass('public.' || name) is not null as ready
 from required_tables
 union all
 select 'function: public.' || f.name,
-  exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
-    where n.nspname='public' and p.proname=f.name)
+  to_regprocedure(f.signature) is not null
 from required_functions f
 union all
 select 'private JPEG profile-avatars bucket',

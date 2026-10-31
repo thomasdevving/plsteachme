@@ -70,6 +70,18 @@ beforeEach(() => {
   });
 });
 describe("one free session authorization", () => {
+  it.each(['PGRST202','42P01','42501'])('logs trial creation failure %s without account or provider content',async(code)=>{
+    const log=vi.spyOn(console,'error').mockImplementation(()=>{});
+    try {
+      mocks.rpc.mockResolvedValue({data:null,error:{code,message:'private email or token',details:'private'}});
+      const response=await trialAction(req({action:'start',skillId:trial.skill_id}));
+      expect(response.status).toBe(503);
+      expect(await response.json()).toEqual({error:'Your session could not be saved. Please try again.'});
+      expect(JSON.parse(String(log.mock.calls[0][0]))).toMatchObject({event:'trial.save_failed',stage:'claim_session',code});
+      expect(JSON.stringify(log.mock.calls)).not.toContain('private');
+    }finally{log.mockRestore();}
+  });
+
   it('does not consume a trial when OpenAI is absent',async()=>{vi.stubEnv('OPENAI_API_KEY','');expect((await trialAction(req({action:'start',skillId:trial.skill_id}))).status).toBe(503);expect(mocks.rpc).not.toHaveBeenCalled();});
   it('rejects anonymous Supabase accounts',async()=>{mocks.user.mockResolvedValue({id:'guest',is_anonymous:true});expect((await requireTrial(req(),trial.skill_id))?.status).toBe(401);expect((await trialAction(req({action:'start',skillId:trial.skill_id}))).status).toBe(401);expect(mocks.rpc).not.toHaveBeenCalled();});
   it('uses the same durable trial for new lessons and preserves the previous chosen skill',async()=>{

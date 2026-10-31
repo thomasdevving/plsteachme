@@ -1,3 +1,4 @@
+import { logError } from "@/lib/log";
 import { z } from "zod";
 import { authConfig } from "@/lib/auth/config";
 import { authenticatedUser } from "@/lib/auth/server";
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
     return reply({ error: "Please use the coaching page to continue." }, 403);
   if (!authConfig().enabled)
     return reply({ error: "Sign-in is not available yet." }, 503);
+  let stage = "authentication";
   try {
     const user = await authenticatedUser();
     if (!user || user.is_anonymous)
@@ -42,6 +44,7 @@ export async function POST(request: Request) {
     if (input.action === "start") {
       // Never spend an account's one session while its AI service is unavailable.
       if (!coachingConfigured()) return reply({error:'Camera coaching is not connected yet. Your free session has not been used.'},503);
+      stage = "resolve_lesson";
       let resolved: {id:string;total:number}|null=null;
       const builtin=input.skillId.startsWith('builtin:')?input.skillId.slice(8):null;
       if(builtin && skillIds.includes(builtin as SkillId) && builtin!=='tie') resolved={id:input.skillId,total:modules[builtin as SkillId].steps.length};
@@ -55,6 +58,7 @@ export async function POST(request: Request) {
       if(!resolved && !builtin && !published){const skill=getSkill(input.skillId);if(skill?.status==='available')resolved={id:skill.id,total:skill.steps.length};}
       if (!resolved)
         return reply({ error: "This skill is not available yet." }, 404);
+      stage = "claim_session";
       const { data, error } = await db().rpc("claim_coaching_trial", {
         p_user_id: user.id,
         p_skill_id: resolved.id,
@@ -73,6 +77,7 @@ export async function POST(request: Request) {
         );
       return reply({ trial: data });
     }
+    stage = "save_progress";
     const { data, error } = await db().rpc("advance_coaching_trial", {
       p_user_id: user.id,
       p_session_id: input.sessionId,
@@ -85,7 +90,11 @@ export async function POST(request: Request) {
         403,
       );
     return reply({ trial: data });
-  } catch {
+  } catch (error) {
+    const raw = error && typeof error === 'object' && 'code' in error ? error.code : undefined;
+    const code = typeof raw === 'string' && /^(?:[A-Z0-9]{5}|PGRST\d{3})$/.test(raw) ? raw : 'unknown';
+    // Only the stage and standard error code; never IDs, emails, tokens or provider messages.
+    logError('trial.save_failed', { stage, code });
     return reply(
       { error: "Your session could not be saved. Please try again." },
       503,
