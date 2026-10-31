@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   catch { return coachJson({error:'image'},400); }
   const timeout = AbortSignal.timeout(22000);
   try {
-    const feedback = await assessCoachStep(parsed.data.skill,parsed.data.step,frames,AbortSignal.any([request.signal,timeout]));
+    const feedback = await assessCoachStep(parsed.data.skill,parsed.data.step,frames,AbortSignal.any([request.signal,timeout]),parsed.data.focusBoxes);
     await recordCoachVerdict(request,`builtin:${parsed.data.skill}`,parsed.data.step,feedback.status);
     return coachJson({skill:parsed.data.skill,step:parsed.data.step,feedback});
   } catch(error) {

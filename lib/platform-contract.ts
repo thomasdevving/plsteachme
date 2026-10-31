@@ -1,3 +1,4 @@
+import { focusBoxesSchema, focusMatchesFrames } from './vision/coaching-focus';
 import { z } from 'zod';
 
 export const platformCategories = ['personal-care','clothing','independent-living','diy','hobbies','preparedness'] as const;
@@ -18,7 +19,7 @@ export type PublishedLesson = PublishedLessonSummary & {document:LessonDocument;
 export type CoachingReport = {id:string;skill:string;step:number;status:string;confidence:string;observation:string;guidance:string;reason:string;created_at:string;resolved_at:string|null;resolution:string};
 export type PlatformMe = {user:{id:string;email:string|undefined};reviewer:boolean;profile:TeacherProfile|null;lessons:StudioLesson[];supportedRequestIds:string[];applications?:TeacherProfile[];reviewQueue?:StudioLesson[];reports?:CoachingReport[]};
 export const platformActionSchema = z.discriminatedUnion('action',[
- z.object({action:z.literal('lesson.coach'),id:z.uuid(),version:z.number().int().min(1),step:z.number().int().min(0).max(19),frames:z.array(z.string().max(270000).regex(/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/)).min(1).max(2),consent:z.literal(true),over16:z.literal(true)}).strict(),
+ z.object({action:z.literal('lesson.coach'),id:z.uuid(),version:z.number().int().min(1),step:z.number().int().min(0).max(19),focusBoxes:focusBoxesSchema,frames:z.array(z.string().max(270000).regex(/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/)).min(1).max(2),consent:z.literal(true),over16:z.literal(true)}).strict().refine(focusMatchesFrames),
  z.object({action:z.literal('request'),title:z.string().trim().min(3).max(100),description:z.string().trim().min(10).max(1000),category:z.enum(platformCategories)}).strict(),
  z.object({action:z.literal('support'),requestId:z.uuid(),support:z.boolean()}).strict(),
  z.object({action:z.literal('request.hide'),requestId:z.uuid()}).strict(),

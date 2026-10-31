@@ -1,5 +1,12 @@
 # Verification — landing website replacement
 
+## Movement-tolerant tracking and full-frame coaching — 31 October 2026
+
+- Reproduced the reported lost-tracking behavior with a synthetic tie turning, bending slightly and changing size: the previous tracker fails at movement frame four. Local tracking now refines nearby positions/scales and compares modest rotations with continuity thresholds, while global acquisition keeps stricter appearance checks. Uncertain frames retain a clearly dashed “Rechecking” anchor briefly; they do not supply a current AI focus hint.
+- All three coaching routes accept optional, validated location hints paired with complete camera images. AI instructions explicitly require relevant evidence across the entire image, allow the object outside the box, and treat box coordinates as untrusted context. Skipping or losing the tracker does not stop camera coaching. Preview mirroring does not alter hint coordinates, and stale hints expire.
+- **479 unit/API/database tests across 59 files pass**, including motion/occlusion, same-color replacements, coordinate bounds and image pairing, full-image provider input and all three coaching routes. The production build, final TypeScript check, three browser camera-flow cases and full OpenNext/Cloudflare deployment dry-run pass. The browser skip case decodes both outgoing JPEGs and checks their dimensions against the complete camera view. The stronger continuity negative assertions also pass on the same-color replacements.
+- Tests use synthetic ties, simulated camera media and mocked provider responses. Real-camera robustness and real OpenAI assessment accuracy still require testing with actual ties, hands, backgrounds and lighting. No database migration or new dashboard setting is needed.
+
 ## Same-color object tracking — 31 October 2026
 
 - Reproduced false positives from same-color substitutes and the stale tracking box during missed frames. Color no longer passes by itself: matching requires grayscale structure and a foreground silhouette from the same enrolled view. Global search balances foreground coverage/contrast, refines alignment and rejects competing distant matches. Uncertain frames immediately show searching while keeping a short-lived internal search anchor.

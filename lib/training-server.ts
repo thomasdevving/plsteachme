@@ -1,3 +1,4 @@
+import { FOCUS_INSTRUCTIONS } from './vision/coaching-focus';
 import 'server-only';
 import { visionModel } from './ai/models';
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
@@ -217,7 +218,7 @@ async function coachModule(client:DB,userId:string,email:string,action:Extract<T
  if(step.reference) {const file=(await client.storage.from(TRAINING_BUCKET).download(step.reference.frame,{},{signal})).data;if(file)reference=Buffer.from(await file.arrayBuffer());}
  const {reference:stepReference,...stepContent}=step;void stepReference;
  const provider=createOpenAI({apiKey:process.env.OPENAI_API_KEY?.trim()});
- const response=await generateText({model:provider.responses(visionModel()),output:Output.object({schema:feedbackSchema}),system:COACH_SYSTEM,messages:[{role:'user',content:[{type:'text',text:JSON.stringify({objective:document.objective,safety:document.safety,step:stepContent})},...(reference?[{type:'text' as const,text:'REFERENCE (instructor demonstration):'},{type:'image' as const,image:reference,mediaType:'image/jpeg'}]:[]),{type:'text',text:'Learner frames:'},...frames.map(image=>({type:'image' as const,image,mediaType:'image/jpeg'}))]}],providerOptions:{openai:{store:false,reasoningEffort:'low',reasoningSummary:null}},maxOutputTokens:1200,maxRetries:0,abortSignal:signal});
+ const response=await generateText({model:provider.responses(visionModel()),output:Output.object({schema:feedbackSchema}),system:COACH_SYSTEM+' '+FOCUS_INSTRUCTIONS,messages:[{role:'user',content:[{type:'text',text:JSON.stringify({focusBoxes:action.focusBoxes,objective:document.objective,safety:document.safety,step:stepContent})},...(reference?[{type:'text' as const,text:'REFERENCE (instructor demonstration):'},{type:'image' as const,image:reference,mediaType:'image/jpeg'}]:[]),{type:'text',text:'Learner frames:'},...frames.map(image=>({type:'image' as const,image,mediaType:'image/jpeg'}))]}],providerOptions:{openai:{store:false,reasoningEffort:'low',reasoningSummary:null}},maxOutputTokens:1200,maxRetries:0,abortSignal:signal});
  let feedback=feedbackSchema.parse(response.output);
  if(feedback.status!=='stop' && !step.visuallyCheckable)feedback={status:'not_verifiable',confidence:'low',observation:'This checkpoint needs a manual check.',guidance:step.manualAlternative.slice(0,350)||'Use the module checkpoint to inspect this yourself.'};
  else if(['looks_right','adjust'].includes(feedback.status) && feedback.confidence!=='high')feedback={status:'unclear',confidence:feedback.confidence,observation:'There is not enough clear visual evidence yet.',guidance:step.uncertainty.slice(0,350)||'Show the checkpoint from a clearer angle.'};

@@ -156,6 +156,15 @@ describe('training API boundaries',()=>{
   const response=await POST(post({action:'member.invite',organizationId:orgId,role:'learner',emails:['a@example.test']}));
   expect(response.status).toBe(409);expect((await response.json()).message).toContain('seats');
  });
+ it('uses learner focus hints without applying them to the instructor reference',async()=>{
+  const focusBoxes=[{x:.1,y:.2,w:.3,h:.4}];
+  expect((await POST(post(coach({focusBoxes})))).status).toBe(200);
+  const options=state.ai.mock.calls[0][0];
+  expect(options.system).toContain('Inspect the entire learner camera image');
+  expect(options.system).toContain('paired in order with learner images');
+  expect(JSON.parse(options.messages[0].content[0].text).focusBoxes).toEqual(focusBoxes);
+  expect(options.messages[0].content.filter((part:{type:string})=>part.type==='image')).toHaveLength(2);
+ });
  it('coaches against the instructor reference and records confirmations on the server',async()=>{
   const response=await POST(post(coach()));
   expect(response.status).toBe(200);expect(await response.json()).toMatchObject({id:moduleId,version:2,step:0,feedback:{status:'looks_right'}});

@@ -1,3 +1,4 @@
+import { focusBoxesSchema, focusMatchesFrames } from './vision/coaching-focus';
 import { z } from 'zod';
 import { lessonDocumentSchema, lessonStepSchema, platformCategories, type LessonDocument } from './platform-contract';
 
@@ -82,7 +83,7 @@ export const trainingActionSchema = z.discriminatedUnion('action',[
  z.object({action:z.literal('module.publish'),moduleId:id,audience:z.enum(['all','selected']),memberIds,reviewed:z.literal(true)}).strict(),
  z.object({action:z.literal('module.assign'),moduleId:id,audience:z.enum(['all','selected']),memberIds}).strict(),
  z.object({action:z.literal('module.archive'),moduleId:id}).strict(),
- z.object({action:z.literal('module.coach'),moduleId:id,version:z.number().int().min(1),step:z.number().int().min(0).max(19),frames:z.array(jpegData).min(1).max(2),consent:z.literal(true),over16:z.literal(true)}).strict(),
+ z.object({action:z.literal('module.coach'),moduleId:id,version:z.number().int().min(1),step:z.number().int().min(0).max(19),focusBoxes:focusBoxesSchema,frames:z.array(jpegData).min(1).max(2),consent:z.literal(true),over16:z.literal(true)}).strict().refine(focusMatchesFrames),
  z.object({action:z.literal('progress.save'),moduleId:id,version:z.number().int().min(1),step:z.number().int().min(0).max(19),results:z.array(z.enum(stepResults)).min(1).max(20),completed:z.boolean()}).strict(),
 ]);
 export type TrainingAction = z.infer<typeof trainingActionSchema>;

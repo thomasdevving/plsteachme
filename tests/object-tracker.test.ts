@@ -42,6 +42,8 @@ describe('few-shot object tracking',()=>{
   for(const impostor of impostors){
    const result=track(frame([impostor],40),learned,initialState());
    expect(result.status).toBe('searching');expect(result.box).toBeNull();
+   const selected=track(frame([object(68,46)],41),learned,initialState());
+   expect(track(frame([impostor],42),learned,selected).status).toBe('searching');
   }
  });
  it('does not keep a tracking box on a same-color replacement during the missed-frame grace period',()=>{
@@ -67,6 +69,7 @@ describe('few-shot object tracking',()=>{
   expect(genuine.status).toBe('tracking');expect(iou(genuine.box!,{x:26,y:30,w:20,h:48})).toBeGreaterThan(.25);
   const rectangle=frame([{x:26,y:30,w:20,h:48,paint:()=>[190,55,45]}],5);
   expect(track(rectangle,learned,initialState()).status).toBe('searching');
+  expect(track(rectangle,learned,genuine).status).toBe('searching');
  });
  it('does not arbitrarily pick one of two visually identical candidates',()=>{
   const result=track(frame([object(20,40),object(110,40)],20),model(),initialState());
@@ -90,10 +93,35 @@ describe('few-shot object tracking',()=>{
    expect(iou(state.box!,{x,y,w:24,h:32})).toBeGreaterThan(.3);
   }
  });
+ it('keeps following a tie through turning, bending and changes in size',()=>{
+  const tie=(cx:number,cy:number,angle:number,scale=1,bend=0):Shape=>{
+   const c=Math.cos(angle),s=Math.sin(angle),w=(Math.abs(c)*20+Math.abs(s)*48)*scale,h=(Math.abs(s)*20+Math.abs(c)*48)*scale;
+   const source=(dx:number,dy:number)=>{const x=(dx-w/2)/scale,y=(dy-h/2)/scale;return {u:x*c+y*s+10,v:-x*s+y*c+24};};
+   return {x:cx-w/2,y:cy-h/2,w,h,paint:()=>[190,55,45],contains:(dx,dy)=>{const {u,v}=source(dx,dy);const half=v<36?2+v/6:(48-v)*8/12;return v>=0&&v<48&&Math.abs(u-10-bend*Math.sin(v/48*Math.PI))<half;}};
+  };
+  const learned=enroll([frame([tie(76,60,0)])],{x:60,y:30,w:32,h:60});
+  let state=track(frame([tie(76,60,0)]),learned,initialState());
+  expect(state.status).toBe('tracking');
+  for(let i=1;i<=6;i++){
+   const shape=tie(76+i*3,60-i, i*Math.PI/60,1+i*.025, i*.2);
+   state=track(frame([shape],500+i),learned,state);
+   expect(state.status,`movement frame ${i}`).toBe('tracking');
+   expect(iou(state.box!,shape)).toBeGreaterThan(.25);
+  }
+ });
+ it('keeps a temporary anchor through brief occlusion, then resumes without enrollment',()=>{
+  const learned=model();let state=track(frame([object(68,46)]),learned,initialState());
+  for(let i=0;i<3;i++){
+   state=track(frame([object(68,46),{x:68,y:46,w:24,h:20,paint:green}],600+i),learned,state);
+   expect(state.status).toBe('searching');expect(state.box).not.toBeNull();
+  }
+  state=track(frame([object(74,50)],610),learned,state);
+  expect(state.status).toBe('tracking');expect(iou(state.box!,{x:74,y:50,w:24,h:32})).toBeGreaterThan(.3);
+ });
  it('reports when the object is hidden and finds it again elsewhere',()=>{
   const learned=model();let state=initialState();
   state=track(frame([object(30,30)],2),learned,state);expect(state.status).toBe('tracking');
-  for(let step=0;step<8;step++)state=track(frame([{x:110,y:70,w:24,h:32,paint:green}],200+step),learned,state);
+  for(let step=0;step<12;step++)state=track(frame([{x:110,y:70,w:24,h:32,paint:green}],200+step),learned,state);
   expect(state.status).toBe('searching');expect(state.box).toBeNull();
   state=track(frame([object(120,70)],300),learned,state);
   expect(state.status).toBe('tracking');expect(iou(state.box!,{x:120,y:70,w:24,h:32})).toBeGreaterThan(.3);

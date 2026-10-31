@@ -2,6 +2,8 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
 import { ANALYSIS_WIDTH, enroll, initialState, track, type Box, type Frame, type ObjectModel, type TrackState } from '@/lib/vision/object-tracker';
 
+import { trackingFocus, type FocusBox } from '@/lib/vision/coaching-focus';
+
 type Phase = 'waiting' | 'countdown' | 'capturing' | 'tracking' | 'skipped';
 const VIEWS = 5;
 const COUNTDOWN = 4;
@@ -12,11 +14,12 @@ const COUNTDOWN = 4;
  * or drags a box around it on the preview at any moment. A few views are
  * learned, then the object is tracked on the preview. Runs entirely on the device.
  */
-export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady}:{objectName:string;video:RefObject<HTMLVideoElement|null>;overlay:RefObject<HTMLCanvasElement|null>;active:boolean;mirrored:boolean;onReady:()=>void}){
+export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady,onFocus}:{objectName:string;video:RefObject<HTMLVideoElement|null>;overlay:RefObject<HTMLCanvasElement|null>;active:boolean;mirrored:boolean;onReady:()=>void;onFocus?:(box:FocusBox|null)=>void}){
   const [phase,setPhase]=useState<Phase>('waiting');const [status,setStatus]=useState('');const [redraw,setRedraw]=useState(false);
   const model=useRef<ObjectModel|null>(null);const state=useRef<TrackState>(initialState());const canvas=useRef<HTMLCanvasElement|null>(null);
   const timer=useRef<ReturnType<typeof setTimeout>|null>(null);const generation=useRef(0);const drag=useRef<{x:number;y:number}|null>(null);const drawn=useRef<Box|null>(null);
   const mirror=useRef(mirrored);mirror.current=mirrored;const ready=useRef(onReady);ready.current=onReady;
+  const focus=useRef(onFocus);focus.current=onFocus;
   const Name=objectName.charAt(0).toUpperCase()+objectName.slice(1);
 
   const grab=useCallback(():Frame|null=>{
@@ -51,18 +54,21 @@ export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady
     context.fillStyle='#fff';context.fillText(label,x+6.5,labelY+15);
   },[geometry]);
   const guideBox=useCallback(():Box|null=>{const g=geometry();if(!g)return null;const w=ANALYSIS_WIDTH*.34,h=g.frameH*.46;return {x:(ANALYSIS_WIDTH-w)/2,y:(g.frameH-h)/2,w,h};},[geometry]);
-  const stopLoop=useCallback(()=>{generation.current++;if(timer.current)clearTimeout(timer.current);timer.current=null;},[]);
+  const stopLoop=useCallback(()=>{focus.current?.(null);generation.current++;if(timer.current)clearTimeout(timer.current);timer.current=null;},[]);
 
   const runTracking=useCallback(()=>{
-    stopLoop();const attempt=generation.current;let last:TrackState['status']|null=null;
+    stopLoop();const attempt=generation.current;let last:string|null=null;
     const tick=()=>{
       if(attempt!==generation.current||!model.current)return;
       const frame=grab();
       if(frame){
         state.current=track(frame,model.current,state.current);const current=state.current;
+        focus.current?.(trackingFocus(current,frame));
         if(current.status==='tracking'&&current.box)draw(current.box,`${Name} · appearance match`,'track');
+        else if(current.box)draw(current.box,`Rechecking the ${objectName}…`,'guide');
         else draw(null,`Looking for the ${objectName}…`,'search');
-        if(current.status!==last){last=current.status;setStatus(current.status==='tracking'?`Tracking the ${objectName}’s appearance.`:`The ${objectName} is out of view or the match is unclear. Show it clearly or draw a new box.`);}
+        const display=current.status+(current.box?' located':' lost');
+        if(display!==last){last=display;setStatus(current.status==='tracking'?`Tracking the ${objectName}’s appearance.`:current.box?`Rechecking the ${objectName} as it moves. Coaching still uses the whole camera view.`:`The ${objectName} is out of view or the match is unclear. Coaching still uses the whole camera view.`);}
       }
       timer.current=setTimeout(tick,80);
     };
@@ -131,6 +137,6 @@ export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady
       {redraw&&phase==='tracking'&&<button type="button" className="text-link" onClick={()=>{setRedraw(false);runTracking();}}>Cancel</button>}
       {phase==='skipped'&&<button type="button" className="text-link" onClick={again}>Show me the {objectName} after all</button>}
     </div>
-    <small className="camera-limit">The box follows the appearance you selected, entirely on your device. AI coaching checks your lesson steps separately.</small>
+    <small className="camera-limit">The box follows your selected object on this device and helps the AI locate it. Coaching always checks the whole camera view, even when the box loses track.</small>
   </div>;
 }

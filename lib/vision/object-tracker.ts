@@ -17,7 +17,7 @@ export const TRACK_THRESHOLD = 0.55;
 const REACQUIRE_THRESHOLD = 0.65;
 const MIN_STRUCTURE = 0.60;
 const MIN_SILHOUETTE = 0.68;
-const MAX_MISSES = 5;
+export const MAX_MISSES = 10; // About 800 ms at the preview’s tracking interval.
 
 /** Color bin robust to lighting: hue and saturation for colors, brightness for grays. */
 export function colorBin(r: number, g: number, b: number) {
@@ -60,12 +60,19 @@ function histogram(frame: Frame, box: Box, ring = false) {
   return out;
 }
 
-/** A zero-mean, unit-length grayscale thumbnail, so matching ignores brightness and contrast. */
-function template(frame: Frame, box: Box) {
+/** Sample an oriented view in raw camera coordinates. */
+function samplePoint(frame: Frame, box: Box, x: number, y: number, angle = 0) {
+  const dx = ((x + .5) / TEMPLATE - .5) * box.w, dy = ((y + .5) / TEMPLATE - .5) * box.h;
+  return {
+    x: Math.min(frame.width - 1, Math.max(0, Math.floor(box.x + box.w / 2 + dx * Math.cos(angle) - dy * Math.sin(angle)))),
+    y: Math.min(frame.height - 1, Math.max(0, Math.floor(box.y + box.h / 2 + dx * Math.sin(angle) + dy * Math.cos(angle))))
+  };
+}
+/** A zero-mean, unit-length thumbnail ignores brightness and contrast. */
+function template(frame: Frame, box: Box, angle = 0) {
   const out = new Float32Array(TEMPLATE * TEMPLATE);
   for (let ty = 0; ty < TEMPLATE; ty++) for (let tx = 0; tx < TEMPLATE; tx++) {
-    const x = Math.min(frame.width - 1, Math.max(0, Math.floor(box.x + ((tx + 0.5) * box.w) / TEMPLATE)));
-    const y = Math.min(frame.height - 1, Math.max(0, Math.floor(box.y + ((ty + 0.5) * box.h) / TEMPLATE)));
+    const {x,y} = samplePoint(frame,box,tx,ty,angle);
     const i = (y * frame.width + x) * 4;
     out[ty * TEMPLATE + tx] = 0.299 * frame.data[i] + 0.587 * frame.data[i + 1] + 0.114 * frame.data[i + 2];
   }
@@ -112,11 +119,10 @@ function boxMean(sums: Float64Array, width: number, box: Box) {
 }
 
 /** Spatial foreground evidence: a color match must also have the enrolled outline. */
-function foregroundTemplate(frame: Frame, likelihood: Float32Array, box: Box) {
+function foregroundTemplate(frame: Frame, likelihood: Float32Array, box: Box, angle = 0) {
   const out = new Float32Array(TEMPLATE * TEMPLATE);
   for (let y = 0; y < TEMPLATE; y++) for (let x = 0; x < TEMPLATE; x++) {
-    const px = Math.min(frame.width - 1, Math.max(0, Math.floor(box.x + (x + .5) * box.w / TEMPLATE)));
-    const py = Math.min(frame.height - 1, Math.max(0, Math.floor(box.y + (y + .5) * box.h / TEMPLATE)));
+    const {x:px,y:py} = samplePoint(frame,box,x,y,angle);
     const i = (py * frame.width + px) * 4;
     out[y * TEMPLATE + x] = likelihood[colorBin(frame.data[i], frame.data[i + 1], frame.data[i + 2])] >= .6 ? 1 : 0;
   }
@@ -136,23 +142,27 @@ function colorContrast(frame: Frame, sums: Float64Array, area: Box) {
 }
 
 /** Color alone never qualifies: require structure AND foreground shape in the same enrolled view. */
-export function scoreBox(frame: Frame, model: ObjectModel, box: Box, sums: Float64Array = integral(likelihoodMap(frame, model), frame.width, frame.height)) {
+export function scoreBox(frame: Frame, model: ObjectModel, box: Box, sums: Float64Array = integral(likelihoodMap(frame, model), frame.width, frame.height), continuous = false) {
   const area = clampBox(box, frame);
   const color = colorContrast(frame, sums, area);
   if (color < .12) return 0;
-  const thumb = template(frame, area), mask = foregroundTemplate(frame, model.likelihood, area);
   let best = 0;
-  for (let view = 0; view < model.templates.length; view++) {
-    let structure = 0, intersection = 0, union = 0;
-    const stored = model.templates[view], silhouette = model.masks[view];
-    for (let i = 0; i < thumb.length; i++) {
-      structure += thumb[i] * stored[i];
-      intersection += Math.min(mask[i], silhouette[i]);
-      union += Math.max(mask[i], silhouette[i]);
+  // A recently located object may turn or bend. Compare nearby orientations
+  // with slightly more tolerant evidence; global acquisition stays strict.
+  for (const angle of continuous ? [0,-Math.PI/9,Math.PI/9] : [0]) {
+    const thumb = template(frame, area,angle), mask = foregroundTemplate(frame, model.likelihood, area,angle);
+    for (let view = 0; view < model.templates.length; view++) {
+      let structure = 0, intersection = 0, union = 0;
+      const stored = model.templates[view], silhouette = model.masks[view];
+      for (let i = 0; i < thumb.length; i++) {
+        structure += thumb[i] * stored[i];
+        intersection += Math.min(mask[i], silhouette[i]);
+        union += Math.max(mask[i], silhouette[i]);
+      }
+      const shape = union ? intersection / union : 0;
+      if (structure < (continuous ? .45 : MIN_STRUCTURE) || shape < (continuous ? .55 : MIN_SILHOUETTE)) continue;
+      best = Math.max(best, .35 * color + .4 * Math.min(1, structure) + .25 * shape);
     }
-    const shape = union ? intersection / union : 0;
-    if (structure < MIN_STRUCTURE || shape < MIN_SILHOUETTE) continue;
-    best = Math.max(best, .35 * color + .4 * Math.min(1, structure) + .25 * shape);
   }
   return best;
 }
@@ -238,13 +248,17 @@ export function track(frame: Frame, model: ObjectModel, state: TrackState): Trac
     // A mild preference for the enrolled size keeps the box from drifting smaller or larger.
     const enrolledW = model.width * frame.width / model.frameWidth;
     const sizePenalty = (box: Box) => 0.08 * Math.abs(Math.log(box.w / enrolledW));
-    let best = { box: shifted, score: scoreBox(frame, model, shifted, sums), rank: 0 };
-    best.rank = best.score - sizePenalty(shifted);
-    for (const factor of [0.9, 1.1]) {
-      const resized = clampBox(grow(shifted, factor), frame);
+    let best = { box: state.box, score: 0, rank: -Infinity };
+    // Mean shift alone can slide off a narrow tie or towards a hand. Refine
+    // nearby positions as well as scale instead of discarding a moved object.
+    for (const center of [state.box,shifted]) for (const factor of [1,.9,1.1]) {
+      const resized = clampBox(grow(center,factor),frame);
       if (resized.w < minW || resized.w > maxW) continue;
-      const score = scoreBox(frame, model, resized, sums), rank = score - sizePenalty(resized);
-      if (rank > best.rank) best = { box: resized, score, rank };
+      for (const dy of [-6,0,6]) for (const dx of [-6,0,6]) {
+        const box = clampBox({...resized,x:resized.x+dx,y:resized.y+dy},frame);
+        const score = scoreBox(frame,model,box,sums,true), rank = score - sizePenalty(box);
+        if (rank > best.rank) best = {box,score,rank};
+      }
     }
     if (best.score >= TRACK_THRESHOLD) return { box: best.box, score: best.score, status: 'tracking', misses: 0 };
     const misses = state.misses + 1;

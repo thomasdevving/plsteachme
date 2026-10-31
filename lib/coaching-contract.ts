@@ -1,3 +1,4 @@
+import { focusBoxesSchema, focusMatchesFrames } from './vision/coaching-focus';
 import { z } from 'zod';
 import { skillIds } from './config';
 import { getCheckpoint } from './learning-catalog';
@@ -15,8 +16,9 @@ export type CoachFeedback = z.infer<typeof feedbackSchema>;
 export const coachRequestSchema = z.object({
   skill: z.enum(skillIds),
   step: z.number().int().min(0).max(6),
+  focusBoxes: focusBoxesSchema,
   frames: z.array(z.string().max(270_000).regex(/^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/)).min(1).max(2)
-}).strict();
+}).strict().refine(focusMatchesFrames);
 export const coachConsentSchema = z.object({ consent: z.literal(true), over16: z.literal(true) }).strict();
 
 // These are framing hints, not alternate lesson instructions.

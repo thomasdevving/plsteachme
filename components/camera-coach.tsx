@@ -18,6 +18,8 @@ import { learningSession } from '@/lib/learning-events';
 import { builtinObjects, objectFromMaterials } from '@/lib/vision/objects';
 import { builtinSteps, builtinTarget, lessonSteps, lessonTarget } from '@/lib/vision-contract';
 
+import type { FocusBox } from '@/lib/vision/coaching-focus';
+
 type Mode = 'off' | 'starting' | 'running' | 'paused';
 const feedbackTitles: Record<CoachFeedback['status'],string> = {
   looks_right:'This part looks right', adjust:'Try a small adjustment', unclear:'Let’s get a clearer view',
@@ -90,6 +92,9 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const visionSteps=useMemo(()=>publishedLesson?lessonSteps(publishedLesson.document):builtinSteps(skill),[publishedLesson,skill]);
   const canVerify=publishedLesson?Boolean(currentStep && publishedLesson.document.steps[step]?.visuallyCheckable):getCheckpoint(skill,step).visuallyCheckable;
   const video = useRef<HTMLVideoElement>(null);
+  const objectFocus=useRef<{box:FocusBox;at:number}|null>(null);
+  const updateObjectFocus=useCallback((box:FocusBox|null)=>{objectFocus.current=box?{box,at:performance.now()}:null;},[]);
+  const currentFocus=()=>{const value=objectFocus.current;return value && performance.now()-value.at<500?value.box:null;};
   const objectOverlay = useRef<HTMLCanvasElement>(null);
   const objectName = publishedLesson?objectFromMaterials(publishedLesson.document.materials):builtinObjects[skill];
   const stream = useRef<MediaStream|null>(null);
@@ -100,6 +105,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const headingId = useId();
 
   const releaseCamera = useCallback(()=>{
+    objectFocus.current=null;
     generation.current++;
     request.current?.abort();
     stream.current?.getTracks().forEach(track=>track.stop());
@@ -199,12 +205,14 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
           if(checks>=12){setMode('paused');setStatus('Automatic checks paused.');setMessage('The coach has looked several times. Reposition the camera and resume when you are ready.');return;}
           checks++;
           const first=capture(video.current);
+          const firstFocus=currentFocus();
           await wait(600,controller.signal);
           if(document.hidden || !video.current)return;
           const frames=[first,capture(video.current)];
+          const focusBoxes=[firstFocus,currentFocus()];
           const response=await fetch(organizationModule?'/api/training':publishedId?'/api/platform':'/api/coaching/check',{
             method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{}),...(learningSession()?{'x-learning-session':learningSession()!}:{})},
-            body:JSON.stringify(organizationModule?{action:'module.coach',moduleId:publishedId,version:publishedVersion,step,frames,consent:true,over16:true}:publishedId?{action:'lesson.coach',id:publishedId,version:publishedVersion,step,frames,consent:true,over16:true}:{skill,step,frames}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])
+            body:JSON.stringify(organizationModule?{action:'module.coach',moduleId:publishedId,version:publishedVersion,step,frames,focusBoxes,consent:true,over16:true}:publishedId?{action:'lesson.coach',id:publishedId,version:publishedVersion,step,frames,focusBoxes,consent:true,over16:true}:{skill,step,frames,focusBoxes}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])
           });
           if(controller.signal.aborted)return;
           if(!response.ok) {
@@ -280,7 +288,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     </>}
     {active && (objectReady?<p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>:<p className="camera-current-step"><strong>Before step {step+1}: show me the {objectName}</strong><br/>The coach learns what your {objectName} looks like, then follows it while you practice.</p>)}
     <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
-    <ObjectTracking objectName={objectName} video={video} overlay={objectOverlay} active={mode==='running'||mode==='paused'} mirrored={facing==='user'} onReady={()=>setObjectReady(true)}/>
+    <ObjectTracking objectName={objectName} video={video} overlay={objectOverlay} active={mode==='running'||mode==='paused'} mirrored={facing==='user'} onReady={()=>setObjectReady(true)} onFocus={updateObjectFocus}/>
     {!organizationModule && <OnDeviceModel target={visionTarget} steps={visionSteps} step={step} video={video} running={mode==='running'&&!hidden} feedback={feedback}/>}
     {active && <>
       <p className="camera-framing">{publishedLesson?'Show the tools and result for this checkpoint. Never hold the camera while using tools.':framingHints[skill]}</p>

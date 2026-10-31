@@ -72,6 +72,14 @@ describe('published lesson camera and limits',()=>{
  it('rejects stale or missing published lessons before calling AI',async()=>{publicRows();expect((await POST(post({...coach(),version:1},{authorization:''}))).status).toBe(409);state.tables.platform_lessons=null;expect((await POST(post(coach()))).status).toBe(404);expect(state.ai).not.toHaveBeenCalled();});
  it('blocks public lesson, playback and coaching after withdrawal',async()=>{publicRows();state.tables.platform_lessons={id:lessonId,published_version_id:null};expect((await GET(new NextRequest(`http://localhost:3100/api/platform?view=lesson&id=${lessonId}`))).status).toBe(404);expect((await GET(new NextRequest(`http://localhost:3100/api/platform?view=video&id=${lessonId}`))).status).toBe(404);expect((await POST(post(coach(),{authorization:''}))).status).toBe(404);expect(state.video).not.toHaveBeenCalled();expect(state.ai).not.toHaveBeenCalled();});
  it('uses a reviewed snapshot and conservatively handles nonvisual criteria',async()=>{publicRows(false);const response=await POST(post(coach(),{authorization:''}));expect(response.status).toBe(200);expect(await response.json()).toMatchObject({id:lessonId,version:2,step:0,feedback:{status:'not_verifiable',confidence:'low'}});expect(state.user).not.toHaveBeenCalled();});
+ it('uses an optional location hint while assessing the complete learner frame',async()=>{
+  publicRows();const focusBoxes=[{x:.2,y:.3,w:.2,h:.4}];
+  expect((await POST(post({...coach(),focusBoxes}))).status).toBe(200);
+  const options=state.ai.mock.calls[0][0];
+  expect(options.system).toContain('Inspect the entire learner camera image');
+  expect(JSON.parse(options.messages[0].content[0].text).focusBoxes).toEqual(focusBoxes);
+  expect(options.messages[0].content.filter((part:{type:string})=>part.type==='image')).toHaveLength(1);
+ });
  it('never turns uncertain AI feedback into a verified checkpoint',async()=>{publicRows();state.ai.mockResolvedValue({output:{status:'looks_right',confidence:'medium',observation:'Maybe crossed.',guidance:'Continue.'}});expect(await (await POST(post(coach()))).json()).toMatchObject({feedback:{status:'unclear'}});});
  it('applies separate bounded generation and upload budgets with expiry',()=>{const id=`rate-${Math.random()}`,now=Date.now();for(let i=0;i<6;i++)expect(platformRateAllowed(id,'generate',now)).toBe(true);expect(platformRateAllowed(id,'generate',now)).toBe(false);expect(platformRateAllowed(id,'upload',now)).toBe(true);expect(platformRateAllowed(id,'generate',now+600001)).toBe(true);});
 });
