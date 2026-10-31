@@ -5,7 +5,7 @@ import { authenticatedUser } from "@/lib/auth/server";
 import { sameOrigin } from "@/lib/auth/redirect";
 import { db } from "@/lib/storage";
 import { readJSON } from "@/lib/ai/server";
-import { getSkill } from "@/lib/skills/loader";
+import { trialSkillCatalog } from "@/lib/skills/trial-catalog.generated";
 import { modules } from '@/lib/modules';
 import { skillIds, type SkillId } from '@/lib/config';
 import { coachingConfigured } from '@/lib/coaching-security';
@@ -55,7 +55,12 @@ export async function POST(request: Request) {
         if(lesson.version!==Number(published[2]))return reply({error:'This lesson has changed. Reload it before starting.'},409);
         resolved={id:input.skillId,total:lesson.document.steps.length};
       }
-      if(!resolved && !builtin && !published){const skill=getSkill(input.skillId);if(skill?.status==='available')resolved={id:skill.id,total:skill.steps.length};}
+      // Resolve original coaching IDs from validated, bundled metadata. Build-time
+      // discovery still picks up new JSON lessons, without runtime disk access.
+      if(!resolved && !builtin && !published){
+        const skill=trialSkillCatalog.find(item=>item.id===input.skillId);
+        if(skill?.status==='available')resolved={id:skill.id,total:skill.totalSteps};
+      }
       if (!resolved)
         return reply({ error: "This skill is not available yet." }, 404);
       stage = "claim_session";

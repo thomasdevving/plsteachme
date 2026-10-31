@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   otp: vi.fn(),
   signout: vi.fn(),
   enabled: true,
+  legacyLoader: vi.fn(),
 }));
 vi.mock("@/lib/auth/config", () => ({
   authConfig: () => ({ enabled: mocks.enabled, google: true, apple: true }),
@@ -32,6 +33,8 @@ vi.mock("@/lib/storage", () => ({
     }),
   }),
 }));
+// Simulate a Worker where runtime lesson directories are unavailable.
+vi.mock("@/lib/skills/loader",()=>({getSkill:mocks.legacyLoader}));
 import { safeNext } from "../lib/auth/redirect";
 import { requireTrial } from "../lib/auth/trial";
 import { builtinTrialId, publishedTrialId, trialResumeHref } from '../lib/auth/trial-reference';
@@ -60,6 +63,7 @@ beforeEach(() => {
   vi.stubEnv("OPENAI_API_KEY","test-key");
   vi.resetAllMocks();
   mocks.enabled = true;
+  mocks.legacyLoader.mockImplementation(()=>{throw Object.assign(new Error('runtime filesystem unavailable'),{code:'ENOENT'});});
   mocks.user.mockResolvedValue({ id: "verified-user" });
   mocks.maybeSingle.mockResolvedValue({ data: trial, error: null });
   mocks.rpc.mockImplementation(async (name: string) => ({ data: name === "coaching_trial_use" ? "ok" : name === "ai_budget_use" || name === "rate_hit" ? true : trial, error: null }));
@@ -70,6 +74,17 @@ beforeEach(() => {
   });
 });
 describe("one free session authorization", () => {
+  it('starts the original tie entitlement with no runtime filesystem or directory access',async()=>{
+    const response=await trialAction(req({action:'start',skillId:'tie-four-in-hand'}));
+    expect(response.status).toBe(200);
+    expect(mocks.rpc).toHaveBeenCalledWith('claim_coaching_trial',expect.objectContaining({p_skill_id:'tie-four-in-hand',p_total_steps:7}));
+    expect(mocks.legacyLoader).not.toHaveBeenCalled();
+  });
+  it.each(['tie-shoelaces','fold-a-shirt','sew-a-button','shaving','does-not-exist'])('rejects unavailable legacy skill %s before claiming a trial or reading files',async(skillId)=>{
+    expect((await trialAction(req({action:'start',skillId}))).status).toBe(404);
+    expect(mocks.rpc).not.toHaveBeenCalled();expect(mocks.legacyLoader).not.toHaveBeenCalled();
+  });
+
   it.each(['PGRST202','42P01','42501'])('logs trial creation failure %s without account or provider content',async(code)=>{
     const log=vi.spyOn(console,'error').mockImplementation(()=>{});
     try {

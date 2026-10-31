@@ -1,3 +1,4 @@
+import { trialSkillCatalog } from "../lib/skills/trial-catalog.generated";
 import { describe, expect, it } from "vitest";
 import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -9,6 +10,10 @@ const tie = skills.find(
   (skill) => skill.status === "available",
 ) as AvailableSkill;
 describe("skill definitions", () => {
+  it('keeps bundled session metadata in sync with build-time discovery and availability',()=>{
+    expect(trialSkillCatalog).toEqual(skills.map(skill=>({id:skill.id,status:skill.status,totalSteps:skill.steps.length})));
+  });
+
   it("loads seven ordered tie steps with strict endpoints", () => {
     expect(tie.steps.map((step) => step.checkStrictness)).toEqual([
       "strict",
