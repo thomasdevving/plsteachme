@@ -1,5 +1,12 @@
 # Verification — landing website replacement
 
+## Same-color object tracking — 31 October 2026
+
+- Reproduced false positives from same-color substitutes and the stale tracking box during missed frames. Color no longer passes by itself: matching requires grayscale structure and a foreground silhouette from the same enrolled view. Global search balances foreground coverage/contrast, refines alignment and rejects competing distant matches. Uncertain frames immediately show searching while keeping a short-lived internal search anchor.
+- The overlay now says “appearance match” instead of an uncalibrated percentage. Enrollment guidance asks for the full outline and a little background. Local tracking still runs on-device, sends no new requests and never confirms a lesson checkpoint.
+- **467 unit/API/database tests across 58 files pass**, including 11 tracker regressions for same-color objects, wrong stripe direction, plain-tie shape, flat samples, ambiguous duplicates, movement, dimming and reappearance. The production build and three existing camera-flow browser cases pass, including redraw, skip/restart, local-only requests and accessibility.
+- These checks use synthetic image fixtures and simulated camera input. They establish the tested false-positive improvements, not semantic tie recognition or accuracy across real ties, clothing and lighting. See [the tracker notes](COACH.md#local-object-tracking-and-same-color-distractors).
+
 ## Learning catalog, MFA and dated lesson feedback — 30 October 2026
 
 - Cleaned the catalog introduction, replaced category pills with keyboard-accessible tabs, made offline actions smaller, and added deterministic suggestions from existing local/account-merged progress. Starter suggestions are labeled separately. No additional AI or tracking calls are made. Catalog links do not prefetch account-bearing lesson requests.

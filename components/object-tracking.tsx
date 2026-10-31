@@ -60,9 +60,9 @@ export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady
       const frame=grab();
       if(frame){
         state.current=track(frame,model.current,state.current);const current=state.current;
-        if(current.status==='tracking'&&current.box)draw(current.box,`${Name} · ${Math.round(Math.min(1,current.score)*100)}% match`,'track');
+        if(current.status==='tracking'&&current.box)draw(current.box,`${Name} · appearance match`,'track');
         else draw(null,`Looking for the ${objectName}…`,'search');
-        if(current.status!==last){last=current.status;setStatus(current.status==='tracking'?`Tracking the ${objectName}.`:`The ${objectName} is out of view. Show it again to resume tracking.`);}
+        if(current.status!==last){last=current.status;setStatus(current.status==='tracking'?`Tracking the ${objectName}’s appearance.`:`The ${objectName} is out of view or the match is unclear. Show it clearly or draw a new box.`);}
       }
       timer.current=setTimeout(tick,80);
     };
@@ -78,7 +78,7 @@ export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady
       draw(box,`Learning your ${objectName} · ${views.length}/${VIEWS}`,'guide');
       if(views.length<VIEWS){timer.current=setTimeout(take,300);return;}
       model.current=enroll(views,box);state.current={box,score:1,status:'tracking',misses:0};
-      setPhase('tracking');setStatus(`Got it. Tracking the ${objectName}.`);runTracking();ready.current();
+      setPhase('tracking');setStatus(`Appearance sample ready. Looking for the ${objectName}…`);runTracking();ready.current();
     };
     take();
   },[draw,grab,runTracking,stopLoop,objectName]);
@@ -123,7 +123,7 @@ export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady
   if(!active)return null;
   const inStep=phase==='countdown'||phase==='capturing';
   return <div className="object-tracking">
-    {inStep&&<p className="object-tracking-step"><strong>Show me the {objectName}</strong><br/>Hold it inside the box on your preview and turn it slowly, or drag a box around it. Your lesson steps start right after.</p>}
+    {inStep&&<p className="object-tracking-step"><strong>Show me the {objectName}</strong><br/>Hold it inside the box on your preview and turn it slowly, or drag a box around it. Keep the whole outline visible with a little background around it. Your lesson steps start right after.</p>}
     <p className="object-tracking-status" role="status" aria-live="polite">{status}</p>
     <div className="object-tracking-actions">
       {inStep&&<button type="button" className="text-link" onClick={skip}>Skip this step</button>}
@@ -131,6 +131,6 @@ export function ObjectTracking({objectName,video,overlay,active,mirrored,onReady
       {redraw&&phase==='tracking'&&<button type="button" className="text-link" onClick={()=>{setRedraw(false);runTracking();}}>Cancel</button>}
       {phase==='skipped'&&<button type="button" className="text-link" onClick={again}>Show me the {objectName} after all</button>}
     </div>
-    <small className="camera-limit">Object tracking runs on your device. It shows where the {objectName} is; it does not judge your technique yet.</small>
+    <small className="camera-limit">The box follows the appearance you selected, entirely on your device. AI coaching checks your lesson steps separately.</small>
   </div>;
 }

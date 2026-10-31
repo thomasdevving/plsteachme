@@ -1,20 +1,22 @@
 // Few-shot object enrollment and tracking on small video frames, entirely on
 // the device. Enrollment learns what one learner's own object looks like from
 // a few views: its colors relative to the surrounding background, and small
-// grayscale shape templates. Tracking follows it with mean shift over a color
-// likelihood map, checks it against the templates, and searches the whole
+// grayscale structure and foreground silhouettes. Tracking proposes motion over a color
+// likelihood map, requires independent visual evidence, and searches the whole
 // frame to find it again after it was hidden.
 
 export type Frame = { width: number; height: number; data: Uint8ClampedArray };
 export type Box = { x: number; y: number; w: number; h: number }; // pixels of the analysis frame
-export type ObjectModel = { likelihood: Float32Array; templates: Float32Array[]; width: number; height: number; frameWidth: number; frameHeight: number };
+export type ObjectModel = { likelihood: Float32Array; templates: Float32Array[]; masks: Float32Array[]; width: number; height: number; frameWidth: number; frameHeight: number };
 export type TrackState = { box: Box | null; score: number; status: 'tracking' | 'searching'; misses: number };
 export const ANALYSIS_WIDTH = 160;
 const HUE_BINS = 12, SAT_BINS = 3, GRAY_BINS = 6;
 const BINS = HUE_BINS * SAT_BINS + GRAY_BINS;
 const TEMPLATE = 16;
-export const TRACK_THRESHOLD = 0.35;
-const REACQUIRE_THRESHOLD = 0.45;
+export const TRACK_THRESHOLD = 0.55;
+const REACQUIRE_THRESHOLD = 0.65;
+const MIN_STRUCTURE = 0.60;
+const MIN_SILHOUETTE = 0.68;
 const MAX_MISSES = 5;
 
 /** Color bin robust to lighting: hue and saturation for colors, brightness for grays. */
@@ -89,7 +91,8 @@ export function enroll(views: Frame[], box: Box): ObjectModel {
   // Probability that a pixel of this color belongs to the object rather than its surroundings.
   const likelihood = new Float32Array(BINS);
   for (let i = 0; i < BINS; i++) likelihood[i] = object[i] / (object[i] + background[i] + 1e-3);
-  return { likelihood, templates: views.map((view) => template(view, area)), width: area.w, height: area.h, frameWidth: frame.width, frameHeight: frame.height };
+  const masks = views.map(view => foregroundTemplate(view, likelihood, area));
+  return { likelihood, masks, templates: views.map((view) => template(view, area)), width: area.w, height: area.h, frameWidth: frame.width, frameHeight: frame.height };
 }
 
 function likelihoodMap(frame: Frame, model: ObjectModel) {
@@ -108,17 +111,50 @@ function boxMean(sums: Float64Array, width: number, box: Box) {
   return (sums[y1 * stride + x1] - sums[y0 * stride + x1] - sums[y1 * stride + x0] + sums[y0 * stride + x0]) / area;
 }
 
-/** How much a box looks like the enrolled object: color contrast with its surroundings plus shape. */
-export function scoreBox(frame: Frame, model: ObjectModel, box: Box, sums: Float64Array = integral(likelihoodMap(frame, model), frame.width, frame.height)) {
-  const area = clampBox(box, frame), outer = clampBox(grow(area, 1.8), frame);
+/** Spatial foreground evidence: a color match must also have the enrolled outline. */
+function foregroundTemplate(frame: Frame, likelihood: Float32Array, box: Box) {
+  const out = new Float32Array(TEMPLATE * TEMPLATE);
+  for (let y = 0; y < TEMPLATE; y++) for (let x = 0; x < TEMPLATE; x++) {
+    const px = Math.min(frame.width - 1, Math.max(0, Math.floor(box.x + (x + .5) * box.w / TEMPLATE)));
+    const py = Math.min(frame.height - 1, Math.max(0, Math.floor(box.y + (y + .5) * box.h / TEMPLATE)));
+    const i = (py * frame.width + px) * 4;
+    out[y * TEMPLATE + x] = likelihood[colorBin(frame.data[i], frame.data[i + 1], frame.data[i + 2])] >= .6 ? 1 : 0;
+  }
+  return out;
+}
+function overlap(a: Box, b: Box) {
+  const w = Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x));
+  const h = Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  return w * h / Math.max(1, a.w * a.h + b.w * b.h - w * h);
+}
+function colorContrast(frame: Frame, sums: Float64Array, area: Box) {
+  const outer = clampBox(grow(area, 1.8), frame);
   const inside = boxMean(sums, frame.width, area);
   const outerArea = outer.w * outer.h, innerArea = area.w * area.h;
   const ring = outerArea > innerArea ? (boxMean(sums, frame.width, outer) * outerArea - inside * innerArea) / (outerArea - innerArea) : 0;
-  const color = Math.min(1, Math.max(0, (inside - ring) / 0.5));
-  const thumb = template(frame, area);
-  let shape = -1;
-  for (const stored of model.templates) { let dot = 0; for (let i = 0; i < thumb.length; i++) dot += thumb[i] * stored[i]; shape = Math.max(shape, dot); }
-  return 0.6 * color + 0.4 * Math.max(0, shape);
+  return Math.min(1, Math.max(0, (inside - ring) / .5));
+}
+
+/** Color alone never qualifies: require structure AND foreground shape in the same enrolled view. */
+export function scoreBox(frame: Frame, model: ObjectModel, box: Box, sums: Float64Array = integral(likelihoodMap(frame, model), frame.width, frame.height)) {
+  const area = clampBox(box, frame);
+  const color = colorContrast(frame, sums, area);
+  if (color < .12) return 0;
+  const thumb = template(frame, area), mask = foregroundTemplate(frame, model.likelihood, area);
+  let best = 0;
+  for (let view = 0; view < model.templates.length; view++) {
+    let structure = 0, intersection = 0, union = 0;
+    const stored = model.templates[view], silhouette = model.masks[view];
+    for (let i = 0; i < thumb.length; i++) {
+      structure += thumb[i] * stored[i];
+      intersection += Math.min(mask[i], silhouette[i]);
+      union += Math.max(mask[i], silhouette[i]);
+    }
+    const shape = union ? intersection / union : 0;
+    if (structure < MIN_STRUCTURE || shape < MIN_SILHOUETTE) continue;
+    best = Math.max(best, .35 * color + .4 * Math.min(1, structure) + .25 * shape);
+  }
+  return best;
 }
 
 /** Mean shift: move the box toward the center of mass of object-colored pixels. */
@@ -141,20 +177,51 @@ function meanShift(frame: Frame, map: Float32Array, start: Box) {
 }
 
 /** Scans the whole frame for the best-matching box, for (re)acquiring the object. */
-function search(frame: Frame, model: ObjectModel, sums: Float64Array) {
+function search(frame: Frame, model: ObjectModel, sums: Float64Array, map: Float32Array) {
   const candidates: { box: Box; color: number }[] = [];
+  const foreground = integral(map.map(value => value >= .6 ? 1 : 0),frame.width,frame.height);
   const scaleX = frame.width / model.frameWidth, scaleY = frame.height / model.frameHeight;
+  const coverage = model.masks.reduce((sum,mask) => sum + mask.reduce((total,value) => total + value,0) / mask.length,0) / model.masks.length;
   for (const scale of [0.75, 1, 1.33]) {
     const w = Math.max(6, model.width * scaleX * scale), h = Math.max(6, model.height * scaleY * scale);
     if (w > frame.width || h > frame.height) continue;
-    for (let y = 0; y + h <= frame.height; y += 3) for (let x = 0; x + w <= frame.width; x += 3) candidates.push({ box: { x, y, w, h }, color: boxMean(sums, frame.width, { x, y, w, h }) });
+    for (let y = 0; y + h <= frame.height; y += 3) for (let x = 0; x + w <= frame.width; x += 3) {
+      const box = {x,y,w,h}, inside = boxMean(foreground,frame.width,box);
+      const coverageFit = Math.max(0,1 - Math.abs(inside - coverage) / Math.max(.2,coverage));
+      candidates.push({box,color:colorContrast(frame,sums,box) * coverageFit});
+    }
   }
   candidates.sort((a, b) => b.color - a.color);
-  let best: { box: Box; score: number } | null = null;
-  for (const candidate of candidates.slice(0, 6)) {
-    const score = scoreBox(frame, model, candidate.box, sums);
-    if (!best || score > best.score) best = { box: candidate.box, score };
+  // Avoid spending every template comparison on neighboring windows of one
+  // large same-color distractor. Keep spatially distinct candidates instead.
+  const selected: typeof candidates = [];
+  const matches: {box: Box; score: number}[] = [];
+  for (const candidate of candidates) {
+    if (candidate.color < .01 || selected.some(other => overlap(other.box, candidate.box) > .65)) continue;
+    selected.push(candidate);
+    // Color gives only a coarse location. Refine nearby alignments before
+    // checking texture/outline, so a slightly shifted stripe is not discarded.
+    let refined = {box:candidate.box,score:0};
+    for (const dy of [-6,-3,0,3,6]) for (const dx of [-6,-3,0,3,6]) {
+      const box = clampBox({...candidate.box,x:candidate.box.x+dx,y:candidate.box.y+dy},frame);
+      const score = scoreBox(frame,model,box,sums);
+      if (score > refined.score) refined = {box,score};
+    }
+    const coarse = refined.box;
+    for (const dy of [-1,0,1]) for (const dx of [-1,0,1]) {
+      const box = clampBox({...coarse,x:coarse.x+dx,y:coarse.y+dy},frame);
+      const score = scoreBox(frame,model,box,sums);
+      if (score > refined.score) refined = {box,score};
+    }
+    if (refined.score >= REACQUIRE_THRESHOLD) matches.push(refined);
+    if (selected.length >= 16) break;
   }
+  matches.sort((a,b) => b.score - a.score);
+  const best = matches[0];
+  if (!best) return null;
+  // Two separated, equally plausible objects cannot be identified by this
+  // appearance tracker. Wait for a clearer view instead of choosing one.
+  if (matches.some(other => overlap(other.box,best.box) < .2 && best.score - other.score < .06)) return null;
   return best;
 }
 
@@ -181,10 +248,10 @@ export function track(frame: Frame, model: ObjectModel, state: TrackState): Trac
     }
     if (best.score >= TRACK_THRESHOLD) return { box: best.box, score: best.score, status: 'tracking', misses: 0 };
     const misses = state.misses + 1;
-    if (misses < MAX_MISSES) return { box: best.box, score: best.score, status: 'tracking', misses };
+    if (misses < MAX_MISSES) return { box: state.box, score: best.score, status: 'searching', misses };
   }
   // Lost, or never found: look everywhere, but require a stronger match before claiming it.
-  const found = search(frame, model, sums);
+  const found = search(frame, model, sums, map);
   if (found && found.score >= REACQUIRE_THRESHOLD) return { box: found.box, score: found.score, status: 'tracking', misses: 0 };
   return { box: null, score: found?.score ?? 0, status: 'searching', misses: 0 };
 }
