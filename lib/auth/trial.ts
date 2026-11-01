@@ -4,6 +4,7 @@ import { authenticatedUser } from "./server";
 import { authConfig } from "./config";
 import { sameOrigin } from "./redirect";
 import { aiBudgetAllowed, trialAiUse } from "../ai-guard";
+import { hasUnlimitedCoaching } from "./coaching-access";
 export type Trial = {
   id: string;
   skill_id: string;
@@ -42,6 +43,13 @@ export async function requireTrial(
   try {
     const user = await authenticatedUser();
     if (!user || user.is_anonymous) return fail("Please sign in to use your free session.", 401);
+    if (hasUnlimitedCoaching(user)) {
+      // Unlimited lesson/session access does not bypass the service-wide spend
+      // budget, authentication, MFA, consent or endpoint rate limits.
+      if (countAi && !(await aiBudgetAllowed("coaching")))
+        return fail("Camera coaching is paused for today because of high demand. Please try again tomorrow.", 503);
+      return null;
+    }
     const trial = await getTrial(user.id);
     if (
       !trial ||

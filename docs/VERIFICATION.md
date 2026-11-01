@@ -1,5 +1,13 @@
 # Verification — landing website replacement
 
+## Account-specific unlimited coaching — 1 November 2026
+
+- Added an administrator-managed Supabase app-metadata entitlement checked against fresh, authenticated `getUser()` data. It skips the one-lesson/two-hour/per-trial-call quota only for explicitly granted accounts. Other accounts keep their original trials. User-editable profile data, email, username, request bodies and frontend flags cannot grant server access. Service-wide AI spending limits, endpoint throttles, consent, authentication and MFA remain in force.
+- Learning pages, the legacy lesson gate and the account panel recognize the server-derived grant. An unlimited learner can open coaching and questions across lessons without claiming or completing a free trial; normal learning-progress sync continues.
+- Added an admin-only provisioning command for the specifically requested review username/email. It confirms email via Supabase Admin, verifies username ownership before granting access, preserves unrelated app metadata on rerun and refuses to overwrite a different account. Passwords/admin keys are supplied outside source control and never logged. See [the account setup instructions](REVIEW-ACCOUNT.md).
+- **492 unit/API/database tests across 60 files pass**, including privilege-injection, normal-account isolation, provisioning collisions and quota preservation. The production build, four simulated camera/browser flows and full OpenNext/Cloudflare deployment dry-run pass. The browser checks cover coaching on two lessons without a trial and the account's unlimited-access label.
+- **The production account has not been provisioned by these checks.** This workspace has no configured Supabase URL/admin credentials. Tests use mocks and simulated accounts; the documented admin command must run against the intended production Supabase project to create the account and assign its grant. No new SQL migration or Cloudflare secret is required.
+
 ## Movement-tolerant tracking and full-frame coaching — 31 October 2026
 
 - Reproduced the reported lost-tracking behavior with a synthetic tie turning, bending slightly and changing size: the previous tracker fails at movement frame four. Local tracking now refines nearby positions/scales and compares modest rotations with continuity thresholds, while global acquisition keeps stricter appearance checks. Uncertain frames retain a clearly dashed “Rechecking” anchor briefly; they do not supply a current AI focus hint.

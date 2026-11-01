@@ -1,6 +1,7 @@
 import { authenticatedUser } from "@/lib/auth/server";
 import { authConfig } from "@/lib/auth/config";
 import { getTrial } from "@/lib/auth/trial";
+import { hasUnlimitedCoaching } from "@/lib/auth/coaching-access";
 const headers = { "Cache-Control": "private, no-store" };
 export async function GET() {
   try {
@@ -9,9 +10,10 @@ export async function GET() {
     const user = await authenticatedUser();
     if (!user)
       return Response.json({ user: null, configured: true }, { headers });
-    const trial = await getTrial(user.id);
+    const unlimitedCoaching = hasUnlimitedCoaching(user);
+    const trial = unlimitedCoaching ? null : await getTrial(user.id);
     return Response.json(
-      { user: { id:user.id, email: user.email }, trial, configured: true },
+      { user: { id:user.id, email: user.email }, trial, unlimitedCoaching, configured: true },
       { headers },
     );
   } catch {

@@ -21,6 +21,7 @@ export function TrialGate({
   const [account, setAccount] = useState<{
     user: unknown;
     configured: boolean;
+    unlimitedCoaching?: boolean;
     trial?: Trial;
   } | null>(null);
   const [error, setError] = useState("");
@@ -86,6 +87,8 @@ export function TrialGate({
       setBusy(false);
     }
   }
+  if (account?.user && account.unlimitedCoaching===true)
+    return <SessionCoach skill={skill} graphics={graphics} debug={debug}/>;
   const trial = account?.trial;
   if (
     account?.user &&

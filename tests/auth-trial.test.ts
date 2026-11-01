@@ -37,6 +37,7 @@ vi.mock("@/lib/storage", () => ({
 vi.mock("@/lib/skills/loader",()=>({getSkill:mocks.legacyLoader}));
 import { safeNext } from "../lib/auth/redirect";
 import { requireTrial } from "../lib/auth/trial";
+import { GET as accountSession } from "../app/api/auth/session/route";
 import { builtinTrialId, publishedTrialId, trialResumeHref } from '../lib/auth/trial-reference';
 import { POST as trialAction } from "../app/api/trial/route";
 import { POST as authAction } from "../app/api/auth/action/route";
@@ -71,6 +72,38 @@ beforeEach(() => {
   mocks.oauth.mockResolvedValue({
     data: { url: "https://provider.example/authorize" },
     error: null,
+  });
+});
+describe('admin-granted unlimited coaching',()=>{
+  const reviewer={id:'reviewer-id',email:'contact@plsteach.me',app_metadata:{coaching_access:'unlimited'}};
+  it('opens any lesson without claiming a free trial or consuming its call/time quota',async()=>{
+    mocks.user.mockResolvedValue(reviewer);
+    for(const skill of ['tie-four-in-hand','builtin:laundry','published:reviewed:v1'])expect(await requireTrial(req({}, {'x-coaching-session':''}),skill)).toBeNull();
+    expect(mocks.maybeSingle).not.toHaveBeenCalled();
+    expect(mocks.rpc.mock.calls.every(call=>call[0]==='ai_budget_use')).toBe(true);
+  });
+  it('keeps the shared daily budget and origin/authentication checks',async()=>{
+    mocks.user.mockResolvedValue(reviewer);mocks.rpc.mockResolvedValue({data:false,error:null});
+    expect((await requireTrial(req()))?.status).toBe(503);
+    expect((await requireTrial(req({}, {origin:'https://attacker.example'})))?.status).toBe(403);
+    mocks.user.mockResolvedValue(null);expect((await requireTrial(req()))?.status).toBe(401);
+  });
+  it('does not grant access from a username, email, request body or editable user metadata',async()=>{
+    mocks.user.mockResolvedValue({...reviewer,app_metadata:{},user_metadata:{username:'ycombinatorw2026',coaching_access:'unlimited'}});
+    mocks.maybeSingle.mockResolvedValue({data:{...trial,completed_at:'2026-10-17'},error:null});
+    expect((await requireTrial(req({unlimitedCoaching:true})))?.status).toBe(403);
+  });
+  it('does not grant unlimited access to anonymous provider users',async()=>{
+    mocks.user.mockResolvedValue({...reviewer,is_anonymous:true});
+    expect((await requireTrial(req()))?.status).toBe(401);
+  });
+  it('returns the server-derived account flag without querying or exposing metadata',async()=>{
+    mocks.user.mockResolvedValue(reviewer);
+    expect(await (await accountSession()).json()).toEqual({user:{id:reviewer.id,email:reviewer.email},configured:true,trial:null,unlimitedCoaching:true});
+    expect(mocks.maybeSingle).not.toHaveBeenCalled();
+  });
+  it('still reports regular accounts as limited and loads their trial',async()=>{
+    expect(await (await accountSession()).json()).toMatchObject({unlimitedCoaching:false,trial});
   });
 });
 describe("one free session authorization", () => {

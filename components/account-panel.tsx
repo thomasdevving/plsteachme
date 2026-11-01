@@ -12,6 +12,7 @@ export function AccountPanel() {
     user: { email?: string } | null;
     trial?: Trial;
     configured: boolean;
+    unlimitedCoaching?: boolean;
   } | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -79,14 +80,18 @@ export function AccountPanel() {
           <MfaSettings />
           <section className="account-trial">
             <h2>
-              {trial?.completed_at
+              {account.unlimitedCoaching
+                ? "Unlimited coaching access."
+                : trial?.completed_at
                 ? "Your free session is complete."
                 : trial
                   ? "Your session is waiting."
                   : "One free session, just for you."}
             </h2>
             <p>
-              {trial?.completed_at
+              {account.unlimitedCoaching
+                ? "Explore any available skill and return to your coach whenever you want."
+                : trial?.completed_at
                 ? "You’ve taken the first step. More coaching is coming soon."
                 : trial
                   ? "Pick up your chosen skill where you left off. It’s the same free session."
@@ -95,21 +100,25 @@ export function AccountPanel() {
             <a
               className="button primary"
               href={
-                trial?.completed_at
+                account.unlimitedCoaching
+                  ? "/learn"
+                  : trial?.completed_at
                   ? "/subscriptions"
                   : trial
                     ? trialResumeHref(trial.skill_id)
                     : "/learn"
               }
             >
-              {trial?.completed_at
+              {account.unlimitedCoaching
+                ? "Start learning"
+                : trial?.completed_at
                 ? "Explore plans"
                 : trial
                   ? "Resume session"
                   : "Choose a skill"}
               <ArrowRight size={18} aria-hidden="true" />
             </a>
-            {trial?.completed_at && (
+            {!account.unlimitedCoaching && trial?.completed_at && (
               <small>All plan prices are coming soon.</small>
             )}
           </section>
