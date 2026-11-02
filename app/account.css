@@ -240,3 +240,7 @@
   .confirmation-page .followup button { margin-top: 8px; }
   .confirmation-footer { padding-block: 8px; }
 }
+
+.unsubscribe-content { max-width: 620px; }
+.unsubscribe-content > p { margin-top: 20px; }
+.unsubscribe-content > .button, .unsubscribe-content > .text-link { margin-top: 24px; }

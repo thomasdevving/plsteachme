@@ -80,3 +80,34 @@ for(const viewport of [{width:1440,height:900},{width:375,height:812},{width:320
   await page.screenshot({path:test.info().outputPath('confirmation-saved.png'),fullPage:true});
  });
 }
+
+test('mail removal requires an explicit action and never happens just by opening the email link',async({page})=>{
+ const token='11111111-1111-4111-8111-111111111111.'+'A'.repeat(43);let calls=0;
+ await page.route('**/api/waitlist/unsubscribe',route=>{
+  calls++;expect(route.request().method()).toBe('POST');expect(route.request().postDataJSON()).toEqual({token});
+  return route.fulfill({json:{removed:true}});
+ });
+ await page.goto('/unsubscribe#token='+token);
+ await expect(page.getByRole('button',{name:'Remove me from the waitlist'})).toBeVisible();
+ expect(calls).toBe(0);
+ await page.getByRole('button',{name:'Remove me from the waitlist'}).click();
+ await expect(page.getByRole('heading',{name:'You’re off the list.'})).toBeVisible();
+ expect(calls).toBe(1);expect(new URL(page.url()).hash).toBe('');
+});
+
+test('a failed confirmation email is shown honestly and the same form can retry',async({page})=>{
+ let attempts=0;
+ await page.route('**/api/waitlist',route=>{
+  if(route.request().method()==='GET')return route.fulfill({json:{count:12}});
+  attempts++;
+  return route.fulfill(attempts===1?{status:503,json:{error:'email',saved:true}}:{json:{accepted:true}});
+ });
+ await page.route('**/api/session',route=>route.fulfill({json:{referral:'test-referral'}}));
+ await page.goto('/signup');await page.getByLabel('How old are you?').selectOption('25-34');
+ await page.getByLabel('Your email address',{exact:true}).fill('learner@example.test');await page.getByRole('checkbox').check();
+ await page.getByRole('button',{name:'Join the waitlist',exact:true}).click();
+ await expect(page.locator('.signup-form').getByRole('alert')).toContainText('confirmation email could not be sent');
+ await expect(page.getByLabel('Your email address',{exact:true})).toHaveValue('learner@example.test');
+ await page.getByRole('button',{name:'Join the waitlist',exact:true}).click();
+ await page.waitForURL('**/thanks');expect(attempts).toBe(2);
+});

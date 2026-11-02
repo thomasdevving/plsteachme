@@ -60,7 +60,7 @@ In **SQL Editor**, run [the read-only readiness query](../supabase/checks/ai-lea
 
 In **Authentication**:
 
-1. Enable the **Email** provider, new registrations and email confirmation. Normal login uses email/username **plus password**.
+1. Enable the **Email** provider and email confirmation; keep public new registrations disabled during the waitlist-only phase. Normal login uses email/username **plus password**.
 2. Under **URL Configuration**, set **Site URL** to `https://plsteach.me`. Allow the narrowly scoped callback patterns `https://plsteach.me/auth/callback**` and `https://plsteach.me/auth/confirm**`. Configure localhost separately only if you will test locally.
 3. Configure **custom SMTP** with your email provider's actual server, port, credentials and verified sender. A ChatGPT subscription and an OpenAI API key do not provide email delivery.
 4. Under **Emails → Confirm signup**, paste [the existing branded HTML](../supabase/templates/confirm-signup.html). Subject: **Confirm your email · plsteach.me**. Deploying the Worker does not apply this hosted template.

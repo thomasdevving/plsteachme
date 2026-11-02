@@ -8,6 +8,7 @@ const storage=vi.hoisted(()=>{
 });
 vi.mock('@/lib/storage',()=>({db:()=>({from:storage.from}),mockMode:false,record:storage.record,under16Count:storage.under16Count,hash:(v:string)=>`hashed-${v}`,token:()=>`opaque-token-${++storage.counter}`}));
 vi.mock('server-only',()=>({}));
+vi.mock('@/lib/waitlist-mail',()=>({sendWaitlistConfirmation:vi.fn(async()=>true)}));
 import { POST as signup } from '../app/api/waitlist/route';
 import { POST as followup } from '../app/api/followup/route';
 import { GET as session } from '../app/api/session/route';

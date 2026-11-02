@@ -21,7 +21,7 @@ export function WaitlistForm({ c, locale, mock, compact = false }: { c: Pick<Cop
     setBusy(true);
     try {
       const res = await fetchWithTimeout('/api/waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(validated.data) }); const data = await res.json();
-      if (!res.ok) throw new Error(data.error === 'rate' ? c.form.rate : c.form.error);
+      if (!res.ok) throw new Error(data.error === 'email' ? 'You’re on the waitlist, but the confirmation email could not be sent. Try again to resend it.' : data.error === 'rate' ? c.form.rate : c.form.error);
       if (data.under16) { setMessage(c.form.under); track('waitlist_under16'); return; }
       if (!data.mock) track('waitlist_submit_success');
       location.assign(`${pathFor(locale,'thanks')}${data.mock ? '?preview=1' : ''}`);
