@@ -235,3 +235,16 @@
   color: var(--brand-text-orange);
   text-decoration-color: currentColor;
 }
+
+/* Center the desktop hero in the space below the header and waitlist strip. */
+@media (min-width: 601px) {
+  .creative-home .hero {
+    min-height: calc(100svh - 132px);
+    display: flex;
+    align-items: center;
+    padding-block: 40px;
+  }
+  .creative-home .hero-grid {
+    min-height: 0;
+  }
+}
