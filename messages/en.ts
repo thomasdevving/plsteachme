@@ -168,18 +168,18 @@ export const en = {
   thanks: {
     title: "You’re on the list.",
     intro:
-      "We’ll email you when it’s ready. Share it with someone who could use a little help.",
-    share: "Learn something new together?",
+      "We’ll email you when testing access opens.",
+    share: "Share with a friend.",
     copy: "Copy your link",
     copied: "Link copied",
     native: "Share",
     whatsapp: "On WhatsApp",
     shareText: `You don’t have to figure it out alone. Discover ${BRAND}.`,
     question: "What’s one skill you wish someone had taught you?",
-    placeholder: "That one thing you still wish you knew…",
+    placeholder: "Your skill suggestion…",
     send: "Send your answer",
     saved: "Thanks for sharing.",
-    noSignup: "Sign up first to get your personal link.",
+    noSignup: "Join the waitlist first to get your personal link.",
     mockTitle: "Your form has been tested.",
     mockBody:
       "This is a preview. You haven’t joined a real waitlist; your details have not been stored.",

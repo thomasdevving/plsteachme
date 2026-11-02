@@ -1,5 +1,12 @@
 # Verification — landing website replacement
 
+## Compact waitlist confirmation and mobile logo — 2 November 2026
+
+- Gave `/thanks` a compact confirmation shell instead of the marketing navigation/footer. The confirmation, static waving orange mascot, optional skill question and sharing actions fit normal desktop and small-phone viewports. Desktop uses two columns; phone layout has clear separators, a full-width submit action and two labeled sharing choices. Native sharing replaces the separate WhatsApp action when supported. Content remains scrollable when accessibility settings or manual textarea resizing require it; no content is clipped to force a fit.
+- Removed legacy fixed mobile image/font overrides from auth headers. The supplied brand image now scales with its shared wordmark frame, preventing the guiding-hands mark from being cropped in the upper-left corner.
+- Kept follow-up submission on the existing private `followups` store, and documented its location. Added a read-only [operator SQL report](../supabase/reports/waitlist-skill-requests.sql) joining requested skills with waitlist email and first-submission dates; it does not expose any new public endpoint or change storage policies.
+- **494 unit/API/database tests across 61 files pass**. The production build, TypeScript check and full OpenNext/Cloudflare deployment dry-run pass. Six browser cases cover waitlist/login, initial confirmation fit at 1440×900, 375×812 and 320×568, mascot visibility, correct logo image/frame sizing, scoped accessibility, and follow-up submission/success. Browser submissions use simulated API responses, not production entries. Desktop/mobile screenshots were inspected.
+
 ## Waitlist registration and public aggregate — 2 November 2026
 
 - Replaced the public `/signup` account-creation page with an explicit “Join the waitlist” page using the existing waitlist database/form, age gate and consent flow. It explains that joining does not create an account or grant immediate access. Registration links in login, learning, community/teacher prompts, subscriptions and the landing page now use waitlist wording. Existing login fields, password recovery and MFA stay unchanged.

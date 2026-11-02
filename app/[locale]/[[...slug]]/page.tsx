@@ -11,6 +11,7 @@ import {
 } from "@/lib/config";
 import { getCopy } from "@/lib/i18n";
 import { mockMode } from "@/lib/storage";
+import { ConfirmationShell } from "@/components/confirmation-shell";
 import { Header, Footer } from "@/components/shell";
 import { Utilities } from "@/components/utilities";
 import { Landing } from "@/components/landing";
@@ -124,6 +125,7 @@ export default async function Page({ params, searchParams }: { params: Params; s
     return <LearningShell><div className="container learning-page"><LearningCatalog names={c.skills.names}/><PublishedLessons/></div></LearningShell>;
   }
   if(page==='training')return <LearningShell><TrainingWorkspace/></LearningShell>;
+  if(page==='thanks')return <ConfirmationShell><Thanks c={{thanks:c.thanks,form:c.form,demo:c.demo,nav:c.nav}} locale={locale}/></ConfirmationShell>;
   const schema = [
     {
       "@context": "https://schema.org",
@@ -174,11 +176,6 @@ export default async function Page({ params, searchParams }: { params: Params; s
           <TermsPage contact={process.env.CONTACT_EMAIL} />
         ) : page === "privacy" ? (
           <PrivacyPage c={c} />
-        ) : page === "thanks" ? (
-          <Thanks
-            c={{ thanks: c.thanks, form: c.form, demo: c.demo, nav: c.nav }}
-            locale={locale}
-          />
         ) : (
           <Styleguide />
         )}

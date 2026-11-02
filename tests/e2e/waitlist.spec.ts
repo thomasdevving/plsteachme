@@ -53,3 +53,30 @@ test('existing members keep the same login form with a waitlist link for new use
  await link.click();
  await expect(page.getByRole('heading',{name:'Join the waitlist.'})).toBeVisible();
 });
+
+for(const viewport of [{width:1440,height:900},{width:375,height:812},{width:320,height:568}]) {
+ test(`confirmation fits ${viewport.width}×${viewport.height} and submits the follow-up skill`,async({page})=>{
+  await page.setViewportSize(viewport);
+  await page.addInitScript(()=>{Object.defineProperty(navigator,'share',{configurable:true,value:async()=>{}});});
+  await page.route('**/api/session',route=>route.fulfill({json:{referral:'test-referral'}}));
+  let answer:Record<string,unknown>|null=null;
+  await page.route('**/api/followup',route=>{answer=route.request().postDataJSON();return route.fulfill({json:{accepted:true}});});
+  await page.goto('/thanks');
+  await expect(page.getByRole('heading',{name:'You’re on the list.'})).toBeVisible();
+  await expect(page.locator('.thanks-mascot .mascot--waving')).toBeVisible();
+  const logo=await page.locator('header .wordmark').evaluate(el=>({imageWidth:getComputedStyle(el.querySelector('.brand-logo')!).width,frameWidth:getComputedStyle(el.querySelector('.brand-symbol')!).width}));
+  expect(logo.imageWidth).toBe(logo.frameWidth);
+  await expect(page.getByRole('button',{name:'Send your answer'})).toBeVisible();
+  expect(await page.evaluate(()=>({height:document.documentElement.scrollHeight,width:document.documentElement.scrollWidth}))).toEqual({height:viewport.height,width:viewport.width});
+  for(const control of [page.getByRole('button',{name:'Send your answer'}),page.getByRole('button',{name:'Copy your link'}),page.getByRole('link',{name:'Privacy statement',exact:true})]){
+   const box=(await control.boundingBox())!;expect(box.y).toBeGreaterThanOrEqual(0);expect(box.y+box.height).toBeLessThanOrEqual(viewport.height);
+  }
+  expect((await new AxeBuilder({page}).include('.confirmation-page').withTags(['wcag2a','wcag2aa']).analyze()).violations).toEqual([]);
+  await page.screenshot({path:test.info().outputPath('confirmation.png'),fullPage:true});
+  await page.getByRole('textbox',{name:'What’s one skill you wish someone had taught you?',exact:true}).fill('Learning to braid hair');
+  await page.getByRole('button',{name:'Send your answer'}).click();
+  await expect(page.locator('.thanks-saved')).toHaveText('Thanks for sharing.');
+  expect(answer).toEqual({answer:'Learning to braid hair',website:''});
+  await page.screenshot({path:test.info().outputPath('confirmation-saved.png'),fullPage:true});
+ });
+}

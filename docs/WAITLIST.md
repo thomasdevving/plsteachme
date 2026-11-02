@@ -11,3 +11,7 @@ To prevent registration through direct Supabase API requests or new Google/Apple
 This hosted setting cannot be changed by deploying the repository. The workspace has no Supabase management access; apply it in the production project's dashboard. The app-side password-registration endpoint is already closed by this change.
 
 The waitlist uses the existing base migration `supabase/migrations/202610130001_waitlist.sql` and existing server credentials. No new migration or Cloudflare secret is needed for a project that already has the waitlist table. Confirmation/update email delivery depends on the existing optional mail-provider configuration.
+
+## Find follow-up skill requests
+
+The question on the confirmation page saves to **Supabase → Table Editor → `public.followups` → `answer`**. Its `waitlist_id` references the corresponding `public.waitlist.id`. For answers together with email addresses and submission dates, run the read-only [waitlist skill requests report](../supabase/reports/waitlist-skill-requests.sql) in Supabase SQL Editor. These answers are private operator data; they are not added to the public community request board or emailed to the operator automatically. Each waitlist entry has one answer, which a later submission can replace.
