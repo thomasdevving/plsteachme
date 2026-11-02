@@ -18,6 +18,12 @@ export function Landing({
 }) {
   return (
     <div className="creative-home">
+      <aside className="landing-waitlist" aria-label="Early access waitlist">
+        <div className="container landing-waitlist-inner">
+          <p>Camera coaching is currently invite-only.</p>
+          <a className="text-link" href="/signup">Join the waitlist<ArrowUpRight size={17} aria-hidden="true"/></a>
+        </div>
+      </aside>
       <HeroDemo hero={<Hero c={{ hero: c.hero }} />} c={{ demo: c.demo }} />
       <Section id="how" className="practice-method" labelledBy="how-title">
         <div className="section-heading">
