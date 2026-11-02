@@ -65,58 +65,13 @@ async function accountFixtures(page: Page) {
     await route.fulfill({ json: { profile } });
   });
 }
-test("registers with identity fields, checks password confirmation, and keeps email confirmation separate from login", async ({
-  page,
-}) => {
-  const attempts: Record<string, unknown>[] = [];
-  await page.route("**/api/auth/action", async (route) => {
-    const body=route.request().postDataJSON();
-    if(body.action==='signup')expect(body.next).toBe('/learn');
-    attempts.push(body);
-    await route.fulfill({ json: { ok: true } });
-  });
-  await page.goto("/signup");
-  await page.getByLabel("First name", { exact: true }).fill("Ada");
-  await page.getByLabel("Last name", { exact: true }).fill("Lovelace");
-  await page.getByLabel("Username", { exact: true }).fill("ada_l");
-  await page
-    .getByLabel("Email address", { exact: true })
-    .fill("ada@example.test");
-  await page
-    .getByLabel("Password", { exact: true })
-    .fill("my private long password");
-  await page
-    .getByLabel("Confirm password", { exact: true })
-    .fill("another long password");
-  await page.getByRole("checkbox", { name: /16 or older/ }).check();
-  await page
-    .getByRole("button", { name: "Create account", exact: true })
-    .click();
-  await expect(page.locator(".auth-error[role=alert]")).toContainText(
-    "passwords do not match",
-  );
-  expect(attempts).toHaveLength(0);
-  await page
-    .getByLabel("Confirm password", { exact: true })
-    .fill("my private long password");
-  await page
-    .getByRole("button", { name: "Create account", exact: true })
-    .click();
-  await expect(
-    page.getByRole("heading", { name: "Check your inbox." }),
-  ).toBeFocused();
-  expect(attempts).toEqual([
-    expect.objectContaining({
-      action: "signup",
-      firstName: "Ada",
-      lastName: "Lovelace",
-      username: "ada_l",
-      email: "ada@example.test",
-      acceptedTerms: true,
-      password: "my private long password",
-    }),
-  ]);
-  await expect(page.getByRole("button", { name: /Resend in/ })).toBeDisabled();
+test("registration is a clearly labeled waitlist rather than a password account form", async ({page}) => {
+  await page.route('**/api/waitlist',route=>route.fulfill({json:{count:12}}));
+  await page.goto('/signup');
+  await expect(page.getByRole('heading',{name:'Join the waitlist.'})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Join the waitlist'})).toBeVisible();
+  await expect(page.getByLabel('Username',{exact:true})).toHaveCount(0);
+  await expect(page.getByLabel('Password',{exact:true})).toHaveCount(0);
 });
 test("logs in by username and edits a private profile and photo on desktop and mobile", async ({
   page,

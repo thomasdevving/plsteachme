@@ -39,10 +39,9 @@ it('keeps expired links and email confirmation on the public host',async()=>{
  const confirmed=await confirm(new NextRequest('http://0.0.0.0:3100/auth/confirm?token_hash=fixture',{headers}));
  expect(confirmed.headers.get('location')).toBe('http://localhost:3100/learn');
 });
-it('sends sign-up links back to the validated browser origin with the chosen lesson',async()=>{
+it('keeps registration closed even when a caller supplies the validated public origin',async()=>{
  const response=await action(new Request('http://0.0.0.0:3100/api/auth/action',{method:'POST',headers:{host:'localhost:3100',origin:'http://localhost:3100','content-type':'application/json'},body:JSON.stringify({action:'signup',email:'tester@example.test',username:'tester',firstName:'Test',lastName:'Learner',password:'a long test password',acceptedTerms:true,next:'/learn?skill=laundry'})}));
- expect(response.status).toBe(200);
- const options=auth.signUp.mock.calls[0][0].options;
- expect(options.data.username).toBe('tester');
- const url=new URL(options.emailRedirectTo);expect(url.origin).toBe('http://localhost:3100');expect(url.searchParams.get('next')).toBe('/learn?skill=laundry');
+ expect(response.status).toBe(403);
+ expect((await response.json()).url).toBe('/signup');
+ expect(auth.signUp).not.toHaveBeenCalled();
 });

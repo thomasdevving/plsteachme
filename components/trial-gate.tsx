@@ -116,12 +116,11 @@ export function TrialGate({
         <>
           <h1>A little help starts here.</h1>
           <p className="lead">
-            Create an account for one free coaching session, from start to
-            finish. No card needed.
+            Join the waitlist for access to coaching. Already invited? Log in to continue.
           </p>
           <div className="session-buttons">
             <Link className="button primary" href={`/signup?next=${next}`}>
-              Create an account
+              Join the waitlist
               <ArrowRight size={18} aria-hidden="true" />
             </Link>
             <Link className="button secondary" href={`/login?next=${next}`}>

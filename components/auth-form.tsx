@@ -391,7 +391,7 @@ export function AuthForm({
         <a
           href={`${signup ? "/login" : "/signup"}?next=${encodeURIComponent(next)}`}
         >
-          {signup ? "Log in" : "Create an account"}
+          {signup ? "Log in" : "Join the waitlist"}
         </a>
       </p>
       <p className="auth-privacy">

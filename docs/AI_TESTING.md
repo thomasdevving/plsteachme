@@ -113,7 +113,7 @@ This sends the existing **public brand icon**, not a camera image, in one bounde
 
 ## 6. First real learning session
 
-1. Open `https://plsteach.me/signup` online. Create a disposable **16+ test account using an email you own**, confirm the email, then log in with email/username and password. Verify your username appears in the learning header.
+1. Use an operator-created or invited **16+ test account using an email you own**, then log in with email/username and password. Public `/signup` is now a waitlist and does not create an account. Verify your username appears in the learning header.
 2. Open `https://plsteach.me/learn/tie`. Use a real tie, a stable phone/laptop camera and good light. Keep the tie/knot visible; the illustrated instructions remain available throughout.
 3. Select **Coach → Start my free session**, then accept the image-analysis notice and age/consent checkboxes. Choose **Start camera coaching**, then allow browser camera access. Start the session only once you are ready: it is time/call bounded.
 4. Try a clear view, cover the knot briefly and show an incorrect arrangement. Feedback should respond to visible evidence; uncertainty must not pass the step. Ask one short question about the current step. Do not use higher-risk tasks for the first functional test.

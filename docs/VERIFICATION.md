@@ -1,5 +1,13 @@
 # Verification — landing website replacement
 
+## Waitlist registration and public aggregate — 2 November 2026
+
+- Replaced the public `/signup` account-creation page with an explicit “Join the waitlist” page using the existing waitlist database/form, age gate and consent flow. It explains that joining does not create an account or grant immediate access. Registration links in login, learning, community/teacher prompts, subscriptions and the landing page now use waitlist wording. Existing login fields, password recovery and MFA stay unchanged.
+- Closed the app's password-signup action before auth-provider calls, including direct/stale-client requests. Operator provisioning remains available. Fully preventing direct Supabase/OAuth new-user creation additionally requires the hosted **Allow new users to sign up** setting to be off; the workspace has no management access to apply that dashboard setting. See [waitlist setup](WAITLIST.md).
+- Added a public head-only aggregate query returning only the exact waitlist total, with cacheable responses and a minute refresh on visible pages. No individual records are exposed, and RLS remains unchanged. The UI handles zero/singular/plural and shows an unavailable message instead of inventing a total on configuration/database failures. The signup page resolves its server configuration dynamically.
+- **494 unit/API/database tests across 61 files pass**, including existing-member login, public signup closure and aggregate-only count/failure checks. Production build and full OpenNext/Cloudflare deployment dry-run pass. Four browser cases cover waitlist submission without auth creation, displayed count, mobile unavailable-state layout, unchanged login fields and cross-lesson access for an operator-granted account. The waitlist flow also passes the scoped WCAG axe checks; desktop and 375px screenshots were inspected, including the small inline consent checkbox.
+- Browser count/submission fixtures are simulated, not production enrollment statistics. Live database totals, optional outgoing emails and the hosted Supabase signup setting are not verified from this workspace. No new schema migration or Worker secret is required when the existing waitlist table is installed.
+
 ## Account-specific unlimited coaching — 1 November 2026
 
 - Added an administrator-managed Supabase app-metadata entitlement checked against fresh, authenticated `getUser()` data. It skips the one-lesson/two-hour/per-trial-call quota only for explicitly granted accounts. Other accounts keep their original trials. User-editable profile data, email, username, request bodies and frontend flags cannot grant server access. Service-wide AI spending limits, endpoint throttles, consent, authentication and MFA remain in force.

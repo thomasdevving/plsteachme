@@ -3,7 +3,7 @@ import { needsMfa } from "@/lib/auth/mfa";
 import { authClient } from "@/lib/auth/server";
 import { authConfig } from "@/lib/auth/config";
 import { safeNext, sameOrigin } from "@/lib/auth/redirect";
-import { usernameSchema, nameSchema, passwordSchema } from "@/lib/auth/profile";
+import { usernameSchema, passwordSchema } from "@/lib/auth/profile";
 import {
   passwordResetAllowed,
   clearPasswordReset,
@@ -20,17 +20,6 @@ const input = z.discriminatedUnion("action", [
     action: z.literal("login"),
     identifier: z.string().trim().min(1).max(254),
     password: z.string().min(1).max(128),
-    captchaToken: captcha,
-    next: z.string().optional(),
-  }),
-  z.object({
-    action: z.literal("signup"),
-    email: z.string().trim().toLowerCase().pipe(z.email().max(254)),
-    username: usernameSchema,
-    firstName: nameSchema,
-    lastName: nameSchema,
-    password: passwordSchema,
-    acceptedTerms: z.literal(true),
     captchaToken: captcha,
     next: z.string().optional(),
   }),
@@ -92,6 +81,8 @@ export async function POST(request: Request) {
       { error: "The request is invalid or too large." },
       body.error === "size" ? 413 : 400,
     );
+  if(body.data && typeof body.data==='object' && 'action' in body.data && body.data.action==='signup')
+    return reply({error:'Registration is currently closed. Join the waitlist to request access.',url:'/signup'},403);
   const parsed = input.safeParse(body.data);
   if (!parsed.success)
     return reply(
@@ -268,51 +259,7 @@ export async function POST(request: Request) {
       }
       return reply({ ok: true });
     }
-    stage = "profile_lookup";
-    const claimed = await db()
-      .from("account_profiles")
-      .select("user_id")
-      .eq("username", data.username)
-      .maybeSingle();
-    if (claimed.error) throw claimed.error;
-    if (claimed.data)
-      return reply(
-        { error: "That username is already taken. Please choose another." },
-        409,
-      );
-    stage = "signup";
-    const { data: result, error } = await client.auth.signUp({
-      email: data.email,
-      password: data.password,
-      options: {
-        emailRedirectTo: callback.href,
-        captchaToken: data.captchaToken,
-        data: {
-          username: data.username,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          age_confirmed: true,
-          terms_version: "2026-10-27",
-        },
-      },
-    });
-    if (error) {
-      if (["user_already_exists", "email_exists"].includes(error.code || ""))
-        return reply({ ok: true });
-      return (
-        providerFailure(error) ||
-        reply(
-          {
-            error:
-              "Your account could not be created. Please try another username or use password reset if you already have an account.",
-          },
-          400,
-        )
-      );
-    }
-    return result.session
-      ? reply({ url: safeNext(data.next) })
-      : reply({ ok: true });
+    return reply({error:'Invalid account action.'},400);
   } catch (error) {
     // Log the failing step and standard database code only. Provider messages
     // can contain credentials or personal data and must never reach logs.

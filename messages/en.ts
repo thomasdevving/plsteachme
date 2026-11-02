@@ -156,7 +156,7 @@ export const en = {
     error: "We couldn’t send that. Please try again shortly.",
     rate: "You’ve tried a few times. Wait ten minutes, then try again.",
     under:
-      "Under 16? Try the demo with a parent, or ask them to sign up. We won’t store your email address.",
+      "Under 16? Explore the demo with a parent. We won’t store your email address.",
     mock: "This is a preview. Your signup will not be stored.",
     mockSuccess: "Form tested. No data has been stored.",
     privacy: "Privacy statement",
@@ -164,7 +164,7 @@ export const en = {
     saved: "Saved.",
     optional: "optional",
   },
-  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `plsteach.me is in a live test phase. Every illustrated lesson is free to follow, and with a free account you can currently complete one module with camera coaching. Subscriptions will be available later: Starter ($6/month), Plus ($20/month) and organization plans ($100–$500/month, depending on student count).` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: `${CAMERA_COACHING_DATA_NOTICE} ${OPENAI_API_DATA_NOTICE}`, policyLink: OPENAI_API_DATA_POLICY_URL }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
+  faq: { title: 'Good to know.', items: [{ q: 'Is it free?', a: `plsteach.me is in a live test phase. Every illustrated lesson is free to follow, and invited accounts can currently complete one module with camera coaching. New users can join the waitlist for access. Subscriptions will be available later: Starter ($6/month), Plus ($20/month) and organization plans ($100–$500/month, depending on student count).` }, { q: 'Will it work on my phone?', a: 'Designed for modern iPhone and Android browsers with a camera. Support may vary.' }, { q: 'Is my video stored?', a: `${CAMERA_COACHING_DATA_NOTICE} ${OPENAI_API_DATA_NOTICE}`, policyLink: OPENAI_API_DATA_POLICY_URL }, { q: 'Who is behind this?', a: 'An early project. Maker details coming soon.' }, { q: 'What if the coach gets it wrong?', a: 'It can make mistakes. The aim is to correct only when reasonably sure. Continue, retry or stop anytime.' }] },
   thanks: {
     title: "You’re on the list.",
     intro:
@@ -216,7 +216,7 @@ export const en = {
           "Step-by-step practice",
           "Personal progress",
         ],
-        action: "Create an account",
+        action: "Join the waitlist",
       },
       {
         name: "Plus",
@@ -228,7 +228,7 @@ export const en = {
           "A wider library of practical skills",
           "More AI-guided practice",
         ],
-        action: "Create an account",
+        action: "Join the waitlist",
       },
       {
         name: "For organizations",

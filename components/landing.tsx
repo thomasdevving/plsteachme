@@ -125,12 +125,12 @@ export function Landing({
           </div>
           <div className="test-phase-details">
             <ul>
-              <li><CheckMark />Create a free account and complete one module with camera coaching.</li>
+              <li><CheckMark />Join the waitlist for an invitation to try camera coaching.</li>
               <li><CheckMark />Every illustrated lesson stays free to explore.</li>
               <li><CheckMark />Subscriptions will be available later.</li>
             </ul>
             <div className="test-phase-actions">
-              <a className="button primary" href="/signup?next=%2Flearn">Create an account<ArrowUpRight size={18} aria-hidden="true" /></a>
+              <a className="button primary" href="/signup?next=%2Flearn">Join the waitlist<ArrowUpRight size={18} aria-hidden="true" /></a>
               <a className="text-link" href={pathFor(locale, "learn")}>Explore the lessons<ArrowRight size={17} aria-hidden="true" /></a>
             </div>
           </div>

@@ -174,44 +174,15 @@ describe("password accounts", () => {
     expect(await unknown.json()).toEqual(await known.json());
     expect(state.login).toHaveBeenCalledTimes(2);
   });
-  it("creates a password account with normalized, bounded profile metadata and confirmation redirect", async () => {
-    expect(
-      (await POST(request({ ...signup, captchaToken: "captcha" }))).status,
-    ).toBe(200);
-    expect(state.signup).toHaveBeenCalledWith({
-      email: "ada@example.com",
-      password: signup.password,
-      options: {
-        captchaToken: "captcha",
-        emailRedirectTo: "https://plsteach.me/auth/callback?next=%2Faccount",
-        data: {
-          username: "ada_l",
-          first_name: "Ada",
-          last_name: "Lovelace",
-          age_confirmed: true,
-          terms_version: "2026-10-27",
-        },
-      },
-    });
-  });
-  it.each([
-    { password: "short" },
-    { acceptedTerms: false },
-    { username: "not a handle" },
-    { firstName: "" },
-  ])("rejects invalid registration %j before provider calls", async (patch) => {
-    expect((await POST(request({ ...signup, ...patch }))).status).toBe(400);
-    expect(state.signup).not.toHaveBeenCalled();
-  });
-  it("rejects a taken username without creating another account", async () => {
-    state.claimed.mockResolvedValue({ data: { user_id: id }, error: null });
-    expect((await POST(request(signup))).status).toBe(409);
-    expect(state.signup).not.toHaveBeenCalled();
+  it.each([signup,{action:'signup'},{...signup,password:'short'},{...signup,acceptedTerms:false}])('closes public registration and directs requests to the waitlist',async(body)=>{
+    const response=await POST(request(body));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({error:'Registration is currently closed. Join the waitlist to request access.',url:'/signup'});
+    expect(state.signup).not.toHaveBeenCalled();expect(state.rpc).not.toHaveBeenCalled();
   });
   it.each([
     ["rate_limit", "PGRST202", "rate_hit"],
     ["username_lookup", "42501", "account_login_email"],
-    ["profile_lookup", "42P01", "profile"],
   ])("logs safe diagnostics for %s without account details", async (stage, code, dependency) => {
     const message = "private-provider-message-with-credentials";
     const error = { code, message, details: "private-provider-details" };

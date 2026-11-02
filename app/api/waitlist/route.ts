@@ -3,6 +3,15 @@ import { waitlistSchema } from '@/lib/validation';
 import { parse, failure, cookieOptions } from '@/lib/http';
 import { db, mockMode, record, token, hash, under16Count } from '@/lib/storage';
 import { BRAND } from '@/lib/config';
+// Only an aggregate is public. Email addresses and individual records stay private.
+export async function GET() {
+  if(mockMode)return NextResponse.json({count:null},{status:503,headers:{'Cache-Control':'no-store'}});
+  try {
+    const {count,error}=await db().from('waitlist').select('id',{count:'exact',head:true});
+    if(error || !Number.isSafeInteger(count) || (count ?? -1)<0)throw new Error('count');
+    return NextResponse.json({count},{headers:{'Cache-Control':'public, max-age=30, s-maxage=60'}});
+  } catch {return NextResponse.json({count:null},{status:503,headers:{'Cache-Control':'no-store'}});}
+}
 export async function POST(req: NextRequest) {
   const parsed = await parse(req, waitlistSchema);
   if ('response' in parsed) return parsed.response;

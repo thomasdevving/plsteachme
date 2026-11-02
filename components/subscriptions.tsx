@@ -58,11 +58,11 @@ export function Subscriptions({ c, locale }: { c: Copy; locale: Locale; mock?: b
         aria-labelledby="subscription-demo-title"
       >
         <div>
-          <h2 id="subscription-demo-title">Try one module for free.</h2>
-          <p>During the live test phase, a free account includes one module with camera coaching.</p>
+          <h2 id="subscription-demo-title">Join the testing waitlist.</h2>
+          <p>We’re opening testing access gradually. Join the waitlist and we’ll email you when you can try camera coaching.</p>
         </div>
-        <a className="text-link" href="/learn">
-          Start learning
+        <a className="text-link" href="/signup">
+          Join the waitlist
           <ArrowRight size={19} aria-hidden="true" />
         </a>
       </section>
