@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
 import { type Page } from "@/lib/config";
 import { getCopy } from "@/lib/i18n";
+import { OG_COACHES, OG_DM_SANS_SEMIBOLD, OG_LORA, OG_MARK } from "@/lib/og-assets";
 export async function GET(req: NextRequest) {
   const c = getCopy(
     req.nextUrl.searchParams.get("lang") === "en" ? "en" : "nl",
@@ -37,61 +38,87 @@ export async function GET(req: NextRequest) {
     insights: "Is it working?",
     terms: "Terms of use",
   }[page];
+  // The home image carries the tagline; the page title already sits beside it in a link preview.
+  const lines = page === "home" ? ["An AI coach", "for the skills", "nobody taught you."] : [title];
   return new ImageResponse(
     <div
       style={{
-        background: "#faf7f2",
-        color: "#22372c",
         width: "100%",
         height: "100%",
         display: "flex",
-        padding: "70px",
-        flexDirection: "column",
-        justifyContent: "space-between",
+        position: "relative",
+        background: "#faf7f2",
+        color: "#22372c",
+        fontFamily: "DM Sans",
       }}
     >
-      <div style={{ display: "flex", fontSize: 36, fontWeight: 700 }}>
-        <span>plsteach</span>
-        <span style={{ color: "#bb4827" }}>.me</span>
-      </div>
+      {/* A warm disc behind the two coaches. */}
+      <div
+        style={{
+          position: "absolute",
+          right: -150,
+          top: 40,
+          width: 720,
+          height: 720,
+          borderRadius: 360,
+          background: "#f1e4d6",
+        }}
+      />
+      <img
+        src={OG_COACHES}
+        width={640}
+        height={349}
+        alt=""
+        style={{ position: "absolute", right: -18, bottom: 46 }}
+      />
       <div
         style={{
           display: "flex",
-          alignItems: "center",
+          flexDirection: "column",
           justifyContent: "space-between",
-          gap: 60,
+          width: 600,
+          height: "100%",
+          padding: "62px 0 58px 72px",
         }}
       >
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <img src={OG_MARK} width={70} height={70} alt="" />
+          <div style={{ display: "flex", fontSize: 54, fontWeight: 600, letterSpacing: -2 }}>
+            <span>plsteach</span>
+            <span style={{ color: "#bb4827" }}>.me</span>
+          </div>
+        </div>
         <div
           style={{
-            fontSize: 68,
-            lineHeight: 1.1,
-            maxWidth: 800,
-            letterSpacing: -2,
+            display: "flex",
+            fontFamily: "Lora",
+            fontSize: 56,
+            lineHeight: 1.12,
+            letterSpacing: -1.5,
+            maxWidth: 520,
+            flexDirection: "column",
           }}
         >
-          {title}
+          {lines.map((l) => (
+            <span key={l}>{l}</span>
+          ))}
         </div>
-        <svg
-          width="120"
-          height="230"
-          viewBox="0 0 64 100"
-          fill="none"
-          stroke="#bb4827"
-          strokeWidth="3"
-        >
-          <path d="M18 5h28l-6 18H24L18 5Zm6 18-9 59 17 13 17-13-9-59" />
-          <path d="m22 37 22 20M19 59l26 20" />
-        </svg>
-      </div>
-      <div style={{ display: "flex", fontSize: 25, color: "#5e685e" }}>
-        {c.hero.early} · {c.hero.sub}
+        <div style={{ display: "flex", fontSize: 26, color: "#5e685e" }}>Join the waitlist at plsteach.me</div>
       </div>
     </div>,
     {
       width: 1200,
       height: 630,
+      fonts: [
+        { name: "DM Sans", data: bytes(OG_DM_SANS_SEMIBOLD), weight: 600, style: "normal" },
+        { name: "Lora", data: bytes(OG_LORA), weight: 400, style: "normal" },
+      ],
       headers: { "Cache-Control": "public, max-age=86400" },
     },
   );
+}
+
+/** Decodes an embedded base64 font into the ArrayBuffer the image renderer expects. */
+function bytes(base64: string): ArrayBuffer {
+  return Uint8Array.from(atob(base64), (ch) => ch.charCodeAt(0)).buffer;
 }
