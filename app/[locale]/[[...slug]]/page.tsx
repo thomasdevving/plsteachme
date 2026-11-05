@@ -88,7 +88,7 @@ export async function generateMetadata({
     insights: "Learning insights",
     terms: "Terms of use",
   }[page];
-  const image = `/api/og?lang=${locale}&page=${page}&v=2`;
+  const image = `/api/og?lang=${locale}&page=${page}&v=3`;
   return {
     title: page === "home" ? { absolute: `${BRAND} • Learn with AI coaching` } : title,
     description: c.meta[page],

@@ -103,7 +103,8 @@ export async function GET(req: NextRequest) {
             <span key={l}>{l}</span>
           ))}
         </div>
-        <div style={{ display: "flex", fontSize: 26, color: "#5e685e" }}>Join the waitlist at plsteach.me</div>
+        {/* Balances the mark above, so the line sits in the middle. */}
+        <div style={{ display: "flex", height: 70 }} />
       </div>
     </div>,
     {
