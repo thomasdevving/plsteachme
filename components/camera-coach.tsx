@@ -16,7 +16,8 @@ import { OnDeviceModel } from './on-device-model';
 import { ObjectTracking } from './object-tracking';
 import { learningSession } from '@/lib/learning-events';
 import { builtinCameraGuidance, guidedObject } from '@/lib/vision/camera-guidance';
-import { captureCameraFrame as capture } from '@/lib/vision/camera-preview';
+import { cameraSnapshot, captureCameraFrame as capture } from '@/lib/vision/camera-preview';
+import { CHECK_TIMING, createCheckTrigger, type Snapshot } from '@/lib/vision/check-trigger';
 import { objectScanResultSchema } from '@/lib/vision/object-scan-contract';
 import { BodyTracking } from './body-tracking';
 import { builtinSteps, builtinTarget, lessonSteps, lessonTarget } from '@/lib/vision-contract';
@@ -64,6 +65,9 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const [hidden,setHidden] = useState(false);
   const [checking,setChecking] = useState(false);
   const [feedback,setFeedback] = useState<{step:number;value:CoachFeedback}|null>(null);
+  // The step whose positive result a second look confirmed.
+  const [confirmedStep,setConfirmedStep] = useState<number|null>(null);
+  const snapshotCanvas = useRef<HTMLCanvasElement|null>(null);
   const [message,setMessage] = useState('');
   const [status,setStatus] = useState('');
   const [autoAdvance,setAutoAdvance]=useState(true);
@@ -186,18 +190,30 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     request.current=controller;
     let failures=0;
     let checks=0;
-    setFeedback(null);setChecking(false);setAdvanceCancelled(false);setStatus('Automatic checks are starting for this step.');
+    // A first positive result is only shown; a second, independent look confirms it.
+    let confirming=false;
+    const trigger=createCheckTrigger();
+    setFeedback(null);setConfirmedStep(null);setChecking(false);setAdvanceCancelled(false);setStatus('Automatic checks are starting for this step.');
     async function run() {
       // The loop starts only after the camera has started and never overlaps calls.
       try {await wait(1200,controller.signal);} catch{return;}
       while(!controller.signal.aborted) {
-        let delay=CHECK_INTERVAL_MS;
+        let delay=0;
         try {
-          if(document.hidden || !video.current || !stream.current?.active)return;
-          if(video.current.readyState<2){await wait(1000,controller.signal);continue;}
-          setChecking(true);setStatus('Looking at this step…');
+          // Look when the learner's work comes to rest after a change, not on a fixed clock.
+          let snapshot:Snapshot|null=null;
+          for(;;) {
+            if(document.hidden || !video.current || !stream.current?.active)return;
+            if(video.current.readyState<2){await wait(1000,controller.signal);continue;}
+            snapshot=cameraSnapshot(video.current,snapshotCanvas);
+            if(trigger.push(performance.now(),snapshot,confirming))break;
+            await wait(CHECK_TIMING.sampleMs,controller.signal);
+          }
           if(checks>=12){setMode('paused');setStatus('Automatic checks paused.');setMessage('The coach has looked several times. Reposition the camera and resume when you are ready.');return;}
           checks++;
+          trigger.checked(performance.now(),snapshot);
+          const confirmation=confirming;
+          setChecking(true);setStatus(confirmation?'Taking a second look to confirm…':'Looking at this step…');
           const first=capture(video.current);
           const firstFocus=currentFocus();
           await wait(600,controller.signal);
@@ -206,7 +222,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
           const focusBoxes=[firstFocus,currentFocus()];
           const response=await fetch(organizationModule?'/api/training':publishedId?'/api/platform':'/api/coaching/check',{
             method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{}),...(learningSession()?{'x-learning-session':learningSession()!}:{})},
-            body:JSON.stringify(organizationModule?{action:'module.coach',moduleId:publishedId,version:publishedVersion,step,frames,focusBoxes,consent:true,over16:true}:publishedId?{action:'lesson.coach',id:publishedId,version:publishedVersion,step,frames,focusBoxes,consent:true,over16:true}:{skill,step,frames,focusBoxes}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])
+            body:JSON.stringify(organizationModule?{action:'module.coach',moduleId:publishedId,version:publishedVersion,step,frames,focusBoxes,confirmation,consent:true,over16:true}:publishedId?{action:'lesson.coach',id:publishedId,version:publishedVersion,step,frames,focusBoxes,consent:true,over16:true}:{skill,step,frames,focusBoxes}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(28000)])
           });
           if(controller.signal.aborted)return;
           if(!response.ok) {
@@ -223,12 +239,16 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
           let result=parsed.data;
           if(result.status!=='stop' && !canVerify)result={status:'not_verifiable',confidence:'low',observation:'This checkpoint needs your own physical or written check.',guidance:'Follow the lesson checkpoint. The camera cannot verify or automatically advance this step.'};
           else if(result.confidence!=='high' && ['looks_right','adjust'].includes(result.status))result={status:'unclear',confidence:result.confidence,observation:'There is not enough clear evidence to confirm this checkpoint.',guidance:'Show the relevant result clearly. The coach will look again automatically.'};
-          failures=0;setMessage('');setFeedback({step,value:result});callbacks.current.onFeedback?.(step,result);
-          if(result.status==='stop'){setMode('paused');setStatus('Automatic checks paused.');return;}
-          if(['looks_right','not_verifiable'].includes(result.status)){
-            setStatus(result.status==='looks_right'?'Visible checkpoint confirmed.':'Use your own checkpoint before moving on.');return;
+          failures=0;setMessage('');setFeedback({step,value:result});
+          if(result.status==='looks_right' && !confirmation){
+            // Not reported yet: progress records and automatic advancement wait for the second look.
+            confirming=true;setStatus('Hold still for a moment: the coach is taking a second look to confirm.');continue;
           }
-          setStatus('The coach will look again automatically.');
+          confirming=false;callbacks.current.onFeedback?.(step,result);
+          if(result.status==='stop'){setMode('paused');setStatus('Automatic checks paused.');return;}
+          if(result.status==='looks_right'){setConfirmedStep(step);setStatus('Visible checkpoint confirmed.');return;}
+          if(result.status==='not_verifiable'){setStatus('Use your own checkpoint before moving on.');return;}
+          setStatus('The coach will look again when you finish an adjustment and hold still.');
         } catch(error) {
           if(controller.signal.aborted)return;
           // A connection failure is confirmed before deciding the app is offline.
@@ -238,7 +258,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
           delay=CHECK_INTERVAL_MS*2**failures;
           setMessage('The coach could not respond. Retrying automatically in a moment.');
         } finally {if(!controller.signal.aborted)setChecking(false);}
-        try {await wait(delay,controller.signal);}catch{return;}
+        if(delay){try {await wait(delay,controller.signal);}catch{return;}}
       }
     }
     void run();
@@ -247,7 +267,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
 
   useEffect(()=>{
     const result=feedback?.step===step?feedback.value:null;
-    if(!hasAutoAdvance || !autoAdvance || advanceCancelled || mode!=='running' || hidden || !readyForChecks || !canVerify || result?.status!=='looks_right' || result.confidence!=='high') {setCountdown(null);return;}
+    if(!hasAutoAdvance || !autoAdvance || advanceCancelled || mode!=='running' || hidden || !readyForChecks || !canVerify || confirmedStep!==step || result?.status!=='looks_right' || result.confidence!=='high') {setCountdown(null);return;}
     let remaining=4;setCountdown(remaining);
     const timer=setInterval(()=>{
       if(document.hidden){clearInterval(timer);setCountdown(null);return;}
@@ -256,7 +276,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       else setCountdown(remaining);
     },1000);
     return ()=>clearInterval(timer);
-  },[feedback,step,autoAdvance,advanceCancelled,mode,hidden,readyForChecks,canVerify,hasAutoAdvance]);
+  },[feedback,confirmedStep,step,autoAdvance,advanceCancelled,mode,hidden,readyForChecks,canVerify,hasAutoAdvance]);
 
   function stop() {
     releaseCamera();setMode('off');setFeedback(null);setChecking(false);setStatus('');setMessage('Camera stopped. No more frames are being sent.');
@@ -303,7 +323,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       {status && <small>{status}</small>}{message && <p>{message}</p>}
     </div>
     {countdown!==null && <div className="camera-countdown" role="status"><p>Visible checkpoint confirmed. Moving to the next step in {countdown}…</p><button type="button" className="button secondary compact" onClick={()=>{setAdvanceCancelled(true);setCountdown(null);}}>Stay on this step</button></div>}
-    {advanceCancelled && currentFeedback?.status==='looks_right' && <p className="camera-limit">Automatic advancement cancelled for this step. Continue when you’re ready.</p>}
+    {advanceCancelled && confirmedStep===step && currentFeedback?.status==='looks_right' && <p className="camera-limit">Automatic advancement cancelled for this step. Continue when you’re ready.</p>}
     {currentFeedback && !organizationModule && <ReportFeedback skill={skill} step={step} feedback={currentFeedback} publishedLesson={publishedLesson?{id:publishedLesson.id,version:publishedLesson.version}:undefined} onOpen={()=>{request.current?.abort();setMode('paused');setChecking(false);setStatus('Automatic checks paused while you report this feedback.');}}/>}
     <p className="camera-limit">AI feedback can be wrong. Use the written checkpoints and tool instructions, especially around sharp tools, heat and moving parts.</p>
   </section>;

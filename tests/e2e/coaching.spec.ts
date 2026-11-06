@@ -1,4 +1,4 @@
-import { installActiveTrial, trialFixtureId } from './trial-fixture';
+import { changeCameraScene, installActiveTrial, trialFixtureId } from './trial-fixture';
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 test.use({launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']}});
@@ -48,23 +48,30 @@ test('consent starts camera-only capture and checks the current step automatical
   expect(sent).toHaveLength(0);
   await start(page);
   await expect(coach).toContainText('This part looks right',{timeout:10000});
-  expect(sent).toHaveLength(1);
+  // A first positive result is confirmed by a second, independent look at the same picture.
+  await expect(coach).toContainText('Visible checkpoint confirmed',{timeout:10000});
+  expect(sent).toHaveLength(2);
   const body=sent[0] as {skill:string;step:number;frames:string[]};
   expect(body.skill).toBe('tie');expect(body.step).toBe(0);expect(body.frames).toHaveLength(2);
   expect(body.frames.every(frame=>frame.startsWith('data:image/jpeg;base64,'))).toBe(true);
   expect(Object.keys(body).sort()).toEqual(['focusBoxes','frames','skill','step']);
   expect(await page.evaluate(()=>(window as typeof window & {coachConstraints:MediaStreamConstraints[]}).coachConstraints[0].audio)).toBe(false);
   await expect(page.getByRole('button',{name:/check this step/i})).toHaveCount(0);
-  await page.clock.install();await page.clock.fastForward(20000);expect(sent).toHaveLength(1);
+  expect(Object.keys(sent[1] as object).sort()).toEqual(['focusBoxes','frames','skill','step']);
+  await page.waitForTimeout(3000);expect(sent).toHaveLength(2);
   await coach.getByRole('button',{name:'Stop camera'}).click();expect(await stopped(page)).toBe(true);
 });
 
-test('unclear feedback triggers another check without clicking any check control',async({page})=>{
+test('a new attempt triggers another check once it comes to rest, without clicking any check control',async({page})=>{
   let count=0;
   await page.route('**/api/coaching/check',route=>{count++;const body=route.request().postDataJSON();return route.fulfill({json:{skill:body.skill,step:body.step,feedback:count===1?unclear:positive}});});
   await setup(page);const coach=await start(page);
   await expect(coach).toContainText('Let’s get a clearer view',{timeout:10000});
-  await expect(coach).toContainText('This part looks right',{timeout:15000});expect(count).toBe(2);
+  // The same unchanged picture is not sent again right away.
+  await page.waitForTimeout(4000);expect(count).toBe(1);
+  await changeCameraScene(page);
+  await expect(coach).toContainText('This part looks right',{timeout:5000});expect(count).toBe(2);
+  await expect(coach).toContainText('Visible checkpoint confirmed',{timeout:10000});expect(count).toBe(3);
 });
 
 test('checks never overlap, and an old step response cannot change the new step',async({page})=>{

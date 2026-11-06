@@ -224,8 +224,9 @@ async function coachModule(client:DB,userId:string,email:string,action:Extract<T
  let feedback=feedbackSchema.parse(response.output);
  if(feedback.status!=='stop' && !step.visuallyCheckable)feedback={status:'not_verifiable',confidence:'low',observation:'This checkpoint needs a manual check.',guidance:step.manualAlternative.slice(0,350)||'Use the module checkpoint to inspect this yourself.'};
  else if(['looks_right','adjust'].includes(feedback.status) && feedback.confidence!=='high')feedback={status:'unclear',confidence:feedback.confidence,observation:'There is not enough clear visual evidence yet.',guidance:step.uncertainty.slice(0,350)||'Show the checkpoint from a clearer angle.'};
- // The server, not the browser, records camera confirmations that admins see.
- if(feedback.status==='looks_right')await trainingMutation(client,userId,email,{action:'progress.verify',moduleId:action.moduleId,version:action.version,step:action.step}).catch(()=>null);
+ // The server, not the browser, records camera confirmations that admins see: a positive
+ // first look is reported to the learner but only a second, confirming look is recorded.
+ if(feedback.status==='looks_right'&&action.confirmation!==false)await trainingMutation(client,userId,email,{action:'progress.verify',moduleId:action.moduleId,version:action.version,step:action.step}).catch(()=>null);
  return {id:action.moduleId,version:action.version,step:action.step,feedback};
 }
 

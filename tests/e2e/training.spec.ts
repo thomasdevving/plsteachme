@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { installStaticCamera } from './trial-fixture';
 import type { TrainingDocument, TrainingMember, TrainingMembership, TrainingModule, TrainingOrgView, TrainingProgress } from '../../lib/training-contract';
 test.use({launchOptions:{args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']}});
 
@@ -125,7 +126,7 @@ test('admin demonstrates on camera, captures key moments and builds referenced s
 });
 
 test('invited learner joins, practices with camera coaching and reports progress',async({page})=>{
-  const {actions}=await mockTraining(page,'learner',{invite:true});
+  const {actions}=await mockTraining(page,'learner',{invite:true});await installStaticCamera(page);
   await page.goto(`/training?invite=${'a'.repeat(32)}`);
   await page.getByRole('button',{name:'Join Riverside Shop'}).click();
   await expect(page).toHaveURL(/\/training$/);
@@ -141,7 +142,8 @@ test('invited learner joins, practices with camera coaching and reports progress
   await player.getByRole('button',{name:'Finish with my own check'}).click();
   await expect(player).toContainText('1 checkpoints confirmed by camera, 1 checked by you');
   await expect(player.getByText('Progress saved for your organization.')).toBeVisible();
-  expect(actions.find(item=>item.action==='module.coach')).toMatchObject({moduleId:mid,version:1,step:0,consent:true,over16:true});
+  // The server records the camera confirmation only from the second, confirming look.
+  expect(actions.filter(item=>item.action==='module.coach')).toMatchObject([{moduleId:mid,version:1,step:0,confirmation:false,consent:true,over16:true},{step:0,confirmation:true}]);
   expect(actions.filter(item=>item.action==='progress.save').at(-1)).toMatchObject({results:['visual','manual'],completed:true});
   expect(actions.some(item=>item.action==='lesson.coach')).toBe(false);
 });

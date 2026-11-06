@@ -1,4 +1,5 @@
 import type { FocusBox } from './coaching-focus';
+import { SNAPSHOT_WIDTH, toSnapshot, type Snapshot } from './check-trigger';
 /** Coordinates in the complete raw image; preview mirroring never changes API coordinates. */
 export function previewGeometry(videoWidth:number,videoHeight:number,width:number,height:number) {
  const scale=Math.min(width/videoWidth,height/videoHeight);
@@ -15,3 +16,12 @@ export function captureCameraFrame(video:HTMLVideoElement) {
 }
 export function objectGuide(kind:'tie'|'razor'):FocusBox {return kind==='tie'?{x:.36,y:.12,w:.28,h:.76}:{x:.32,y:.18,w:.36,h:.64};}
 export const objectOutlines={tie:[[.35,0],[.65,0],[.70,.10],[.58,.22],[.76,.86],[.5,1],[.24,.86],[.42,.22],[.30,.10]],razor:[[.08,.05],[.92,.05],[.92,.25],[.62,.25],[.56,.95],[.44,.95],[.38,.25],[.08,.25]]} as const;
+/** A tiny greyscale copy of the current frame, for on-device change detection only. */
+export function cameraSnapshot(video:HTMLVideoElement,reuse:{current:HTMLCanvasElement|null}):Snapshot {
+ const width=SNAPSHOT_WIDTH,height=Math.max(1,Math.round(width*video.videoHeight/Math.max(1,video.videoWidth)));
+ const canvas=reuse.current??=document.createElement('canvas');
+ if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
+ const context=canvas.getContext('2d',{willReadFrequently:true});if(!context)throw new Error('frame');
+ context.drawImage(video,0,0,width,height);
+ return toSnapshot(context.getImageData(0,0,width,height).data,width,height);
+}

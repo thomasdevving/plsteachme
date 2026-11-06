@@ -184,6 +184,14 @@ describe('training API boundaries',()=>{
   expect(state.ai.mock.calls[0][0]).toMatchObject({maxRetries:0,providerOptions:{openai:{store:false}}});
   expect(state.rpc.mock.calls[0][1].payload).toEqual({action:'progress.verify',moduleId,version:2,step:0});
  });
+ it('records a confirmation only on the second, confirming look',async()=>{
+  const first=await POST(post(coach({confirmation:false})));
+  expect(first.status).toBe(200);expect(await first.json()).toMatchObject({feedback:{status:'looks_right'}});
+  expect(state.rpc).not.toHaveBeenCalledWith(expect.anything(),expect.objectContaining({payload:expect.objectContaining({action:'progress.verify'})}));
+  expect((await POST(post(coach({confirmation:true})))).status).toBe(200);
+  expect(state.rpc).toHaveBeenCalledWith(expect.anything(),expect.objectContaining({payload:{action:'progress.verify',moduleId,version:2,step:0}}));
+  expect((await POST(post(coach({confirmation:'yes'})))).status).toBe(400);
+ });
  it('never verifies nonvisual steps, stale versions or unassigned learners',async()=>{
   expect(await (await POST(post(coach({step:1})))).json()).toMatchObject({feedback:{status:'not_verifiable'}});
   expect(state.rpc).not.toHaveBeenCalled();

@@ -100,13 +100,17 @@ Gevolg voor ons: dezelfde handhouding geeft andere features in een liggend 4:3-b
 
 Voorstel: geef de beeldverhouding mee in `LandmarkFrame`, vermenigvuldig x met `videoWidth / videoHeight` voordat afstanden en features worden berekend, verhoog `FEATURE_VERSION` naar 2 en train modellen op v1-clips niet meer zonder conversie. Sla de beeldverhouding per clip op, zodat oude clips omgerekend kunnen worden. Leg het vast in een test: dezelfde fysieke hand in 4:3 en 3:4 moet (binnen afronding) dezelfde features geven.
 
-### B. Controleer op het juiste moment, niet elke zes seconden
+### B. Controleer op het juiste moment, niet elke zes seconden (verwerkt)
+
+**Status:** de lescamera kijkt nu wanneer het beeld tot rust komt na een verandering (`lib/vision/check-trigger.ts`). Een verkleinde grijswaardenkopie van 64 px breed wordt elke 200 ms vergeleken met het beeld van het begin van de rust, zodat ook langzame drift als beweging telt. Een onveranderd beeld wordt pas na 20 s opnieuw gecontroleerd. Een beeld dat blijft bewegen (een telefoon in de hand, of de bewegende nepcamera van Chromium: 5–10% van de pixels verandert per 200 ms) krijgt toch elke 8 s een check en is dus niet trager dan vroeger. De drempels zijn eerste schattingen. Meet in de praktijk de tijd tot feedback en het aantal aanvragen per voltooid checkpoint, vooral bij telefoons die in de hand worden gehouden.
 
 De demo's beoordelen op een gebeurtenis: lockout van een herhaling, een voetlanding of de bal op randhoogte. De lescamera (`components/camera-coach.tsx`) stuurt na objectherkenning elke 6 seconden twee beelden, tot maximaal 12 keer, ook als er niets veranderd is of de leerling midden in een beweging zit. De `/coach`-ervaring (`live-coach.tsx`) wacht wél op stilstand na beweging via `isStill`.
 
 Voorstel: gebruik in de lescamera dezelfde lokale signalen die er al zijn: handstilstand uit de landmarkloop, of `scanMotion` over het object- of focusvak. Check alleen wanneer de beweging tot rust komt en het beeld merkbaar verschilt van het laatst gecontroleerde beeld. De vaste timer blijft dan alleen als bovengrens. Dat geeft snellere feedback zodra de leerling klaar is en minder overbodige aanvragen. Meet het effect met de aanvragen per voltooid checkpoint uit de evaluatietabel hierboven.
 
-### C. Eén zelfgerapporteerde "high" is een dunne basis voor automatisch doorgaan
+### C. Eén zelfgerapporteerde "high" is een dunne basis voor automatisch doorgaan (eerste stap verwerkt)
+
+**Status:** een eerste `looks_right` wordt wel getoond, maar telt pas na een tweede, onafhankelijke blik die het ermee eens is. Pas dan wordt het checkpoint als camerabevestigd opgeslagen en start het aftellen. Voor organisatiemodules legt de server de bevestiging alleen vast bij die tweede blik (`confirmation: true`); oudere clients zonder dit veld werken zoals voorheen. Beperking: twee looks naar vrijwel hetzelfde beeld zijn niet volledig onafhankelijk. Dit vangt wisselvallige antwoorden op, maar geen systematische fout van het model. Meten hoe vaak `high` onterecht was (stap 2 hieronder) blijft nodig.
 
 De deadliftdemo leest per frame de kansen voor een vaste set labels en beslist pas per herhaling, over meerdere frames. Bij ons start één `looks_right` met door het model zelf gerapporteerde `confidence: 'high'` het aftellen naar de volgende stap. Die zelfrapportage is niet gekalibreerd.
 

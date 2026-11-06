@@ -112,6 +112,20 @@ test('uncertain and nonvisual checkpoints never auto-pass even if the provider o
   expect((await record(page,'bike')).checkpoints[0]).toBe('unresolved');
 });
 
+test('a positive first look that a second look does not confirm is neither saved nor advanced',async({page})=>{
+  await page.route('**/api/coaching/session',route=>route.fulfill({json:route.request().method()==='GET'?{available:true}:{accepted:true}}));
+  let calls=0;
+  await page.route('**/api/coaching/check',route=>{calls++;const body=route.request().postDataJSON();return route.fulfill({json:{skill:body.skill,step:body.step,feedback:calls===1?positive:uncertain}});});
+  await page.goto('/learn?skill=tie');const coach=await startCamera(page);
+  await expect(coach).toContainText('This part looks right',{timeout:10000});
+  await expect(coach).toContainText('second look',{timeout:5000});
+  expect((await record(page))?.checkpoints?.[0]??null).not.toBe('camera_confirmed');
+  await expect(coach).toContainText('Let’s get a clearer view',{timeout:10000});expect(calls).toBe(2);
+  await expect(coach.getByRole('button',{name:'Stay on this step'})).toHaveCount(0);
+  expect((await record(page)).checkpoints[0]).toBe('unresolved');
+  await expect(page.locator('.lesson-step')).toHaveText('Step 1 of 7');
+});
+
 test('reporting a camera result pauses advancement and sends only the consented text',async({page})=>{
   let report:Record<string,unknown>|undefined;
   await mockCamera(page);
