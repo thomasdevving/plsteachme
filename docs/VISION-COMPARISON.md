@@ -86,4 +86,46 @@ Dezelfde cameraopnamen, apparaten en annotaties zijn nodig om MediaPipe, ViTPose
 3. Evalueer een lokale objectdetector als de cloudherkenning te traag, kostbaar of onnauwkeurig blijkt. Een model moet daadwerkelijk de gewenste objectklassen ondersteunen; een algemene detector herkent niet automatisch elk scheermes.
 4. Onderzoek segmentatie of serveranalyse van opgenomen clips pas als een concrete les dat nodig heeft. Dat vraagt ook afzonderlijke toestemming, bewaartermijnen en een kosten-/infrastructuurkeuze.
 
+## Aanvulling: tweede analyse (zelfde commit)
+
+Upstream staat nog steeds op `c06cfb7`. Deze tweede ronde kijkt naar de demo's die hierboven weinig aandacht kregen (running, push-ups, basketball, rock climbing) en legt ze naast onze huidige code. Er is niets gemeten of uitgevoerd; de punten hieronder zijn code-observaties met een voorgestelde volgorde.
+
+### A. Landmarks mengen eenheden (concreet, eerst oplossen)
+
+MediaPipe normaliseert x op de beeldbreedte en y op de beeldhoogte. `lib/vision/features.ts` deelt beide door één schaal (handgrootte of schouderbreedte) en `isStill` in `lib/vision/prechecks.ts` gebruikt `Math.hypot` op dezelfde gemengde coördinaten. De runningdemo benoemt precies dit probleem en schaalt x eerst met de beeldverhouding: een schuin scheenbeen leek daar 45% langer dan een rechtopstaand, na correctie binnen 2%. Zie [running/cadence-explained.md](https://github.com/jeremyipark/vision-demos/blob/c06cfb78ccd8e2c63629222695aac710fe4c199c/running/cadence-explained.md).
+
+Gevolg voor ons: dezelfde handhouding geeft andere features in een liggend 4:3-beeld (de vision lab vraagt 960×720) dan in een staand 3:4-telefoonbeeld. Een vinger die horizontaal wijst, krijgt in portret een x-waarde die 1,78× zo groot is als in landschap. Een in het lab getraind model ziet bij leerlingen op een telefoon dus systematisch vervormde invoer. De spiegel-augmentatie vangt dit niet op.
+
+Voorstel: geef de beeldverhouding mee in `LandmarkFrame`, vermenigvuldig x met `videoWidth / videoHeight` voordat afstanden en features worden berekend, verhoog `FEATURE_VERSION` naar 2 en train modellen op v1-clips niet meer zonder conversie. Sla de beeldverhouding per clip op, zodat oude clips omgerekend kunnen worden. Leg het vast in een test: dezelfde fysieke hand in 4:3 en 3:4 moet (binnen afronding) dezelfde features geven.
+
+### B. Controleer op het juiste moment, niet elke zes seconden
+
+De demo's beoordelen op een gebeurtenis: lockout van een herhaling, een voetlanding of de bal op randhoogte. De lescamera (`components/camera-coach.tsx`) stuurt na objectherkenning elke 6 seconden twee beelden, tot maximaal 12 keer, ook als er niets veranderd is of de leerling midden in een beweging zit. De `/coach`-ervaring (`live-coach.tsx`) wacht wél op stilstand na beweging via `isStill`.
+
+Voorstel: gebruik in de lescamera dezelfde lokale signalen die er al zijn: handstilstand uit de landmarkloop, of `scanMotion` over het object- of focusvak. Check alleen wanneer de beweging tot rust komt en het beeld merkbaar verschilt van het laatst gecontroleerde beeld. De vaste timer blijft dan alleen als bovengrens. Dat geeft snellere feedback zodra de leerling klaar is en minder overbodige aanvragen. Meet het effect met de aanvragen per voltooid checkpoint uit de evaluatietabel hierboven.
+
+### C. Eén zelfgerapporteerde "high" is een dunne basis voor automatisch doorgaan
+
+De deadliftdemo leest per frame de kansen voor een vaste set labels en beslist pas per herhaling, over meerdere frames. Bij ons start één `looks_right` met door het model zelf gerapporteerde `confidence: 'high'` het aftellen naar de volgende stap. Die zelfrapportage is niet gekalibreerd.
+
+Voorstel, op volgorde van moeite: (1) vraag twee opeenvolgende `looks_right`-uitslagen voordat er automatisch wordt doorgegaan, of één uitslag plus instemming van het actieve on-device model; (2) gebruik de bestaande foutmeldingen (`ReportFeedback`) en schaduwdata om te meten hoe vaak een `high` onterecht was; (3) onderzoek pas daarna of een model met tokenkansen (logprobs) voor een gesloten ja/nee-checkpointvraag haalbaar is. Redeneermodellen leveren die kansen doorgaans niet; dat moet per model worden geverifieerd.
+
+### D. Een detailuitsnede helpt alleen met meer pixels
+
+De deadliftdemo snijdt bij aan het persoonsvak plus marge, omdat elk beeld een vast budget krijgt. Wij vragen de camera om 640×480, schalen naar maximaal 640 px en de server schaalt opnieuw naar 640 px. Een knoop of knoopsgat is dan enkele tientallen pixels groot. Een extra uitsnede van het getrackte objectvak (naast het volledige beeld, zie punt 4 hierboven) voegt pas detail toe als de camera met een hogere resolutie draait, bijvoorbeeld 1280×720, en de uitsnede uit dat bronbeeld komt. Weeg dit af tegen beeldgrootte en lokale rekentijd; de tracker en MediaPipe kunnen op hun eigen verkleinde kopie blijven werken.
+
+### E. Kleinere lessen
+
+- **Hysterese ook op labels.** Onze on-device smoother is een EMA zonder minimale duur. De demo's gebruiken een mediaan over 5 frames en een minimale contacttijd zodat één ruisframe geen nieuwe gebeurtenis maakt. Toon een nieuw label pas als het een korte periode boven de drempel blijft.
+- **Kies de best zichtbare kant.** De push-updemo meet aan de zijde met de hoogste gemiddelde zichtbaarheid over de clip en tekent de verborgen kant niet. Dat past bij toekomstige zijaanzicht-bewegingslessen.
+- **Toets aannames met een meting.** De klimdemo bewijst met een parallaxtest dat een homografie volstaat voor een handgehouden camera, in plaats van het aan te nemen. Voor ons: de objecttracker gaat uit van een vrijwel stilstaande camera. Neem een bewegende telefoon op in de trackingtestset uit punt 5.
+- **Modelvariant.** We draaien `pose_landmarker_lite`. Voor lessen waar het hele lichaam telt, is de `full`-variant een kandidaat. Vergelijk die op dezelfde opnamen en telefoons op nauwkeurigheid, FPS en batterij.
+
+### Bijgewerkte volgorde
+
+1. A: beeldverhouding corrigeren en de featureversie verhogen, vóór er meer labdata wordt verzameld.
+2. B: checks laten starten op stilstand of verandering in de lescamera.
+3. C: een strengere voorwaarde voor automatisch doorgaan, en meten hoe vaak `high` onterecht is.
+4. Daarna de bestaande stappen 1–4 hierboven, met D zodra objectstatus (knoop, knoopsgat) beoordeeld moet worden.
+
 De broncode van vision-demos heeft een [Apache-2.0-licentie](https://github.com/jeremyipark/vision-demos/blob/c06cfb78ccd8e2c63629222695aac710fe4c199c/LICENSE). Voor eventuele latere overname gelden ook attributieverplichtingen en afzonderlijke voorwaarden van modellen, weights en gateways.
