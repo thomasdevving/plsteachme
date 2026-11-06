@@ -1,3 +1,5 @@
+import { cameraGuidanceModes } from './vision/camera-guidance';
+import { objectScanFields } from './vision/object-scan-contract';
 import { focusBoxesSchema, focusMatchesFrames } from './vision/coaching-focus';
 import { z } from 'zod';
 
@@ -9,7 +11,7 @@ export const CONTRIBUTION_LICENSE_VERSION = '2026-10-17';
 const short = z.string().trim().max(500);
 const list = z.array(z.string().trim().min(1).max(500)).max(30);
 export const lessonStepSchema = z.object({title:z.string().trim().min(1).max(100),instruction:z.string().trim().min(1).max(1500),tip:short,check:short,evidence:list,commonMistakes:list,uncertainty:short,manualAlternative:short,visuallyCheckable:z.boolean()}).strict();
-export const lessonDocumentSchema = z.object({title:z.string().trim().min(3).max(100),category:z.enum(platformCategories),objective:z.string().trim().min(10).max(1000),materials:list,safety:list,prerequisites:list,steps:z.array(lessonStepSchema).min(1).max(20),alternatives:list,completionCheck:z.string().trim().min(3).max(1000)}).strict();
+export const lessonDocumentSchema = z.object({title:z.string().trim().min(3).max(100),cameraGuidance:z.enum(cameraGuidanceModes).optional(),category:z.enum(platformCategories),objective:z.string().trim().min(10).max(1000),materials:list,safety:list,prerequisites:list,steps:z.array(lessonStepSchema).min(1).max(20),alternatives:list,completionCheck:z.string().trim().min(3).max(1000)}).strict();
 export type LessonDocument = z.infer<typeof lessonDocumentSchema>;
 export type TeacherProfile = {userId:string;displayName:string;expertise:string;experience:string;qualifications:string;status:'submitted'|'approved'|'changes_requested';reviewNotes:string;createdAt:string;updatedAt:string};
 export type CommunityRequest = {id:string;title:string;description:string;category:typeof platformCategories[number];supportCount:number;createdAt:string};
@@ -19,6 +21,7 @@ export type PublishedLesson = PublishedLessonSummary & {document:LessonDocument;
 export type CoachingReport = {id:string;skill:string;step:number;status:string;confidence:string;observation:string;guidance:string;reason:string;created_at:string;resolved_at:string|null;resolution:string};
 export type PlatformMe = {user:{id:string;email:string|undefined};reviewer:boolean;profile:TeacherProfile|null;lessons:StudioLesson[];supportedRequestIds:string[];applications?:TeacherProfile[];reviewQueue?:StudioLesson[];reports?:CoachingReport[]};
 export const platformActionSchema = z.discriminatedUnion('action',[
+ z.object({action:z.literal('lesson.object'),id:z.uuid(),version:z.number().int().min(1),...objectScanFields,consent:z.literal(true),over16:z.literal(true)}).strict(),
  z.object({action:z.literal('lesson.coach'),id:z.uuid(),version:z.number().int().min(1),step:z.number().int().min(0).max(19),focusBoxes:focusBoxesSchema,frames:z.array(z.string().max(270000).regex(/^data:image\/jpeg;base64,[A-Za-z0-9+/]+=*$/)).min(1).max(2),consent:z.literal(true),over16:z.literal(true)}).strict().refine(focusMatchesFrames),
  z.object({action:z.literal('request'),title:z.string().trim().min(3).max(100),description:z.string().trim().min(10).max(1000),category:z.enum(platformCategories)}).strict(),
  z.object({action:z.literal('support'),requestId:z.uuid(),support:z.boolean()}).strict(),

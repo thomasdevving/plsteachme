@@ -20,7 +20,7 @@ export function OnDeviceModel({target,steps,step,video,running,feedback}:{target
     latest.current=null;setPrediction(null);
     if(!active||!running||!video.current)return;
     const smoother=createSmoother(active.model.labels.length);
-    return startLandmarkLoop(video.current,features=>{const value=readPrediction(active.model.labels,smoother.push(predict(active.model,features)));latest.current={...value,step};setPrediction(value);},150,()=>setFailed(true));
+    return startLandmarkLoop(video.current,features=>{setFailed(false);const value=readPrediction(active.model.labels,smoother.push(predict(active.model,features)));latest.current={...value,step};setPrediction(value);},150,()=>setFailed(true));
   },[active,running,step,video]);
   // Every cloud verdict scores the on-device prediction made for the same step.
   useEffect(()=>{

@@ -15,7 +15,6 @@ test('the reviewer can open coaching across lessons without claiming a free tria
  await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();
  await coach.getByRole('checkbox',{name:'I agree to automatic image checks'}).check();
  await coach.getByRole('button',{name:'Start camera coaching'}).click();
- await coach.getByRole('button',{name:'Skip this step'}).click();
  await expect.poll(()=>checks.length).toBeGreaterThan(0);
  expect(checks[0]['x-coaching-session']).toBeUndefined();
  await coach.getByRole('button',{name:'Stop camera'}).click();

@@ -172,7 +172,6 @@ test("leaving the camera view stops tracks and cancels automatic checks and adva
     .getByRole("checkbox", { name: "I agree to automatic image checks" })
     .check();
   await coach.getByRole("button", { name: "Start camera coaching" }).click();
-  await coach.getByRole("button", { name: "Skip this step" }).click();
   await expect(
     coach.getByRole("button", { name: "Stay on this step" }),
   ).toBeVisible({ timeout: 10000 });

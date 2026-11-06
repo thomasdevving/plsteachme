@@ -165,6 +165,16 @@ describe('training API boundaries',()=>{
   expect(JSON.parse(options.messages[0].content[0].text).focusBoxes).toEqual(focusBoxes);
   expect(options.messages[0].content.filter((part:{type:string})=>part.type==='image')).toHaveLength(2);
  });
+ it('recognizes only the approved module object and keeps assignment/version checks',async()=>{
+  (state.tables.training_module_versions as Record<string,unknown>).document={...document,cameraGuidance:'razor'};
+  state.ai.mockResolvedValueOnce({output:{object:'razor',confidence:'high',box:{x:.4,y:.23,w:.2,h:.5},guidance:'Razor visible.'}});
+  const body={action:'module.object',moduleId,version:2,frames:[jpeg,jpeg],guide:{x:.32,y:.18,w:.36,h:.64},consent:true,over16:true};
+  expect(await (await POST(post(body))).json()).toMatchObject({object:{recognized:true}});
+  expect(state.rpc).not.toHaveBeenCalledWith(expect.anything(),expect.objectContaining({payload:expect.objectContaining({action:'progress.verify'})}));
+  expect((await POST(post({...body,version:1}))).status).toBe(409);
+  (state.tables.training_modules as Record<string,unknown>).audience='selected';
+  expect((await POST(post(body))).status).toBe(403);
+ });
  it('coaches against the instructor reference and records confirmations on the server',async()=>{
   const response=await POST(post(coach()));
   expect(response.status).toBe(200);expect(await response.json()).toMatchObject({id:moduleId,version:2,step:0,feedback:{status:'looks_right'}});
@@ -183,6 +193,7 @@ describe('training API boundaries',()=>{
   expect(state.ai).toHaveBeenCalledTimes(1);
  });
  it('requires consent and a source before generating, and keeps the module title',async()=>{
+  (state.tables.training_modules as Record<string,unknown>).document={...document,cameraGuidance:'body'};
   expect((await POST(post({action:'module.generate',moduleId,focus:''}))).status).toBe(400);
   state.tables.training_members={id:memberId,role:'learner'};
   expect((await POST(post({action:'module.generate',moduleId,focus:'',aiConsent:true}))).status).toBe(403);
@@ -190,7 +201,7 @@ describe('training API boundaries',()=>{
   state.ai.mockResolvedValue({output:{document:{...stripReferences(document),title:'Something else'},stepMoments:[1,0],verify:['Confirm tape width']}});
   const response=await POST(post({action:'module.generate',moduleId,focus:'',aiConsent:true}));
   const body=await response.json();
-  expect(response.status).toBe(200);expect(body.document.title).toBe('Seal a box');expect(body.document.steps[0].reference.frame).toBe(frame(2));expect(body.verify).toEqual(['Confirm tape width']);
+  expect(response.status).toBe(200);expect(body.document.cameraGuidance).toBe('body');expect(state.ai.mock.calls[0][0].output.schema.shape.document.shape.cameraGuidance).toBeUndefined();expect(body.document.title).toBe('Seal a box');expect(body.document.steps[0].reference.frame).toBe(frame(2));expect(body.verify).toEqual(['Confirm tape width']);
   expect(state.rpc).not.toHaveBeenCalled();
  });
  it('re-encodes key moments into scoped private paths',async()=>{

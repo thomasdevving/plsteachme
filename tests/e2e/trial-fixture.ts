@@ -9,11 +9,28 @@ export function trialFixture(skillId:string,totalSteps=7) {
 // Each test supplies an eligible account; server authorization is tested separately.
 // Reading the displayed lesson lets the same fixture follow explicit module switches.
 export async function installActiveTrial(page:Page, published?:{id:string;version:number;steps:number}) {
+  // Chromium's default fake video flashes every half second, so it never meets
+  // the real positioning stillness gate. Use explicit stable synthetic pixels;
+  // semantic accuracy is covered separately with real-camera testing, not this mock.
+  await page.addInitScript(()=>{
+    navigator.mediaDevices.getUserMedia=async constraints=>{
+      if(constraints?.audio)throw new Error('The coaching fixture supports video only.');
+      const canvas=document.createElement('canvas');canvas.width=640;canvas.height=480;
+      const ctx=canvas.getContext('2d')!;
+      const gradient=ctx.createLinearGradient(0,0,640,480);gradient.addColorStop(0,'#ddd2b7');gradient.addColorStop(1,'#80937d');
+      ctx.fillStyle=gradient;ctx.fillRect(0,0,640,480);ctx.fillStyle='#bb4827';
+      ctx.beginPath();ctx.moveTo(300,70);ctx.lineTo(340,70);ctx.lineTo(355,105);ctx.lineTo(332,135);ctx.lineTo(365,380);ctx.lineTo(320,430);ctx.lineTo(275,380);ctx.lineTo(308,135);ctx.lineTo(285,105);ctx.closePath();ctx.fill();
+      return canvas.captureStream(15);
+    };
+  });
   const current=async()=>{
     if(published)return trialFixture(`published:${published.id}:v${published.version}`,published.steps);
     const skill=await page.evaluate(()=>window.document.querySelector('.lesson-player[data-skill]')?.getAttribute('data-skill')||new URL(window.location.href).searchParams.get('skill')||'tie');
     return trialFixture(skill==='tie'?'tie-four-in-hand':`builtin:${skill}`);
   };
+  // Controlled identity verdict for non-vision-specific browser flows. Dedicated
+  // positioning tests override this; it is not a real recognition-accuracy test.
+  await page.route('**/api/coaching/object',route=>route.fulfill({json:{object:{recognized:true,box:route.request().postDataJSON().guide,guidance:'Object recognized.'}}}));
   await page.route('**/api/auth/session',async route=>route.fulfill({json:{configured:true,user:trialUser,trial:await current()}}));
   await page.route('**/api/trial',async route=>{const body=route.request().postDataJSON();const trial=await current();return route.fulfill({json:{trial:{...trial,...(body?.action==='start'?{skill_id:body.skillId}:{}),...(body?.action==='progress'?{completed_steps:body.completedSteps??trial.completed_steps}: {})}}});});
 }

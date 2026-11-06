@@ -23,8 +23,7 @@ async function start(page: Page) {
   const coach=page.locator('.camera-coach');
   await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();
   await coach.getByRole('checkbox',{name:'I agree to automatic image checks'}).check();
-  await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Skip this step'}).click();
-  await expect(coach.getByRole('button',{name:'Pause coaching'})).toBeVisible();
+  await coach.getByRole('button',{name:'Start camera coaching'}).click();await expect(coach.getByRole('button',{name:'Pause coaching'})).toBeVisible();
   return coach;
 }
 const stopped=(page:Page)=>page.evaluate(()=>(window as typeof window & {coachTracks:MediaStreamTrack[]}).coachTracks.every(track=>track.readyState==='ended'));
@@ -53,7 +52,7 @@ test('consent starts camera-only capture and checks the current step automatical
   const body=sent[0] as {skill:string;step:number;frames:string[]};
   expect(body.skill).toBe('tie');expect(body.step).toBe(0);expect(body.frames).toHaveLength(2);
   expect(body.frames.every(frame=>frame.startsWith('data:image/jpeg;base64,'))).toBe(true);
-  expect(Object.keys(body).sort()).toEqual(['frames','skill','step']);
+  expect(Object.keys(body).sort()).toEqual(['focusBoxes','frames','skill','step']);
   expect(await page.evaluate(()=>(window as typeof window & {coachConstraints:MediaStreamConstraints[]}).coachConstraints[0].audio)).toBe(false);
   await expect(page.getByRole('button',{name:/check this step/i})).toHaveCount(0);
   await page.clock.install();await page.clock.fastForward(20000);expect(sent).toHaveLength(1);

@@ -15,7 +15,10 @@ import { setCameraActive } from '@/lib/pwa/activity';
 import { OnDeviceModel } from './on-device-model';
 import { ObjectTracking } from './object-tracking';
 import { learningSession } from '@/lib/learning-events';
-import { builtinObjects, objectFromMaterials } from '@/lib/vision/objects';
+import { builtinCameraGuidance, guidedObject } from '@/lib/vision/camera-guidance';
+import { captureCameraFrame as capture } from '@/lib/vision/camera-preview';
+import { objectScanResultSchema } from '@/lib/vision/object-scan-contract';
+import { BodyTracking } from './body-tracking';
 import { builtinSteps, builtinTarget, lessonSteps, lessonTarget } from '@/lib/vision-contract';
 
 import type { FocusBox } from '@/lib/vision/coaching-focus';
@@ -32,19 +35,6 @@ function wait(ms: number, signal: AbortSignal) {
     const timer = setTimeout(()=>{signal.removeEventListener('abort',abort);resolve();},ms);
     signal.addEventListener('abort',abort,{once:true});
   });
-}
-function capture(video: HTMLVideoElement) {
-  if (video.readyState<2 || !video.videoWidth || !video.videoHeight) throw new Error('frame');
-  const scale = Math.min(1,640/Math.max(video.videoWidth,video.videoHeight));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(1,Math.round(video.videoWidth*scale));
-  canvas.height = Math.max(1,Math.round(video.videoHeight*scale));
-  const context = canvas.getContext('2d');
-  if (!context) throw new Error('frame');
-  context.drawImage(video,0,0,canvas.width,canvas.height);
-  const frame = canvas.toDataURL('image/jpeg',.65);
-  canvas.width = 0; canvas.height = 0;
-  return frame;
 }
 const cameraError = (error: unknown) => {
   const name = error instanceof Error ? error.name : '';
@@ -81,6 +71,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const [advanceCancelled,setAdvanceCancelled]=useState(false);
   // The first camera step, “Show me the …”, comes before any step is checked.
   const [objectReady,setObjectReady]=useState(false);
+  const [cameraEpoch,setCameraEpoch]=useState(0);
   const objectReadyRef=useRef(objectReady);objectReadyRef.current=objectReady;
   const callbacks=useRef({onFeedback,onAutoAdvance});
   useEffect(()=>{callbacks.current={onFeedback,onAutoAdvance};},[onFeedback,onAutoAdvance]);
@@ -96,7 +87,9 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   const updateObjectFocus=useCallback((box:FocusBox|null)=>{objectFocus.current=box?{box,at:performance.now()}:null;},[]);
   const currentFocus=()=>{const value=objectFocus.current;return value && performance.now()-value.at<500?value.box:null;};
   const objectOverlay = useRef<HTMLCanvasElement>(null);
-  const objectName = publishedLesson?objectFromMaterials(publishedLesson.document.materials):builtinObjects[skill];
+  const cameraGuidance=publishedLesson?(publishedLesson.document.cameraGuidance??'scene'):builtinCameraGuidance[skill];
+  const objectKind=guidedObject(cameraGuidance),objectName=objectKind??'object';
+  const readyForChecks=!objectKind||objectReady;
   const stream = useRef<MediaStream|null>(null);
   const request = useRef<AbortController|null>(null);
   const generation = useRef(0);
@@ -156,6 +149,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   },[releaseCamera]);
 
   async function startCamera(nextFacing = facing) {
+    setObjectReady(false);setCameraEpoch(value=>value+1);
     if(suspended||!online||!onlineNow())return;
     releaseCamera();
     const current = generation.current;
@@ -179,7 +173,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       video.current.srcObject=next;
       await video.current.play();
       if(current!==generation.current)return;
-      setMode('running'); setStatus(objectReadyRef.current?'Automatic checks are starting.':`Automatic checks start after you show the ${objectName}.`);
+      setMode('running'); setStatus(!objectKind||objectReadyRef.current?'Automatic checks are starting.':`Position your ${objectName} to start automatic checks.`);
     } catch(error) {
       if(current!==generation.current)return;
       releaseCamera();setMode('off');setStatus('');setMessage(cameraError(error));
@@ -187,7 +181,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
   }
 
   useEffect(()=>{
-    if(mode!=='running' || hidden || !objectReady)return;
+    if(mode!=='running' || hidden || !readyForChecks)return;
     const controller=new AbortController();
     request.current=controller;
     let failures=0;
@@ -249,11 +243,11 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
     }
     void run();
     return ()=>{controller.abort();};
-  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify,trialId,organizationModule,objectReady]);
+  },[skill,step,mode,hidden,releaseCamera,publishedId,publishedVersion,canVerify,trialId,organizationModule,readyForChecks]);
 
   useEffect(()=>{
     const result=feedback?.step===step?feedback.value:null;
-    if(!hasAutoAdvance || !autoAdvance || advanceCancelled || mode!=='running' || hidden || !canVerify || result?.status!=='looks_right' || result.confidence!=='high') {setCountdown(null);return;}
+    if(!hasAutoAdvance || !autoAdvance || advanceCancelled || mode!=='running' || hidden || !readyForChecks || !canVerify || result?.status!=='looks_right' || result.confidence!=='high') {setCountdown(null);return;}
     let remaining=4;setCountdown(remaining);
     const timer=setInterval(()=>{
       if(document.hidden){clearInterval(timer);setCountdown(null);return;}
@@ -262,7 +256,7 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       else setCountdown(remaining);
     },1000);
     return ()=>clearInterval(timer);
-  },[feedback,step,autoAdvance,advanceCancelled,mode,hidden,canVerify,hasAutoAdvance]);
+  },[feedback,step,autoAdvance,advanceCancelled,mode,hidden,readyForChecks,canVerify,hasAutoAdvance]);
 
   function stop() {
     releaseCamera();setMode('off');setFeedback(null);setChecking(false);setStatus('');setMessage('Camera stopped. No more frames are being sent.');
@@ -286,12 +280,16 @@ export function CameraCoach({ skill, step, onFeedback, onAutoAdvance, publishedL
       </div>}
       <button type="button" className="button secondary compact" disabled={!online||availability!=='ready'||!consent||!over16||hidden} onClick={()=>{setObjectReady(false);void startCamera();}}><Camera size={17} aria-hidden="true"/>Start camera coaching</button>
     </>}
-    {active && (objectReady?<p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>:<p className="camera-current-step"><strong>Before step {step+1}: show me the {objectName}</strong><br/>The coach learns what your {objectName} looks like, then follows it while you practice.</p>)}
-    <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':'Camera on · automatic checks'}</span></div>
-    <ObjectTracking objectName={objectName} video={video} overlay={objectOverlay} active={mode==='running'||mode==='paused'} mirrored={facing==='user'} onReady={()=>setObjectReady(true)} onFocus={updateObjectFocus}/>
+    {active && (readyForChecks?<p className="camera-current-step"><strong>Step {step+1}: {currentStep.title}</strong><br/>{currentStep.check}</p>:<p className="camera-current-step"><strong>Before step {step+1}: show me the {objectName}</strong><br/>Place it roughly inside the outline. Checks begin only after it is recognized.</p>)}
+    <div className="camera-preview" hidden={!active}><video ref={video} autoPlay muted playsInline aria-label="Your live camera preview" className={facing==='user'?'mirrored':undefined}/><canvas ref={objectOverlay} className="camera-object-overlay" aria-hidden="true"/><span className="camera-indicator">{mode==='paused'?'Checks paused':mode==='starting'?'Starting camera':!readyForChecks?'Camera on · positioning':'Camera on · automatic checks'}</span></div>
+    {objectKind&&<ObjectTracking key={`${cameraEpoch}:${objectKind}`} kind={objectKind} video={video} overlay={objectOverlay} active={mode==='running'&&!hidden&&online&&!suspended} mirrored={facing==='user'} onReady={()=>setObjectReady(true)} onReset={()=>{setObjectReady(false);setFeedback(null);setChecking(false);}} onFocus={updateObjectFocus} recognize={async(frames,guide,signal)=>{
+      const response=await fetch(organizationModule?'/api/training':publishedId?'/api/platform':'/api/coaching/object',{method:'POST',headers:{'Content-Type':'application/json',...(trialId?{'x-coaching-session':trialId}:{})},body:JSON.stringify(organizationModule?{action:'module.object',moduleId:publishedId,version:publishedVersion,frames,guide,consent:true,over16:true}:publishedId?{action:'lesson.object',id:publishedId,version:publishedVersion,frames,guide,consent:true,over16:true}:{skill,frames,guide}),signal:AbortSignal.any([signal,AbortSignal.timeout(28000)])});
+      if(!response.ok)throw new Error('Object recognition unavailable');return objectScanResultSchema.parse((await response.json()).object);
+    }}/>}
+    {cameraGuidance==='body'&&<BodyTracking video={video} overlay={objectOverlay} active={mode==='running'&&!hidden&&online&&!suspended} mirrored={facing==='user'}/>}
     {!organizationModule && <OnDeviceModel target={visionTarget} steps={visionSteps} step={step} video={video} running={mode==='running'&&!hidden} feedback={feedback}/>}
     {active && <>
-      <p className="camera-framing">{publishedLesson?'Show the tools and result for this checkpoint. Never hold the camera while using tools.':framingHints[skill]}</p>
+      <p className="camera-framing">{cameraGuidance==='body'?'Keep your whole body in view so the joint lines can follow your movement.':publishedLesson?'Show the tools and result for this checkpoint. Never hold the camera while using tools.':framingHints[skill]}</p>
       <p className="camera-limit">Still images are sent to OpenAI automatically while checks run. <a href="/privacy">Privacy details</a>.</p>
       <div className="camera-controls">
         {mode==='running' && <button type="button" className="button secondary compact" onClick={()=>{request.current?.abort();setMode('paused');setChecking(false);setStatus('Automatic checks paused.');}}><Pause size={16} aria-hidden="true"/>Pause coaching</button>}

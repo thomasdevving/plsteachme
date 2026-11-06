@@ -7,6 +7,7 @@ const ai=vi.hoisted(()=>({generateText:vi.fn()}));
 vi.mock('server-only',()=>({}));
 vi.mock('ai',()=>({generateText:ai.generateText,Output:{object:(options:unknown)=>options}}));
 import { GET, POST as session, DELETE as stopSession } from '../app/api/coaching/session/route';
+import { POST as objectCheck } from '../app/api/coaching/object/route';
 import { POST as check } from '../app/api/coaching/check/route';
 import { createCoachSession, validCoachSession, coachingRateAllowed, limitedJson } from '../lib/coaching-security';
 import { assessCoachStep, decodeCoachFrame } from '../lib/coaching-ai';
@@ -165,4 +166,31 @@ describe('vision feedback boundaries',()=>{
     await check(req);
     expect(ai.generateText.mock.calls[0][0].abortSignal.aborted).toBe(true);
   });
+});
+
+describe('recognition-gated object positioning',()=>{
+ const guide={x:.36,y:.12,w:.28,h:.76};
+ const body=()=>({skill:'tie',frames:[frame,frame],guide});
+ it('checks actual object identity in both complete images before accepting positioning',async()=>{
+  ai.generateText.mockResolvedValueOnce({output:{object:'tie',confidence:'high',box:{x:.42,y:.15,w:.16,h:.65},guidance:'Tie visible.'}});
+  const response=await objectCheck(request('object',body()));expect(response.status).toBe(200);expect(await response.json()).toMatchObject({object:{recognized:true}});
+  const options=ai.generateText.mock.calls[0][0];expect(options.system).toContain('BOTH complete');expect(options.system).toContain('never by color');
+  expect(options.messages[0].content.filter((item:{type:string})=>item.type==='image')).toHaveLength(2);expect(options.providerOptions.openai.store).toBe(false);
+ });
+ it.each([
+  {object:'none',confidence:'low',box:null},
+  {object:'razor',confidence:'high',box:{x:.42,y:.15,w:.16,h:.65}},
+  {object:'tie',confidence:'medium',box:{x:.42,y:.15,w:.16,h:.65}},
+  {object:'tie',confidence:'high',box:{x:0,y:0,w:.1,h:.1}},
+ ])('does not accept uncertain, wrong or badly positioned objects: %j',async(result)=>{
+  ai.generateText.mockResolvedValueOnce({output:{...result,guidance:'Show the tie clearly.'}});
+  expect(await (await objectCheck(request('object',body()))).json()).toMatchObject({object:{recognized:false,box:null}});
+ });
+ it('keeps consent/session, lesson entitlement and supported-module boundaries',async()=>{
+  expect((await objectCheck(request('object',body(),{cookie:''}))).status).toBe(401);
+  expect((await objectCheck(request('object',{...body(),skill:'cooking'}))).status).toBe(400);
+  expect((await objectCheck(request('object',{...body(),kind:'razor'}))).status).toBe(400);
+  entitlement.requireTrial.mockResolvedValue(Response.json({error:'trial'},{status:403}));
+  expect((await objectCheck(request('object',body()))).status).toBe(403);expect(ai.generateText).not.toHaveBeenCalled();
+ });
 });

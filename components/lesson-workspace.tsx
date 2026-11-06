@@ -187,7 +187,7 @@ export function LessonWorkspace({
             {record}
           </div>
         )}
-        {feedback && view === "feedback" && <div id={`${id}-feedback`} className="lesson-tool-view"><LessonFeedbackPanel lessonKey={feedback.lessonKey} version={feedback.version} /></div>}
+        {feedback && <div id={`${id}-feedback`} hidden={view !== "feedback"} className="lesson-tool-view">{view === "feedback" && <LessonFeedbackPanel lessonKey={feedback.lessonKey} version={feedback.version} />}</div>}
       </main>
       <footer className="lesson-screen-footer">
         <div className="lesson-controls">{controls}</div>

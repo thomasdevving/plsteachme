@@ -57,8 +57,7 @@ test('published lesson questions and feedback reports retain the reviewed lesson
  await expect(help.getByText('Bring the two paper corners together.')).toBeVisible();
  expect(question).toMatchObject({publishedLesson:{id,version},step:7,consent:true,over16:true});expect(question).not.toHaveProperty('skill');expect(question).not.toHaveProperty('document');
  await page.getByRole('button',{name:'Camera',exact:true}).click();
- const coach=player.locator('.camera-coach');await coach.getByLabel('I am 16 or older.',{exact:true}).check();await coach.getByLabel('I agree to automatic image checks',{exact:false}).check();await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Skip this step'}).click();
- await coach.getByRole('button',{name:'Report incorrect feedback'}).click({timeout:10000});await expect(coach.getByRole('button',{name:'Resume coaching'})).toBeVisible();
+ const coach=player.locator('.camera-coach');await coach.getByLabel('I am 16 or older.',{exact:true}).check();await coach.getByLabel('I agree to automatic image checks',{exact:false}).check();await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Report incorrect feedback'}).click({timeout:10000});await expect(coach.getByRole('button',{name:'Resume coaching'})).toBeVisible();
  const feedback=coach.locator('.feedback-report');await feedback.getByLabel('What did the coach get wrong?').fill('One of the corners was outside the camera view.');await feedback.getByRole('checkbox').check();await feedback.getByRole('button',{name:'Send report'}).click();
  await expect(feedback).toContainText('Report saved for human review');
  expect(report).toMatchObject({publishedLesson:{id,version},step:7,consent:true});expect(report).not.toHaveProperty('skill');expect(report).not.toHaveProperty('frames');expect(report).not.toHaveProperty('document');

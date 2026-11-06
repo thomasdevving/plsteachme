@@ -11,8 +11,7 @@ async function startCamera(page:Page) {
   const coach=page.locator('.camera-coach');
   await coach.getByRole('checkbox',{name:'I am 16 or older.'}).check();
   await coach.getByRole('checkbox',{name:'I agree to automatic image checks'}).check();
-  await coach.getByRole('button',{name:'Start camera coaching'}).click();await coach.getByRole('button',{name:'Skip this step'}).click();
-  return coach;
+  await coach.getByRole('button',{name:'Start camera coaching'}).click();return coach;
 }
 async function mockCamera(page:Page,feedback=positive) {
   await page.route('**/api/coaching/session',route=>route.fulfill({json:route.request().method()==='GET'?{available:true}:{accepted:true}}));

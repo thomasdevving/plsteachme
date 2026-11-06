@@ -1,3 +1,4 @@
+import { objectScanFields } from './vision/object-scan-contract';
 import { focusBoxesSchema, focusMatchesFrames } from './vision/coaching-focus';
 import { z } from 'zod';
 import { lessonDocumentSchema, lessonStepSchema, platformCategories, type LessonDocument } from './platform-contract';
@@ -42,9 +43,9 @@ export type TrainingDocument = z.infer<typeof trainingDocumentSchema>;
 export const momentSchema = z.object({frame:z.string().max(220).regex(framePathPattern),at:z.number().min(0).max(600),kind:z.enum(['hold','marker']),hands:z.number().int().min(0).max(2),caption:z.string().trim().max(300)}).strict();
 export type TrainingMoment = z.infer<typeof momentSchema>;
 
-/** AI output: a lesson plus which captured moment illustrates each step. */
+/** AI output: lesson content and moment references. Camera guidance stays editor-owned. */
 export const trainingDraftSchema = z.object({
- document:lessonDocumentSchema,
+ document:lessonDocumentSchema.omit({cameraGuidance:true}),
  stepMoments:z.array(z.number().int().min(-1).max(MAX_MOMENTS-1)).max(20),
  verify:z.array(z.string().max(300)).max(12),
 });
@@ -83,6 +84,7 @@ export const trainingActionSchema = z.discriminatedUnion('action',[
  z.object({action:z.literal('module.publish'),moduleId:id,audience:z.enum(['all','selected']),memberIds,reviewed:z.literal(true)}).strict(),
  z.object({action:z.literal('module.assign'),moduleId:id,audience:z.enum(['all','selected']),memberIds}).strict(),
  z.object({action:z.literal('module.archive'),moduleId:id}).strict(),
+ z.object({action:z.literal('module.object'),moduleId:id,version:z.number().int().min(1),...objectScanFields,consent:z.literal(true),over16:z.literal(true)}).strict(),
  z.object({action:z.literal('module.coach'),moduleId:id,version:z.number().int().min(1),step:z.number().int().min(0).max(19),focusBoxes:focusBoxesSchema,frames:z.array(jpegData).min(1).max(2),consent:z.literal(true),over16:z.literal(true)}).strict().refine(focusMatchesFrames),
  z.object({action:z.literal('progress.save'),moduleId:id,version:z.number().int().min(1),step:z.number().int().min(0).max(19),results:z.array(z.enum(stepResults)).min(1).max(20),completed:z.boolean()}).strict(),
 ]);
