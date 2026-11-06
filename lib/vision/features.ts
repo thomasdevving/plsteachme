@@ -1,25 +1,31 @@
 // Pose- and scale-invariant features from MediaPipe landmarks. These, not
 // images, are what specialized models train on and what is stored.
-import type { Point } from "./prechecks";
+import { isotropic, type Point } from "./prechecks";
 
-export const FEATURE_VERSION = 1;
+/**
+ * 2: both axes in the same unit before any length or shape is measured, so a
+ * landscape laptop camera and a portrait phone give the same features for
+ * the same hands. Version 1 mixed image-width and image-height units.
+ */
+export const FEATURE_VERSION = 2;
 const HAND_POINTS = 21;
 const HAND_FEATURES = 1 + HAND_POINTS * 2 + 2; // presence, shape, position
 const POSE_POINTS = [0, 13, 14, 15, 16]; // nose, elbows, wrists
 export const FEATURE_LENGTH = HAND_FEATURES * 2 + 2 + POSE_POINTS.length * 2 + 1;
 
-export type LandmarkInput = { pose: Point[]; hands: Point[][] };
+/** Landmarks as MediaPipe returns them, and the width / height of the image they came from. */
+export type LandmarkInput = { pose: Point[]; hands: Point[][]; aspect: number };
 
 const finite = (point?: Point) => Boolean(point && Number.isFinite(point.x) && Number.isFinite(point.y));
 
 /** Body reference: shoulder midpoint and width when visible, else the image. */
-function reference(pose: Point[]) {
+function reference(pose: Point[], center: Point) {
   const left = pose[11], right = pose[12];
   if (finite(left) && finite(right)) {
     const width = Math.hypot(left.x - right.x, left.y - right.y);
     if (width > 0.02) return { x: (left.x + right.x) / 2, y: (left.y + right.y) / 2, scale: width, body: true };
   }
-  return { x: 0.5, y: 0.5, scale: 0.5, body: false };
+  return { x: center.x, y: center.y, scale: 0.5, body: false };
 }
 
 function handFeatures(hand: Point[] | undefined, origin: { x: number; y: number; scale: number }) {
@@ -44,11 +50,14 @@ function handFeatures(hand: Point[] | undefined, origin: { x: number; y: number;
  * body-visible flag. Missing parts are zeros with their presence flag off.
  */
 export function extractFeatures(frame: LandmarkInput): number[] {
-  const origin = reference(frame.pose);
-  const hands = frame.hands.filter((hand) => hand.length >= HAND_POINTS && finite(hand[0])).slice(0, 2).sort((a, b) => a[0].x - b[0].x);
+  const aspect = Number.isFinite(frame.aspect) && frame.aspect > 0 ? frame.aspect : 1;
+  const square = (point: Point) => (finite(point) ? isotropic(point, aspect) : point);
+  const poseInput = frame.pose.map(square);
+  const origin = reference(poseInput, isotropic({ x: 0.5, y: 0.5 }, aspect));
+  const hands = frame.hands.filter((hand) => hand.length >= HAND_POINTS && finite(hand[0])).slice(0, 2).map((hand) => hand.map(square)).sort((a, b) => a[0].x - b[0].x);
   const between = hands.length === 2 ? [(hands[1][0].x - hands[0][0].x) / origin.scale, (hands[1][0].y - hands[0][0].y) / origin.scale] : [0, 0];
   const pose = POSE_POINTS.flatMap((index) => {
-    const point = frame.pose[index];
+    const point = poseInput[index];
     return origin.body && finite(point) ? [(point.x - origin.x) / origin.scale, (point.y - origin.y) / origin.scale] : [0, 0];
   });
   return [...handFeatures(hands[0], origin), ...handFeatures(hands[1], origin), ...between, ...pose, origin.body ? 1 : 0].map((value) => Math.round(value * 1000) / 1000);

@@ -10,10 +10,10 @@ const staff={id:'11111111-1111-4111-8111-111111111111',email:'thomastheconguyen@
 const modelId='44444444-4444-4444-8444-444444444444';
 // A real model trained on synthetic landmarks, so the browser runs genuine inference.
 const hand=(cx:number,spread:number)=>Array.from({length:21},(_,i)=>({x:cx+Math.cos(i)*spread*(i%5)/10,y:.5+Math.sin(i)*spread*(i%4)/10}));
-const clips=[...Array.from({length:3},(_,c)=>({id:`o${c}`,label:'other',frames:Array.from({length:20},()=>extractFeatures({pose:[],hands:[]}))})),...Array.from({length:3},(_,c)=>({id:`s${c}`,label:'s0',frames:Array.from({length:20},()=>extractFeatures({pose:[],hands:[hand(.4,1),hand(.6,1)]}))}))];
+const clips=[...Array.from({length:3},(_,c)=>({id:`o${c}`,label:'other',frames:Array.from({length:20},()=>extractFeatures({pose:[],hands:[],aspect:1}))})),...Array.from({length:3},(_,c)=>({id:`s${c}`,label:'s0',frames:Array.from({length:20},()=>extractFeatures({pose:[],hands:[hand(.4,1),hand(.6,1)],aspect:1}))}))];
 const model=train(clips,['other','s0']);
 const metrics=evaluate(model,clips.filter(clip=>clip.id.endsWith('0')),4);
-const summary:VisionModelSummary={id:modelId,target:'builtin:tie',version:1,status:'candidate',labels:model.labels,metrics,gate:qualityGate(metrics),datasetClips:6,trainedAt:'2026-10-20T10:00:00Z',activatedAt:null,shadow:{checks:0,agreements:0}};
+const summary:VisionModelSummary={id:modelId,target:'builtin:tie',version:1,status:'candidate',labels:model.labels,metrics,gate:qualityGate(metrics),datasetClips:6,trainedAt:'2026-10-20T10:00:00Z',activatedAt:null,shadow:{checks:0,agreements:0},current:true};
 
 async function mockLab(page:Page){
   const actions:Record<string,any>[]=[];const counts:Record<string,number>={other:2,s0:3};let models:VisionModelSummary[]=[];

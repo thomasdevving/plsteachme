@@ -6,8 +6,27 @@ export type LandmarkFrame = {
   hands: Point[][];
   luminance: number;
   ambiguous: boolean;
+  /** Width / height of the analysed image. */
+  aspect: number;
 };
-export type HandSample = { time: number; hands: Point[][] };
+export type HandSample = { time: number; hands: Point[][]; aspect: number };
+/**
+ * MediaPipe gives x as a fraction of the image width and y as a fraction of
+ * its height. Outside a square image those are different units, so lengths,
+ * angles and shapes change with the camera's aspect ratio. This puts both
+ * axes in fractions of the image's longer side.
+ */
+export function isotropic(point: Point, aspect: number): Point {
+  return aspect >= 1
+    ? { ...point, y: point.y / aspect }
+    : { ...point, x: point.x * aspect };
+}
+/** Distance between two landmarks, in fractions of the image's longer side. */
+export function distance(a: Point, b: Point, aspect: number) {
+  const p = isotropic(a, aspect),
+    q = isotropic(b, aspect);
+  return Math.hypot(p.x - q.x, p.y - q.y);
+}
 export const visible = (p?: Point) =>
   !!p &&
   (p.visibility ?? 1) >= SESSION_CONFIG.landmarkVisibility &&
@@ -62,8 +81,7 @@ export function isStill(
     s.hands.every((h, i) =>
       h.every(
         (p, j) =>
-          Math.hypot(p.x - anchor.hands[i][j].x, p.y - anchor.hands[i][j].y) <
-          threshold,
+          distance(p, anchor.hands[i][j], s.aspect) < threshold,
       ),
     ),
   );
@@ -73,9 +91,7 @@ export function movement(a: HandSample, b: HandSample) {
   return Math.max(
     ...a.hands.flatMap((h, i) =>
       h.map((p, j) =>
-        b.hands[i]?.[j]
-          ? Math.hypot(p.x - b.hands[i][j].x, p.y - b.hands[i][j].y)
-          : 0,
+        b.hands[i]?.[j] ? distance(p, b.hands[i][j], b.aspect) : 0,
       ),
     ),
   );

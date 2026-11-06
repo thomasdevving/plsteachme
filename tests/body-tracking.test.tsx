@@ -12,7 +12,7 @@ afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
 it('draws only visible body landmarks and clears them when tracking stops',()=>{
  const video=document.createElement('video'),canvas=document.createElement('canvas');Object.defineProperty(video,'videoWidth',{value:640});Object.defineProperty(video,'videoHeight',{value:480});Object.defineProperty(canvas,'clientWidth',{value:800});Object.defineProperty(canvas,'clientHeight',{value:400});
  const props={video:{current:video},overlay:{current:canvas},active:true,mirrored:true};const view=render(<BodyTracking {...props}/>);
- const frame:LandmarkFrame={time:0,pose:Array.from({length:33},()=>({x:.3,y:.4,visibility:.9})),hands:[],luminance:100,ambiguous:false};
+ const frame:LandmarkFrame={time:0,pose:Array.from({length:33},()=>({x:.3,y:.4,visibility:.9})),hands:[],luminance:100,ambiguous:false,aspect:4/3};
  act(()=>state.start.mock.calls[0][1]([],frame));expect(ctx.stroke.mock.calls.length).toBeGreaterThan(10);expect(screen.getByRole('status').textContent).toContain('You can move naturally');
  const strokes=ctx.stroke.mock.calls.length;act(()=>state.start.mock.calls[0][1]([],{...frame,ambiguous:true}));expect(ctx.stroke).toHaveBeenCalledTimes(strokes);expect(screen.getByRole('status').textContent).toContain('one person');
  view.rerender(<BodyTracking {...props} active={false}/>);expect(state.stop).toHaveBeenCalled();expect(ctx.clearRect).toHaveBeenCalled();

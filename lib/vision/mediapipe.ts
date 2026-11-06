@@ -47,6 +47,7 @@ export async function createLandmarker() {
         ...selection,
         hands: h.landmarks.sort((a, b) => a[0].x - b[0].x),
         luminance: luminance / count,
+        aspect: canvas.width / canvas.height,
       };
     },
     close() {

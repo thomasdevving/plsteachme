@@ -49,7 +49,7 @@ async function contributor(client:DB,user:User,target:string) {
 }
 function modelSummary(row:Row,shadow:Row[]):VisionModelSummary {
  const checks=shadow.filter(item=>item.model_id===row.id&&item.agrees!==null);
- return {id:row.id,target:row.target,version:row.version,status:row.status,labels:row.labels,metrics:row.metrics,gate:row.gate,datasetClips:row.dataset_clips,trainedAt:row.trained_at,activatedAt:row.activated_at,shadow:{checks:checks.length,agreements:checks.filter(item=>item.agrees).length}};
+ return {id:row.id,target:row.target,version:row.version,status:row.status,labels:row.labels,metrics:row.metrics,gate:row.gate,datasetClips:row.dataset_clips,trainedAt:row.trained_at,activatedAt:row.activated_at,shadow:{checks:checks.length,agreements:checks.filter(item=>item.agrees).length},current:row.feature_version===FEATURE_VERSION};
 }
 
 export async function visionRead(request:NextRequest) {
@@ -68,8 +68,8 @@ export async function visionRead(request:NextRequest) {
   const ids=[...(staff?skillIds.map(skill=>`builtin:${skill}`):[]),...lessons.map(item=>`lesson:${item.id}`)];
   if(!ids.length)return {staff,targets:[]};
   const [clips,models]=await Promise.all([
-   client.from('vision_clips').select('target,label').in('target',ids).limit(20000),
-   client.from('vision_models').select('id,target,version,status,labels,metrics,gate,dataset_clips,trained_at,activated_at').in('target',ids).order('version',{ascending:false}).limit(500),
+   client.from('vision_clips').select('target,label,feature_version').in('target',ids).limit(20000),
+   client.from('vision_models').select('id,target,version,status,labels,metrics,gate,dataset_clips,feature_version,trained_at,activated_at').in('target',ids).order('version',{ascending:false}).limit(500),
   ]);
   const modelRows=checked(models)||[];
   const shadow=modelRows.length?checked(await client.from('vision_shadow_checks').select('model_id,agrees').in('model_id',modelRows.map(item=>item.id)).limit(50000))||[]:[];
@@ -78,7 +78,8 @@ export async function visionRead(request:NextRequest) {
    const resolved=await resolveTarget(client,user,target).catch(()=>null);
    if(!resolved)continue;
    const clipCounts:Record<string,number>={};
-   for(const clip of checked(clips)||[])if(clip.target===target)clipCounts[clip.label]=(clipCounts[clip.label]||0)+1;
+   // Only clips in the current feature format can train a model.
+   for(const clip of checked(clips)||[])if(clip.target===target&&clip.feature_version===FEATURE_VERSION)clipCounts[clip.label]=(clipCounts[clip.label]||0)+1;
    targets.push({target,title:resolved.title,steps:resolved.steps,labels:targetLabels(resolved.steps),clipCounts,canContribute:resolved.canContribute,models:modelRows.filter(item=>item.target===target).map(item=>modelSummary(item,shadow))});
   }
   return {staff,targets};
@@ -86,8 +87,8 @@ export async function visionRead(request:NextRequest) {
  const target=params.get('target')||'';
  await contributor(client,user,target);
  if(view==='clips') {
-  const rows=checked(await client.from('vision_clips').select('id,label,source,hand_rate,created_at,contributor_id,frames').eq('target',target).order('created_at',{ascending:false}).limit(MAX_CLIPS_PER_TARGET))||[];
-  return {clips:rows.map((row):ClipSummary=>({id:row.id,label:row.label,frames:Array.isArray(row.frames)?row.frames.length:0,handRate:row.hand_rate,source:row.source,createdAt:row.created_at,mine:row.contributor_id===user.id}))};
+  const rows=checked(await client.from('vision_clips').select('id,label,source,hand_rate,created_at,contributor_id,feature_version,frames').eq('target',target).order('created_at',{ascending:false}).limit(MAX_CLIPS_PER_TARGET))||[];
+  return {clips:rows.map((row):ClipSummary=>({id:row.id,label:row.label,frames:Array.isArray(row.frames)?row.frames.length:0,handRate:row.hand_rate,source:row.source,createdAt:row.created_at,mine:row.contributor_id===user.id,current:row.feature_version===FEATURE_VERSION}))};
  }
  if(view==='export') {
   if(!visionStaff(user))throw new PlatformError(403,'forbidden','Only vision lab staff can export datasets.');
@@ -148,14 +149,16 @@ export async function visionWrite(request:NextRequest,action:VisionAction) {
   const clips:Clip[]=rows.filter(row=>row.feature_version===FEATURE_VERSION&&Array.isArray(row.frames)).map(row=>({id:row.id,label:row.label,frames:row.frames}));
   const result=trainTarget(clips,targetLabels(resolved.steps).map(item=>item.id));
   const latest=checked(await client.from('vision_models').select('version').eq('target',action.target).order('version',{ascending:false}).limit(1).maybeSingle());
-  const row=checked(await client.from('vision_models').insert({target:action.target,version:(latest?.version||0)+1,labels:result.labels,model:result.model,metrics:result.metrics,gate:result.gate,dataset_clips:result.clips,feature_version:FEATURE_VERSION,trained_by:user.id}).select('id,target,version,status,labels,metrics,gate,dataset_clips,trained_at,activated_at').single());
+  const row=checked(await client.from('vision_models').insert({target:action.target,version:(latest?.version||0)+1,labels:result.labels,model:result.model,metrics:result.metrics,gate:result.gate,dataset_clips:result.clips,feature_version:FEATURE_VERSION,trained_by:user.id}).select('id,target,version,status,labels,metrics,gate,dataset_clips,feature_version,trained_at,activated_at').single());
   if(!row)throw new PlatformError(503,'storage','The model could not be saved.');
   return {model:modelSummary(row,[]),skipped:result.skipped};
  }
  if(!resolved.staff)throw new PlatformError(403,'forbidden','A vision lab reviewer activates models.');
- const model=checked(await client.from('vision_models').select('id,target').eq('id',action.modelId).maybeSingle());
+ const model=checked(await client.from('vision_models').select('id,target,feature_version').eq('id',action.modelId).maybeSingle());
  if(!model||model.target!==action.target)throw new PlatformError(404,'not_found','Model not found.');
  if(action.action==='model.activate') {
+  // Learners' devices only receive models in the current feature format.
+  if(model.feature_version!==FEATURE_VERSION)throw new PlatformError(409,'outdated','This model uses an older landmark format. Train a new model before activating.');
   const {error}=await client.rpc('vision_activate',{actor_id:user.id,model_id:action.modelId});
   if(error)throw new PlatformError(409,'conflict',String(error.message).includes('conflict')?'Only a candidate that passed its quality gate can be activated.':'The model could not be activated.');
   return {ok:true};

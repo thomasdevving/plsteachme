@@ -48,10 +48,10 @@ export function qualityGate(evaluation:Evaluation) {
 }
 export const pct=(value:number)=>`${Math.round(value*100)}%`;
 
-export type VisionModelSummary = {id:string;target:string;version:number;status:'candidate'|'active'|'retired';labels:string[];metrics:Evaluation;gate:{passed:boolean;reasons:string[]};datasetClips:number;trainedAt:string;activatedAt:string|null;shadow:{checks:number;agreements:number}};
+export type VisionModelSummary = {id:string;target:string;version:number;status:'candidate'|'active'|'retired';labels:string[];metrics:Evaluation;gate:{passed:boolean;reasons:string[]};datasetClips:number;trainedAt:string;activatedAt:string|null;shadow:{checks:number;agreements:number};/** False for models trained on an older landmark format: never served to learners. */current:boolean};
 export type VisionTarget = {target:string;title:string;steps:TargetSteps;labels:LabelDefinition[];clipCounts:Record<string,number>;models:VisionModelSummary[];canContribute:boolean};
 export type ActiveModel = {id:string;target:string;version:number;model:VisionModel};
-export type ClipSummary = {id:string;label:string;frames:number;handRate:number;source:'camera'|'video';createdAt:string;mine:boolean};
+export type ClipSummary = {id:string;label:string;frames:number;handRate:number;source:'camera'|'video';createdAt:string;mine:boolean;/** False for clips in an older landmark format: kept, but not used for training. */current:boolean};
 
 export const visionActionSchema = z.discriminatedUnion('action',[
  z.object({action:z.literal('clip.add'),target:targetSchema,label:labelSchema,source:z.enum(['camera','video']),frames:z.array(frame).min(MIN_CLIP_FRAMES).max(MAX_CLIP_FRAMES),consent:z.literal(true)}).strict(),

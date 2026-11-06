@@ -10,7 +10,7 @@ vi.mock('@supabase/supabase-js',()=>({createClient:()=>({auth:{getUser:vi.fn()},
  chain.then=(resolve:(value:unknown)=>unknown)=>Promise.resolve({data:state.tables[table]??null,count:state.counts[table]??0,error:null}).then(resolve);return chain;
 }})}));
 import { GET, POST } from '../app/api/vision/route';
-import { FEATURE_LENGTH, extractFeatures, hasHands, mirrorFeatures } from '../lib/vision/features';
+import { FEATURE_LENGTH, FEATURE_VERSION, extractFeatures, hasHands, mirrorFeatures } from '../lib/vision/features';
 import { createSmoother, evaluate, predict, rng, splitByClip, train, type Clip } from '../lib/vision/model';
 import { builtinSteps, qualityGate, readPrediction, shadowAgrees, targetLabels } from '../lib/vision-contract';
 import { trainTarget } from '../lib/vision-server';
@@ -19,23 +19,38 @@ import { createCoachSession } from '../lib/coaching-security';
 const random=rng(3);
 const hand=(cx:number,cy:number,spread:number,scale=1)=>Array.from({length:21},(_,i)=>({x:cx+scale*(Math.cos(i)*spread*(i%5)/10+(random()-.5)*.01),y:cy+scale*(Math.sin(i)*spread*(i%4)/10+(random()-.5)*.01)}));
 const pose=Array.from({length:33},()=>({x:.5,y:.5}));pose[11]={x:.4,y:.6};pose[12]={x:.6,y:.6};
-const shapes:Record<string,()=>{pose:typeof pose;hands:ReturnType<typeof hand>[]}>={other:()=>({pose,hands:[hand(.3+random()*.4,.5,.5)]}),s0:()=>({pose,hands:[hand(.4,.4,1),hand(.6,.4,1)]}),m0:()=>({pose,hands:[hand(.4,.7,.2),hand(.6,.7,.2)]})};
+const shapes:Record<string,()=>{pose:typeof pose;hands:ReturnType<typeof hand>[];aspect:number}>={other:()=>({pose,hands:[hand(.3+random()*.4,.5,.5)],aspect:1}),s0:()=>({pose,hands:[hand(.4,.4,1),hand(.6,.4,1)],aspect:1}),m0:()=>({pose,hands:[hand(.4,.7,.2),hand(.6,.7,.2)],aspect:1})};
 const dataset=(perLabel=4):Clip[]=>Object.keys(shapes).flatMap(label=>Array.from({length:perLabel},(_,c)=>({id:`${label}-${c}`,label,frames:Array.from({length:30},()=>extractFeatures(shapes[label]()))})));
 
 describe('landmark features',()=>{
  it('are fixed length and ignore where the hands are and how close they are',()=>{
   const base=[{x:.4,y:.4},...Array.from({length:20},(_,i)=>({x:.4+(i%5)*.02,y:.4+Math.floor(i/5)*.03}))];
   const moved=base.map(point=>({x:point.x*.5+.2,y:point.y*.5+.1}));
-  const a=extractFeatures({pose:[],hands:[base]}),b=extractFeatures({pose:[],hands:[moved]});
+  const a=extractFeatures({pose:[],hands:[base],aspect:1}),b=extractFeatures({pose:[],hands:[moved],aspect:1});
   expect(a).toHaveLength(FEATURE_LENGTH);
   expect(a.slice(1,43)).toEqual(b.slice(1,43));
  });
  it('mark missing hands and mirror reversibly',()=>{
-  const empty=extractFeatures({pose:[],hands:[]});
+  const empty=extractFeatures({pose:[],hands:[],aspect:1});
   expect(hasHands(empty)).toBe(false);expect(empty.every(value=>value===0)).toBe(true);
   const two=extractFeatures(shapes.s0());
   expect(mirrorFeatures(mirrorFeatures(two))).toEqual(two);
   expect(mirrorFeatures(two)).not.toEqual(two);
+ });
+ it('give the same features for the same body in a landscape and a portrait image',()=>{
+  // One scene in pixels, seen through a 4:3 and a 3:4 camera: the hand points sideways, so mixed units would distort it.
+  const scene=(width:number,height:number)=>{
+   const at=(x:number,y:number)=>({x:x/width,y:y/height});
+   const hand=[at(200,300),...Array.from({length:20},(_,i)=>at(200+12*(1+i%4)+30*Math.floor(i/4),300-8*(i%4)))];
+   const pose=Array.from({length:33},()=>at(220,200));pose[11]=at(150,250);pose[12]=at(290,250);pose[13]=at(140,330);pose[15]=at(190,310);
+   return extractFeatures({pose,hands:[hand],aspect:width/height});
+  };
+  const landscape=scene(640,480),portrait=scene(480,640),square=scene(640,640);
+  for(let i=0;i<FEATURE_LENGTH;i++){expect(landscape[i]).toBeCloseTo(portrait[i],2);expect(landscape[i]).toBeCloseTo(square[i],2);}
+  expect(landscape[2+4*2]).not.toBe(0);
+  // In mixed units (aspect ignored) the same hand differed between the two cameras.
+  const mixed=(width:number,height:number)=>{const hand=[{x:200/width,y:300/height},...Array.from({length:20},(_,i)=>({x:(200+12*(1+i%4)+30*Math.floor(i/4))/width,y:(300-8*(i%4))/height}))];return extractFeatures({pose:[],hands:[hand],aspect:1});};
+  expect(Math.abs(mixed(640,480)[2+4*2]-mixed(480,640)[2+4*2])).toBeGreaterThan(.1);
  });
 });
 
@@ -83,7 +98,7 @@ describe('specialized model',()=>{
 
 const staffId='11111111-1111-4111-8111-111111111111',teacherId='22222222-2222-4222-8222-222222222222',lessonId='33333333-3333-4333-8333-333333333333',modelId='44444444-4444-4444-8444-444444444444';
 const lessonDocument={title:'Fold a towel',category:'independent-living',objective:'Fold a towel neatly.',materials:['Towel'],safety:['Dry surface'],prerequisites:[],alternatives:[],completionCheck:'Edges align.',steps:[{title:'Lay flat',instruction:'Lay it flat.',tip:'',check:'Corners visible',evidence:['Corners'],commonMistakes:['Folded corner'],uncertainty:'Show it all.',manualAlternative:'Check corners.',visuallyCheckable:true}]};
-const frames=(count:number,withHands=true)=>Array.from({length:count},()=>withHands?extractFeatures(shapes.s0()):extractFeatures({pose,hands:[]}));
+const frames=(count:number,withHands=true)=>Array.from({length:count},()=>withHands?extractFeatures(shapes.s0()):extractFeatures({pose,hands:[],aspect:1}));
 function post(body:unknown,headers:Record<string,string>={}){return new NextRequest('http://localhost:3100/api/vision',{method:'POST',headers:{origin:'http://localhost:3100','content-type':'application/json','x-forwarded-for':`test-${Math.random()}`,...headers},body:JSON.stringify(body)});}
 const clip=(extra:Record<string,unknown>={})=>({action:'clip.add',target:'builtin:tie',label:'s0',source:'camera',frames:frames(20),consent:true,...extra});
 beforeEach(()=>{
@@ -126,8 +141,17 @@ describe('vision API boundaries',()=>{
   expect(response.status).toBe(200);
   expect(state.insert.mock.calls[0]).toEqual(['vision_shadow_checks',{model_id:modelId,step:0,predicted:'s0',confidence:.9,coach_status:'looks_right',agrees:true}]);
  });
+ it('activates and serves only models in the current landmark format',async()=>{
+  state.tables.vision_models={id:modelId,target:'builtin:tie',feature_version:FEATURE_VERSION-1};
+  const refused=await POST(post({action:'model.activate',target:'builtin:tie',modelId}));
+  expect(refused.status).toBe(409);expect((await refused.json()).error).toBe('outdated');expect(state.rpc).not.toHaveBeenCalled();
+  state.tables.vision_models={id:modelId,target:'builtin:tie',feature_version:FEATURE_VERSION};
+  expect((await POST(post({action:'model.activate',target:'builtin:tie',modelId}))).status).toBe(200);
+  state.tables.vision_models={id:modelId,target:'builtin:tie',version:2,model:{labels:['other','s0']},feature_version:FEATURE_VERSION-1};
+  expect((await (await GET(new NextRequest('http://localhost:3100/api/vision?view=active&target=builtin:tie'))).json()).model).toBeNull();
+ });
  it('serves only the active model publicly, without dataset access',async()=>{
-  state.tables.vision_models={id:modelId,target:'builtin:tie',version:2,model:{labels:['other','s0']},feature_version:1};
+  state.tables.vision_models={id:modelId,target:'builtin:tie',version:2,model:{labels:['other','s0']},feature_version:FEATURE_VERSION};
   const active=await GET(new NextRequest('http://localhost:3100/api/vision?view=active&target=builtin:tie'));
   expect((await active.json()).model).toMatchObject({id:modelId,version:2});
   access.cookieUser.mockResolvedValue(null);

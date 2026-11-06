@@ -24,7 +24,7 @@ describe('module-specific camera guidance',()=>{
   expect(inObjectGuide({x:.49,y:.49,w:.005,h:.005},guide)).toBe(false);
  });
  it('never draws invented, hidden or ambiguous body joints',()=>{
-  const frame:LandmarkFrame={pose:Array.from({length:33},()=>({x:.5,y:.5,visibility:.9})),hands:[],luminance:100,ambiguous:false,time:0};
+  const frame:LandmarkFrame={pose:Array.from({length:33},()=>({x:.5,y:.5,visibility:.9})),hands:[],luminance:100,ambiguous:false,time:0,aspect:4/3};
   expect(visibleBody(frame).ready).toBe(true);expect(visibleBody(frame).lines.length).toBeGreaterThan(10);
   frame.pose[11].visibility=.1;expect(visibleBody(frame).ready).toBe(false);
   expect(visibleBody({...frame,ambiguous:true}).lines).toEqual([]);

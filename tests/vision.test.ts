@@ -6,6 +6,7 @@ import {
   handsInChestRegion,
   enoughLight,
   isStill,
+  movement,
   selectPose,
   type LandmarkFrame,
 } from "../lib/vision/prechecks";
@@ -21,6 +22,7 @@ const frame = (): LandmarkFrame => ({
   hands: [hand(0.3), hand(0.7)],
   luminance: 80,
   ambiguous: false,
+  aspect: 1,
 });
 describe("local visibility gates", () => {
   it("requires visible shoulders, nose and full hands", () => {
@@ -45,20 +47,20 @@ describe("local visibility gates", () => {
   it("requires a full still window and does not treat missing hands as stillness", () => {
     expect(
       isStill([
-        { time: 0, hands: [] },
-        { time: 1500, hands: [] },
+        { time: 0, hands: [], aspect: 1 },
+        { time: 1500, hands: [], aspect: 1 },
       ]),
     ).toBe(false);
     expect(
       isStill([
-        { time: 0, hands: frame().hands },
-        { time: 1400, hands: frame().hands },
+        { time: 0, hands: frame().hands, aspect: 1 },
+        { time: 1400, hands: frame().hands, aspect: 1 },
       ]),
     ).toBe(false);
     expect(
       isStill([
-        { time: 0, hands: frame().hands },
-        { time: 1500, hands: frame().hands },
+        { time: 0, hands: frame().hands, aspect: 1 },
+        { time: 1500, hands: frame().hands, aspect: 1 },
       ]),
     ).toBe(true);
   });
@@ -66,8 +68,33 @@ describe("local visibility gates", () => {
     const samples = Array.from({ length: 16 }, (_, i) => ({
       time: i * 100,
       hands: [hand(0.3 + i * 0.002), hand(0.7)],
+      aspect: 1,
     }));
     expect(isStill(samples)).toBe(false);
+  });
+  it("measures hand movement in one unit, whatever the camera's aspect ratio", () => {
+    // 6 pixels sideways and 6 pixels down: the same tremor in a 640×480 and a 480×640 image.
+    const samples = (width: number, height: number, dx: number, dy: number) =>
+      Array.from({ length: 16 }, (_, i) => ({
+        time: i * 100,
+        aspect: width / height,
+        hands: [0, 1].map((h) =>
+          Array.from({ length: 21 }, () => ({
+            x: (200 + 200 * h + (i % 2) * dx) / width,
+            y: (300 + (i % 2) * dy) / height,
+          })),
+        ),
+      }));
+    for (const [dx, dy] of [[6, 0], [0, 6]])
+      expect(isStill(samples(640, 480, dx, dy))).toBe(
+        isStill(samples(480, 640, dx, dy)),
+      );
+    expect(isStill(samples(640, 480, 6, 0))).toBe(true);
+    expect(isStill(samples(640, 480, 12, 0))).toBe(false);
+    expect(movement(samples(640, 480, 0, 6)[0], samples(640, 480, 0, 6)[1])).toBeCloseTo(
+      movement(samples(480, 640, 6, 0)[0], samples(480, 640, 6, 0)[1]),
+      6,
+    );
   });
   it("flags equally central people, but chooses a distinctly central person", () => {
     const f = frame();

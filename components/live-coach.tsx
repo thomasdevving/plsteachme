@@ -471,7 +471,7 @@ export function LiveCoach({
       movingMs.current = 0;
       return;
     }
-    const sample = { time: f.time, hands: f.hands };
+    const sample = { time: f.time, hands: f.hands, aspect: f.aspect };
     const previous = history.current.at(-1);
     if (previous && movement(previous, sample) > config.movementThreshold)
       movingMs.current += Math.min(150, f.time - previous.time);

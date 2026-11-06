@@ -90,7 +90,9 @@ Dezelfde cameraopnamen, apparaten en annotaties zijn nodig om MediaPipe, ViTPose
 
 Upstream staat nog steeds op `c06cfb7`. Deze tweede ronde kijkt naar de demo's die hierboven weinig aandacht kregen (running, push-ups, basketball, rock climbing) en legt ze naast onze huidige code. Er is niets gemeten of uitgevoerd; de punten hieronder zijn code-observaties met een voorgestelde volgorde.
 
-### A. Landmarks mengen eenheden (concreet, eerst oplossen)
+### A. Landmarks mengen eenheden (opgelost)
+
+**Status:** verwerkt als featureversie 2. `LandmarkFrame` draagt nu de beeldverhouding; features en de stilstandschecks van `/coach` rekenen in fracties van de langste beeldzijde. Oude clips en modellen worden in het lab als ouder formaat gemarkeerd en niet gebruikt of geactiveerd; ze moeten opnieuw worden opgenomen. Tests leggen vast dat dezelfde scène in 4:3, 3:4 en 1:1 dezelfde features geeft. Nog niet aangepast: de uitsnede in `lib/vision/roi.ts` gebruikt de schouderbreedte (x) ook voor de hoogte (y). Dat raakt alleen de beelduitsnede van `/coach` en vraagt nieuwe afstemming van de marges, dus dat is apart gelaten.
 
 MediaPipe normaliseert x op de beeldbreedte en y op de beeldhoogte. `lib/vision/features.ts` deelt beide door één schaal (handgrootte of schouderbreedte) en `isStill` in `lib/vision/prechecks.ts` gebruikt `Math.hypot` op dezelfde gemengde coördinaten. De runningdemo benoemt precies dit probleem en schaalt x eerst met de beeldverhouding: een schuin scheenbeen leek daar 45% langer dan een rechtopstaand, na correctie binnen 2%. Zie [running/cadence-explained.md](https://github.com/jeremyipark/vision-demos/blob/c06cfb78ccd8e2c63629222695aac710fe4c199c/running/cadence-explained.md).
 
